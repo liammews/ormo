@@ -20,11 +20,17 @@ interface SidebarSection {
 
 const sidebarSections: SidebarSection[] = [
   {
-    title: "Components",
+    title: "Overview",
     items: [
-      { label: "Accordion", href: "/components/accordion" },
-      { label: "Accordion", href: "/" },
+      { label: "Introduction", href: "/docs/" },
+      { label: "Installation", href: "/docs/installation" },
+      { label: "Styling", href: "/docs/styling" },
+      { label: "Changelog", href: "/docs/changelog" },
     ],
+  },
+  {
+    title: "Components",
+    items: [{ label: "Accordion", href: "/docs/components/accordion" }],
   },
 ];
 
@@ -206,6 +212,9 @@ const currentPath = normalizePath(Astro.url.pathname);
     padding: var(--space-150) var(--space-100);
     overscroll-behavior: contain;
     scrollbar-gutter: stable;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
   }
 
   /* Main content */
