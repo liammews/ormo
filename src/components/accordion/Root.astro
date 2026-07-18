@@ -1,0 +1,33 @@
+---
+import type { AccordionRootProps } from "./types";
+
+type Props = AccordionRootProps;
+
+const {
+  type = "single",
+  collapsible = false,
+  defaultValue,
+  orientation = "vertical",
+  dir = "ltr",
+  ...attributes
+} = Astro.props;
+
+const serializedDefaultValue =
+  defaultValue === undefined ? undefined : JSON.stringify(defaultValue);
+---
+
+<goodui-accordion
+  {...attributes}
+  data-goodui-accordion-root
+  data-type={type}
+  data-orientation={orientation}
+  data-collapsible={collapsible ? "" : undefined}
+  data-default-value={serializedDefaultValue}
+  dir={dir}
+>
+  <slot />
+</goodui-accordion>
+
+<script>
+  import "../../runtime/accordion";
+</script>

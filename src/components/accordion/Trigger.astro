@@ -1,0 +1,17 @@
+---
+import type { AccordionTriggerProps } from "./types";
+
+type Props = AccordionTriggerProps;
+
+const { type = "button", ...attributes } = Astro.props;
+---
+
+<button
+  {...attributes}
+  type={type}
+  data-goodui-accordion-trigger
+  data-state="closed"
+  aria-expanded="false"
+>
+  <slot />
+</button>

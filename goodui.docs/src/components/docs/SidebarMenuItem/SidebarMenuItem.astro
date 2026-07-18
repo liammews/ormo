@@ -1,0 +1,42 @@
+---
+interface Props {
+  href: string;
+  current?: boolean;
+}
+
+const { href, current = false } = Astro.props;
+---
+
+<li class="sidebar-menu-item">
+  <a
+    href={href}
+    aria-current={current ? "page" : undefined}
+    class="sidebar-menu-item_inner"
+  >
+    <slot />
+  </a>
+</li>
+
+<style>
+  .sidebar-menu-item_inner {
+    display: block;
+    background: var(--surface-canvas);
+    font-size: var(--font-size-2);
+    color: var(--content-subtle);
+    padding: var(--space-50) var(--space-75);
+    border-radius: var(--radius-1);
+    width: 100%;
+    transition: background var(--duration-1) var(--ease-1);
+
+    &:hover {
+      background: var(--surface-elevated);
+      color: var(--content-primary);
+    }
+
+    &[aria-current] {
+      background: var(--surface-elevated);
+      color: var(--content-primary);
+      font-weight: var(--font-weight-medium);
+    }
+  }
+</style>

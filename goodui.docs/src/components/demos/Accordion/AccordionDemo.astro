@@ -1,0 +1,52 @@
+---
+import * as Accordion from "@goodui/primitives/accordion";
+import "./AccordionDemo.css";
+import { ChevronDown } from "@lucide/astro";
+---
+
+<Accordion.Root
+  class="accordion"
+  type="single"
+  collapsible
+  defaultValue="about"
+>
+  <Accordion.Item class="accordion-item" value="about">
+    <Accordion.Header class="accordion-header" as="h2">
+      <Accordion.Trigger class="accordion-trigger">
+        What is GoodUI?
+        <ChevronDown class="indicator" size="14" />
+      </Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Content class="accordion-content">
+      <div class="accordion-content-inner">
+        GoodUI is a headless component library for Astro.
+      </div>
+    </Accordion.Content>
+  </Accordion.Item>
+  <Accordion.Item class="accordion-item" value="price">
+    <Accordion.Header class="accordion-header" as="h2">
+      <Accordion.Trigger class="accordion-trigger">
+        How much does it cost?
+        <ChevronDown class="indicator" size="14" />
+      </Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Content class="accordion-content">
+      <div class="accordion-content-inner">
+        Yes! GoodUI is free and opensource.
+      </div>
+    </Accordion.Content>
+  </Accordion.Item>
+  <Accordion.Item class="accordion-item" value="how-to">
+    <Accordion.Header class="accordion-header" as="h2">
+      <Accordion.Trigger class="accordion-trigger">
+        How do I use it?
+        <ChevronDown class="indicator" size="14" />
+      </Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Content class="accordion-content">
+      <div class="accordion-content-inner">
+        Head to our get documentation to get started.
+      </div>
+    </Accordion.Content>
+  </Accordion.Item>
+</Accordion.Root>

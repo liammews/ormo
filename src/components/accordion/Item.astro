@@ -1,0 +1,17 @@
+---
+import type { AccordionItemProps } from "./types";
+
+type Props = AccordionItemProps;
+
+const { value, disabled = false, ...attributes } = Astro.props;
+---
+
+<div
+  {...attributes}
+  data-goodui-accordion-item
+  data-value={value}
+  data-state="closed"
+  data-disabled={disabled ? "" : undefined}
+>
+  <slot />
+</div>

@@ -1,0 +1,41 @@
+---
+import Text from "../Text/Text.astro";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<div class="sidebar-menu">
+  <Text as="h2" size="1" font="mono" weight="medium" class="sidebar-menu_title"
+    >{title}</Text
+  >
+  <ul class="sidebar-menu_list">
+    <slot />
+  </ul>
+</div>
+
+<style>
+  .sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-100);
+    width: 100%;
+  }
+
+  .sidebar-menu_title {
+    padding-left: var(--space-75);
+  }
+
+  .sidebar-menu_list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-25);
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+</style>

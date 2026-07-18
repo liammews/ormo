@@ -1,0 +1,11 @@
+---
+import type { AccordionHeaderProps } from "./types";
+
+type Props = AccordionHeaderProps;
+
+const { as: Tag = "h3", ...attributes }: Props = Astro.props;
+---
+
+<Tag {...attributes} data-goodui-accordion-header>
+  <slot />
+</Tag>

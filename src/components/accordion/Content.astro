@@ -1,0 +1,18 @@
+---
+import type { AccordionContentProps } from "./types";
+
+type Props = AccordionContentProps;
+
+const attributes = Astro.props;
+---
+
+<div
+  {...attributes}
+  data-goodui-accordion-content
+  data-state="closed"
+  aria-hidden="true"
+  inert
+  hidden
+>
+  <slot />
+</div>

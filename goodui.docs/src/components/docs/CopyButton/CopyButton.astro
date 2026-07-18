@@ -1,0 +1,146 @@
+---
+import { Check, Copy } from "@lucide/astro";
+---
+
+<button
+  class="copy-button"
+  type="button"
+  aria-label="Copy code to clipboard"
+  title="Copy code"
+  data-copy-button
+  data-state="idle"
+>
+  <span class="copy-button_icon copy-button_copy" aria-hidden="true">
+    <Copy size={14} stroke-width={2} />
+  </span>
+  <span class="copy-button_icon copy-button_check" aria-hidden="true">
+    <Check size={14} stroke-width={2.5} />
+  </span>
+  <span class="copy-button_status" aria-live="polite" data-copy-status></span>
+</button>
+
+<script>
+  const resetTimers = new WeakMap<HTMLButtonElement, number>();
+  const copyButtons =
+    document.querySelectorAll<HTMLButtonElement>("[data-copy-button]");
+
+  const resetButton = (button: HTMLButtonElement) => {
+    button.dataset.state = "idle";
+    button.setAttribute("aria-label", "Copy code to clipboard");
+    button.setAttribute("title", "Copy code");
+
+    const status = button.querySelector<HTMLElement>("[data-copy-status]");
+    if (status) status.textContent = "";
+  };
+
+  for (const button of copyButtons) {
+    if (button.dataset.copyInitialized === "true") continue;
+
+    button.dataset.copyInitialized = "true";
+    button.addEventListener("click", async () => {
+      const code = button
+        .closest("[data-code-block]")
+        ?.querySelector("code")?.textContent;
+
+      if (code === undefined || code === null) return;
+
+      const existingTimer = resetTimers.get(button);
+      if (existingTimer) window.clearTimeout(existingTimer);
+
+      try {
+        await navigator.clipboard.writeText(code);
+        button.dataset.state = "copied";
+        button.setAttribute("aria-label", "Code copied");
+        button.setAttribute("title", "Copied");
+
+        const status = button.querySelector<HTMLElement>("[data-copy-status]");
+        if (status) status.textContent = "Code copied to clipboard";
+      } catch {
+        button.setAttribute("aria-label", "Unable to copy code");
+
+        const status = button.querySelector<HTMLElement>("[data-copy-status]");
+        if (status) status.textContent = "Unable to copy code";
+      }
+
+      const resetTimer = window.setTimeout(() => resetButton(button), 1500);
+      resetTimers.set(button, resetTimer);
+    });
+  }
+</script>
+
+<style>
+  .copy-button {
+    display: inline-grid;
+    inline-size: 2rem;
+    block-size: 2rem;
+    place-items: center;
+    padding: 0;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-2);
+    background: var(--surface-base);
+    color: var(--content-subtle);
+    transition:
+      background-color var(--duration-1) var(--ease-1),
+      color var(--duration-1) var(--ease-1);
+  }
+
+  .copy-button:hover {
+    background: var(--surface-elevated);
+    color: var(--content-default);
+  }
+
+  .copy-button:focus-visible {
+    outline: var(--focus-width) solid var(--focus-default);
+    outline-offset: var(--focus-offset);
+  }
+
+  .copy-button_icon {
+    display: grid;
+    grid-area: 1 / 1;
+    place-items: center;
+    transition:
+      opacity var(--duration-1) var(--ease-1),
+      transform var(--duration-1) var(--ease-1),
+      filter var(--duration-1) var(--ease-1);
+  }
+
+  .copy-button_copy {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+  }
+
+  .copy-button_check {
+    color: var(--content-success);
+    opacity: 0;
+    filter: blur(0.25rem);
+    transform: scale(0.6);
+  }
+
+  .copy-button[data-state="copied"] .copy-button_copy {
+    opacity: 0;
+    filter: blur(0.25rem);
+    transform: scale(0.6);
+  }
+
+  .copy-button[data-state="copied"] .copy-button_check {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+  }
+
+  .copy-button_status {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .copy-button_icon {
+      transition: none;
+    }
+  }
+</style>

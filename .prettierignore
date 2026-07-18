@@ -1,0 +1,8 @@
+node_modules/
+.astro/
+dist/
+coverage/
+playwright-report/
+test-results/
+goodui.docs/
+pnpm-lock.yaml

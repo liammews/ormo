@@ -1,0 +1,12 @@
+:root {
+  /* default easing for most elements */
+  --ease-1: cubic-bezier(0.23, 1, 0.32, 1);
+  /* use for visible elements that move from a -> b */
+  --ease-2: cubic-bezier(0.77, 0, 0.175, 1);
+
+  /* duration */
+  --duration-1: 150ms; /* hover, color/border changes */
+  --duration-2: 170ms; /* press feedback, small transforms, tooltips */
+  --duration-3: 200ms; /* popovers, dropdowns, menus */
+  --duration-4: 300ms; /* nav, drawers etc. */
+}

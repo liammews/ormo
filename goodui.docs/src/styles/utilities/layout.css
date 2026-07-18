@@ -1,0 +1,14 @@
+.section {
+  width: 100%;
+}
+
+.s-padding-lg {
+  padding-block: var(--space-500);
+  padding-inline: var(--site-padding);
+}
+
+.container {
+  width: 100%;
+  max-width: var(--site-width);
+  margin: 0 auto;
+}

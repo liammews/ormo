@@ -1,0 +1,216 @@
+---
+import type { Polymorphic } from "astro/types";
+
+type TextElement =
+  | "h1"
+  | "h2"
+  | "h3"
+  | "h4"
+  | "h5"
+  | "h6"
+  | "p"
+  | "span"
+  | "label"
+  | "dt"
+  | "dd"
+  | "li"
+  | "figcaption"
+  | "legend"
+  | "pre"
+  | "code"
+  | "em"
+  | "strong"
+  | "small"
+  | "abbr"
+  | "time";
+
+type TextSize = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+
+type TextFont = "primary" | "secondary";
+type TextWeight = "normal" | "medium" | "bold";
+type TextStyle =
+  | "display"
+  | "h1"
+  | "h2"
+  | "h3"
+  | "h4"
+  | "h5"
+  | "h6"
+  | "body"
+  | "secondary"
+  | "brand"
+  | "success"
+  | "error"
+  | "warning"
+  | "info";
+
+type Props = Omit<Polymorphic<{ as: TextElement }>, "style"> & {
+  truncate?: boolean;
+  size?: TextSize;
+  font?: TextFont;
+  style?: TextStyle;
+  weight?: TextWeight;
+};
+
+type TextStyleDefaults = {
+  size: TextSize;
+  font: TextFont;
+  weight: TextWeight;
+};
+
+const styleDefaults: Record<TextStyle, TextStyleDefaults> = {
+  display: { size: 9, font: "primary", weight: "bold" },
+  h1: { size: 8, font: "primary", weight: "bold" },
+  h2: { size: 7, font: "primary", weight: "bold" },
+  h3: { size: 6, font: "primary", weight: "bold" },
+  h4: { size: 5, font: "primary", weight: "medium" },
+  h5: { size: 4, font: "primary", weight: "medium" },
+  h6: { size: 3, font: "primary", weight: "medium" },
+  body: { size: 3, font: "primary", weight: "normal" },
+  secondary: { size: 3, font: "primary", weight: "normal" },
+  brand: { size: 3, font: "primary", weight: "normal" },
+  success: { size: 3, font: "primary", weight: "normal" },
+  error: { size: 3, font: "primary", weight: "normal" },
+  warning: { size: 3, font: "primary", weight: "normal" },
+  info: { size: 3, font: "primary", weight: "normal" },
+};
+
+const {
+  as,
+  truncate = false,
+  size,
+  font,
+  style: textStyle = "body",
+  weight,
+  class: className,
+  ...attributes
+}: Props = Astro.props;
+
+const Tag = as ?? "p";
+const defaults = styleDefaults[textStyle];
+const resolvedSize = size ?? defaults.size;
+const resolvedFont = font ?? defaults.font;
+const resolvedWeight = weight ?? defaults.weight;
+---
+
+<Tag
+  {...attributes}
+  class:list={[
+    "goodui-text",
+    `goodui-text--style-${textStyle}`,
+    `goodui-text--font-${resolvedFont}`,
+    `goodui-text--size-${resolvedSize}`,
+    `goodui-text--weight-${resolvedWeight}`,
+    truncate && "goodui-text--truncate",
+    className,
+  ]}
+>
+  <slot />
+</Tag>
+
+<style>
+  .goodui-text {
+    margin: 0;
+    color: var(--content-default, currentColor);
+    line-height: var(--line-height-loose, 1.5);
+    letter-spacing: var(--letter-spacing-base, 0);
+  }
+
+  .goodui-text--style-display,
+  .goodui-text--style-h1,
+  .goodui-text--style-h2,
+  .goodui-text--style-h3,
+  .goodui-text--style-h4,
+  .goodui-text--style-h5,
+  .goodui-text--style-h6 {
+    line-height: var(--line-height-tight, 1.1);
+    letter-spacing: var(--letter-spacing-tight, -0.03em);
+  }
+
+  .goodui-text--style-secondary {
+    color: var(--content-subtle, currentColor);
+  }
+
+  .goodui-text--style-brand {
+    color: var(--content-brand, currentColor);
+  }
+
+  .goodui-text--style-success {
+    color: var(--content-success, currentColor);
+  }
+
+  .goodui-text--style-error {
+    color: var(--content-error, currentColor);
+  }
+
+  .goodui-text--style-warning {
+    color: var(--content-warning, currentColor);
+  }
+
+  .goodui-text--style-info {
+    color: var(--content-info, currentColor);
+  }
+
+  .goodui-text--font-primary {
+    font-family: var(--font-family-sans, sans-serif);
+  }
+
+  .goodui-text--font-secondary {
+    font-family: var(--font-family-mono, monospace);
+  }
+
+  .goodui-text--size-1 {
+    font-size: var(--font-size-1, 0.75rem);
+  }
+
+  .goodui-text--size-2 {
+    font-size: var(--font-size-2, 0.875rem);
+  }
+
+  .goodui-text--size-3 {
+    font-size: var(--font-size-3, 1rem);
+  }
+
+  .goodui-text--size-4 {
+    font-size: var(--font-size-4, 1.25rem);
+  }
+
+  .goodui-text--size-5 {
+    font-size: var(--font-size-5, 1.5rem);
+  }
+
+  .goodui-text--size-6 {
+    font-size: var(--font-size-6, 2rem);
+  }
+
+  .goodui-text--size-7 {
+    font-size: var(--font-size-7, 2.5rem);
+  }
+
+  .goodui-text--size-8 {
+    font-size: var(--font-size-8, 3rem);
+  }
+
+  .goodui-text--size-9 {
+    font-size: var(--font-size-9, 4rem);
+  }
+
+  .goodui-text--weight-normal {
+    font-weight: var(--font-weight-regular, 400);
+  }
+
+  .goodui-text--weight-medium {
+    font-weight: var(--font-weight-medium, 600);
+  }
+
+  .goodui-text--weight-bold {
+    font-weight: var(--font-weight-bold, 700);
+  }
+
+  .goodui-text--truncate {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>

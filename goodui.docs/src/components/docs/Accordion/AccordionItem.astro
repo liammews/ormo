@@ -1,0 +1,91 @@
+---
+import * as Accordion from "@goodui/primitives/accordion";
+
+interface Props {
+  value: string;
+}
+
+const { value } = Astro.props;
+---
+
+<Accordion.Item class="accordion-item" value={value}>
+  <Accordion.Header class="accordion-header" as="h2">
+    <Accordion.Trigger class="accordion-trigger">
+      <slot />
+    </Accordion.Trigger>
+  </Accordion.Header>
+  <Accordion.Content class="accordion-content">
+    <div class="accordion-content-inner">
+      <slot name="content" />
+    </div>
+  </Accordion.Content>
+</Accordion.Item>
+
+<style>
+  .accordion-item + .accordion-item {
+    border-top: 1px solid var(--border-default);
+  }
+
+  .accordion-header {
+    margin: 0;
+    font-size: inherit;
+  }
+
+  .accordion-trigger {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border: 0;
+    padding: var(--space-125);
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .accordion-trigger:hover {
+    color: var(--content-subtle);
+  }
+
+  .accordion-trigger:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline: var(--focus-width) solid var(--focus-default);
+    outline-offset: var(--focus-offset);
+  }
+
+  .indicator {
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1;
+    transition: transform var(--duration-1) var(--ease-1);
+  }
+
+  .accordion-trigger[data-state="open"] .indicator {
+    transform: rotate(45deg);
+  }
+
+  .accordion-content {
+    height: var(--goodui-accordion-content-height, auto);
+    overflow: hidden;
+    transition: height var(--duration-1) var(--ease-2);
+  }
+
+  .accordion-content[data-starting-style],
+  .accordion-content[data-ending-style] {
+    height: 0;
+  }
+
+  .accordion-content-inner {
+    padding: 0 var(--space-125) var(--space-125);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .accordion-content,
+    .indicator {
+      transition: none;
+    }
+  }
+</style>

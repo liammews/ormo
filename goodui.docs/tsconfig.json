@@ -1,0 +1,17 @@
+{
+  "extends": "./node_modules/astro/tsconfigs/strictest.json",
+  "include": [
+    ".astro/types.d.ts",
+    "src/**/*.astro",
+    "src/**/*.ts",
+    "src/**/*.md",
+    "src/**/*.mdx",
+    "*.config.mjs",
+    "*.config.ts"
+  ],
+  "exclude": ["dist", "node_modules"],
+  "compilerOptions": {
+    "allowJs": false,
+    "verbatimModuleSyntax": true
+  }
+}

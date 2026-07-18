@@ -1,0 +1,50 @@
+---
+import CodeBlock from "../CodeBlock/CodeBlock.astro";
+
+interface Props {
+  code: string;
+}
+
+const { code } = Astro.props;
+---
+
+<div>
+  <div class="demoblock">
+    <div class="demoblock-canvas">
+      <slot />
+    </div>
+
+    {
+      code && (
+        <div class="demoblock-code-container">
+          <CodeBlock code={code} lang="astro" />
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .demoblock {
+    width: 100%;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-3);
+    overflow: clip;
+    margin-block-end: var(--space-200);
+  }
+
+  .demoblock-canvas {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-100);
+    background-color: var(--surface-canvas);
+    min-height: 24rem;
+    border-block-end: 1px solid var(--border-default);
+  }
+
+  .demoblock :global(.code-block) {
+    border: 0px;
+    border-radius: 0;
+  }
+</style>

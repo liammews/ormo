@@ -1,0 +1,16 @@
+{
+  "extends": "astro/tsconfigs/strictest",
+  "include": [
+    ".astro/types.d.ts",
+    "src/**/*.astro",
+    "src/**/*.ts",
+    "tests/**/*.ts",
+    "*.config.mjs",
+    "*.config.ts"
+  ],
+  "exclude": ["dist", "node_modules", "playwright-report", "test-results"],
+  "compilerOptions": {
+    "allowJs": false,
+    "verbatimModuleSyntax": true
+  }
+}
