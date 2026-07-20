@@ -1,6 +1,6 @@
-# Ormo Primitives
+# Ormo
 
-Accessible, unstyled UI primitives for Astro.
+Accessible, unstyled UI components for Astro.
 
 Ormo is in early development. The API is unstable, breaking changes are
 expected, and the package is not yet recommended for production use.
