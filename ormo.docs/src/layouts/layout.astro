@@ -1,0 +1,317 @@
+---
+import funnelDisplayLatinUrl from "@fontsource-variable/funnel-display/files/funnel-display-latin-wght-normal.woff2?url";
+import interLatinUrl from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
+import SidebarMenu from "../components/docs/SidebarMenu/SidebarMenu.astro";
+import SidebarMenuItem from "../components/docs/SidebarMenuItem/SidebarMenuItem.astro";
+import Text from "../components/docs/Text/Text.astro";
+import Logo from "../components/docs/Logo/Logo.astro";
+import "../styles/index.css";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+interface SidebarSection {
+  title: string;
+  items: Array<{
+    label: string;
+    href: string;
+  }>;
+}
+
+const sidebarSections: SidebarSection[] = [
+  {
+    title: "Overview",
+    items: [
+      { label: "Introduction", href: "/docs/" },
+      { label: "Installation", href: "/docs/installation" },
+      { label: "Styling", href: "/docs/styling" },
+      { label: "Changelog", href: "/docs/changelog" },
+    ],
+  },
+  {
+    title: "Components",
+    items: [{ label: "Accordion", href: "/docs/components/accordion" }],
+  },
+];
+
+const normalizePath = (path: string) => path.replace(/\/+$/, "") || "/";
+
+const { title, description } = Astro.props;
+const currentPath = normalizePath(Astro.url.pathname);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <link
+      rel="preload"
+      href={funnelDisplayLatinUrl}
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href={interLatinUrl}
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <title>{title} - Ormo</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <header class="site-header">
+      <div>
+        <Logo width="4rem" />
+      </div>
+    </header>
+
+    <div class="docs-layout">
+      <nav class="docs-sidebar" aria-label="Documentation">
+        {
+          sidebarSections.map((section) => (
+            <SidebarMenu title={section.title}>
+              {section.items.map((item) => (
+                <SidebarMenuItem
+                  href={item.href}
+                  current={currentPath === normalizePath(item.href)}
+                >
+                  {item.label}
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          ))
+        }
+      </nav>
+
+      <div class="docs-main-wrapper">
+        <div class="docs-main-header">
+          <div class="docs-main-header_content">
+            <Text as="h1" style="h1">
+              {title}
+            </Text>
+
+            <Text style="secondary" size="4">
+              {description}
+            </Text>
+          </div>
+        </div>
+
+        <div class="docs-main-inner">
+          <main id="main-content" class="docs-content" tabindex="-1">
+            <slot />
+          </main>
+
+          <aside class="docs-toc">
+            <nav aria-label="On this page">
+              <slot name="table-of-contents" />
+            </nav>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+<style>
+  :root {
+    --docs-header-height: 4rem;
+    --docs-sidebar-width: 18rem;
+    --docs-toc-width: 18rem;
+    --docs-content-width: 52rem;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-padding-top: calc(var(--docs-header-height) + 2rem);
+  }
+
+  body {
+    min-width: 20rem;
+    min-height: 100dvh;
+    margin: 0;
+  }
+
+  /* Skip link */
+
+  .skip-link {
+    position: fixed;
+    inset-block-start: 0.75rem;
+    inset-inline-start: 0.75rem;
+    z-index: 100;
+    padding: 0.625rem 0.875rem;
+    border-radius: var(--radius-2, 0.375rem);
+    background: var(--surface-base, white);
+    color: var(--content-default, currentColor);
+    box-shadow: 0 0 0 2px var(--focus-default, currentColor);
+    text-decoration: none;
+    transform: translateY(calc(-100% - 1rem));
+    transition: transform 120ms ease-out;
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+
+  /* Header */
+
+  .site-header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 20;
+    display: flex;
+    min-height: var(--docs-header-height);
+    align-items: center;
+    border-block-end: 1px solid var(--border-default, currentColor);
+    padding-inline: clamp(1rem, 3vw, 2rem);
+    background: var(--surface-canvas, white);
+  }
+
+  /* Main documentation grid */
+
+  .docs-layout {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .docs-main-wrapper {
+    width: 100%;
+  }
+
+  .docs-main-inner {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .docs-main-header {
+    width: 100%;
+    padding-inline: var(--site-padding);
+    padding-block: var(--space-300);
+    border-block-end: 1px solid var(--border-default);
+  }
+
+  .docs-main-header_content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-50);
+  }
+
+  /* Left navigation */
+
+  .docs-sidebar {
+    position: sticky;
+    width: 100%;
+    min-width: 0;
+    max-width: var(--docs-sidebar-width);
+    inset-block-start: var(--docs-header-height);
+    height: calc(100dvh - var(--docs-header-height));
+    overflow-y: auto;
+    border-inline-end: 1px solid var(--border-default, currentColor);
+    padding: var(--space-150) var(--space-100);
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  /* Main content */
+
+  .docs-content {
+    min-width: 0;
+    margin-inline: auto;
+    width: 100%;
+    padding-inline: var(--site-padding);
+    padding-block: var(--space-300);
+  }
+
+  /* Prevent wide content from breaking the grid */
+
+  .docs-content :where(img, video, iframe, table, pre) {
+    max-width: 100%;
+  }
+
+  .docs-content :where(pre, table) {
+    overflow-x: auto;
+  }
+
+  /* Right-hand table of contents */
+
+  .docs-toc {
+    position: sticky;
+    width: 100%;
+    min-width: 0;
+    max-width: var(--docs-toc-width);
+    inset-block-start: var(--docs-header-height);
+    max-height: calc(100dvh - var(--docs-header-height));
+    overflow-y: auto;
+    border-inline-start: 1px solid var(--border-default, currentColor);
+    padding: 1.5rem;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    min-height: 100vh;
+  }
+
+  /* Two-column layout */
+
+  @media (width < 70rem) {
+    .docs-layout {
+      grid-template-columns:
+        minmax(0, var(--docs-sidebar-width))
+        minmax(0, 1fr);
+    }
+
+    .docs-toc {
+      display: none;
+    }
+  }
+
+  /* Single-column layout */
+
+  @media (width < 48rem) {
+    :root {
+      --docs-header-height: 3.5rem;
+    }
+
+    .docs-layout {
+      display: block;
+    }
+
+    .docs-sidebar {
+      position: static;
+      width: 100%;
+      height: auto;
+      max-width: none;
+      max-height: none;
+      overflow: visible;
+      border-inline-end: 0;
+      border-block-end: 1px solid var(--border-default, currentColor);
+      padding: var(--space-100);
+    }
+
+    .docs-content {
+      width: 100%;
+    }
+  }
+
+  /* Motion preference */
+
+  @media (prefers-reduced-motion: reduce) {
+    .skip-link {
+      transition: none;
+    }
+  }
+</style>

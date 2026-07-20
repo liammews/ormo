@@ -1,0 +1,37 @@
+:root {
+  --content-default: var(--color-gray-12);
+  --content-subtle: var(--color-gray-11);
+  --content-inverse: var(--color-gray-1);
+  --content-disabled: var(--color-gray-10);
+  --content-placeholder: var(--color-gray-8);
+  --content-brand: var(--color-brand-12);
+  --content-link: var(--color-brand-10);
+  --content-link-hover: var(--color-brand-11);
+  --content-info: var(--color-blue-11);
+  --content-success: var(--color-green-11);
+  --content-error: var(--color-amber-11);
+  --content-warning: var(--color-red-11);
+
+  --surface-canvas: var(--color-gray-2);
+  --surface-elevated: var(--color-gray-3);
+  --surface-base: var(--color-gray-1);
+  --surface-disabled: var(--color-gray-3);
+  --surface-brand: var(--color-brand-10);
+  --surface-brand-hover: var(--color-brand-11);
+  --surface-overlay: ;
+  --surface-info: var(--color-blue-10);
+  --surface-info-tint: var(--color-blue-2);
+  --surface-success: var(--color-green-10);
+  --surface-success-tint: var(--color-green-2);
+  --surface-error: var(--color-red-10);
+  --surface-error-tint: var(--color-red-2);
+  --surface-warning: var(--color-amber-10);
+  --surface-warning-tint: var(--color-amber-2);
+
+  --border-default: var(--color-gray-4);
+  --border-hover: var(--color-gray-5);
+  --border-active: var(--color-gray-6);
+
+  --focus-default: var(--color-blue-10);
+  --focus-subtle: var(--color-gray-6);
+}

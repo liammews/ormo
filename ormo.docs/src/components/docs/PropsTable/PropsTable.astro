@@ -1,0 +1,372 @@
+---
+import { ChevronDown } from "@lucide/astro";
+
+interface PropsTableDetail {
+  label: string;
+  value: string;
+  code?: boolean;
+}
+
+interface PropsTableRow {
+  name: string;
+  type: string;
+  defaultValue?: string;
+  description?: string | string[];
+  details?: PropsTableDetail[];
+  defaultOpen?: boolean;
+}
+
+interface Props {
+  id: string;
+  caption: string;
+  rows: PropsTableRow[];
+  nameHeader?: string;
+}
+
+const { id, caption, rows, nameHeader = "Prop" }: Props = Astro.props;
+const preparedRows = rows.map((row, index) => ({
+  ...row,
+  expandable: row.description !== undefined || (row.details?.length ?? 0) > 0,
+  detailsId: `${id}-row-${index + 1}-details`,
+  nameId: `${id}-row-${index + 1}-name`,
+}));
+---
+
+<div class="props-table" data-props-table>
+  <div class="props-table_scroller">
+    <table>
+      <caption class="visually-hidden">{caption}</caption>
+      <colgroup>
+        <col class="props-table_prop-column" />
+        <col class="props-table_type-column" />
+        <col class="props-table_default-column" />
+        <col class="props-table_action-column" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th scope="col">{nameHeader}</th>
+          <th scope="col">Type</th>
+          <th scope="col">Default</th>
+          <th scope="col">
+            <span class="visually-hidden">Details</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          preparedRows.map((row) => (
+            <Fragment>
+              <tr
+                class="props-table_summary-row"
+                data-expanded={row.defaultOpen ? "" : undefined}
+              >
+                <th id={row.nameId} scope="row">
+                  <code>{row.name}</code>
+                </th>
+                <td>
+                  <code class="props-table_type">{row.type}</code>
+                </td>
+                <td>
+                  {row.defaultValue === undefined ? (
+                    <span aria-label="No default value">—</span>
+                  ) : (
+                    <code>{row.defaultValue}</code>
+                  )}
+                </td>
+                <td class="props-table_action">
+                  {row.expandable && (
+                    <button
+                      type="button"
+                      aria-expanded={row.defaultOpen ? "true" : "false"}
+                      aria-controls={row.detailsId}
+                      aria-label={`${row.defaultOpen ? "Hide" : "Show"} details for ${row.name}`}
+                      data-props-table-trigger
+                      data-row-name={row.name}
+                    >
+                      <ChevronDown
+                        class="props-table_chevron"
+                        size={16}
+                        stroke-width={2}
+                        aria-hidden="true"
+                      />
+                    </button>
+                  )}
+                </td>
+              </tr>
+              {row.expandable && (
+                <tr
+                  id={row.detailsId}
+                  class="props-table_details-row"
+                  aria-labelledby={row.nameId}
+                  hidden={!row.defaultOpen}
+                  data-props-table-details
+                >
+                  <td colspan="4">
+                    <dl class="props-table_details">
+                      <div>
+                        <dt>Name</dt>
+                        <dd>
+                          <code>{row.name}</code>
+                        </dd>
+                      </div>
+                      {row.description !== undefined && (
+                        <div>
+                          <dt>Description</dt>
+                          <dd class="props-table_description">
+                            {(Array.isArray(row.description)
+                              ? row.description
+                              : [row.description]
+                            ).map((paragraph) => (
+                              <p>{paragraph}</p>
+                            ))}
+                          </dd>
+                        </div>
+                      )}
+                      <div>
+                        <dt>Type</dt>
+                        <dd>
+                          <code class="props-table_value">{row.type}</code>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Default</dt>
+                        <dd>
+                          {row.defaultValue === undefined ? (
+                            <span aria-label="No default value">—</span>
+                          ) : (
+                            <code>{row.defaultValue}</code>
+                          )}
+                        </dd>
+                      </div>
+                      {row.details?.map((detail) => (
+                        <div>
+                          <dt>{detail.label}</dt>
+                          <dd>
+                            {detail.code ? (
+                              <code>{detail.value}</code>
+                            ) : (
+                              detail.value
+                            )}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </td>
+                </tr>
+              )}
+            </Fragment>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const tables = document.querySelectorAll<HTMLElement>("[data-props-table]");
+
+  for (const table of tables) {
+    if (table.dataset.initialized === "true") continue;
+
+    table.dataset.initialized = "true";
+
+    for (const trigger of table.querySelectorAll<HTMLButtonElement>(
+      "[data-props-table-trigger]",
+    )) {
+      trigger.addEventListener("click", () => {
+        const detailsId = trigger.getAttribute("aria-controls");
+        const details = detailsId
+          ? document.getElementById(detailsId)
+          : undefined;
+
+        if (!details) return;
+
+        const expanded = trigger.getAttribute("aria-expanded") === "true";
+        const nextExpanded = !expanded;
+        const rowName = trigger.dataset.rowName ?? "property";
+
+        trigger.setAttribute("aria-expanded", String(nextExpanded));
+        trigger.setAttribute(
+          "aria-label",
+          `${nextExpanded ? "Hide" : "Show"} details for ${rowName}`,
+        );
+        trigger.closest("tr")?.toggleAttribute("data-expanded", nextExpanded);
+        details.hidden = !nextExpanded;
+      });
+    }
+  }
+</script>
+
+<style>
+  .props-table {
+    width: 100%;
+    margin-block-start: var(--space-100);
+    overflow: hidden;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-3);
+    background: var(--surface-base);
+  }
+
+  .props-table_scroller {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    min-width: 38rem;
+    border-collapse: collapse;
+    color: var(--content-default);
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-2);
+    line-height: var(--line-height-base);
+  }
+
+  .props-table_prop-column {
+    width: 29%;
+  }
+
+  .props-table_type-column {
+    width: 40%;
+  }
+
+  .props-table_default-column {
+    width: 23%;
+  }
+
+  .props-table_action-column {
+    width: 8%;
+  }
+
+  :is(th, td) {
+    padding: var(--space-75);
+    border-block-end: 1px solid var(--border-default);
+    text-align: start;
+    vertical-align: middle;
+  }
+
+  thead th {
+    background: var(--surface-canvas);
+    font-weight: var(--font-weight-regular);
+  }
+
+  tbody th {
+    font-weight: var(--font-weight-regular);
+  }
+
+  tbody > tr:last-child > :is(th, td) {
+    border-block-end: 0;
+  }
+
+  .props-table_summary-row {
+    transition: background-color var(--duration-1) var(--ease-1);
+  }
+
+  .props-table_summary-row:hover,
+  .props-table_summary-row[data-expanded] {
+    background: var(--surface-elevated);
+  }
+
+  code {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--content-link);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-2);
+  }
+
+  .props-table_type {
+    color: var(--content-brand);
+  }
+
+  .props-table_action {
+    padding: var(--space-25);
+    text-align: center;
+  }
+
+  button {
+    display: inline-grid;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border-radius: var(--radius-1);
+    color: var(--content-subtle);
+  }
+
+  button:hover {
+    background: var(--surface-canvas);
+    color: var(--content-default);
+  }
+
+  button:focus-visible {
+    outline: var(--focus-width) solid var(--focus-default);
+    outline-offset: 1px;
+  }
+
+  .props-table_chevron {
+    transition: transform var(--duration-1) var(--ease-1);
+  }
+
+  button[aria-expanded="true"] .props-table_chevron {
+    transform: rotate(180deg);
+  }
+
+  .props-table_details-row > td {
+    padding: 0;
+    background: var(--surface-canvas);
+  }
+
+  .props-table_details {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+
+  .props-table_details > div {
+    display: grid;
+    grid-template-columns: minmax(7rem, 26%) minmax(0, 1fr);
+    gap: var(--space-100);
+    padding: var(--space-75);
+  }
+
+  .props-table_details dt {
+    color: var(--content-subtle);
+  }
+
+  .props-table_details dd {
+    min-width: 0;
+    margin: 0;
+    color: var(--content-default);
+    overflow-wrap: anywhere;
+  }
+
+  .props-table_description {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-50);
+  }
+
+  .props-table_value {
+    display: block;
+    width: 100%;
+    padding: var(--space-50) var(--space-75);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-2);
+    background: var(--surface-base);
+  }
+
+  @media (max-width: 40rem) {
+    .props-table_details > div {
+      grid-template-columns: 1fr;
+      gap: var(--space-25);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .props-table_summary-row,
+    .props-table_chevron {
+      transition: none;
+    }
+  }
+</style>

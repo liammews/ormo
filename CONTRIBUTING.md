@@ -1,6 +1,6 @@
 # Contributing
 
-GoodUI is open source, but it is not currently open to external contributions.
+Ormo is open source, but it is not currently open to external contributions.
 
 The project is in an early stage and its direction and public API are still
 changing quickly. For now, please do not open pull requests.

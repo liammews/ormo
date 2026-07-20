@@ -4,5 +4,5 @@ dist/
 coverage/
 playwright-report/
 test-results/
-goodui.docs/
+ormo.docs/
 pnpm-lock.yaml

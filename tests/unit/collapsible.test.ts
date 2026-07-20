@@ -1,8 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { setCollapsibleState } from "../../src/runtime/collapsible";
+import {
+  setCollapsibleState,
+  setCollapsibleWidth,
+} from "../../src/runtime/collapsible";
 
-const heightProperty = "--goodui-test-height";
+const heightProperty = "--ormo-test-height";
 
 function createAnimation(
   playState: AnimationPlayState = "running",
@@ -151,6 +154,41 @@ describe("collapsible state", () => {
     expect(element.style.getPropertyValue(heightProperty)).toBe("auto");
   });
 
+  it("cleans up a closing transition when it is rapidly reopened", () => {
+    const element = document.createElement("div");
+    const { animation } = createAnimation();
+    const runAnimationFrame = mockAnimationFrame();
+
+    Object.defineProperty(element, "scrollHeight", {
+      configurable: true,
+      value: 120,
+    });
+    mockMotion(element, animation);
+    element.dataset.state = "open";
+    document.body.append(element);
+
+    setCollapsibleState(element, false, {
+      animate: true,
+      heightProperty,
+    });
+    setCollapsibleState(element, true, {
+      animate: true,
+      heightProperty,
+    });
+
+    expect(element.dataset.state).toBe("open");
+    expect(element.hidden).toBe(false);
+    expect(element.hasAttribute("aria-hidden")).toBe(false);
+    expect(element.hasAttribute("inert")).toBe(false);
+    expect(element.hasAttribute("data-ending-style")).toBe(false);
+
+    runAnimationFrame();
+
+    expect(element.style.getPropertyValue(heightProperty)).toBe("auto");
+    expect(element.hasAttribute("data-starting-style")).toBe(false);
+    expect(element.hasAttribute("data-ending-style")).toBe(false);
+  });
+
   it("does not wait for an unrelated animation that was already running", async () => {
     const element = document.createElement("div");
     const decorativeAnimation = createAnimation("running", 30_000);
@@ -255,5 +293,24 @@ describe("collapsible state", () => {
     expect(element.hidden).toBe(true);
     expect(element.dataset.state).toBe("closed");
     expect(element.hasAttribute("data-ending-style")).toBe(false);
+  });
+
+  it("updates the exposed content width when its measurement changes", () => {
+    const element = document.createElement("div");
+    const widthProperty = "--ormo-test-width";
+
+    Object.defineProperty(element, "scrollWidth", {
+      configurable: true,
+      value: 320,
+    });
+    setCollapsibleWidth(element, widthProperty);
+    expect(element.style.getPropertyValue(widthProperty)).toBe("320px");
+
+    Object.defineProperty(element, "scrollWidth", {
+      configurable: true,
+      value: 480,
+    });
+    setCollapsibleWidth(element, widthProperty);
+    expect(element.style.getPropertyValue(widthProperty)).toBe("480px");
   });
 });

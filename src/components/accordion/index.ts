@@ -11,9 +11,10 @@ export { default as Trigger } from "./Trigger.astro";
 
 export type {
   AccordionContentProps,
-  AccordionDirection,
   AccordionHeaderProps,
   AccordionItemProps,
+  AccordionOpenChangeDetail,
+  AccordionOpenChangeEvent,
   AccordionOrientation,
   AccordionRootProps,
   AccordionTriggerProps,
@@ -21,5 +22,5 @@ export type {
   AccordionValue,
   AccordionValueChangeDetail,
   AccordionValueChangeEvent,
-  GoodUIAccordionElement,
+  OrmoAccordionElement,
 } from "./types";

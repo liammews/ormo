@@ -1,0 +1,39 @@
+---
+import * as Accordion from "@ormo/primitives/accordion";
+import { ChevronDown } from "@lucide/astro";
+import "./AccordionDemo.css";
+---
+
+<Accordion.Root
+  class="accordion"
+  type="single"
+  collapsible
+  defaultValue="shipping"
+>
+  <Accordion.Item class="accordion-item" value="shipping">
+    <Accordion.Header class="accordion-header" as="h2">
+      <Accordion.Trigger class="accordion-trigger">
+        Shipping
+        <ChevronDown class="indicator" size="14" aria-hidden="true" />
+      </Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Content class="accordion-content">
+      <div class="accordion-content-inner">
+        Select the open trigger again to close every panel.
+      </div>
+    </Accordion.Content>
+  </Accordion.Item>
+  <Accordion.Item class="accordion-item" value="returns">
+    <Accordion.Header class="accordion-header" as="h2">
+      <Accordion.Trigger class="accordion-trigger">
+        Returns
+        <ChevronDown class="indicator" size="14" aria-hidden="true" />
+      </Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Content class="accordion-content">
+      <div class="accordion-content-inner">
+        Opening this panel closes the shipping panel.
+      </div>
+    </Accordion.Content>
+  </Accordion.Item>
+</Accordion.Root>

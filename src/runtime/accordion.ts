@@ -2,18 +2,25 @@ import type {
   AccordionType,
   AccordionValue,
 } from "../components/accordion/types";
-import { cancelCollapsibleState, setCollapsibleState } from "./collapsible";
+import {
+  cancelCollapsibleState,
+  setCollapsibleState,
+  setCollapsibleWidth,
+} from "./collapsible";
 
-const tagName = "goodui-accordion";
-const itemSelector = "[data-goodui-accordion-item]";
-const triggerSelector = "[data-goodui-accordion-trigger]";
-const contentSelector = "[data-goodui-accordion-content]";
-const contentHeightProperty = "--goodui-accordion-content-height";
+const tagName = "ormo-accordion";
+const itemSelector = "[data-ormo-accordion-item]";
+const headerSelector = "[data-ormo-accordion-header]";
+const triggerSelector = "[data-ormo-accordion-trigger]";
+const contentSelector = "[data-ormo-accordion-content]";
+const contentHeightProperty = "--ormo-accordion-content-height";
+const contentWidthProperty = "--ormo-accordion-content-width";
 
 let generatedId = 0;
 
 interface AccordionPart {
   item: HTMLElement;
+  header: HTMLElement | undefined;
   trigger: HTMLButtonElement;
   content: HTMLElement;
   value: string;
@@ -44,9 +51,19 @@ function valuesEqual(left: AccordionValue, right: AccordionValue): boolean {
   return left === right;
 }
 
-export class GoodUIAccordion extends HTMLElement {
+export class OrmoAccordion extends HTMLElement {
+  static observedAttributes = [
+    "data-disabled",
+    "data-collapsible",
+    "data-hidden-until-found",
+    "data-type",
+  ];
+
   #controller: AbortController | undefined;
+  #authoredTriggerDisabled = new WeakMap<HTMLButtonElement, boolean>();
   #initialized = false;
+  #observer: MutationObserver | undefined;
+  #resizeObserver: ResizeObserver | undefined;
 
   connectedCallback(): void {
     const initialValue = this.#initialized
@@ -54,7 +71,7 @@ export class GoodUIAccordion extends HTMLElement {
       : this.#readDefaultValue();
 
     this.#prepareParts();
-    this.#applyValue(initialValue, false);
+    this.#applyValue(initialValue, false, false);
     this.#initialized = true;
     this.#controller?.abort();
     this.#controller = new AbortController();
@@ -62,17 +79,39 @@ export class GoodUIAccordion extends HTMLElement {
     this.addEventListener("click", this.#handleClick, {
       signal: this.#controller.signal,
     });
-    this.addEventListener("keydown", this.#handleKeydown, {
+    this.addEventListener("beforematch", this.#handleBeforeMatch, {
       signal: this.#controller.signal,
     });
+
+    this.#observer?.disconnect();
+    this.#observer = new MutationObserver(() => {
+      const value = this.value;
+      this.#prepareParts();
+      this.#applyValue(value, false, false);
+      this.#observeContentSizes();
+    });
+    this.#observer.observe(this, { childList: true, subtree: true });
+    this.#observeContentSizes();
   }
 
   disconnectedCallback(): void {
     this.#controller?.abort();
     this.#controller = undefined;
+    this.#observer?.disconnect();
+    this.#observer = undefined;
+    this.#resizeObserver?.disconnect();
+    this.#resizeObserver = undefined;
     this.#getParts().forEach(({ content }) => {
       cancelCollapsibleState(content);
     });
+  }
+
+  attributeChangedCallback(): void {
+    if (!this.#initialized || !this.isConnected) return;
+
+    const value = this.value;
+    this.#prepareParts();
+    this.#applyValue(value, false, false);
   }
 
   get value(): AccordionValue {
@@ -87,6 +126,30 @@ export class GoodUIAccordion extends HTMLElement {
     this.#applyValue(this.#normalizeValue(value));
   }
 
+  get collapsible(): boolean {
+    return this.#collapsible;
+  }
+
+  set collapsible(collapsible: boolean) {
+    this.toggleAttribute("data-collapsible", collapsible);
+  }
+
+  get disabled(): boolean {
+    return this.hasAttribute("data-disabled");
+  }
+
+  set disabled(disabled: boolean) {
+    this.toggleAttribute("data-disabled", disabled);
+  }
+
+  get hiddenUntilFound(): boolean {
+    return this.hasAttribute("data-hidden-until-found");
+  }
+
+  set hiddenUntilFound(hiddenUntilFound: boolean) {
+    this.toggleAttribute("data-hidden-until-found", hiddenUntilFound);
+  }
+
   get #type(): AccordionType {
     return this.dataset.type === "multiple" ? "multiple" : "single";
   }
@@ -99,6 +162,7 @@ export class GoodUIAccordion extends HTMLElement {
     return Array.from(this.querySelectorAll<HTMLElement>(itemSelector))
       .filter((item) => belongsToRoot(item, this))
       .flatMap((item) => {
+        const header = findOwnedElement<HTMLElement>(item, headerSelector);
         const trigger = findOwnedElement<HTMLButtonElement>(
           item,
           triggerSelector,
@@ -110,13 +174,24 @@ export class GoodUIAccordion extends HTMLElement {
           return [];
         }
 
+        if (!this.#authoredTriggerDisabled.has(trigger)) {
+          this.#authoredTriggerDisabled.set(
+            trigger,
+            trigger.hasAttribute("disabled"),
+          );
+        }
+
         return [
           {
             item,
+            header,
             trigger,
             content,
             value,
-            disabled: item.hasAttribute("data-disabled") || trigger.disabled,
+            disabled:
+              this.disabled ||
+              item.hasAttribute("data-item-disabled") ||
+              this.#authoredTriggerDisabled.get(trigger) === true,
           },
         ];
       });
@@ -125,23 +200,52 @@ export class GoodUIAccordion extends HTMLElement {
   #prepareParts(): void {
     if (!this.id) {
       generatedId += 1;
-      this.id = `goodui-accordion-${generatedId}`;
+      this.id = `ormo-accordion-${generatedId}`;
     }
 
-    this.#getParts().forEach(({ item, trigger, content, disabled }, index) => {
-      trigger.id ||= `${this.id}-trigger-${index + 1}`;
-      content.id ||= `${this.id}-content-${index + 1}`;
+    this.#getParts().forEach(
+      ({ item, header, trigger, content, disabled }, index) => {
+        const indexValue = String(index);
 
-      trigger.disabled = disabled;
-      trigger.setAttribute("aria-controls", content.id);
-      content.setAttribute("aria-labelledby", trigger.id);
-      content.setAttribute("role", "region");
+        trigger.id ||= `${this.id}-trigger-${index + 1}`;
+        content.id ||= `${this.id}-content-${index + 1}`;
 
-      if (disabled) {
-        item.setAttribute("data-disabled", "");
-        trigger.setAttribute("data-disabled", "");
+        trigger.disabled = disabled;
+        trigger.setAttribute("aria-controls", content.id);
+        content.setAttribute("aria-labelledby", trigger.id);
+        content.dataset.orientation =
+          this.dataset.orientation === "horizontal" ? "horizontal" : "vertical";
+
+        for (const part of [item, header, trigger, content]) {
+          part?.toggleAttribute("data-disabled", disabled);
+
+          if (part) {
+            part.dataset.index = indexValue;
+          }
+        }
+      },
+    );
+  }
+
+  #observeContentSizes(): void {
+    this.#resizeObserver?.disconnect();
+
+    if (typeof ResizeObserver === "undefined") {
+      this.#resizeObserver = undefined;
+      return;
+    }
+
+    this.#resizeObserver ??= new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.target instanceof HTMLElement) {
+          setCollapsibleWidth(entry.target, contentWidthProperty);
+        }
       }
     });
+
+    for (const { content } of this.#getParts()) {
+      this.#resizeObserver.observe(content);
+    }
   }
 
   #readDefaultValue(): AccordionValue {
@@ -178,7 +282,11 @@ export class GoodUIAccordion extends HTMLElement {
     return typeof value === "string" ? value : null;
   }
 
-  #applyValue(value: AccordionValue, animate = this.#initialized): void {
+  #applyValue(
+    value: AccordionValue,
+    animate = this.#initialized,
+    notify = this.#initialized,
+  ): void {
     const normalizedValue = this.#normalizeValue(value);
     const selectedValues = new Set(
       Array.isArray(normalizedValue)
@@ -188,36 +296,63 @@ export class GoodUIAccordion extends HTMLElement {
           : [normalizedValue],
     );
 
-    this.#getParts().forEach(({ item, trigger, content, value: itemValue }) => {
-      const open = selectedValues.has(itemValue);
-      const state = open ? "open" : "closed";
+    this.#getParts().forEach(
+      ({ item, header, trigger, content, value: itemValue, disabled }) => {
+        const open = selectedValues.has(itemValue);
+        const state = open ? "open" : "closed";
 
-      const stateChanged = content.dataset.state !== state;
+        const stateChanged = content.dataset.state !== state;
 
-      item.dataset.state = state;
-      trigger.dataset.state = state;
-      trigger.setAttribute("aria-expanded", String(open));
+        item.dataset.state = state;
+        trigger.dataset.state = state;
+        trigger.setAttribute("aria-expanded", String(open));
 
-      if (!animate || stateChanged) {
-        setCollapsibleState(content, open, {
-          animate,
-          fallbackFocus: trigger,
-          heightProperty: contentHeightProperty,
-        });
-      }
-    });
+        if (open && this.#type === "single" && !this.#collapsible) {
+          trigger.setAttribute("aria-disabled", "true");
+        } else {
+          trigger.removeAttribute("aria-disabled");
+        }
+
+        for (const part of [item, header, trigger, content]) {
+          part?.toggleAttribute("data-open", open);
+          part?.toggleAttribute("data-disabled", disabled);
+        }
+
+        if (!animate || stateChanged) {
+          setCollapsibleState(content, open, {
+            animate,
+            fallbackFocus: trigger,
+            heightProperty: contentHeightProperty,
+            hiddenUntilFound:
+              this.hiddenUntilFound ||
+              content.hasAttribute("data-hidden-until-found"),
+            widthProperty: contentWidthProperty,
+          });
+        }
+
+        if (notify && stateChanged) {
+          item.dispatchEvent(
+            new CustomEvent("ormo:open-change", {
+              bubbles: true,
+              composed: true,
+              detail: { open, value: itemValue },
+            }),
+          );
+        }
+      },
+    );
   }
 
-  #requestValue(value: AccordionValue): void {
+  #requestValue(value: AccordionValue, cancelable = true): void {
     const normalizedValue = this.#normalizeValue(value);
 
     if (valuesEqual(this.value, normalizedValue)) {
       return;
     }
 
-    const event = new CustomEvent("goodui:value-change", {
+    const event = new CustomEvent("ormo:value-change", {
       bubbles: true,
-      cancelable: true,
+      cancelable,
       composed: true,
       detail: { value: normalizedValue },
     });
@@ -234,7 +369,12 @@ export class GoodUIAccordion extends HTMLElement {
         ? target.closest<HTMLButtonElement>(triggerSelector)
         : null;
 
-    if (!trigger || !belongsToRoot(trigger, this) || trigger.disabled) {
+    if (
+      !trigger ||
+      !belongsToRoot(trigger, this) ||
+      this.disabled ||
+      trigger.disabled
+    ) {
       return;
     }
 
@@ -264,64 +404,31 @@ export class GoodUIAccordion extends HTMLElement {
     this.#requestValue(open ? null : itemValue);
   };
 
-  #handleKeydown = (event: KeyboardEvent): void => {
-    if (event.altKey || event.ctrlKey || event.metaKey) {
-      return;
-    }
-
+  #handleBeforeMatch = (event: Event): void => {
     const target = event.target;
-    const trigger =
+    const content =
       target instanceof Element
-        ? target.closest<HTMLButtonElement>(triggerSelector)
+        ? target.closest<HTMLElement>(contentSelector)
         : null;
 
-    if (!trigger || !belongsToRoot(trigger, this)) {
+    if (!content || !belongsToRoot(content, this)) {
       return;
     }
 
-    const triggers = this.#getParts()
-      .filter((part) => !part.disabled)
-      .map((part) => part.trigger);
-    const currentIndex = triggers.indexOf(trigger);
+    const part = this.#getParts().find(
+      (candidate) => candidate.content === content,
+    );
 
-    if (currentIndex === -1) {
-      return;
+    if (!part || part.item.dataset.state === "open") return;
+
+    if (this.#type === "multiple") {
+      this.#requestValue([...(this.value as string[]), part.value], false);
+    } else {
+      this.#requestValue(part.value, false);
     }
-
-    const horizontal = this.dataset.orientation === "horizontal";
-    const rtl = this.dir === "rtl";
-    let nextIndex: number | undefined;
-
-    switch (event.key) {
-      case "Home":
-        nextIndex = 0;
-        break;
-      case "End":
-        nextIndex = triggers.length - 1;
-        break;
-      case "ArrowDown":
-        if (!horizontal) nextIndex = currentIndex + 1;
-        break;
-      case "ArrowUp":
-        if (!horizontal) nextIndex = currentIndex - 1;
-        break;
-      case "ArrowRight":
-        if (horizontal) nextIndex = currentIndex + (rtl ? -1 : 1);
-        break;
-      case "ArrowLeft":
-        if (horizontal) nextIndex = currentIndex + (rtl ? 1 : -1);
-        break;
-    }
-
-    if (nextIndex === undefined || triggers.length === 0) {
-      return;
-    }
-
-    event.preventDefault();
-    triggers[(nextIndex + triggers.length) % triggers.length]?.focus();
   };
 }
 
 if (!customElements.get(tagName)) {
-  customElements.define(tagName, GoodUIAccordion);
+  customElements.define(tagName, OrmoAccordion);
 }

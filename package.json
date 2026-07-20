@@ -1,5 +1,5 @@
 {
-  "name": "@goodui/primitives",
+  "name": "@ormo/primitives",
   "version": "0.0.0",
   "description": "Accessible, unstyled UI primitives for Astro.",
   "license": "MIT",
@@ -30,11 +30,11 @@
     "test:watch": "vitest",
     "test:browser": "playwright test",
     "validate:library": "pnpm format:check && pnpm lint && pnpm check && pnpm test",
-    "validate:docs": "pnpm --dir goodui.docs validate",
+    "validate:docs": "pnpm --dir ormo.docs validate",
     "validate": "pnpm validate:library && pnpm validate:docs",
-    "docs:dev": "pnpm --dir goodui.docs dev",
-    "docs:build": "pnpm --dir goodui.docs build",
-    "docs:preview": "pnpm --dir goodui.docs preview",
+    "docs:dev": "pnpm --dir ormo.docs dev",
+    "docs:build": "pnpm --dir ormo.docs build",
+    "docs:preview": "pnpm --dir ormo.docs preview",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "changeset publish"

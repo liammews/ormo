@@ -1,5 +1,5 @@
 packages:
-  - goodui.docs
+  - ormo.docs
 
 allowBuilds:
   esbuild: true

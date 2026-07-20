@@ -3,16 +3,17 @@ import type { AccordionContentProps } from "./types";
 
 type Props = AccordionContentProps;
 
-const attributes = Astro.props;
+const { hiddenUntilFound = false, ...attributes } = Astro.props;
 ---
 
 <div
   {...attributes}
-  data-goodui-accordion-content
+  data-ormo-accordion-content
   data-state="closed"
   aria-hidden="true"
   inert
-  hidden
+  hidden={hiddenUntilFound ? "until-found" : true}
+  data-hidden-until-found={hiddenUntilFound ? "" : undefined}
 >
   <slot />
 </div>

@@ -1,16 +1,16 @@
-# GoodUI Primitives
+# Ormo Primitives
 
 Accessible, unstyled UI primitives for Astro.
 
-GoodUI is in early development. The API is unstable, breaking changes are
+Ormo is in early development. The API is unstable, breaking changes are
 expected, and the package is not yet recommended for production use.
 
-GoodUI provides composable Astro components with accessible semantics and
+Ormo provides composable Astro components with accessible semantics and
 browser behaviour built in, while leaving styling to you.
 
 ## Project status
 
-GoodUI is open source under the [MIT License](./LICENSE), so you are welcome to
+Ormo is open source under the [MIT License](./LICENSE), so you are welcome to
 inspect, use, and fork the code.
 
 The project is currently being developed privately in public. We are not
@@ -20,7 +20,7 @@ guidelines will be updated when the project is ready for wider collaboration.
 
 ## Development
 
-GoodUI requires Node.js 22.12 or newer and pnpm 11.
+Ormo requires Node.js 22.12 or newer and pnpm 11.
 
 ```sh
 pnpm install
@@ -35,4 +35,4 @@ pnpm docs:dev
 
 ## License
 
-GoodUI is released under the [MIT License](./LICENSE).
+Ormo is released under the [MIT License](./LICENSE).

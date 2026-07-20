@@ -2,15 +2,20 @@ import type { HTMLAttributes } from "astro/types";
 
 export type AccordionType = "single" | "multiple";
 export type AccordionOrientation = "vertical" | "horizontal";
-export type AccordionDirection = "ltr" | "rtl";
 export type AccordionValue = string | string[] | null;
 
-export interface AccordionRootProps extends Omit<HTMLAttributes<"div">, "dir"> {
+export interface AccordionRootProps extends HTMLAttributes<"div"> {
   type?: AccordionType;
   collapsible?: boolean;
   defaultValue?: string | string[];
+  disabled?: boolean;
+  hiddenUntilFound?: boolean;
+  /**
+   * Exposes styling metadata only. Accordion triggers remain in the normal tab
+   * sequence regardless of orientation.
+   * @deprecated
+   */
   orientation?: AccordionOrientation;
-  dir?: AccordionDirection;
 }
 
 export interface AccordionItemProps extends Omit<
@@ -27,7 +32,9 @@ export interface AccordionHeaderProps extends HTMLAttributes<"h3"> {
 
 export type AccordionTriggerProps = HTMLAttributes<"button">;
 
-export type AccordionContentProps = HTMLAttributes<"div">;
+export interface AccordionContentProps extends HTMLAttributes<"div"> {
+  hiddenUntilFound?: boolean;
+}
 
 export interface AccordionValueChangeDetail {
   value: AccordionValue;
@@ -35,16 +42,27 @@ export interface AccordionValueChangeDetail {
 
 export type AccordionValueChangeEvent = CustomEvent<AccordionValueChangeDetail>;
 
-export interface GoodUIAccordionElement extends HTMLElement {
+export interface AccordionOpenChangeDetail {
+  open: boolean;
+  value: string;
+}
+
+export type AccordionOpenChangeEvent = CustomEvent<AccordionOpenChangeDetail>;
+
+export interface OrmoAccordionElement extends HTMLElement {
   value: AccordionValue;
+  collapsible: boolean;
+  disabled: boolean;
+  hiddenUntilFound: boolean;
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "goodui-accordion": GoodUIAccordionElement;
+    "ormo-accordion": OrmoAccordionElement;
   }
 
   interface GlobalEventHandlersEventMap {
-    "goodui:value-change": AccordionValueChangeEvent;
+    "ormo:value-change": AccordionValueChangeEvent;
+    "ormo:open-change": AccordionOpenChangeEvent;
   }
 }

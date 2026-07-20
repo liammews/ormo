@@ -10,6 +10,8 @@ interface CollapsibleOptions {
   animate: boolean;
   fallbackFocus?: HTMLElement;
   heightProperty: `--${string}`;
+  hiddenUntilFound?: boolean;
+  widthProperty?: `--${string}`;
 }
 
 const states = new WeakMap<HTMLElement, CollapsibleState>();
@@ -151,18 +153,52 @@ function scheduleAnimationCompletion(
   });
 }
 
-function finishOpening(element: HTMLElement, heightProperty: string): void {
-  if (element.dataset.state === "open") {
-    element.style.setProperty(heightProperty, "auto");
+export function setCollapsibleWidth(
+  element: HTMLElement,
+  widthProperty: `--${string}` | undefined,
+): void {
+  if (!widthProperty) return;
+
+  const width = element.scrollWidth;
+
+  if (width > 0) {
+    const nextWidth = `${width}px`;
+
+    if (element.style.getPropertyValue(widthProperty) !== nextWidth) {
+      element.style.setProperty(widthProperty, nextWidth);
+    }
   }
 }
 
-function finishClosing(element: HTMLElement, heightProperty: string): void {
+function hideElement(element: HTMLElement, hiddenUntilFound: boolean): void {
+  if (hiddenUntilFound) {
+    element.setAttribute("hidden", "until-found");
+  } else {
+    element.hidden = true;
+  }
+}
+
+function finishOpening(
+  element: HTMLElement,
+  heightProperty: string,
+  widthProperty: `--${string}` | undefined,
+): void {
+  if (element.dataset.state === "open") {
+    element.style.setProperty(heightProperty, "auto");
+    setCollapsibleWidth(element, widthProperty);
+  }
+}
+
+function finishClosing(
+  element: HTMLElement,
+  heightProperty: string,
+  hiddenUntilFound: boolean,
+): void {
   if (element.dataset.state !== "closed") {
     return;
   }
 
-  element.hidden = true;
+  hideElement(element, hiddenUntilFound);
   element.removeAttribute(endingStyleAttribute);
   element.style.setProperty(heightProperty, "auto");
 }
@@ -172,7 +208,13 @@ export function setCollapsibleState(
   open: boolean,
   options: CollapsibleOptions,
 ): void {
-  const { animate, fallbackFocus, heightProperty } = options;
+  const {
+    animate,
+    fallbackFocus,
+    heightProperty,
+    hiddenUntilFound = false,
+    widthProperty,
+  } = options;
   const { state, version } = beginUpdate(element);
   const existingAnimations = new Set(getElementAnimations(element));
 
@@ -184,6 +226,7 @@ export function setCollapsibleState(
     element.removeAttribute("inert");
     element.removeAttribute(endingStyleAttribute);
     element.dataset.state = "open";
+    setCollapsibleWidth(element, widthProperty);
 
     if (!animate) {
       element.removeAttribute(startingStyleAttribute);
@@ -193,7 +236,7 @@ export function setCollapsibleState(
 
     if (wasExiting) {
       if (!hasMotion(element)) {
-        finishOpening(element, heightProperty);
+        finishOpening(element, heightProperty, widthProperty);
         return;
       }
 
@@ -203,7 +246,7 @@ export function setCollapsibleState(
         version,
         existingAnimations,
         () => undefined,
-        () => finishOpening(element, heightProperty),
+        () => finishOpening(element, heightProperty, widthProperty),
       );
       return;
     }
@@ -215,7 +258,7 @@ export function setCollapsibleState(
 
     if (height === 0 || !hasMotion(element)) {
       element.removeAttribute(startingStyleAttribute);
-      finishOpening(element, heightProperty);
+      finishOpening(element, heightProperty, widthProperty);
       return;
     }
 
@@ -226,7 +269,7 @@ export function setCollapsibleState(
       version,
       existingAnimations,
       () => element.removeAttribute(startingStyleAttribute),
-      () => finishOpening(element, heightProperty),
+      () => finishOpening(element, heightProperty, widthProperty),
     );
     return;
   }
@@ -250,7 +293,7 @@ export function setCollapsibleState(
 
   if (!animate || element.hidden) {
     element.dataset.state = "closed";
-    element.hidden = true;
+    hideElement(element, hiddenUntilFound);
     element.removeAttribute(endingStyleAttribute);
     element.style.setProperty(heightProperty, "auto");
     return;
@@ -263,7 +306,7 @@ export function setCollapsibleState(
   element.setAttribute(endingStyleAttribute, "");
 
   if (height === 0 || !hasMotion(element)) {
-    finishClosing(element, heightProperty);
+    finishClosing(element, heightProperty, hiddenUntilFound);
     return;
   }
 
@@ -273,7 +316,7 @@ export function setCollapsibleState(
     version,
     existingAnimations,
     () => undefined,
-    () => finishClosing(element, heightProperty),
+    () => finishClosing(element, heightProperty, hiddenUntilFound),
   );
 }
 

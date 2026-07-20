@@ -1,0 +1,192 @@
+---
+import { ChevronDown } from "@lucide/astro";
+
+import CodeBlock from "../CodeBlock/CodeBlock.astro";
+
+interface Props {
+  code: string;
+}
+
+const { code } = Astro.props;
+const codeId = `demo-code-${crypto.randomUUID()}`;
+---
+
+<div class="demoblock" data-demo-block>
+  <div class="demoblock-canvas">
+    <slot />
+  </div>
+
+  {
+    code && (
+      <div class="demoblock-code-container" data-demo-code-container>
+        <div id={codeId} class="demoblock-code-content" data-demo-code-content>
+          <CodeBlock code={code} lang="astro" />
+        </div>
+
+        <div class="demoblock-code-actions" data-demo-code-actions hidden>
+          <button
+            type="button"
+            class="demoblock-code-toggle"
+            aria-expanded="false"
+            aria-controls={codeId}
+            data-demo-code-toggle
+          >
+            <span data-demo-code-toggle-label>Show all code</span>
+            <ChevronDown
+              class="demoblock-code-toggle-icon"
+              size={16}
+              aria-hidden="true"
+            />
+          </button>
+        </div>
+      </div>
+    )
+  }
+</div>
+
+<script>
+  const collapsedHeightInRem = 14;
+  const blocks = document.querySelectorAll<HTMLElement>("[data-demo-block]");
+
+  for (const block of blocks) {
+    if (block.dataset.initialized === "true") continue;
+
+    block.dataset.initialized = "true";
+
+    const container = block.querySelector<HTMLElement>(
+      "[data-demo-code-container]",
+    );
+    const content = block.querySelector<HTMLElement>(
+      "[data-demo-code-content]",
+    );
+    const actions = block.querySelector<HTMLElement>(
+      "[data-demo-code-actions]",
+    );
+    const toggle = block.querySelector<HTMLButtonElement>(
+      "[data-demo-code-toggle]",
+    );
+    const label = block.querySelector<HTMLElement>(
+      "[data-demo-code-toggle-label]",
+    );
+
+    if (!container || !content || !actions || !toggle || !label) continue;
+
+    const rootFontSize = Number.parseFloat(
+      getComputedStyle(document.documentElement).fontSize,
+    );
+    const collapsedHeight = collapsedHeightInRem * rootFontSize;
+
+    if (content.scrollHeight <= collapsedHeight) continue;
+
+    container.dataset.collapsible = "";
+    actions.hidden = false;
+
+    toggle.addEventListener("click", () => {
+      const expanded = toggle.getAttribute("aria-expanded") === "true";
+      const nextExpanded = !expanded;
+
+      toggle.setAttribute("aria-expanded", String(nextExpanded));
+      container.toggleAttribute("data-expanded", nextExpanded);
+      label.textContent = nextExpanded ? "Collapse code" : "Show all code";
+    });
+  }
+</script>
+
+<style>
+  .demoblock {
+    width: 100%;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-3);
+    overflow: clip;
+    margin-block-end: var(--space-200);
+  }
+
+  .demoblock-canvas {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-100);
+    background-color: var(--surface-canvas);
+    min-height: 24rem;
+    border-block-end: 1px solid var(--border-default);
+  }
+
+  .demoblock-code-container {
+    background: var(--surface-base);
+  }
+
+  .demoblock-code-content {
+    position: relative;
+  }
+
+  .demoblock-code-container[data-collapsible]:not([data-expanded])
+    .demoblock-code-content {
+    max-block-size: 14rem;
+    overflow: hidden;
+  }
+
+  .demoblock-code-container[data-collapsible]:not([data-expanded])
+    .demoblock-code-content::after {
+    position: absolute;
+    inset: auto 0 0;
+    block-size: 3rem;
+    background: linear-gradient(transparent, var(--surface-base));
+    content: "";
+    pointer-events: none;
+  }
+
+  .demoblock-code-actions {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-50);
+    border-block-start: 1px solid var(--border-default);
+  }
+
+  .demoblock-code-actions[hidden] {
+    display: none;
+  }
+
+  .demoblock-code-toggle {
+    display: inline-flex;
+    min-block-size: 2rem;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-25);
+    border: 0;
+    padding: var(--space-25) var(--space-75);
+    border-radius: var(--radius-2);
+    background: transparent;
+    color: var(--content-default);
+    font: inherit;
+    font-size: var(--font-size-2);
+    cursor: pointer;
+  }
+
+  .demoblock-code-toggle:hover {
+    background: var(--surface-elevated);
+  }
+
+  .demoblock-code-toggle:focus-visible {
+    outline: var(--focus-width) solid var(--focus-default);
+    outline-offset: 2px;
+  }
+
+  .demoblock-code-toggle-icon {
+    transition: transform var(--duration-1) var(--ease-1);
+  }
+
+  .demoblock-code-toggle[aria-expanded="true"] .demoblock-code-toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  .demoblock :global(.code-block) {
+    border: 0px;
+    border-radius: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .demoblock-code-toggle-icon {
+      transition: none;
+    }
+  }
+</style>

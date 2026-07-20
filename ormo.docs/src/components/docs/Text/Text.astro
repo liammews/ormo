@@ -1,0 +1,220 @@
+---
+import type { Polymorphic } from "astro/types";
+
+type TextElement =
+  | "h1"
+  | "h2"
+  | "h3"
+  | "h4"
+  | "h5"
+  | "h6"
+  | "p"
+  | "span"
+  | "label"
+  | "dt"
+  | "dd"
+  | "li"
+  | "figcaption"
+  | "legend"
+  | "pre"
+  | "code"
+  | "em"
+  | "strong"
+  | "small"
+  | "abbr"
+  | "time";
+
+type TextSize = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+
+type TextFont = "display" | "primary" | "secondary";
+type TextWeight = "normal" | "medium" | "bold";
+type TextStyle =
+  | "display"
+  | "h1"
+  | "h2"
+  | "h3"
+  | "h4"
+  | "h5"
+  | "h6"
+  | "body"
+  | "secondary"
+  | "brand"
+  | "success"
+  | "error"
+  | "warning"
+  | "info";
+
+type Props = Omit<Polymorphic<{ as: TextElement }>, "style"> & {
+  truncate?: boolean;
+  size?: TextSize;
+  font?: TextFont;
+  style?: TextStyle;
+  weight?: TextWeight;
+};
+
+type TextStyleDefaults = {
+  size: TextSize;
+  font: TextFont;
+  weight: TextWeight;
+};
+
+const styleDefaults: Record<TextStyle, TextStyleDefaults> = {
+  display: { size: 9, font: "display", weight: "bold" },
+  h1: { size: 8, font: "display", weight: "bold" },
+  h2: { size: 7, font: "primary", weight: "bold" },
+  h3: { size: 6, font: "primary", weight: "bold" },
+  h4: { size: 5, font: "primary", weight: "medium" },
+  h5: { size: 4, font: "primary", weight: "medium" },
+  h6: { size: 3, font: "primary", weight: "medium" },
+  body: { size: 3, font: "primary", weight: "normal" },
+  secondary: { size: 3, font: "primary", weight: "normal" },
+  brand: { size: 3, font: "primary", weight: "normal" },
+  success: { size: 3, font: "primary", weight: "normal" },
+  error: { size: 3, font: "primary", weight: "normal" },
+  warning: { size: 3, font: "primary", weight: "normal" },
+  info: { size: 3, font: "primary", weight: "normal" },
+};
+
+const {
+  as,
+  truncate = false,
+  size,
+  font,
+  style: textStyle = "body",
+  weight,
+  class: className,
+  ...attributes
+}: Props = Astro.props;
+
+const Tag = as ?? "p";
+const defaults = styleDefaults[textStyle];
+const resolvedSize = size ?? defaults.size;
+const resolvedFont = font ?? defaults.font;
+const resolvedWeight = weight ?? defaults.weight;
+---
+
+<Tag
+  {...attributes}
+  class:list={[
+    "ormo-text",
+    `ormo-text--style-${textStyle}`,
+    `ormo-text--font-${resolvedFont}`,
+    `ormo-text--size-${resolvedSize}`,
+    `ormo-text--weight-${resolvedWeight}`,
+    truncate && "ormo-text--truncate",
+    className,
+  ]}
+>
+  <slot />
+</Tag>
+
+<style>
+  .ormo-text {
+    margin: 0;
+    color: var(--content-default, currentColor);
+    line-height: var(--line-height-loose, 1.5);
+    letter-spacing: var(--letter-spacing-base, 0);
+  }
+
+  .ormo-text--style-display,
+  .ormo-text--style-h1,
+  .ormo-text--style-h2,
+  .ormo-text--style-h3,
+  .ormo-text--style-h4,
+  .ormo-text--style-h5,
+  .ormo-text--style-h6 {
+    line-height: var(--line-height-tight, 1.1);
+    letter-spacing: var(--letter-spacing-tight, -0.03em);
+  }
+
+  .ormo-text--style-secondary {
+    color: var(--content-subtle, currentColor);
+  }
+
+  .ormo-text--style-brand {
+    color: var(--content-brand, currentColor);
+  }
+
+  .ormo-text--style-success {
+    color: var(--content-success, currentColor);
+  }
+
+  .ormo-text--style-error {
+    color: var(--content-error, currentColor);
+  }
+
+  .ormo-text--style-warning {
+    color: var(--content-warning, currentColor);
+  }
+
+  .ormo-text--style-info {
+    color: var(--content-info, currentColor);
+  }
+
+  .ormo-text--font-display {
+    font-family: var(--font-family-display, sans-serif);
+  }
+
+  .ormo-text--font-primary {
+    font-family: var(--font-family-sans, sans-serif);
+  }
+
+  .ormo-text--font-secondary {
+    font-family: var(--font-family-mono, monospace);
+  }
+
+  .ormo-text--size-1 {
+    font-size: var(--font-size-1, 0.75rem);
+  }
+
+  .ormo-text--size-2 {
+    font-size: var(--font-size-2, 0.875rem);
+  }
+
+  .ormo-text--size-3 {
+    font-size: var(--font-size-3, 1rem);
+  }
+
+  .ormo-text--size-4 {
+    font-size: var(--font-size-4, 1.25rem);
+  }
+
+  .ormo-text--size-5 {
+    font-size: var(--font-size-5, 1.5rem);
+  }
+
+  .ormo-text--size-6 {
+    font-size: var(--font-size-6, 2rem);
+  }
+
+  .ormo-text--size-7 {
+    font-size: var(--font-size-7, 2.5rem);
+  }
+
+  .ormo-text--size-8 {
+    font-size: var(--font-size-8, 3rem);
+  }
+
+  .ormo-text--size-9 {
+    font-size: var(--font-size-9, 4rem);
+  }
+
+  .ormo-text--weight-normal {
+    font-weight: var(--font-weight-regular, 400);
+  }
+
+  .ormo-text--weight-medium {
+    font-weight: var(--font-weight-medium, 600);
+  }
+
+  .ormo-text--weight-bold {
+    font-weight: var(--font-weight-bold, 700);
+  }
+
+  .ormo-text--truncate {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>

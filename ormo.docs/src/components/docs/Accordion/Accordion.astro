@@ -1,0 +1,21 @@
+---
+import * as Accordion from "@ormo/primitives/accordion";
+---
+
+<Accordion.Root class="accordion" type="single" collapsible defaultValue="1">
+  <slot />
+</Accordion.Root>
+
+<style>
+  .accordion {
+    display: block;
+    width: min(100%, 36rem);
+    overflow: hidden;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-3);
+    background: var(--surface-base);
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 4%),
+      0 12px 32px rgb(0 0 0 / 7%);
+  }
+</style>

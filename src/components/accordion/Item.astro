@@ -8,9 +8,11 @@ const { value, disabled = false, ...attributes } = Astro.props;
 
 <div
   {...attributes}
-  data-goodui-accordion-item
+  data-ormo-accordion-item
   data-value={value}
   data-state="closed"
+  data-index=""
+  data-item-disabled={disabled ? "" : undefined}
   data-disabled={disabled ? "" : undefined}
 >
   <slot />

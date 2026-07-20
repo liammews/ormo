@@ -8,7 +8,7 @@ export default tseslint.config(
       ".astro/**",
       "dist/**",
       "node_modules/**",
-      "goodui.docs/**",
+      "ormo.docs/**",
       "playwright-report/**",
       "test-results/**",
     ],

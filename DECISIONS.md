@@ -1,6 +1,6 @@
-# GoodUI Design Decisions
+# Ormo Design Decisions
 
-This file records product and technical decisions that affect GoodUI's public API, repository structure, or long-term maintenance. Add a new entry when a decision changes the direction of the project. If a decision is reversed, mark it as superseded and link to the replacement rather than deleting the history.
+This file records product and technical decisions that affect Ormo's public API, repository structure, or long-term maintenance. Add a new entry when a decision changes the direction of the project. If a decision is reversed, mark it as superseded and link to the replacement rather than deleting the history.
 
 Statuses:
 
@@ -17,9 +17,9 @@ Statuses:
 
 Maintain independent repositories for:
 
-- `goodui.primitives`: the public `@goodui/primitives` package.
-- `goodui.docs`: the public documentation website.
-- `goodui.themes`: a future premium themed package and private source repository.
+- `ormo.primitives`: the public `@ormo/primitives` package.
+- `ormo.docs`: the public documentation website.
+- `ormo.themes`: a future premium themed package and private source repository.
 
 The documentation should consume released package versions rather than sharing a production workspace with the primitives.
 
@@ -32,7 +32,7 @@ The primitives have an open-source contribution and release lifecycle, while the
 - Cross-repository changes require coordinated pull requests or prereleases.
 - The primitives repository retains tests and fixtures needed to validate behavior.
 - The docs repository documents versions users can actually install.
-- Before the first npm release, the docs use a temporary local `link:../goodui.primitives` dependency.
+- Before the first npm release, the docs use a temporary local `link:../ormo.primitives` dependency.
 
 ## GD-002: Astro components with a custom-element runtime
 
@@ -67,7 +67,7 @@ Expose primitives as composable parts imported through a component namespace. Th
 
 ```astro
 ---
-import * as Accordion from "@goodui/primitives/accordion";
+import * as Accordion from "@ormo/primitives/accordion";
 ---
 
 <Accordion.Root>
@@ -99,15 +99,15 @@ Composable parts give consumers control over structure and styling while keeping
 
 ### Decision
 
-Consumers style primitive parts by passing their own `class` values. GoodUI does not expose `data-part` as a styling API and does not assign visual class names.
+Consumers style primitive parts by passing their own `class` values. Ormo does not expose `data-part` as a styling API and does not assign visual class names.
 
-GoodUI exposes behavioral state through attributes such as:
+Ormo exposes behavioral state through attributes such as:
 
 - `data-state="open"` and `data-state="closed"`
 - `data-disabled`
 - `data-orientation`
 
-Attributes prefixed with `data-goodui-*` are internal runtime selectors and are not public styling hooks.
+Attributes prefixed with `data-ormo-*` are internal runtime selectors and are not public styling hooks.
 
 ### Rationale
 
@@ -126,7 +126,7 @@ This mirrors the Radix model: consumers own visual naming, while the primitive o
 ```
 
 - Removing or renaming a public state attribute is a breaking change.
-- Internal `data-goodui-*` attributes may change without being treated as styling API changes.
+- Internal `data-ormo-*` attributes may change without being treated as styling API changes.
 
 ## GD-005: Icons belong to consumers and themed layers
 
@@ -171,7 +171,7 @@ Icons are visual choices rather than Accordion behavior. Keeping them outside th
 
 ### Decision
 
-`@goodui/primitives` is unstyled. It may include only behavior-critical presentation, such as hiding a closed panel when required for correct interaction.
+`@ormo/primitives` is unstyled. It may include only behavior-critical presentation, such as hiding a closed panel when required for correct interaction.
 
 Visual layout, colors, typography, borders, shadows, and motion belong to consumers or the future themed package.
 
@@ -192,7 +192,7 @@ The primitives should be suitable as an accessibility and behavior foundation fo
 
 ### Decision
 
-Keep `@goodui/primitives` open source under MIT. Distribute the future `@goodui/themes` package under a proprietary commercial license from a private repository or registry.
+Keep `@ormo/primitives` open source under MIT. Distribute the future `@ormo/themes` package under a proprietary commercial license from a private repository or registry.
 
 The likely commercial model is developer-seat licensing with use in commercial end products, while prohibiting source redistribution, resale, sublicensing, credential sharing, and competing source libraries.
 
@@ -231,7 +231,7 @@ This introduced animation lifecycle behavior and additional public state attribu
 
 ### Decision
 
-Accordion content uses its `data-state` attribute for public state and applies `hidden` immediately when closed. GoodUI does not expose presence-specific starting or ending style attributes.
+Accordion content uses its `data-state` attribute for public state and applies `hidden` immediately when closed. Ormo does not expose presence-specific starting or ending style attributes.
 
 Consumers may animate the immediate `hidden` change with browser CSS features such as discrete `display` transitions and `@starting-style`. The primitive runtime does not delay visibility changes to coordinate visual motion.
 
@@ -252,7 +252,7 @@ Immediate `hidden` behavior keeps the primitive runtime small and predictable wh
 
 ### Decision
 
-Accordion content opens and closes without consumer CSS. To support optional cross-browser motion without prescribing visual styles, the runtime measures the panel and exposes `--goodui-accordion-content-height` together with `data-starting-style` and `data-ending-style`.
+Accordion content opens and closes without consumer CSS. To support optional cross-browser motion without prescribing visual styles, the runtime measures the panel and exposes `--ormo-accordion-content-height` together with `data-starting-style` and `data-ending-style`.
 
 When motion is authored, closing content remains rendered until its finite CSS transitions or animations finish. It becomes `aria-hidden` and `inert` immediately, and focus inside a closing panel returns to its trigger. Without authored motion, `hidden` is applied immediately.
 
@@ -262,7 +262,7 @@ A measured pixel height avoids relying on limited `interpolate-size` support and
 
 ### Consequences
 
-- `--goodui-accordion-content-height`, `data-starting-style`, and `data-ending-style` are public styling APIs.
+- `--ormo-accordion-content-height`, `data-starting-style`, and `data-ending-style` are public styling APIs.
 - Panel spacing should live on an inner content element so the animated panel can reach zero height.
 - Dimension reads occur once at transition boundaries; the panel returns to automatic height after opening.
 - Interrupted and reduced-motion transitions must resolve without leaving stale visibility state.
@@ -275,7 +275,7 @@ A measured pixel height avoids relying on limited `interpolate-size` support and
 
 ### Decision
 
-Maintain the public documentation site in `goodui.docs` within the `goodui.primitives` repository. The repository is a pnpm workspace, and the private docs package consumes `@goodui/primitives` through `workspace:*`.
+Maintain the public documentation site in `ormo.docs` within the `ormo.primitives` repository. The repository is a pnpm workspace, and the private docs package consumes `@ormo/primitives` through `workspace:*`.
 
 The future premium themed package remains a separate private package or repository.
 
