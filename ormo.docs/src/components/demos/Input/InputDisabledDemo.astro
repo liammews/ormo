@@ -1,0 +1,22 @@
+---
+import { Input } from "@ormo/primitives/input";
+import "./InputErrorDemo.css";
+---
+
+<div class="input-demo">
+  <label class="input-demo-label" for="input-disabled-demo-email">
+    Email address
+  </label>
+  <Input
+    class="input-demo-input"
+    id="input-disabled-demo-email"
+    name="email"
+    type="email"
+    value="you@example.com"
+    aria-describedby="input-disabled-demo-email-hint"
+    disabled
+  />
+  <p class="input-demo-hint" id="input-disabled-demo-email-hint">
+    This field is currently unavailable.
+  </p>
+</div>

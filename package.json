@@ -14,6 +14,14 @@
       "types": "./src/components/accordion/index.ts",
       "import": "./src/components/accordion/index.ts"
     },
+    "./field": {
+      "types": "./src/components/field/index.ts",
+      "import": "./src/components/field/index.ts"
+    },
+    "./input": {
+      "types": "./src/components/input/index.ts",
+      "import": "./src/components/input/index.ts"
+    },
     "./package.json": "./package.json"
   },
   "files": [

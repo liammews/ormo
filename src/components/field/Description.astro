@@ -1,0 +1,11 @@
+---
+import type { FieldDescriptionProps } from "./types";
+
+type Props = FieldDescriptionProps;
+
+const attributes: Props = Astro.props;
+---
+
+<div {...attributes} data-ormo-field-description>
+  <slot />
+</div>

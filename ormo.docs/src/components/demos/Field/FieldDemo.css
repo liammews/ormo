@@ -1,0 +1,79 @@
+.field-demo {
+  display: flex;
+  width: min(100%, 24rem);
+  flex-direction: column;
+  gap: var(--space-50);
+}
+
+.field-demo-label {
+  color: var(--content-default);
+  font-size: var(--font-size-2);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-base);
+}
+
+.field-demo-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: var(--space-50) var(--space-75);
+  border: 1px solid var(--content-disabled);
+  border-radius: var(--radius-2);
+  background: var(--surface-base);
+  color: var(--content-default);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-3);
+  line-height: var(--line-height-base);
+  transition: border-color var(--duration-1) var(--ease-1);
+}
+
+.field-demo-input::placeholder {
+  color: var(--content-subtle);
+  opacity: 1;
+}
+
+.field-demo-input:hover:not(:disabled, :read-only) {
+  border-color: var(--content-subtle);
+}
+
+.field-demo-input:focus-visible {
+  border-color: var(--focus-default);
+  outline: var(--focus-width) solid var(--focus-default);
+  outline-offset: var(--focus-offset);
+}
+
+.field-demo[data-invalid] .field-demo-input {
+  border-color: var(--surface-error);
+}
+
+.field-demo[data-invalid] .field-demo-input:focus-visible {
+  outline-color: var(--surface-error);
+}
+
+.field-demo[data-disabled] .field-demo-input {
+  border-color: var(--border-default);
+  background: var(--surface-disabled);
+  color: var(--content-disabled);
+  cursor: not-allowed;
+}
+
+.field-demo-description,
+.field-demo-error {
+  font-size: var(--font-size-2);
+  line-height: var(--line-height-base);
+}
+
+.field-demo-description {
+  color: var(--content-subtle);
+}
+
+.field-demo-error {
+  color: var(--content-error);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field-demo-input {
+    transition: none;
+  }
+}

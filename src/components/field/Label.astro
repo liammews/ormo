@@ -1,0 +1,11 @@
+---
+import type { FieldLabelProps } from "./types";
+
+type Props = FieldLabelProps;
+
+const attributes: Props = Astro.props;
+---
+
+<label {...attributes} data-ormo-field-label>
+  <slot />
+</label>

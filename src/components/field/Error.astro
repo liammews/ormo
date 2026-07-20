@@ -1,0 +1,22 @@
+---
+import type { FieldErrorProps } from "./types";
+
+type Props = FieldErrorProps;
+
+const { match, ...attributes }: Props = Astro.props;
+const serializedMatch =
+  match === undefined
+    ? undefined
+    : typeof match === "boolean"
+      ? String(match)
+      : match;
+---
+
+<div
+  {...attributes}
+  data-ormo-field-error
+  data-match={serializedMatch}
+  hidden={match === false || typeof match === "string"}
+>
+  <slot />
+</div>

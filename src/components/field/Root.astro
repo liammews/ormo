@@ -1,0 +1,26 @@
+---
+import type { FieldRootProps } from "./types";
+
+type Props = FieldRootProps;
+
+const {
+  invalid = false,
+  disabled = false,
+  validationMode = "onSubmit",
+  ...attributes
+}: Props = Astro.props;
+---
+
+<ormo-field
+  {...attributes}
+  data-ormo-field-root
+  data-invalid={invalid ? "" : undefined}
+  data-disabled={disabled ? "" : undefined}
+  data-validation-mode={validationMode}
+>
+  <slot />
+</ormo-field>
+
+<script>
+  import "../../runtime/field";
+</script>

@@ -48,6 +48,7 @@ const currentPath = normalizePath(Astro.url.pathname);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link
       rel="preload"
       href={funnelDisplayLatinUrl}
@@ -92,20 +93,19 @@ const currentPath = normalizePath(Astro.url.pathname);
       </nav>
 
       <div class="docs-main-wrapper">
-        <div class="docs-main-header">
-          <div class="docs-main-header_content">
-            <Text as="h1" style="h1">
-              {title}
-            </Text>
-
-            <Text style="secondary" size="4">
-              {description}
-            </Text>
-          </div>
-        </div>
-
         <div class="docs-main-inner">
           <main id="main-content" class="docs-content" tabindex="-1">
+            <div class="docs-main-header">
+              <div class="docs-main-header_content">
+                <Text as="h1" style="h1">
+                  {title}
+                </Text>
+
+                <Text style="secondary" size="4">
+                  {description}
+                </Text>
+              </div>
+            </div>
             <slot />
           </main>
 
@@ -198,8 +198,8 @@ const currentPath = normalizePath(Astro.url.pathname);
 
   .docs-main-header {
     width: 100%;
-    padding-inline: var(--site-padding);
-    padding-block: var(--space-300);
+    padding-block-end: var(--space-300);
+    margin-block-end: var(--space-300);
     border-block-end: 1px solid var(--border-default);
   }
 

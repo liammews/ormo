@@ -1,0 +1,88 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Input"
+description: "A text input component"
+---
+
+import InputDemo from "../../../components/demos/Input/InputDemo.astro";
+import inputDemoCode from "../../../components/demos/Input/InputDemo.astro?raw";
+import InputErrorDemo from "../../../components/demos/Input/InputErrorDemo.astro";
+import inputErrorDemoCode from "../../../components/demos/Input/InputErrorDemo.astro?raw";
+import InputDisabledDemo from "../../../components/demos/Input/InputDisabledDemo.astro";
+import inputDisabledDemoCode from "../../../components/demos/Input/InputDisabledDemo.astro?raw";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+## Default
+
+<DemoBlock code={inputDemoCode}>
+  <InputDemo />
+</DemoBlock>
+
+## Error
+
+<DemoBlock code={inputErrorDemoCode}>
+  <InputErrorDemo />
+</DemoBlock>
+
+## Disabled
+
+<DemoBlock code={inputDisabledDemoCode}>
+  <InputDisabledDemo />
+</DemoBlock>
+
+## API reference
+
+Input renders a native <code>&lt;input&gt;</code> and forwards its HTML attributes.
+
+<PropsTable
+  id="input-props"
+  caption="Input properties"
+  rows={[
+    {
+      name: "type",
+      type: "HTMLInputTypeAttribute",
+      defaultValue: '"text"',
+      description:
+        "Sets the kind of input control. The browser defaults to a text input when the attribute is omitted.",
+    },
+    {
+      name: "name",
+      type: "string",
+      description:
+        "Identifies the control when its containing form is submitted.",
+    },
+    {
+      name: "value",
+      type: "string | number",
+      description:
+        "Sets the input’s initial value in the server-rendered HTML.",
+    },
+    {
+      name: "autocomplete",
+      type: "string",
+      description:
+        "Provides the browser and assistive technology with the input’s expected purpose.",
+    },
+    {
+      name: "required",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Requires a value before the containing form can be submitted.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Prevents interaction and excludes the input from form submission.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description:
+        "Applies a consumer-owned class to the native input element.",
+    },
+  ]}
+/>

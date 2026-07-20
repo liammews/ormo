@@ -11,12 +11,13 @@
   --content-success: var(--color-green-11);
   --content-error: var(--color-amber-11);
   --content-warning: var(--color-red-11);
+  --content-onbrand: var(--color-gray-12);
 
   --surface-canvas: var(--color-gray-2);
   --surface-elevated: var(--color-gray-3);
   --surface-base: var(--color-gray-1);
   --surface-disabled: var(--color-gray-3);
-  --surface-brand: var(--color-brand-10);
+  --surface-brand: var(--color-brand-9);
   --surface-brand-hover: var(--color-brand-11);
   --surface-overlay: ;
   --surface-info: var(--color-blue-10);

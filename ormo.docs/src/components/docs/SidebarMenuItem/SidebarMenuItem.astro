@@ -24,7 +24,6 @@ const { href, current = false } = Astro.props;
     font-size: var(--font-size-2);
     color: var(--content-subtle);
     padding: var(--space-50) var(--space-75);
-    border-radius: var(--radius-1);
     width: 100%;
     transition: background var(--duration-1) var(--ease-1);
 
@@ -34,8 +33,8 @@ const { href, current = false } = Astro.props;
     }
 
     &[aria-current] {
-      background: var(--surface-elevated);
-      color: var(--content-primary);
+      background: var(--surface-brand);
+      color: var(--content-onbrand);
       font-weight: var(--font-weight-medium);
     }
   }

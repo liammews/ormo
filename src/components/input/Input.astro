@@ -1,0 +1,9 @@
+---
+import type { InputProps } from "./types";
+
+type Props = InputProps;
+
+const attributes: Props = Astro.props;
+---
+
+<input {...attributes} />
