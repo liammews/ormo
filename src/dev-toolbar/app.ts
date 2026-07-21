@@ -1,0 +1,385 @@
+import { defineToolbarApp } from "astro/toolbar";
+
+interface Diagnostic {
+  element: HTMLElement;
+  message: string;
+}
+
+const interactiveSelector =
+  'a[href], button, input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])';
+const programmaticFocusSelector = `${interactiveSelector}, [tabindex="-1"]`;
+
+function hasAccessibleName(element: HTMLElement): boolean {
+  if (element.getAttribute("aria-label")?.trim()) {
+    return true;
+  }
+
+  const labelledBy = element
+    .getAttribute("aria-labelledby")
+    ?.trim()
+    .split(/\s+/);
+  if (
+    labelledBy?.some((id) =>
+      element.ownerDocument.getElementById(id)?.textContent?.trim(),
+    )
+  ) {
+    return true;
+  }
+
+  return Boolean(
+    element.textContent?.trim() ||
+    element.getAttribute("title")?.trim() ||
+    element.querySelector('img[alt]:not([alt=""]), input[value], svg title'),
+  );
+}
+
+function scanButtons(): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+
+  for (const button of document.querySelectorAll<HTMLElement>(
+    "[data-ormo-button]",
+  )) {
+    if (!hasAccessibleName(button)) {
+      diagnostics.push({
+        element: button,
+        message: "Button needs an accessible name.",
+      });
+    }
+
+    if (button.tabIndex > 0) {
+      diagnostics.push({
+        element: button,
+        message: "Button should not use a positive tabindex.",
+      });
+    }
+
+    if (button.querySelector(interactiveSelector)) {
+      diagnostics.push({
+        element: button,
+        message: "Button contains a nested interactive element.",
+      });
+    }
+  }
+
+  return diagnostics;
+}
+
+function scanAlertDialogs(): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+
+  for (const trigger of document.querySelectorAll<HTMLElement>(
+    "[data-ormo-alert-dialog-trigger][data-ormo-alert-dialog-for]",
+  )) {
+    const target = trigger.dataset.ormoAlertDialogFor?.trim();
+    const root = target ? document.getElementById(target) : null;
+    if (!root || root.localName !== "ormo-alert-dialog") {
+      diagnostics.push({
+        element: trigger,
+        message: `Detached Alert Dialog Trigger does not match a Root id: ${target || "(empty)"}`,
+      });
+    }
+  }
+
+  for (const root of document.querySelectorAll<HTMLElement>(
+    "ormo-alert-dialog",
+  )) {
+    const owns = (element: Element): boolean =>
+      element.closest("ormo-alert-dialog") === root;
+    const contents = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-ormo-alert-dialog-content]"),
+    ).filter(owns);
+    const content = contents[0];
+
+    if (!content) {
+      diagnostics.push({
+        element: root,
+        message: "Alert Dialog needs one Content part.",
+      });
+      continue;
+    }
+
+    if (contents.length > 1) {
+      diagnostics.push({
+        element: root,
+        message: "Alert Dialog has more than one Content part.",
+      });
+    }
+
+    const title = Array.from(
+      content.querySelectorAll<HTMLElement>("[data-ormo-alert-dialog-title]"),
+    ).find(owns);
+    const description = Array.from(
+      content.querySelectorAll<HTMLElement>(
+        "[data-ormo-alert-dialog-description]",
+      ),
+    ).find(owns);
+    const closeControl = Array.from(
+      content.querySelectorAll<HTMLElement>(
+        "[data-ormo-alert-dialog-cancel], [data-ormo-alert-dialog-action]",
+      ),
+    ).find(owns);
+
+    if (
+      !title &&
+      !content.getAttribute("aria-label")?.trim() &&
+      !content.getAttribute("aria-labelledby")?.trim()
+    ) {
+      diagnostics.push({
+        element: content,
+        message: "Alert Dialog needs a Title or another accessible name.",
+      });
+    }
+
+    if (!description && !content.getAttribute("aria-describedby")?.trim()) {
+      diagnostics.push({
+        element: content,
+        message: "Alert Dialog needs a Description or aria-describedby.",
+      });
+    }
+
+    if (!closeControl) {
+      diagnostics.push({
+        element: content,
+        message: "Alert Dialog needs a Cancel or Action response.",
+      });
+    }
+
+    const finalFocus = content.dataset.finalFocus?.trim();
+    if (finalFocus) {
+      try {
+        const target = document.querySelector<HTMLElement>(finalFocus);
+        if (
+          !target ||
+          target.matches(":disabled") ||
+          !target.matches(programmaticFocusSelector)
+        ) {
+          diagnostics.push({
+            element: content,
+            message: `Alert Dialog finalFocus does not match an available element: ${finalFocus}`,
+          });
+        }
+      } catch {
+        diagnostics.push({
+          element: content,
+          message: `Alert Dialog finalFocus is not valid CSS: ${finalFocus}`,
+        });
+      }
+    }
+  }
+
+  return diagnostics;
+}
+
+function scanDialogs(): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+
+  for (const trigger of document.querySelectorAll<HTMLElement>(
+    "[data-ormo-dialog-trigger][data-ormo-dialog-for]",
+  )) {
+    const target = trigger.dataset.ormoDialogFor?.trim();
+    const root = target ? document.getElementById(target) : null;
+    if (!root || root.localName !== "ormo-dialog") {
+      diagnostics.push({
+        element: trigger,
+        message: `Detached Dialog Trigger does not match a Root id: ${target || "(empty)"}`,
+      });
+    }
+  }
+
+  for (const root of document.querySelectorAll<HTMLElement>("ormo-dialog")) {
+    const owns = (element: Element): boolean =>
+      element.closest("ormo-dialog") === root;
+    const contents = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-ormo-dialog-content]"),
+    ).filter(owns);
+    const content = contents[0];
+
+    if (!content) {
+      diagnostics.push({
+        element: root,
+        message: "Dialog needs one Content part.",
+      });
+      continue;
+    }
+
+    if (contents.length > 1) {
+      diagnostics.push({
+        element: root,
+        message: "Dialog has more than one Content part.",
+      });
+    }
+
+    const title = Array.from(
+      content.querySelectorAll<HTMLElement>("[data-ormo-dialog-title]"),
+    ).find(owns);
+    const close = Array.from(
+      content.querySelectorAll<HTMLElement>("[data-ormo-dialog-close]"),
+    ).find(owns);
+
+    if (
+      !title &&
+      !content.getAttribute("aria-label")?.trim() &&
+      !content.getAttribute("aria-labelledby")?.trim()
+    ) {
+      diagnostics.push({
+        element: content,
+        message: "Dialog needs a Title or another accessible name.",
+      });
+    }
+
+    if (!close) {
+      diagnostics.push({
+        element: content,
+        message: "Dialog needs a visible Close control.",
+      });
+    }
+
+    const finalFocus = content.dataset.finalFocus?.trim();
+    if (finalFocus) {
+      try {
+        const target = document.querySelector<HTMLElement>(finalFocus);
+        if (
+          !target ||
+          target.matches(":disabled") ||
+          !target.matches(programmaticFocusSelector)
+        ) {
+          diagnostics.push({
+            element: content,
+            message: `Dialog finalFocus does not match an available element: ${finalFocus}`,
+          });
+        }
+      } catch {
+        diagnostics.push({
+          element: content,
+          message: `Dialog finalFocus is not valid CSS: ${finalFocus}`,
+        });
+      }
+    }
+  }
+
+  return diagnostics;
+}
+
+function scan(): Diagnostic[] {
+  return [...scanButtons(), ...scanAlertDialogs(), ...scanDialogs()];
+}
+
+function identify(element: HTMLElement): string {
+  if (element.id) return `#${element.id}`;
+  if (element.hasAttribute("data-ormo-alert-dialog-content")) return "Content";
+  if (element.hasAttribute("data-ormo-dialog-content")) return "Content";
+  if (element.hasAttribute("data-ormo-button")) return "Button";
+  return element.localName;
+}
+
+export default defineToolbarApp({
+  init(canvas, app) {
+    const style = document.createElement("style");
+    style.textContent = `
+      .panel {
+        position: fixed;
+        right: 1rem;
+        bottom: 5rem;
+        width: min(24rem, calc(100vw - 2rem));
+        max-height: min(32rem, calc(100vh - 7rem));
+        overflow: auto;
+        border: 1px solid #34343a;
+        border-radius: 0.75rem;
+        padding: 1rem;
+        background: #17171a;
+        box-shadow: 0 1rem 3rem rgb(0 0 0 / 35%);
+        color: #f7f7f8;
+        font: 0.875rem/1.45 system-ui, sans-serif;
+      }
+      h1 { margin: 0; font-size: 1rem; }
+      p { margin: 0.5rem 0 0; color: #c7c7ce; }
+      ol { display: grid; gap: 0.5rem; margin: 0.75rem 0 0; padding: 0; list-style: none; }
+      button {
+        width: 100%;
+        border: 1px solid #45454d;
+        border-radius: 0.5rem;
+        padding: 0.625rem;
+        background: #242429;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+      }
+      button:hover { background: #303036; }
+      button:focus-visible { outline: 2px solid #bda7ff; outline-offset: 2px; }
+      strong { display: block; margin-bottom: 0.125rem; color: #ffffff; }
+    `;
+
+    const panel = document.createElement("section");
+    panel.className = "panel";
+    panel.setAttribute("aria-label", "Ormo diagnostics");
+    const heading = document.createElement("h1");
+    heading.textContent = "Ormo diagnostics";
+    const summary = document.createElement("p");
+    summary.setAttribute("aria-live", "polite");
+    const list = document.createElement("ol");
+    panel.append(heading, summary, list);
+    canvas.append(style, panel);
+
+    const render = (): void => {
+      const diagnostics = scan();
+      summary.textContent = diagnostics.length
+        ? `${diagnostics.length} issue${diagnostics.length === 1 ? "" : "s"} found.`
+        : "No Ormo issues found on this page.";
+      list.replaceChildren();
+
+      for (const diagnostic of diagnostics) {
+        const item = document.createElement("li");
+        const button = document.createElement("button");
+        const location = document.createElement("strong");
+        location.textContent = identify(diagnostic.element);
+        button.append(location, diagnostic.message);
+        button.addEventListener("click", () => {
+          diagnostic.element.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+          diagnostic.element.animate(
+            [
+              { outline: "3px solid #f7b955", outlineOffset: "4px" },
+              { outline: "3px solid transparent", outlineOffset: "8px" },
+            ],
+            { duration: 1200, easing: "ease-out" },
+          );
+        });
+        item.append(button);
+        list.append(item);
+      }
+
+      app.toggleNotification({
+        state: diagnostics.length > 0,
+        level: "warning",
+      });
+    };
+
+    let frame: number | undefined;
+    const scheduleRender = (): void => {
+      if (frame !== undefined) return;
+      frame = requestAnimationFrame(() => {
+        frame = undefined;
+        render();
+      });
+    };
+    let observer = new MutationObserver(scheduleRender);
+    const observePage = (): void => {
+      observer.disconnect();
+      observer = new MutationObserver(scheduleRender);
+      observer.observe(document.body, {
+        attributes: true,
+        childList: true,
+        subtree: true,
+      });
+      render();
+    };
+
+    app.onToggled(({ state }) => {
+      if (state) render();
+    });
+    document.addEventListener("astro:page-load", observePage);
+    observePage();
+  },
+});

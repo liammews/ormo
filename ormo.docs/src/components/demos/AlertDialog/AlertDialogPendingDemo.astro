@@ -1,0 +1,74 @@
+---
+import * as AlertDialog from "@ormo/primitives/alert-dialog";
+import "./AlertDialogDemo.css";
+---
+
+<div class="alert-dialog-demo" data-alert-dialog-pending-demo>
+  <AlertDialog.Root>
+    <AlertDialog.Trigger class="alert-dialog-trigger">
+      Archive project
+    </AlertDialog.Trigger>
+
+    <AlertDialog.Content class="alert-dialog-content" aria-busy="false">
+      <AlertDialog.Title class="alert-dialog-title">
+        Archive this project?
+      </AlertDialog.Title>
+      <AlertDialog.Description class="alert-dialog-description">
+        Team members will no longer be able to make changes.
+      </AlertDialog.Description>
+
+      <div class="alert-dialog-actions">
+        <AlertDialog.Cancel class="alert-dialog-button">
+          Cancel
+        </AlertDialog.Cancel>
+        <AlertDialog.Action
+          class="alert-dialog-button alert-dialog-primary"
+          value="archive"
+          data-archive-action
+        >
+          Archive project
+        </AlertDialog.Action>
+      </div>
+    </AlertDialog.Content>
+  </AlertDialog.Root>
+
+  <p class="alert-dialog-status" aria-live="polite" data-archive-status></p>
+</div>
+
+<script>
+  import { setButtonState } from "@ormo/primitives/button";
+  import type { OrmoAlertDialogElement } from "@ormo/primitives/alert-dialog";
+
+  for (const demo of document.querySelectorAll<HTMLElement>(
+    "[data-alert-dialog-pending-demo]",
+  )) {
+    const root =
+      demo.querySelector<OrmoAlertDialogElement>("ormo-alert-dialog");
+    const content = demo.querySelector<HTMLDialogElement>(
+      "[data-ormo-alert-dialog-content]",
+    );
+    const action = demo.querySelector<HTMLButtonElement>(
+      "[data-archive-action]",
+    );
+    const status = demo.querySelector<HTMLElement>("[data-archive-status]");
+
+    action?.addEventListener("click", async (event) => {
+      event.preventDefault();
+      if (!root || !content) return;
+
+      setButtonState(action, {
+        pending: true,
+        disabled: true,
+        focusableWhenDisabled: true,
+      });
+      content.setAttribute("aria-busy", "true");
+
+      await new Promise((resolve) => setTimeout(resolve, 600));
+
+      setButtonState(action, { pending: false, disabled: false });
+      content.setAttribute("aria-busy", "false");
+      root.close("archive");
+      if (status) status.textContent = "Project archived.";
+    });
+  }
+</script>

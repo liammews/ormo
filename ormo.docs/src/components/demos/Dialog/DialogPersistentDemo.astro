@@ -1,0 +1,22 @@
+---
+import * as Dialog from "@ormo/primitives/dialog";
+import "./DialogDemo.css";
+---
+
+<div class="dialog-demo">
+  <Dialog.Root disablePointerDismissal>
+    <Dialog.Trigger class="dialog-trigger"
+      >Review keyboard shortcuts</Dialog.Trigger
+    >
+    <Dialog.Content class="dialog-content">
+      <Dialog.Title class="dialog-title">Keyboard shortcuts</Dialog.Title>
+      <ul class="dialog-shortcuts">
+        <li><kbd>⌘</kbd> + <kbd>S</kbd> — Save the current document</li>
+        <li><kbd>⌘</kbd> + <kbd>K</kbd> — Open the command menu</li>
+      </ul>
+      <div class="dialog-actions">
+        <Dialog.Close class="dialog-button dialog-primary"> Done </Dialog.Close>
+      </div>
+    </Dialog.Content>
+  </Dialog.Root>
+</div>

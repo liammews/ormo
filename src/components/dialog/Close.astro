@@ -1,0 +1,12 @@
+---
+import type { DialogCloseProps } from "./types";
+import Button from "../button/Button.astro";
+
+type Props = DialogCloseProps;
+
+const attributes: Props = Astro.props;
+---
+
+<Button {...attributes} data-ormo-dialog-close>
+  <slot />
+</Button>

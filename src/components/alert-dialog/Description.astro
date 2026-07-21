@@ -1,0 +1,11 @@
+---
+import type { AlertDialogDescriptionProps } from "./types";
+
+type Props = AlertDialogDescriptionProps;
+
+const { as: Tag = "p", ...attributes }: Props = Astro.props;
+---
+
+<Tag {...attributes} data-ormo-alert-dialog-description>
+  <slot />
+</Tag>

@@ -1,0 +1,19 @@
+---
+import type { AlertDialogContentProps } from "./types";
+
+type Props = AlertDialogContentProps;
+
+const { finalFocus, tabindex = -1, ...attributes }: Props = Astro.props;
+---
+
+<dialog
+  {...attributes}
+  tabindex={tabindex}
+  role="alertdialog"
+  aria-modal="true"
+  data-final-focus={finalFocus}
+  data-ormo-alert-dialog-content
+  data-state="closed"
+>
+  <slot />
+</dialog>

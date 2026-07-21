@@ -1,0 +1,27 @@
+---
+import * as Dialog from "@ormo/primitives/dialog";
+import "./DialogDemo.css";
+---
+
+<div class="dialog-demo" data-dialog-detached-demo>
+  <div class="dialog-trigger-group" aria-label="Profile shortcuts">
+    <Dialog.Trigger class="dialog-trigger" for="profile-dialog">
+      Open from toolbar
+    </Dialog.Trigger>
+    <Dialog.Trigger class="dialog-trigger-secondary" for="profile-dialog">
+      Open from account menu
+    </Dialog.Trigger>
+  </div>
+
+  <Dialog.Root id="profile-dialog">
+    <Dialog.Content class="dialog-content">
+      <Dialog.Title class="dialog-title">Profile details</Dialog.Title>
+      <Dialog.Description class="dialog-description">
+        Your public profile is visible to everyone in your workspace.
+      </Dialog.Description>
+      <div class="dialog-actions">
+        <Dialog.Close class="dialog-button">Close</Dialog.Close>
+      </div>
+    </Dialog.Content>
+  </Dialog.Root>
+</div>

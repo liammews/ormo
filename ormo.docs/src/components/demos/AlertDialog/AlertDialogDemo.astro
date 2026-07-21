@@ -1,0 +1,50 @@
+---
+import * as AlertDialog from "@ormo/primitives/alert-dialog";
+import "./AlertDialogDemo.css";
+---
+
+<div class="alert-dialog-demo" data-alert-dialog-demo>
+  <AlertDialog.Root>
+    <AlertDialog.Trigger class="alert-dialog-trigger">
+      Delete project
+    </AlertDialog.Trigger>
+
+    <AlertDialog.Content class="alert-dialog-content">
+      <AlertDialog.Title class="alert-dialog-title">
+        Delete this project?
+      </AlertDialog.Title>
+      <AlertDialog.Description class="alert-dialog-description">
+        This permanently deletes the project and all of its data. This action
+        cannot be undone.
+      </AlertDialog.Description>
+
+      <div class="alert-dialog-actions">
+        <AlertDialog.Cancel class="alert-dialog-button alert-dialog-cancel">
+          Cancel
+        </AlertDialog.Cancel>
+        <AlertDialog.Action
+          class="alert-dialog-button alert-dialog-action"
+          value="delete"
+          data-demo-delete
+        >
+          Delete project
+        </AlertDialog.Action>
+      </div>
+    </AlertDialog.Content>
+  </AlertDialog.Root>
+
+  <p class="alert-dialog-status" aria-live="polite" data-demo-status></p>
+</div>
+
+<script>
+  for (const demo of document.querySelectorAll<HTMLElement>(
+    "[data-alert-dialog-demo]",
+  )) {
+    const action = demo.querySelector<HTMLButtonElement>("[data-demo-delete]");
+    const status = demo.querySelector<HTMLElement>("[data-demo-status]");
+
+    action?.addEventListener("click", () => {
+      if (status) status.textContent = "Project deleted.";
+    });
+  }
+</script>

@@ -1,0 +1,77 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import type { ButtonProps } from "./types";
+import Runtime from "./Runtime.astro";
+
+type Props = ButtonProps;
+
+const { as = "button", ...attributes }: Props = Astro.props;
+const isNonNative = as === "div" || as === "span";
+const buttonAttributes = attributes as HTMLAttributes<"button">;
+const {
+  type = "button",
+  disabled = false,
+  nativeButton: _nativeButton,
+  focusableWhenDisabled = false,
+  pending = false,
+  ...buttonRest
+} = buttonAttributes as HTMLAttributes<"button"> & {
+  nativeButton?: true;
+  focusableWhenDisabled?: boolean;
+  pending?: boolean;
+};
+void _nativeButton;
+const nonNativeAttributes = attributes as HTMLAttributes<"div"> & {
+  disabled?: boolean;
+  nativeButton: false;
+  focusableWhenDisabled?: boolean;
+  pending?: boolean;
+};
+const {
+  disabled: nonNativeDisabled = false,
+  nativeButton: _nonNativeButton,
+  focusableWhenDisabled: nonNativeFocusableWhenDisabled = false,
+  pending: nonNativePending = false,
+  tabindex,
+  ...nonNativeRest
+} = nonNativeAttributes;
+void _nonNativeButton;
+const NonNativeTag = isNonNative ? as : "div";
+const needsRuntime =
+  import.meta.env.DEV || isNonNative || Boolean(focusableWhenDisabled);
+---
+
+{
+  isNonNative ? (
+    <NonNativeTag
+      {...nonNativeRest}
+      role="button"
+      tabindex={
+        nonNativeDisabled && !nonNativeFocusableWhenDisabled
+          ? -1
+          : (tabindex ?? 0)
+      }
+      aria-disabled={nonNativeDisabled ? "true" : undefined}
+      data-ormo-button
+      data-native-button="false"
+      data-disabled={nonNativeDisabled ? "" : undefined}
+      data-pending={nonNativePending ? "" : undefined}
+    >
+      <slot />
+    </NonNativeTag>
+  ) : (
+    <button
+      {...buttonRest}
+      type={type}
+      disabled={disabled && !focusableWhenDisabled}
+      aria-disabled={disabled && focusableWhenDisabled ? "true" : undefined}
+      data-ormo-button
+      data-native-button="true"
+      data-disabled={disabled ? "" : undefined}
+      data-pending={pending ? "" : undefined}
+    >
+      <slot />
+    </button>
+  )
+}
+{needsRuntime && <Runtime />}

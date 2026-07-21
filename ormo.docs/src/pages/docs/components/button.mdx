@@ -1,0 +1,199 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Button"
+description: "A control for triggering actions"
+---
+
+import ButtonDemo from "../../../components/demos/Button/ButtonDemo.astro";
+import buttonDemoCode from "../../../components/demos/Button/ButtonDemo.astro?raw";
+import ButtonNonNativeDemo from "../../../components/demos/Button/ButtonNonNativeDemo.astro";
+import buttonNonNativeDemoCode from "../../../components/demos/Button/ButtonNonNativeDemo.astro?raw";
+import ButtonDisabledDemo from "../../../components/demos/Button/ButtonDisabledDemo.astro";
+import buttonDisabledDemoCode from "../../../components/demos/Button/ButtonDisabledDemo.astro?raw";
+import ButtonFocusableDisabledDemo from "../../../components/demos/Button/ButtonFocusableDisabledDemo.astro";
+import buttonFocusableDisabledDemoCode from "../../../components/demos/Button/ButtonFocusableDisabledDemo.astro?raw";
+import ButtonPendingDemo from "../../../components/demos/Button/ButtonPendingDemo.astro";
+import buttonPendingDemoCode from "../../../components/demos/Button/ButtonPendingDemo.astro?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+## Default
+
+Button renders a native <code>&lt;button type="button"&gt;</code>. Its text content provides the accessible name, and the native element supplies <kbd>Enter</kbd> and <kbd>Space</kbd> keyboard behavior.
+
+<DemoBlock code={buttonDemoCode}>
+  <ButtonDemo />
+</DemoBlock>
+
+## Anatomy
+
+Import the component and add a label:
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import { Button } from "@ormo/primitives/button";
+---
+
+<Button>Save changes</Button>`}
+/>
+
+### Rendering links as buttons
+
+The Button component should not be used as a link. `<button>` is for actions and always enforces button semantics. When a control looks like a button but navigates to another location, we recommend using a native <code>&lt;a href&gt;</code> and applying the same styles. This preserves the link semantics and browser behavior users expect.
+
+## Examples
+
+### Rendering a non-native button
+
+Prefer the default native button whenever possible. When another element is required, set <code>as</code> to <code>"div"</code> or <code>"span"</code> and explicitly set <code>nativeButton={false}</code>. Button then supplies the button role, keyboard interaction, focusability, and disabled behavior that the element does not provide itself.
+
+<DemoBlock code={buttonNonNativeDemoCode}>
+  <ButtonNonNativeDemo />
+</DemoBlock>
+
+### Disabled
+
+Set <code>disabled</code> when a button action is unavailable. The native attribute prevents pointer and keyboard activation, removes the button from the tab sequence, and exposes its disabled state to assistive technology.
+
+<DemoBlock code={buttonDisabledDemoCode}>
+  <ButtonDisabledDemo />
+</DemoBlock>
+
+### Focusable when disabled
+
+Use <code>focusableWhenDisabled</code> when an action becomes temporarily unavailable while it has focus, such as during submission. The button stays in the Tab sequence and exposes <code>aria-disabled="true"</code>, while Button suppresses pointer and keyboard activation.
+
+<DemoBlock code={buttonFocusableDisabledDemoCode}>
+  <ButtonFocusableDisabledDemo />
+</DemoBlock>
+
+### Pending
+
+Set <code>pending</code> to expose <code>data-pending</code> for a loading indicator or other consumer-owned presentation. Pending does not disable the button or announce a status. Combine it explicitly with <code>disabled</code> and <code>focusableWhenDisabled</code> when an in-progress action must not be repeated.
+
+<DemoBlock code={buttonPendingDemoCode}>
+  <ButtonPendingDemo />
+</DemoBlock>
+
+### Native forms and Astro Actions
+
+Button defaults to <code>type="button"</code> to avoid accidental submissions. Set <code>type="submit"</code> deliberately inside a form, including a form backed by an Astro Action:
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import { actions } from "astro:actions";
+import { Button } from "@ormo/primitives/button";
+---
+
+<form method="POST" action={actions.saveProfile}>
+  <!-- form fields -->
+  <Button type="submit" name="intent" value="save">Save profile</Button>
+</form>`}
+/>
+
+For a client-enhanced form, keep pending state in the form or island that owns the request. While it is pending, expose <code>aria-busy="true"</code> on the form, prevent duplicate submission, and use <code>data-pending</code> on Button for styling. If the button remains focusable, expose <code>aria-disabled="true"</code> and suppress the action; if focus retention is not important, use the native <code>disabled</code> property. Restore the state when an in-page request completes.
+
+The optional <code>setButtonState</code> controller synchronizes these DOM states from a plain Astro script or any island framework. It is framework-independent and loads the interaction runtime only when imported:
+
+<CodeBlock
+  lang="ts"
+  code={`import { setButtonState } from "@ormo/primitives/button";
+
+const button = document.querySelector<HTMLButtonElement>("#save-profile");
+
+if (button) {
+${String.fromCharCode(32, 32)}setButtonState(button, {
+${String.fromCharCode(32, 32, 32, 32)}pending: true,
+${String.fromCharCode(32, 32, 32, 32)}disabled: true,
+${String.fromCharCode(32, 32, 32, 32)}focusableWhenDisabled: true,
+${String.fromCharCode(32, 32)}});
+
+${String.fromCharCode(32, 32)}// After the in-page request settles:
+${String.fromCharCode(32, 32)}setButtonState(button, { pending: false, disabled: false });
+}`}
+/>
+
+The controller sets <code>data-pending</code> for styling but does not announce a status by itself. Keep the visible label meaningful and use a nearby live region when completion or failure needs to be announced.
+
+### Native button capabilities
+
+Attributes not listed as component-specific props are forwarded to the native button. This includes form-owner attributes such as <code>form</code>, <code>formaction</code>, <code>formenctype</code>, <code>formmethod</code>, <code>formnovalidate</code>, and <code>formtarget</code>; submission data through <code>name</code> and <code>value</code>; popover control through <code>popovertarget</code> and <code>popovertargetaction</code>; and declarative commands through <code>command</code> and <code>commandfor</code>. Prefer these native platform features when they meet the interaction requirements, and check browser support for newer attributes.
+
+## API reference
+
+Button forwards the relevant HTML attributes for the element selected by <code>as</code>.
+
+<PropsTable
+  id="button-props"
+  caption="Button properties"
+  rows={[
+    {
+      name: "as",
+      type: '"button" | "div" | "span"',
+      defaultValue: '"button"',
+      description:
+        "Selects a native button or a non-native element that receives button semantics.",
+    },
+    {
+      name: "nativeButton",
+      type: "boolean",
+      defaultValue: "true",
+      description:
+        'Set to false when as is "div" or "span" so Button supplies non-native button semantics and interaction.',
+    },
+    {
+      name: "focusableWhenDisabled",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Keeps a disabled button in the Tab sequence while suppressing its interaction. Useful when an action becomes temporarily unavailable while loading.",
+    },
+    {
+      name: "pending",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Exposes data-pending for consumer-owned loading presentation without changing interaction or announcing a status.",
+    },
+    {
+      name: "type",
+      type: '"button" | "submit" | "reset"',
+      defaultValue: '"button"',
+      description:
+        "Sets the native button type. Specify submit only when the button should submit its containing form.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Prevents interaction with a native button and exposes data-disabled for styling.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Applies a consumer-owned class to the rendered element.",
+    },
+  ]}
+/>
+
+## Accessibility
+
+Use Button for an action such as saving, submitting, opening, or deleting. Use a native anchor instead when navigating to a URL. Give every button a concise accessible name through its text content, <code>aria-label</code>, or <code>aria-labelledby</code>. If the button contains only an icon, provide an accessible name and hide a decorative icon from assistive technology.
+
+After activation, manage focus according to the action. For example, move focus into a dialog that opens, return it to the trigger when that dialog closes, and otherwise leave focus on the button unless the action creates a new context.
+
+## Keyboard behavior
+
+Native and non-native buttons activate with <kbd>Enter</kbd> or <kbd>Space</kbd>. They remain in the normal Tab sequence unless disabled. A disabled button remains in the sequence when <code>focusableWhenDisabled</code> is set.
+
+## Styling
+
+Every rendered element exposes <code>data-ormo-button</code>. Buttons expose <code>data-native-button="true|false"</code>, disabled buttons expose <code>data-disabled</code>, and pending buttons expose <code>data-pending</code>. These attributes keep state-based styling in CSS without a framework-specific callback API.
+
+## Runtime and development checks
+
+A native Button ships no Button JavaScript in production unless <code>focusableWhenDisabled</code> is enabled or <code>setButtonState</code> is imported by a client script. Non-native buttons load one deduplicated runtime for keyboard and disabled interaction. During development, Button also reports clear-cut accessibility mistakes in the console: a missing accessible name, a positive <code>tabindex</code>, or a nested interactive control. These checks are removed from production builds and complement rather than replace keyboard and screen-reader testing.

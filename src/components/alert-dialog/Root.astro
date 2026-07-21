@@ -1,0 +1,19 @@
+---
+import type { AlertDialogRootProps } from "./types";
+
+type Props = AlertDialogRootProps;
+
+const attributes: Props = Astro.props;
+---
+
+<ormo-alert-dialog
+  {...attributes}
+  data-ormo-alert-dialog-root
+  data-state="closed"
+>
+  <slot />
+</ormo-alert-dialog>
+
+<script>
+  import "../../runtime/alert-dialog";
+</script>

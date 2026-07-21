@@ -1,0 +1,29 @@
+---
+import * as AlertDialog from "@ormo/primitives/alert-dialog";
+import "./AlertDialogDemo.css";
+---
+
+<AlertDialog.Root>
+  <AlertDialog.Trigger class="alert-dialog-trigger">
+    Show session warning
+  </AlertDialog.Trigger>
+
+  <AlertDialog.Content class="alert-dialog-content">
+    <AlertDialog.Title class="alert-dialog-title">
+      Your session has expired
+    </AlertDialog.Title>
+    <AlertDialog.Description class="alert-dialog-description">
+      Sign in again before continuing. Any unsaved changes on this page will be
+      preserved.
+    </AlertDialog.Description>
+
+    <div class="alert-dialog-actions">
+      <AlertDialog.Action
+        class="alert-dialog-button alert-dialog-primary"
+        autofocus
+      >
+        I understand
+      </AlertDialog.Action>
+    </div>
+  </AlertDialog.Content>
+</AlertDialog.Root>

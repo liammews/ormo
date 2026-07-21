@@ -1,0 +1,55 @@
+---
+import * as Dialog from "@ormo/primitives/dialog";
+import "./DialogDemo.css";
+---
+
+<div class="dialog-demo" data-dialog-demo>
+  <Dialog.Root>
+    <Dialog.Trigger class="dialog-trigger">Edit profile</Dialog.Trigger>
+
+    <Dialog.Content class="dialog-content">
+      <Dialog.Title class="dialog-title">Edit profile</Dialog.Title>
+      <Dialog.Description class="dialog-description">
+        Change how your name appears to other people.
+      </Dialog.Description>
+
+      <form class="dialog-form" data-profile-form>
+        <label class="dialog-label" for="dialog-display-name">
+          Display name
+        </label>
+        <input
+          class="dialog-input"
+          id="dialog-display-name"
+          name="displayName"
+          value="Ada Lovelace"
+          autocomplete="name"
+        />
+
+        <div class="dialog-actions">
+          <Dialog.Close class="dialog-button">Cancel</Dialog.Close>
+          <Dialog.Close
+            class="dialog-button dialog-primary"
+            value="save"
+            data-save-profile
+          >
+            Save changes
+          </Dialog.Close>
+        </div>
+      </form>
+    </Dialog.Content>
+  </Dialog.Root>
+
+  <p class="dialog-status" aria-live="polite" data-dialog-status></p>
+</div>
+
+<script>
+  for (const demo of document.querySelectorAll<HTMLElement>(
+    "[data-dialog-demo]",
+  )) {
+    const save = demo.querySelector<HTMLElement>("[data-save-profile]");
+    const status = demo.querySelector<HTMLElement>("[data-dialog-status]");
+    save?.addEventListener("click", () => {
+      if (status) status.textContent = "Profile saved.";
+    });
+  }
+</script>
