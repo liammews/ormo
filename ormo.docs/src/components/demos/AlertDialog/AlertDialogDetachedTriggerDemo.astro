@@ -1,0 +1,41 @@
+---
+import * as AlertDialog from "@ormo/primitives/alert-dialog";
+import "./AlertDialogDemo.css";
+---
+
+<div class="alert-dialog-demo" data-alert-dialog-detached-demo>
+  <div class="alert-dialog-actions">
+    <AlertDialog.Trigger
+      for="detached-delete-dialog"
+      class="alert-dialog-trigger"
+    >
+      Delete from toolbar
+    </AlertDialog.Trigger>
+    <AlertDialog.Trigger
+      for="detached-delete-dialog"
+      class="alert-dialog-trigger"
+    >
+      Delete from menu
+    </AlertDialog.Trigger>
+  </div>
+
+  <AlertDialog.Root id="detached-delete-dialog">
+    <AlertDialog.Content class="alert-dialog-content">
+      <AlertDialog.Title class="alert-dialog-title">
+        Delete this saved view?
+      </AlertDialog.Title>
+      <AlertDialog.Description class="alert-dialog-description">
+        Everyone on the team will lose access to this saved view.
+      </AlertDialog.Description>
+
+      <div class="alert-dialog-actions">
+        <AlertDialog.Cancel class="alert-dialog-button">
+          Cancel
+        </AlertDialog.Cancel>
+        <AlertDialog.Action class="alert-dialog-button alert-dialog-action">
+          Delete saved view
+        </AlertDialog.Action>
+      </div>
+    </AlertDialog.Content>
+  </AlertDialog.Root>
+</div>

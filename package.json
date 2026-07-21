@@ -14,6 +14,22 @@
       "types": "./src/components/accordion/index.ts",
       "import": "./src/components/accordion/index.ts"
     },
+    "./alert-dialog": {
+      "types": "./src/components/alert-dialog/index.ts",
+      "import": "./src/components/alert-dialog/index.ts"
+    },
+    "./button": {
+      "types": "./src/components/button/index.ts",
+      "import": "./src/components/button/index.ts"
+    },
+    "./dialog": {
+      "types": "./src/components/dialog/index.ts",
+      "import": "./src/components/dialog/index.ts"
+    },
+    "./dev-toolbar": {
+      "types": "./src/dev-toolbar/index.ts",
+      "import": "./src/dev-toolbar/index.ts"
+    },
     "./field": {
       "types": "./src/components/field/index.ts",
       "import": "./src/components/field/index.ts"
@@ -36,7 +52,7 @@
     "format:check": "prettier --check .",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
-    "test:browser": "playwright test",
+    "test:browser": "pnpm docs:build && playwright test",
     "validate:library": "pnpm format:check && pnpm lint && pnpm check && pnpm test",
     "validate:docs": "pnpm --dir ormo.docs validate",
     "validate": "pnpm validate:library && pnpm validate:docs",

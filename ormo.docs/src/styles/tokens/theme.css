@@ -36,3 +36,9 @@
   --focus-default: var(--color-blue-10);
   --focus-subtle: var(--color-gray-6);
 }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --content-onbrand: var(--color-white);
+  }
+}

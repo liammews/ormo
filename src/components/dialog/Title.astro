@@ -1,0 +1,11 @@
+---
+import type { DialogTitleProps } from "./types";
+
+type Props = DialogTitleProps;
+
+const { as: Tag = "h2", ...attributes }: Props = Astro.props;
+---
+
+<Tag {...attributes} data-ormo-dialog-title>
+  <slot />
+</Tag>

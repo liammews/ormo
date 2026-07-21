@@ -1,0 +1,245 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Dialog"
+description: "A modal window for focused content and tasks"
+---
+
+import DialogDemo from "../../../components/demos/Dialog/DialogDemo.astro";
+import dialogDemoCode from "../../../components/demos/Dialog/DialogDemo.astro?raw";
+import DialogDetachedTriggerDemo from "../../../components/demos/Dialog/DialogDetachedTriggerDemo.astro";
+import dialogDetachedTriggerDemoCode from "../../../components/demos/Dialog/DialogDetachedTriggerDemo.astro?raw";
+import DialogPersistentDemo from "../../../components/demos/Dialog/DialogPersistentDemo.astro";
+import dialogPersistentDemoCode from "../../../components/demos/Dialog/DialogPersistentDemo.astro?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+## Default
+
+Dialog opens a native <code>&lt;dialog&gt;</code> as a modal window for a focused task or supporting information. It makes the rest of the page inert, contains keyboard focus, closes with <kbd>Escape</kbd> or a pointer press on the backdrop, and returns focus to the control that opened it.
+
+Use Alert Dialog instead when an urgent message requires an immediate response, especially before an irreversible action.
+
+<DemoBlock code={dialogDemoCode}>
+  <DialogDemo />
+</DemoBlock>
+
+## Anatomy
+
+Compose the trigger, modal content, accessible name, optional description, and a visible way to close:
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Dialog from "@ormo/primitives/dialog";
+---
+
+<Dialog.Root>
+  <Dialog.Trigger>Edit profile</Dialog.Trigger>
+
+  <Dialog.Content>
+    <Dialog.Title>Edit profile</Dialog.Title>
+    <Dialog.Description>
+      Change how your name appears to other people.
+    </Dialog.Description>
+
+    <!-- Forms, buttons, and application content compose normally. -->
+    <Dialog.Close>Close</Dialog.Close>
+
+  </Dialog.Content>
+</Dialog.Root>`}
+/>
+
+Content always renders <code>&lt;dialog role="dialog" aria-modal="true"&gt;</code>. Ormo generates IDs and connects Title and Description through <code>aria-labelledby</code> and <code>aria-describedby</code>. Trigger opens Content with the native <code>showModal()</code> method.
+
+## Examples
+
+### Detached triggers
+
+Add <code>for</code> with a Root <code>id</code> when a Trigger is rendered elsewhere in the document. Use the ID without a leading <code>#</code>. Multiple descendant and detached Triggers can control the same Root.
+
+Ormo connects every matching Trigger with <code>aria-controls</code>, synchronizes its open state, and returns focus to the exact Trigger that opened the dialog.
+
+<DemoBlock code={dialogDetachedTriggerDemoCode}>
+  <DialogDetachedTriggerDemo />
+</DemoBlock>
+
+### Pointer dismissal
+
+Backdrop presses close Dialog by default. Set <code>disablePointerDismissal</code> when an accidental pointer dismissal would discard progress. Keep a visible Close control, and do not disable Escape unless the application is temporarily unable to close safely.
+
+This example omits Description deliberately: its structured list should be read using normal screen-reader navigation instead of being announced as one flattened string.
+
+<DemoBlock code={dialogPersistentDemoCode}>
+  <DialogPersistentDemo />
+</DemoBlock>
+
+## API reference
+
+### Root
+
+Groups the parts and coordinates modal state. It renders <code>&lt;ormo-dialog&gt;</code> and accepts global HTML attributes.
+
+<PropsTable
+  id="dialog-root-props"
+  caption="Dialog Root properties"
+  rows={[
+    {
+      name: "disablePointerDismissal",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Prevents backdrop pointer presses from closing Content. Escape and Close remain available.",
+    },
+  ]}
+/>
+
+### Trigger
+
+Renders the native button that opens Dialog.
+
+<PropsTable
+  id="dialog-trigger-props"
+  caption="Dialog Trigger properties"
+  rows={[
+    {
+      name: "type",
+      type: '"button" | "submit" | "reset"',
+      defaultValue: '"button"',
+      description: "Sets the native button type.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Uses native semantics to prevent Dialog from opening.",
+    },
+    {
+      name: "for",
+      type: "string",
+      description:
+        "Targets a Dialog Root by id when Trigger is outside that Root. Omit the leading # character.",
+    },
+  ]}
+/>
+
+### Content
+
+Renders the native modal dialog. It accepts native dialog attributes except <code>open</code> and <code>role</code>, which Ormo owns.
+
+<PropsTable
+  id="dialog-content-props"
+  caption="Dialog Content properties"
+  rows={[
+    {
+      name: "aria-label",
+      type: "string",
+      description:
+        "Provides an accessible name when the dialog intentionally has no visible Title.",
+    },
+    {
+      name: "aria-labelledby",
+      type: "string",
+      description: "Overrides the relationship generated from Dialog.Title.",
+    },
+    {
+      name: "aria-describedby",
+      type: "string",
+      description:
+        "Overrides the optional relationship generated from Dialog.Description.",
+    },
+    {
+      name: "finalFocus",
+      type: "string",
+      description:
+        "Selects a focus-restoration destination. Falls back to the invoker when absent or invalid.",
+    },
+    {
+      name: "tabindex",
+      type: "number | string",
+      defaultValue: "-1",
+      description:
+        "Keeps Content programmatically focusable as a fallback without adding it to the Tab order.",
+    },
+  ]}
+/>
+
+### Title
+
+Provides the visible accessible name. Its <code>as</code> prop accepts <code>h1</code> through <code>h6</code> and defaults to <code>h2</code>.
+
+### Description
+
+Provides a concise description of the dialog purpose and defaults to <code>p</code>. It may render as <code>div</code>. Omit this part for long or structured content that users should navigate semantically.
+
+### Close
+
+Renders an Ormo Button that closes Content. It accepts Button's native-button props, including <code>value</code>, <code>disabled</code>, <code>focusableWhenDisabled</code>, and <code>pending</code>. Its value becomes the native dialog <code>returnValue</code>.
+
+## Browser API and events
+
+The <code>ormo-dialog</code> element exposes framework-independent modal control:
+
+<PropsTable
+  id="dialog-browser-api"
+  caption="Dialog browser element API"
+  nameHeader="Member"
+  rows={[
+    {
+      name: "finalFocus",
+      type: "HTMLElement | null",
+      description:
+        "Gets or sets a dynamic focus-restoration destination. It takes precedence over Content's selector.",
+    },
+    {
+      name: "open",
+      type: "boolean",
+      description: "Reads whether Content is open.",
+    },
+    {
+      name: "showModal()",
+      type: "() => void",
+      description:
+        "Opens Content modally and remembers the focused element for restoration.",
+    },
+    {
+      name: "close(returnValue?)",
+      type: "(returnValue?: string) => void",
+      description: "Closes Content and optionally sets its returnValue.",
+    },
+  ]}
+/>
+
+Listen for <code>ormo:dialog-open-change</code> on Root. It bubbles with <code>open</code>, <code>reason</code>, and <code>returnValue</code>. Reason is <code>trigger</code>, <code>close</code>, <code>escape</code>, <code>outside</code>, or <code>programmatic</code>.
+
+A Close click occurs before Ormo handles it, so a synchronous <code>event.preventDefault()</code> keeps the dialog open. Prevent the native, cancelable <code>cancel</code> event on Content to override Escape dismissal.
+
+## Accessibility
+
+Dialog follows the [WAI-ARIA modal Dialog pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/). Every Dialog needs a concise accessible name. Prefer a visible Title; use <code>aria-label</code> or <code>aria-labelledby</code> only when another visible element supplies the name.
+
+The first tabbable element receives focus by default. Add native <code>autofocus</code> to choose a more appropriate target. For large or structured content, place <code>autofocus tabindex="-1"</code> on Title or another static element near the start and omit Description so screen-reader users can navigate the structure.
+
+Always include a visible Close control. Escape and backdrop dismissal alone are not sufficient for touch screen-reader and pointer users. Native modal behavior makes outside content inert; consumer styling must also make the modal boundary visually apparent.
+
+Development builds and the optional Ormo toolbar report missing or multiple Content parts, missing accessible names, missing Close controls, invalid final-focus selectors, and detached Triggers with invalid targets.
+
+## Keyboard behavior
+
+- <kbd>Tab</kbd> and <kbd>Shift</kbd> + <kbd>Tab</kbd> move through the controls
+  inside Content and wrap at either end.
+- <kbd>Escape</kbd> closes Content unless its native <code>cancel</code> event
+  is prevented.
+- Activating Close closes Content after consumer click handlers run.
+
+## Styling
+
+Root, Trigger, and Content expose <code>data-state="open|closed"</code> and <code>data-open</code>. Detached Trigger exposes <code>data-ormo-dialog-for</code>. Content briefly exposes <code>data-starting-style</code> and <code>data-ending-style</code>. While any Ormo modal is open, the document element exposes <code>data-ormo-scroll-locked</code>. Every part has a stable <code>data-ormo-dialog-\*</code> selector.
+
+Style the modal surface through Content and its backdrop through <code>[data-ormo-dialog-content]::backdrop</code>. Ormo applies no component CSS. Consumers own surface and backdrop distinction, contrast, focus indicators, viewport-safe sizing, and reduced-motion behavior.
+
+## Runtime
+
+Dialog loads one Astro-processed, deduplicated runtime. The browser owns the modal top layer and outside-page inertness. Ormo connects its parts, locks background document scrolling, manages initial and final focus, supplies a cross-browser Tab sequence, coordinates dismissal and state, and handles Astro client-router document swaps.
+
+One document-scoped listener and observer coordinate descendant, detached, and dynamically inserted Triggers regardless of how many Dialogs are rendered. Scroll locking is shared with Alert Dialog and remains active until the final nested or sibling modal closes. An authored inline <code>overflow</code> value is restored afterward.

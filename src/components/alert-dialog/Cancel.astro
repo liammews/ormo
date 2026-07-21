@@ -1,0 +1,12 @@
+---
+import type { AlertDialogCancelProps } from "./types";
+import Button from "../button/Button.astro";
+
+type Props = AlertDialogCancelProps;
+
+const attributes: Props = Astro.props;
+---
+
+<Button {...attributes} data-ormo-alert-dialog-cancel>
+  <slot />
+</Button>

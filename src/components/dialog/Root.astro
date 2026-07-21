@@ -1,0 +1,20 @@
+---
+import type { DialogRootProps } from "./types";
+
+type Props = DialogRootProps;
+
+const { disablePointerDismissal = false, ...attributes }: Props = Astro.props;
+---
+
+<ormo-dialog
+  {...attributes}
+  data-disable-pointer-dismissal={disablePointerDismissal || undefined}
+  data-ormo-dialog-root
+  data-state="closed"
+>
+  <slot />
+</ormo-dialog>
+
+<script>
+  import "../../runtime/dialog";
+</script>

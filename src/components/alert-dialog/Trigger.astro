@@ -1,0 +1,18 @@
+---
+import type { AlertDialogTriggerProps } from "./types";
+
+type Props = AlertDialogTriggerProps;
+
+const { type = "button", for: target, ...attributes }: Props = Astro.props;
+---
+
+<button
+  {...attributes}
+  type={type}
+  data-ormo-alert-dialog-for={target}
+  aria-haspopup="dialog"
+  data-ormo-alert-dialog-trigger
+  data-state="closed"
+>
+  <slot />
+</button>

@@ -1,0 +1,11 @@
+---
+import type { AlertDialogTitleProps } from "./types";
+
+type Props = AlertDialogTitleProps;
+
+const { as: Tag = "h2", ...attributes }: Props = Astro.props;
+---
+
+<Tag {...attributes} data-ormo-alert-dialog-title>
+  <slot />
+</Tag>
