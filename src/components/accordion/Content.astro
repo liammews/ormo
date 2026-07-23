@@ -1,19 +1,28 @@
 ---
+import {
+  getAccordionItemSsrContext,
+  getAccordionSsrContext,
+} from "../../internal/accordion-ssr-context";
 import type { AccordionContentProps } from "./types";
 
 type Props = AccordionContentProps;
 
 const { hiddenUntilFound = false, ...attributes } = Astro.props;
+const accordion = getAccordionSsrContext();
+const item = getAccordionItemSsrContext();
+const open = item?.open ?? false;
+const untilFound = hiddenUntilFound || (accordion?.hiddenUntilFound ?? false);
 ---
 
 <div
   {...attributes}
   data-ormo-accordion-content
-  data-state="closed"
-  aria-hidden="true"
-  inert
-  hidden={hiddenUntilFound ? "until-found" : true}
-  data-hidden-until-found={hiddenUntilFound ? "" : undefined}
+  data-state={open ? "open" : "closed"}
+  data-open={open ? "" : undefined}
+  aria-hidden={open ? undefined : "true"}
+  inert={open ? undefined : true}
+  hidden={open ? undefined : untilFound ? "until-found" : true}
+  data-hidden-until-found={untilFound ? "" : undefined}
 >
   <slot />
 </div>

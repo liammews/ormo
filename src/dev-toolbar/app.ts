@@ -369,13 +369,90 @@ function scan(): Diagnostic[] {
     ...scanAlertDialogs(),
     ...scanDialogs(),
     ...scanPopovers(),
+    ...scanAccordions(),
   ];
+}
+
+function scanAccordions(): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+
+  for (const root of document.querySelectorAll<HTMLElement>("ormo-accordion")) {
+    const owns = (element: Element): boolean =>
+      element.closest("ormo-accordion") === root;
+    const items = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-ormo-accordion-item]"),
+    ).filter(owns);
+    const seenValues = new Map<string, HTMLElement>();
+
+    if (items.length === 0) {
+      diagnostics.push({
+        element: root,
+        message: "Accordion needs at least one Item.",
+      });
+      continue;
+    }
+
+    for (const item of items) {
+      const value = item.dataset.value;
+      const ownsItem = (element: Element): boolean =>
+        element.closest("[data-ormo-accordion-item]") === item;
+      const trigger = Array.from(
+        item.querySelectorAll<HTMLElement>("[data-ormo-accordion-trigger]"),
+      ).find(ownsItem);
+      const content = Array.from(
+        item.querySelectorAll<HTMLElement>("[data-ormo-accordion-content]"),
+      ).find(ownsItem);
+
+      if (value === undefined || value === "") {
+        diagnostics.push({
+          element: item,
+          message: "Accordion Item needs a non-empty value.",
+        });
+      } else if (seenValues.has(value)) {
+        diagnostics.push({
+          element: item,
+          message: `Accordion Item value is duplicated: ${value}`,
+        });
+      } else {
+        seenValues.set(value, item);
+      }
+
+      if (!trigger) {
+        diagnostics.push({
+          element: item,
+          message: "Accordion Item needs a Trigger.",
+        });
+      } else if (!hasAccessibleName(trigger)) {
+        diagnostics.push({
+          element: trigger,
+          message: "Accordion Trigger needs an accessible name.",
+        });
+      }
+
+      if (!content) {
+        diagnostics.push({
+          element: item,
+          message: "Accordion Item needs a Content panel.",
+        });
+      }
+    }
+  }
+
+  return diagnostics;
 }
 
 function identify(element: HTMLElement): string {
   if (element.id) return `#${element.id}`;
   if (element.hasAttribute("data-ormo-alert-dialog-content")) return "Content";
   if (element.hasAttribute("data-ormo-dialog-content")) return "Content";
+  if (element.hasAttribute("data-ormo-accordion-item")) return "Accordion Item";
+  if (element.hasAttribute("data-ormo-accordion-trigger")) {
+    return "Accordion Trigger";
+  }
+  if (element.hasAttribute("data-ormo-accordion-content")) {
+    return "Accordion Content";
+  }
+  if (element.localName === "ormo-accordion") return "Accordion";
   if (element.hasAttribute("data-ormo-button")) return "Button";
   return element.localName;
 }

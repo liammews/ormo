@@ -12,15 +12,12 @@ import AccordionDisabledDemo from "../../../components/demos/Accordion/Accordion
 import accordionDisabledDemoCode from "../../../components/demos/Accordion/AccordionDisabledDemo.astro?raw";
 import AccordionMultipleDemo from "../../../components/demos/Accordion/AccordionMultipleDemo.astro";
 import accordionMultipleDemoCode from "../../../components/demos/Accordion/AccordionMultipleDemo.astro?raw";
-import AccordionCollapsibleDemo from "../../../components/demos/Accordion/AccordionCollapsibleDemo.astro";
-import accordionCollapsibleDemoCode from "../../../components/demos/Accordion/AccordionCollapsibleDemo.astro?raw";
+import AccordionRequireOpenDemo from "../../../components/demos/Accordion/AccordionRequireOpenDemo.astro";
+import accordionRequireOpenDemoCode from "../../../components/demos/Accordion/AccordionRequireOpenDemo.astro?raw";
 import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
-## Default
-
-The default configuration is a single Accordion with no panel initially open. After the user opens a panel, it remains open until they select another item.
 
 <DemoBlock code={accordionDemoCode}>
   <AccordionDemo />
@@ -64,12 +61,12 @@ Use <code>type="multiple"</code> to allow any number of Accordion items to be op
   <AccordionMultipleDemo />
 </DemoBlock>
 
-### Collapsible
+### Require an open panel
 
-Set <code>collapsible</code> on <code>Accordion.Root</code> to let the user close the last open panel.
+Set <code>collapsible={false}</code> on a single Accordion when one panel must stay open. Selecting the open trigger again does nothing; selecting another item moves the open state.
 
-<DemoBlock code={accordionCollapsibleDemoCode}>
-  <AccordionCollapsibleDemo />
+<DemoBlock code={accordionRequireOpenDemoCode}>
+  <AccordionRequireOpenDemo />
 </DemoBlock>
 
 ### Item disabled
@@ -100,9 +97,9 @@ Groups all Accordion parts and coordinates their open, disabled, and browser-sea
     {
       name: "collapsible",
       type: "boolean",
-      defaultValue: "false",
+      defaultValue: "true",
       description:
-        "Allows the open panel in a single accordion to be closed without opening another panel.",
+        "Allows the open panel in a single accordion to be closed without opening another panel. Set to false to require one open panel.",
     },
     {
       name: "defaultValue",
@@ -230,6 +227,13 @@ The <code>ormo-accordion</code> custom element exposes state for framework-free 
   nameHeader="Member"
   rows={[
     {
+      name: "type",
+      type: '"single" | "multiple"',
+      defaultValue: '"single"',
+      description:
+        "Gets or sets whether one panel or multiple panels can be open. Changing type remaps the current value to the matching shape.",
+    },
+    {
       name: "value",
       type: "AccordionValue",
       description:
@@ -238,9 +242,9 @@ The <code>ormo-accordion</code> custom element exposes state for framework-free 
     {
       name: "collapsible",
       type: "boolean",
-      defaultValue: "false",
+      defaultValue: "true",
       description:
-        "Gets or sets whether the open panel in a single Accordion can be closed.",
+        "Gets or sets whether the open panel in a single Accordion can be closed. Set to false to require one open panel.",
     },
     {
       name: "disabled",
@@ -275,9 +279,43 @@ ${String.fromCharCode(32, 32)}console.log(event.detail.value, event.detail.open)
 });`}
 />
 
+## Controlling value after render
+
+Astro props configure the initial Accordion. After the page loads, read and write open state on the <code>ormo-accordion</code> element. Assigning <code>value</code> updates the panels immediately. Listening for <code>ormo:value-change</code> and calling <code>preventDefault()</code> keeps the previous value, which is the controlled pattern for plain Astro scripts and islands.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Accordion from "@ormo/primitives/accordion";
+---
+
+<Accordion.Root id="faq" defaultValue="delivery">
+  <Accordion.Item value="delivery">
+    <Accordion.Header>
+      <Accordion.Trigger>Delivery</Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Content>Delivery information</Accordion.Content>
+  </Accordion.Item>
+</Accordion.Root>
+
+<script>
+  const accordion = document.getElementById("faq");
+
+  accordion?.addEventListener("ormo:value-change", (event) => {
+    // Keep the previous value to fully control open state.
+    // event.preventDefault();
+    console.log(event.detail.value);
+  });
+
+  // Open a panel from application code:
+  // accordion.value = "delivery";
+</script>`}
+
+/>
+
 ## Keyboard behavior
 
-Every trigger is a native button in the normal Tab sequence. Use <kbd>Enter</kbd> or <kbd>Space</kbd> to toggle it. Accordion does not capture Arrow, Home, or End keys.
+Every trigger is a native button in the normal Tab sequence. Use <kbd>Enter</kbd> or <kbd>Space</kbd> to toggle it. Accordion does not capture Arrow, Home, or End keys. See GD-012 for the rationale.
 
 ## Styling
 

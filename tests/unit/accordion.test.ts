@@ -25,8 +25,8 @@ function createAccordion(
   root.dataset.type = options.type ?? "single";
   root.dataset.orientation = "vertical";
 
-  if (options.collapsible) {
-    root.setAttribute("data-collapsible", "");
+  if (options.collapsible === false) {
+    root.setAttribute("data-collapsible", "false");
   }
 
   if (options.defaultValue !== undefined) {
@@ -98,7 +98,7 @@ describe("accordion", () => {
     expect(triggers[1]?.getAttribute("aria-controls")).toBe(contents[1]?.id);
     expect(contents[1]?.getAttribute("aria-labelledby")).toBe(triggers[1]?.id);
     expect(contents[1]?.hasAttribute("role")).toBe(false);
-    expect(triggers[1]?.getAttribute("aria-disabled")).toBe("true");
+    expect(triggers[1]?.hasAttribute("aria-disabled")).toBe(false);
     expect(contents[0]?.hidden).toBe(true);
     expect(contents[0]?.getAttribute("aria-hidden")).toBe("true");
     expect(contents[0]?.hasAttribute("inert")).toBe(true);
@@ -111,9 +111,7 @@ describe("accordion", () => {
   });
 
   it("opens and collapses a single item", () => {
-    const root = createAccordion(["first", "second"], {
-      collapsible: true,
-    });
+    const root = createAccordion(["first", "second"]);
     const trigger = getTriggers(root)[0];
     const changes: AccordionValue[] = [];
 
@@ -129,8 +127,27 @@ describe("accordion", () => {
     expect(changes).toEqual(["first", null]);
   });
 
+  it("can require an open panel when collapsible is false", () => {
+    const root = createAccordion(["first", "second"], {
+      collapsible: false,
+      defaultValue: "first",
+    });
+    const triggers = getTriggers(root);
+
+    expect(root.collapsible).toBe(false);
+    expect(triggers[0]?.getAttribute("aria-disabled")).toBe("true");
+
+    triggers[0]?.click();
+    expect(root.value).toBe("first");
+
+    triggers[1]?.click();
+    expect(root.value).toBe("second");
+    expect(triggers[1]?.getAttribute("aria-disabled")).toBe("true");
+  });
+
   it("refreshes trigger state when collapsible changes after connection", () => {
     const root = createAccordion(["first"], {
+      collapsible: false,
       defaultValue: "first",
     });
     const trigger = getTriggers(root)[0];
@@ -140,11 +157,53 @@ describe("accordion", () => {
 
     root.collapsible = true;
 
-    expect(root.hasAttribute("data-collapsible")).toBe(true);
+    expect(root.hasAttribute("data-collapsible")).toBe(false);
     expect(trigger?.hasAttribute("aria-disabled")).toBe(false);
 
     trigger?.click();
     expect(root.value).toBeNull();
+  });
+
+  it("exposes type on the browser element and remaps value when it changes", () => {
+    const root = createAccordion(["first", "second"], {
+      type: "multiple",
+      defaultValue: ["first", "second"],
+    });
+
+    expect(root.type).toBe("multiple");
+    expect(root.value).toEqual(["first", "second"]);
+
+    root.type = "single";
+
+    expect(root.type).toBe("single");
+    expect(root.dataset.type).toBe("single");
+    expect(root.value).toBe("first");
+  });
+
+  it("picks up authored trigger disabled changes after connection", () => {
+    const root = createAccordion(["first", "second"]);
+    const triggers = getTriggers(root);
+
+    expect(triggers[0]?.disabled).toBe(false);
+
+    if (triggers[0]) {
+      triggers[0].disabled = true;
+    }
+
+    root.disabled = true;
+    root.disabled = false;
+
+    expect(triggers[0]?.disabled).toBe(true);
+    expect(triggers[1]?.disabled).toBe(false);
+
+    if (triggers[0]) {
+      triggers[0].disabled = false;
+    }
+
+    root.disabled = true;
+    root.disabled = false;
+
+    expect(triggers[0]?.disabled).toBe(false);
   });
 
   it("supports multiple open items", () => {
@@ -281,9 +340,7 @@ describe("accordion", () => {
     const outerContent = outer.querySelector<HTMLElement>(
       "[data-ormo-accordion-content]",
     );
-    const inner = createAccordion(["inner"], {
-      collapsible: true,
-    });
+    const inner = createAccordion(["inner"]);
 
     outerContent?.append(inner);
     getTriggers(inner)[0]?.click();
@@ -295,7 +352,6 @@ describe("accordion", () => {
 
   it("moves focus to the trigger before closing focused content", () => {
     const root = createAccordion(["first"], {
-      collapsible: true,
       defaultValue: "first",
     });
     const trigger = getTriggers(root)[0];

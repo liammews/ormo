@@ -4,7 +4,11 @@ import { ChevronDown } from "@lucide/astro";
 import "./AccordionDemo.css";
 ---
 
-<Accordion.Root class="accordion" type="multiple">
+<Accordion.Root
+  class="accordion"
+  type="multiple"
+  data-accordion-demo="multiple"
+>
   <Accordion.Item class="accordion-item" value="shipping">
     <Accordion.Header class="accordion-header" as="h2">
       <Accordion.Trigger class="accordion-trigger">

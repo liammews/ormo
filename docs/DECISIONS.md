@@ -291,6 +291,30 @@ The documentation and its demos are part of the open-source developer experience
 - The docs package remains private and is not published to npm.
 - Public docs examples must remain synchronized with the package API.
 
+## GD-012: Accordion triggers stay in the normal Tab sequence
+
+- **Date:** 2026-07-23
+- **Status:** Accepted
+
+### Decision
+
+Accordion triggers are native buttons in the document Tab order. Ormo does not implement WAI-ARIA Accordion pattern arrow-key roving tabindex, and it does not handle Home or End keys inside the Accordion.
+
+Activation uses the native button keys: Enter and Space.
+
+### Rationale
+
+Keeping triggers in the normal Tab sequence matches Ormo's preference for platform behaviour over recreating composite widget keyboard models. Arrow-key navigation would require managing focus among triggers, skipping disabled items, and choosing orientation-specific bindings. That complexity is unnecessary for the common FAQ and settings layouts Accordion targets, and it conflicts with the deprecated styling-only `orientation` prop.
+
+Documenting the deviation is preferable to silently diverging from APG while still claiming full composite-widget behaviour.
+
+### Consequences
+
+- Keyboard users Tab between Accordion triggers like any other buttons on the page.
+- Screen-reader users still receive `aria-expanded` and `aria-controls` relationships.
+- Projects that need APG arrow-key behaviour must add it in application code or a wrapper.
+- Docs and tests assert that Arrow, Home, and End are left to the browser.
+
 ## GD-013: Popover uses the Popover API, CSS anchors by default, and opt-in Floating UI
 
 - **Date:** 2026-07-23

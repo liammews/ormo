@@ -6,6 +6,10 @@ export type AccordionValue = string | string[] | null;
 
 export interface AccordionRootProps extends HTMLAttributes<"div"> {
   type?: AccordionType;
+  /**
+   * When `true` (the default), the open panel in a single accordion can be
+   * closed without opening another. Set to `false` to require one open panel.
+   */
   collapsible?: boolean;
   defaultValue?: string | string[];
   disabled?: boolean;
@@ -50,6 +54,7 @@ export interface AccordionOpenChangeDetail {
 export type AccordionOpenChangeEvent = CustomEvent<AccordionOpenChangeDetail>;
 
 export interface OrmoAccordionElement extends HTMLElement {
+  type: AccordionType;
   value: AccordionValue;
   collapsible: boolean;
   disabled: boolean;

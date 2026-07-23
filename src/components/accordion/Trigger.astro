@@ -1,17 +1,28 @@
 ---
+import {
+  getAccordionItemSsrContext,
+  getAccordionSsrContext,
+} from "../../internal/accordion-ssr-context";
 import type { AccordionTriggerProps } from "./types";
 
 type Props = AccordionTriggerProps;
 
 const { type = "button", ...attributes } = Astro.props;
+const accordion = getAccordionSsrContext();
+const item = getAccordionItemSsrContext();
+const open = item?.open ?? false;
+const ariaDisabled =
+  open && accordion?.type === "single" && !accordion.collapsible;
 ---
 
 <button
   {...attributes}
   type={type}
   data-ormo-accordion-trigger
-  data-state="closed"
-  aria-expanded="false"
+  data-state={open ? "open" : "closed"}
+  data-open={open ? "" : undefined}
+  aria-expanded={open ? "true" : "false"}
+  aria-disabled={ariaDisabled ? "true" : undefined}
 >
   <slot />
 </button>
