@@ -1,0 +1,86 @@
+.avatar-demo {
+  position: relative;
+  display: inline-flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: var(--surface-elevated);
+  color: var(--content-default);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  user-select: none;
+  vertical-align: middle;
+}
+
+.avatar-demo-image,
+.avatar-demo-fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.avatar-demo-image {
+  object-fit: cover;
+}
+
+.avatar-demo-fallback:not([hidden]) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-demo-image[hidden],
+.avatar-demo-fallback[hidden] {
+  display: none;
+}
+
+.avatar-demo-fallback-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.avatar-demo-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-100);
+  align-items: center;
+}
+
+.avatar-demo-trigger {
+  display: inline-flex;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  border-radius: 9999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 0;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.avatar-demo-trigger:focus-visible {
+  outline: var(--focus-width) solid var(--focus-default);
+  outline-offset: var(--focus-offset);
+}
+
+.avatar-demo-person {
+  display: flex;
+  gap: var(--space-75);
+  align-items: center;
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-3);
+  line-height: var(--line-height-base);
+  color: var(--content-default);
+}
+
+.avatar-demo-person-name {
+  font-weight: var(--font-weight-medium);
+}

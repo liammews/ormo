@@ -1,0 +1,23 @@
+---
+import { getAvatarSsrContext } from "../../internal/avatar-ssr-context";
+import type { AvatarFallbackProps } from "./types";
+
+type Props = AvatarFallbackProps;
+
+const { delay, ...attributes }: Props = Astro.props;
+const context = getAvatarSsrContext();
+const hideForSsr = context?.hasImageSource === true;
+const delayMs =
+  typeof delay === "number" && Number.isFinite(delay) && delay > 0
+    ? Math.floor(delay)
+    : undefined;
+---
+
+<span
+  {...attributes}
+  data-ormo-avatar-fallback
+  data-delay={delayMs}
+  hidden={hideForSsr || undefined}
+>
+  <slot />
+</span>

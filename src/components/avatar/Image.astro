@@ -1,0 +1,20 @@
+---
+import { getAvatarSsrContext } from "../../internal/avatar-ssr-context";
+import type { AvatarImageProps } from "./types";
+
+type Props = AvatarImageProps;
+
+const attributes: Props = Astro.props;
+const context = getAvatarSsrContext();
+const hasSource = Boolean(
+  (typeof attributes.src === "string" && attributes.src.trim().length > 0) ||
+  (typeof attributes.srcset === "string" &&
+    attributes.srcset.trim().length > 0),
+);
+
+if (context && hasSource) {
+  context.hasImageSource = true;
+}
+---
+
+<img {...attributes} data-ormo-avatar-image />
