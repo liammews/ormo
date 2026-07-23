@@ -32,6 +32,7 @@
   --border-default: var(--color-gray-4);
   --border-hover: var(--color-gray-5);
   --border-active: var(--color-gray-6);
+  --border-brand: var(--color-brand-9);
 
   --focus-default: var(--color-blue-10);
   --focus-subtle: var(--color-gray-6);
