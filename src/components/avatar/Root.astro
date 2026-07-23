@@ -1,0 +1,26 @@
+---
+import { renderWithAvatarContext } from "../../internal/avatar-ssr-context";
+import type { AvatarRootProps } from "./types";
+
+type Props = AvatarRootProps;
+
+const attributes: Props = Astro.props;
+
+const ssrContext = { hasImageSource: false };
+const content = await renderWithAvatarContext(ssrContext, () =>
+  Astro.slots.render("default"),
+);
+
+const initialStatus = ssrContext.hasImageSource ? "loading" : "error";
+---
+
+<ormo-avatar
+  {...attributes}
+  data-ormo-avatar-root
+  data-status={initialStatus}
+  set:html={content}
+/>
+
+<script>
+  import "../../runtime/avatar";
+</script>

@@ -302,6 +302,9 @@ function scanPopovers(): Diagnostic[] {
     const title = Array.from(
       content.querySelectorAll<HTMLElement>("[data-ormo-popover-title]"),
     ).find(owns);
+    const close = Array.from(
+      content.querySelectorAll<HTMLElement>("[data-ormo-popover-close]"),
+    ).find(owns);
 
     if (
       !title &&
@@ -313,10 +316,6 @@ function scanPopovers(): Diagnostic[] {
         message: "Popover needs a Title or another accessible name.",
       });
     }
-
-    const close = Array.from(
-      content.querySelectorAll<HTMLElement>("[data-ormo-popover-close]"),
-    ).find(owns);
 
     if (!close) {
       diagnostics.push({
@@ -363,6 +362,24 @@ function scanPopovers(): Diagnostic[] {
   return diagnostics;
 }
 
+function scanAvatars(): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+
+  for (const image of document.querySelectorAll<HTMLImageElement>(
+    "[data-ormo-avatar-image]",
+  )) {
+    if (!image.hasAttribute("alt")) {
+      diagnostics.push({
+        element: image,
+        message:
+          'Avatar Image needs an alt attribute. Use a meaningful name, or alt="" when the avatar is decorative.',
+      });
+    }
+  }
+
+  return diagnostics;
+}
+
 function scan(): Diagnostic[] {
   return [
     ...scanButtons(),
@@ -370,6 +387,7 @@ function scan(): Diagnostic[] {
     ...scanDialogs(),
     ...scanPopovers(),
     ...scanAccordions(),
+    ...scanAvatars(),
   ];
 }
 
@@ -453,6 +471,8 @@ function identify(element: HTMLElement): string {
     return "Accordion Content";
   }
   if (element.localName === "ormo-accordion") return "Accordion";
+  if (element.hasAttribute("data-ormo-avatar-image")) return "Avatar Image";
+  if (element.localName === "ormo-avatar") return "Avatar";
   if (element.hasAttribute("data-ormo-button")) return "Button";
   return element.localName;
 }

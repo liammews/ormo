@@ -1,0 +1,15 @@
+---
+import * as Avatar from "@ormo/primitives/avatar";
+import "./AvatarDemo.css";
+---
+
+<Avatar.Root class="avatar-demo" role="img" aria-label="Ada Lovelace">
+  <Avatar.Image
+    class="avatar-demo-image"
+    src="https://example.invalid/missing-avatar.jpg"
+    alt=""
+    width="40"
+    height="40"
+  />
+  <Avatar.Fallback class="avatar-demo-fallback">AL</Avatar.Fallback>
+</Avatar.Root>
