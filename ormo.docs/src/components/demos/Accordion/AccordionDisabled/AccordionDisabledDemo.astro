@@ -1,48 +1,50 @@
 ---
 import * as Accordion from "@ormo/primitives/accordion";
 import { ChevronDown } from "@lucide/astro";
-import "./AccordionDemo.css";
+import "../index.css";
 ---
 
 <Accordion.Root
   class="accordion"
-  defaultValue="about"
-  data-accordion-demo="initial"
+  defaultValue="shipping"
+  data-accordion-demo="disabled"
 >
-  <Accordion.Item class="accordion-item" value="about">
+  <Accordion.Item class="accordion-item" value="shipping">
     <Accordion.Header class="accordion-header" as="h2">
       <Accordion.Trigger class="accordion-trigger">
-        What is Ormo?
+        Shipping information
         <ChevronDown class="indicator" size="14" aria-hidden="true" />
       </Accordion.Trigger>
     </Accordion.Header>
     <Accordion.Content class="accordion-content">
       <div class="accordion-content-inner">
-        Ormo is a headless component library for Astro.
+        Standard shipping takes three to five working days.
       </div>
     </Accordion.Content>
   </Accordion.Item>
-  <Accordion.Item class="accordion-item" value="price">
+  <Accordion.Item class="accordion-item" value="returns" disabled>
     <Accordion.Header class="accordion-header" as="h2">
       <Accordion.Trigger class="accordion-trigger">
-        How much does it cost?
-        <ChevronDown class="indicator" size="14" aria-hidden="true" />
-      </Accordion.Trigger>
-    </Accordion.Header>
-    <Accordion.Content class="accordion-content">
-      <div class="accordion-content-inner">Ormo is free and open source.</div>
-    </Accordion.Content>
-  </Accordion.Item>
-  <Accordion.Item class="accordion-item" value="how-to">
-    <Accordion.Header class="accordion-header" as="h2">
-      <Accordion.Trigger class="accordion-trigger">
-        How do I use it?
+        Returns unavailable
         <ChevronDown class="indicator" size="14" aria-hidden="true" />
       </Accordion.Trigger>
     </Accordion.Header>
     <Accordion.Content class="accordion-content">
       <div class="accordion-content-inner">
-        Head to the documentation to get started.
+        Returns are accepted within 30 days of delivery.
+      </div>
+    </Accordion.Content>
+  </Accordion.Item>
+  <Accordion.Item class="accordion-item" value="warranty">
+    <Accordion.Header class="accordion-header" as="h2">
+      <Accordion.Trigger class="accordion-trigger">
+        Warranty
+        <ChevronDown class="indicator" size="14" aria-hidden="true" />
+      </Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Content class="accordion-content">
+      <div class="accordion-content-inner">
+        Every product includes a two-year limited warranty.
       </div>
     </Accordion.Content>
   </Accordion.Item>

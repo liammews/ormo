@@ -1,0 +1,35 @@
+---
+import {
+  ensureTabsSsrPart,
+  getTabsSsrContext,
+  isPanelSelected,
+} from "../../internal/tabs-ssr-context";
+import type { TabsPanelProps } from "./types";
+
+type Props = TabsPanelProps;
+
+const { value, id, ...attributes } = Astro.props;
+
+const tabs = getTabsSsrContext();
+const orientation = tabs?.orientation ?? "horizontal";
+const selected = tabs ? isPanelSelected(tabs, value) : false;
+
+const part = tabs
+  ? ensureTabsSsrPart(tabs, value, id ? { panelId: id } : undefined)
+  : undefined;
+---
+
+<div
+  {...attributes}
+  id={part?.panelId ?? id}
+  role="tabpanel"
+  data-ormo-tabs-panel
+  data-value={value}
+  data-state={selected ? "active" : "inactive"}
+  data-orientation={orientation}
+  tabindex={selected ? 0 : undefined}
+  hidden={selected ? undefined : true}
+  aria-labelledby={part?.tabId}
+>
+  <slot />
+</div>

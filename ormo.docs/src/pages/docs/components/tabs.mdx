@@ -1,0 +1,380 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Tabs"
+description: "A set of layered panels with accessible tab controls"
+---
+
+import TabsDemo from "../../../components/demos/Tabs/TabsDemo.astro";
+import tabsDemoCode from "../../../components/demos/Tabs/TabsDemo.astro?raw";
+import TabsVerticalDemo from "../../../components/demos/Tabs/TabsVerticalDemo.astro";
+import tabsVerticalDemoCode from "../../../components/demos/Tabs/TabsVerticalDemo.astro?raw";
+import TabsActivateOnFocusDemo from "../../../components/demos/Tabs/TabsActivateOnFocusDemo.astro";
+import tabsActivateOnFocusDemoCode from "../../../components/demos/Tabs/TabsActivateOnFocusDemo.astro?raw";
+import TabsDisabledDemo from "../../../components/demos/Tabs/TabsDisabledDemo.astro";
+import tabsDisabledDemoCode from "../../../components/demos/Tabs/TabsDisabledDemo.astro?raw";
+import TabsControlledDemo from "../../../components/demos/Tabs/TabsControlledDemo.astro";
+import tabsControlledDemoCode from "../../../components/demos/Tabs/TabsControlledDemo.astro?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+<DemoBlock code={tabsDemoCode}>
+  <TabsDemo />
+</DemoBlock>
+
+## Installation
+
+<CodeBlock
+  singleLine
+  lang="bash"
+  code={`npm install @ormo/primitives/tabs`}
+/>
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Tabs from "@ormo/primitives/tabs";
+---
+
+<Tabs.Root>
+  <Tabs.List>
+    <Tabs.Tab />
+  </Tabs.List>
+  <Tabs.Panel />
+</Tabs.Root>`}
+/>
+
+## Examples
+
+### Vertical
+
+Set <code>orientation="vertical"</code> for a side tablist. Arrow keys follow the orientation.
+
+<DemoBlock code={tabsVerticalDemoCode}>
+  <TabsVerticalDemo />
+</DemoBlock>
+
+### Activate on focus
+
+Set <code>activateOnFocus</code> when panels can appear instantly. Arrow keys then select the focused tab. Leave it off (the default) when activation should wait for Enter, Space, or a click.
+
+<DemoBlock code={tabsActivateOnFocusDemoCode}>
+  <TabsActivateOnFocusDemo />
+</DemoBlock>
+
+### Disabled tab
+
+Set <code>disabled</code> on a Tab to skip it for pointer and keyboard interaction. Set <code>disabled</code> on Root to disable the whole widget.
+
+<DemoBlock code={tabsDisabledDemoCode}>
+  <TabsDisabledDemo />
+</DemoBlock>
+
+### Controlled value
+
+After render, read and write <code>value</code> on the <code>ormo-tabs</code> element. Assigning <code>value</code> updates selection immediately.
+
+<DemoBlock code={tabsControlledDemoCode}>
+  <TabsControlledDemo />
+</DemoBlock>
+
+## API reference
+
+### Root
+
+Groups the tablist and panels and coordinates selection, orientation, and keyboard behaviour.
+
+<PropsTable
+  id="tabs-root-props"
+  caption="Tabs Root properties"
+  rows={[
+    {
+      name: "defaultValue",
+      type: "string",
+      description:
+        "Selects the initially active tab. When omitted or unmatched, the first enabled tab is selected.",
+    },
+    {
+      name: "orientation",
+      type: '"horizontal" | "vertical"',
+      defaultValue: '"horizontal"',
+      description:
+        "Sets layout metadata and which arrow keys move focus within the tablist.",
+    },
+    {
+      name: "activateOnFocus",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "When true, focusing a tab with the arrow keys also selects it. When false, Enter, Space, or a click activates the focused tab.",
+    },
+    {
+      name: "loopFocus",
+      type: "boolean",
+      defaultValue: "true",
+      description:
+        "When true, arrow keys wrap from the last enabled tab to the first and from the first to the last.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Disables every tab in the widget.",
+    },
+  ]}
+/>
+
+### List
+
+Renders the container with <code>role="tablist"</code>. Provide an accessible name with <code>aria-label</code> or <code>aria-labelledby</code>.
+
+<PropsTable
+  id="tabs-list-props"
+  caption="Tabs List properties"
+  rows={[
+    {
+      name: "aria-label",
+      type: "string",
+      description: "Names the tablist when there is no visible label.",
+    },
+    {
+      name: "aria-labelledby",
+      type: "string",
+      description: "References a visible label for the tablist.",
+    },
+  ]}
+/>
+
+### Tab
+
+Renders a native button with <code>role="tab"</code>.
+
+<PropsTable
+  id="tabs-tab-props"
+  caption="Tabs Tab properties"
+  rows={[
+    {
+      name: "value",
+      type: "string",
+      description:
+        "Unique string that pairs this tab with its panel and identifies it in default and browser-controlled values.",
+      details: [{ label: "Required", value: "Yes" }],
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Disables this tab while leaving the others interactive.",
+    },
+    {
+      name: "type",
+      type: "string",
+      defaultValue: '"button"',
+      description:
+        "Sets the native button type. The default prevents accidental form submission.",
+    },
+  ]}
+/>
+
+### Panel
+
+Renders the panel with <code>role="tabpanel"</code> for the matching tab value.
+
+<PropsTable
+  id="tabs-panel-props"
+  caption="Tabs Panel properties"
+  rows={[
+    {
+      name: "value",
+      type: "string",
+      description: "Must match the value of the tab that shows this panel.",
+      details: [{ label: "Required", value: "Yes" }],
+    },
+  ]}
+/>
+
+### Browser element
+
+The <code>ormo-tabs</code> custom element exposes state for framework-free browser scripts.
+
+<PropsTable
+  id="tabs-browser-api"
+  caption="Tabs browser element API"
+  nameHeader="Member"
+  rows={[
+    {
+      name: "value",
+      type: "string",
+      description: "Gets or sets the currently selected tab value.",
+    },
+    {
+      name: "orientation",
+      type: '"horizontal" | "vertical"',
+      defaultValue: '"horizontal"',
+      description: "Gets or sets the tablist orientation.",
+    },
+    {
+      name: "activateOnFocus",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Gets or sets whether focusing a tab also selects it.",
+    },
+    {
+      name: "loopFocus",
+      type: "boolean",
+      defaultValue: "true",
+      description: "Gets or sets whether arrow-key focus wraps.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Gets or sets whether every tab is disabled.",
+    },
+  ]}
+/>
+
+## Events
+
+Listen for <code>ormo:value-change</code> on the root before the value changes. The event bubbles and crosses shadow boundaries. User-initiated changes can be canceled with <code>preventDefault()</code>. Automatic fallbacks (for example when the selected tab is removed or disabled) are not cancelable.
+
+<CodeBlock
+  lang="js"
+  code={`tabs.addEventListener("ormo:value-change", (event) => {
+  console.log(event.detail.value);
+});`}
+/>
+
+## Controlling value after render
+
+Astro props configure the initial tab. After the page loads, read and write selection on the <code>ormo-tabs</code> element. Assigning <code>value</code> updates the tabs immediately. Listening for <code>ormo:value-change</code> and calling <code>preventDefault()</code> keeps the previous value, which is the controlled pattern for plain Astro scripts and islands.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Tabs from "@ormo/primitives/tabs";
+---
+
+<Tabs.Root id="account" defaultValue="overview">
+  <Tabs.List aria-label="Account">
+    <Tabs.Tab value="overview">Overview</Tabs.Tab>
+    <Tabs.Tab value="projects">Projects</Tabs.Tab>
+  </Tabs.List>
+  <Tabs.Panel value="overview">Overview content</Tabs.Panel>
+  <Tabs.Panel value="projects">Projects content</Tabs.Panel>
+</Tabs.Root>
+
+<script>
+  const tabs = document.getElementById("account");
+
+  tabs?.addEventListener("ormo:value-change", (event) => {
+    // Keep the previous value to fully control selection.
+    // event.preventDefault();
+    console.log(event.detail.value);
+  });
+
+  // Select a tab from application code:
+  // tabs.value = "projects";
+</script>`}
+/>
+
+## Accessibility
+
+Tabs follow the WAI-ARIA Authoring Practices tabs pattern:
+
+- List uses <code>role="tablist"</code> and must have an accessible name.
+- Each Tab uses <code>role="tab"</code> with <code>aria-selected</code> and <code>aria-controls</code>.
+- Each Panel uses <code>role="tabpanel"</code> with <code>aria-labelledby</code> pointing at its tab.
+- Only one tab is selected at a time. Inactive panels stay in the DOM with the <code>hidden</code> attribute.
+- The active panel is focusable (<code>tabindex="0"</code>) so assistive technology users can move from the tablist into panel content.
+
+Prefer Tabs for in-page panel switching. For navigation between URLs, use links in a navigation landmark instead.
+
+In development, Ormo warns when the tablist is unnamed, when Tab and Panel values do not match, or when a Tab is outside List.
+
+## Keyboard behaviour
+
+Tabs use a roving tabindex composite widget (unlike Accordion, which keeps triggers in the normal Tab sequence):
+
+<PropsTable
+  id="tabs-keyboard"
+  caption="Tabs keyboard behaviour"
+  nameHeader="Key"
+  rows={[
+    {
+      name: "Tab",
+      type: "Focus",
+      description:
+        "Moves focus into the tablist on the selected tab, then to the active panel or the next focusable content.",
+    },
+    {
+      name: "Left / Right",
+      type: "Focus",
+      description:
+        "Move focus between tabs when orientation is horizontal. Respects RTL.",
+    },
+    {
+      name: "Up / Down",
+      type: "Focus",
+      description:
+        "Move focus between tabs when orientation is vertical.",
+    },
+    {
+      name: "Home / End",
+      type: "Focus",
+      description: "Move focus to the first or last enabled tab.",
+    },
+    {
+      name: "Enter / Space",
+      type: "Activation",
+      description:
+        "Activate the focused tab when activateOnFocus is false.",
+    },
+  ]}
+/>
+
+When <code>activateOnFocus</code> is true, arrow, Home, and End also select the newly focused tab. Disabled tabs are skipped. <code>loopFocus</code> controls whether arrow keys wrap.
+
+## Styling
+
+<PropsTable
+  id="tabs-styling"
+  caption="Tabs styling attributes"
+  nameHeader="Attribute"
+  rows={[
+    {
+      name: "data-state",
+      type: '"active" | "inactive"',
+      description: "Selection state for CSS.",
+      details: [{ label: "Element", value: "Tab, Panel" }],
+    },
+    {
+      name: "data-orientation",
+      type: '"horizontal" | "vertical"',
+      description: "Exposes the tablist orientation for layout and CSS.",
+      details: [{ label: "Element", value: "Root, List, Tab, Panel" }],
+    },
+    {
+      name: "data-disabled",
+      type: "boolean attribute",
+      description: "Present when the root or an individual tab is disabled.",
+      details: [{ label: "Element", value: "Root, Tab" }],
+    },
+    {
+      name: "hidden",
+      type: "boolean attribute",
+      description: "Present on inactive panels.",
+      details: [{ label: "Element", value: "Panel" }],
+    },
+  ]}
+/>
+
+Tabs ships no layout or brand styles. Size, colour, indicators, and typography belong to the consumer.
+
+## Runtime
+
+Root loads a small runtime that manages selection, ARIA relationships, roving tabindex, and keyboard behaviour. Without JavaScript, the initially selected panel stays visible and other panels stay hidden; tabs do not switch until the runtime connects.

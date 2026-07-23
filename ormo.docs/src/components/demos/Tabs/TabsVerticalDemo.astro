@@ -1,0 +1,26 @@
+---
+import * as Tabs from "@ormo/primitives/tabs";
+import "./TabsDemo.css";
+---
+
+<Tabs.Root
+  class="tabs"
+  data-tabs-demo="vertical"
+  defaultValue="overview"
+  orientation="vertical"
+>
+  <Tabs.List class="tabs-list" aria-label="Settings">
+    <Tabs.Tab class="tabs-tab" value="overview">Overview</Tabs.Tab>
+    <Tabs.Tab class="tabs-tab" value="team">Team</Tabs.Tab>
+    <Tabs.Tab class="tabs-tab" value="security">Security</Tabs.Tab>
+  </Tabs.List>
+  <Tabs.Panel class="tabs-panel" value="overview">
+    Account summary and preferences.
+  </Tabs.Panel>
+  <Tabs.Panel class="tabs-panel" value="team">
+    Members, roles, and invitations.
+  </Tabs.Panel>
+  <Tabs.Panel class="tabs-panel" value="security">
+    Password, sessions, and two-factor authentication.
+  </Tabs.Panel>
+</Tabs.Root>

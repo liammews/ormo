@@ -1,0 +1,105 @@
+.tabs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-100);
+  width: min(100%, 28rem);
+  font-family: var(--font-family-sans);
+}
+
+.tabs[data-orientation="vertical"] {
+  flex-direction: row;
+  align-items: flex-start;
+  width: min(100%, 36rem);
+}
+
+.tabs-list {
+  display: flex;
+  gap: var(--space-25);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.tabs[data-orientation="vertical"] .tabs-list {
+  flex-direction: column;
+  border-bottom: 0;
+  border-inline-end: 1px solid var(--border-default);
+  min-width: 8rem;
+}
+
+.tabs-tab {
+  margin: 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: var(--space-50) var(--space-75);
+  background: transparent;
+  color: var(--content-subtle);
+  font: inherit;
+  font-size: var(--font-size-2);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.tabs[data-orientation="vertical"] .tabs-tab {
+  border-bottom: 0;
+  border-inline-end: 2px solid transparent;
+  text-align: start;
+}
+
+.tabs-tab:hover:not(:disabled) {
+  color: var(--content-default);
+}
+
+.tabs-tab[data-state="active"] {
+  border-color: var(--content-default);
+  color: var(--content-default);
+}
+
+.tabs-tab:disabled {
+  color: var(--content-disabled);
+  cursor: not-allowed;
+}
+
+.tabs-tab:focus-visible {
+  outline: var(--focus-width) solid var(--focus-default);
+  outline-offset: var(--focus-offset);
+}
+
+.tabs-panel {
+  margin: 0;
+  padding: var(--space-75) 0;
+  font-size: var(--font-size-2);
+  line-height: var(--line-height-base);
+  color: var(--content-subtle);
+}
+
+.tabs-panel:focus-visible {
+  outline: var(--focus-width) solid var(--focus-default);
+  outline-offset: var(--focus-offset);
+}
+
+.tabs-panel[hidden] {
+  display: none;
+}
+
+.tabs-controlled-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-50);
+  align-items: center;
+}
+
+.tabs-controlled-button {
+  margin: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  padding: var(--space-25) var(--space-50);
+  background: var(--surface-elevated);
+  color: var(--content-default);
+  font: inherit;
+  font-size: var(--font-size-2);
+  cursor: pointer;
+}
+
+.tabs-controlled-button:focus-visible {
+  outline: var(--focus-width) solid var(--focus-default);
+  outline-offset: var(--focus-offset);
+}

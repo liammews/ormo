@@ -3,6 +3,7 @@ export * as AlertDialog from "./components/alert-dialog/index";
 export * as Avatar from "./components/avatar/index";
 export * as Dialog from "./components/dialog/index";
 export * as Popover from "./components/popover/index";
+export * as Tabs from "./components/tabs/index";
 export { Button, setButtonState } from "./components/button/index";
 export type {
   ButtonAsButtonProps,

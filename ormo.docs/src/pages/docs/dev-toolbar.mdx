@@ -8,7 +8,7 @@ import CodeBlock from "../../components/docs/CodeBlock/CodeBlock.astro";
 
 Ormo includes an optional app for Astro's development toolbar. It scans rendered Ormo primitives, reports common semantic and accessibility mistakes, and lets you jump to the element that needs attention.
 
-The toolbar currently checks Button, Dialog, and Alert Dialog. It complements each component's console diagnostics and will expand as Ormo adds primitives. It only runs through Astro's development toolbar and adds nothing to production pages.
+The toolbar currently checks Accordion, Button, Dialog, Alert Dialog, and related primitives. It complements each component's console diagnostics and will expand as Ormo adds primitives. It only runs through Astro's development toolbar and adds nothing to production pages.
 
 ## Setup
 
@@ -26,6 +26,8 @@ export default defineConfig({
 
 Start the Astro development server and select Ormo in the toolbar. A warning indicator appears when the current page contains a detected issue.
 
+For a page packed with intentional Accordion mistakes, open the [Accordion toolbar demo](/docs/dev-toolbar/accordion-demo).
+
 ## Checks
 
 The initial checks include:
@@ -33,6 +35,11 @@ The initial checks include:
 - Buttons without an accessible name
 - Positive <code>tabindex</code> values
 - Interactive elements nested inside a Button
+- Accordions with no Item parts
+- Accordion Items missing a non-empty <code>value</code>
+- Duplicate Accordion Item values in the same root
+- Accordion Items missing a Trigger or Content part
+- Accordion Triggers without an accessible name
 - Alert Dialog roots with missing or multiple Content parts
 - Alert Dialogs without an accessible name, description, or response control
 - Detached Alert Dialog Triggers with a missing or invalid Root target

@@ -1,13 +1,65 @@
 ---
 import { ChevronDown } from "@lucide/astro";
+import * as Tabs from "@ormo/primitives/tabs";
+import type { BundledLanguage } from "shiki";
 
 import CodeBlock from "../CodeBlock/CodeBlock.astro";
 
-interface Props {
+interface DemoCodeFile {
+  filename: string;
   code: string;
+  lang?: BundledLanguage | "text" | "plaintext" | "txt";
 }
 
-const { code } = Astro.props;
+interface Props {
+  code?: string;
+  files?: DemoCodeFile[];
+}
+
+const { code, files } = Astro.props;
+
+function langFromFilename(
+  filename: string,
+): BundledLanguage | "text" | "plaintext" | "txt" {
+  const ext = filename.split(".").pop()?.toLowerCase();
+
+  switch (ext) {
+    case "astro":
+      return "astro";
+    case "css":
+      return "css";
+    case "scss":
+      return "scss";
+    case "ts":
+      return "typescript";
+    case "tsx":
+      return "tsx";
+    case "js":
+      return "javascript";
+    case "jsx":
+      return "jsx";
+    case "json":
+      return "json";
+    case "html":
+      return "html";
+    case "md":
+      return "markdown";
+    case "mdx":
+      return "mdx";
+    default:
+      return "text";
+  }
+}
+
+const codeFiles: DemoCodeFile[] =
+  files && files.length > 0
+    ? files
+    : code
+      ? [{ filename: "code", code, lang: "astro" }]
+      : [];
+
+const showFileTabs = Boolean(files && files.length > 1);
+const defaultFile = codeFiles[0]?.filename;
 const codeId = `demo-code-${crypto.randomUUID()}`;
 ---
 
@@ -17,11 +69,49 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
   </div>
 
   {
-    code && (
+    codeFiles.length > 0 && (
       <div class="demoblock-code-container" data-demo-code-container>
-        <div id={codeId} class="demoblock-code-content" data-demo-code-content>
-          <CodeBlock code={code} lang="astro" />
-        </div>
+        {showFileTabs ? (
+          <Tabs.Root
+            class="demoblock-code-tabs"
+            defaultValue={defaultFile}
+            activateOnFocus
+          >
+            <Tabs.List class="demoblock-code-tabs-list" aria-label="Code files">
+              {codeFiles.map((file) => (
+                <Tabs.Tab class="demoblock-code-tab" value={file.filename}>
+                  {file.filename}
+                </Tabs.Tab>
+              ))}
+            </Tabs.List>
+
+            <div id={codeId} data-demo-code-panels>
+              {codeFiles.map((file) => (
+                <Tabs.Panel
+                  class="demoblock-code-panel"
+                  value={file.filename}
+                >
+                  <div
+                    class="demoblock-code-content"
+                    data-demo-code-content
+                  >
+                    <CodeBlock
+                      code={file.code}
+                      lang={file.lang ?? langFromFilename(file.filename)}
+                    />
+                  </div>
+                </Tabs.Panel>
+              ))}
+            </div>
+          </Tabs.Root>
+        ) : (
+          <div id={codeId} class="demoblock-code-content" data-demo-code-content>
+            <CodeBlock
+              code={codeFiles[0].code}
+              lang={codeFiles[0].lang ?? langFromFilename(codeFiles[0].filename)}
+            />
+          </div>
+        )}
 
         <button
           type="button"
@@ -47,6 +137,32 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
   const collapsedHeightInRem = 14;
   const blocks = document.querySelectorAll<HTMLElement>("[data-demo-block]");
 
+  function measureContentHeight(content: HTMLElement): number {
+    const panel = content.closest<HTMLElement>("[data-ormo-tabs-panel]");
+
+    if (!panel || !panel.hidden) {
+      return content.scrollHeight;
+    }
+
+    const previousPosition = panel.style.position;
+    const previousVisibility = panel.style.visibility;
+    const previousPointerEvents = panel.style.pointerEvents;
+
+    panel.hidden = false;
+    panel.style.position = "absolute";
+    panel.style.visibility = "hidden";
+    panel.style.pointerEvents = "none";
+
+    const height = content.scrollHeight;
+
+    panel.hidden = true;
+    panel.style.position = previousPosition;
+    panel.style.visibility = previousVisibility;
+    panel.style.pointerEvents = previousPointerEvents;
+
+    return height;
+  }
+
   for (const block of blocks) {
     if (block.dataset.initialized === "true") continue;
 
@@ -55,7 +171,7 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
     const container = block.querySelector<HTMLElement>(
       "[data-demo-code-container]",
     );
-    const content = block.querySelector<HTMLElement>(
+    const contents = block.querySelectorAll<HTMLElement>(
       "[data-demo-code-content]",
     );
     const toggle = block.querySelector<HTMLButtonElement>(
@@ -65,14 +181,17 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
       "[data-demo-code-toggle-label]",
     );
 
-    if (!container || !content || !toggle || !label) continue;
+    if (!container || contents.length === 0 || !toggle || !label) continue;
 
     const rootFontSize = Number.parseFloat(
       getComputedStyle(document.documentElement).fontSize,
     );
     const collapsedHeight = collapsedHeightInRem * rootFontSize;
+    const needsCollapse = Array.from(contents).some(
+      (content) => measureContentHeight(content) > collapsedHeight,
+    );
 
-    if (content.scrollHeight <= collapsedHeight) continue;
+    if (!needsCollapse) continue;
 
     container.dataset.collapsible = "";
     toggle.hidden = false;
@@ -109,6 +228,60 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
 
   .demoblock-code-container {
     background: var(--surface-base);
+  }
+
+  .demoblock-code-tabs {
+    display: block;
+  }
+
+  .demoblock-code-tabs-list {
+    display: flex;
+    flex-wrap: wrap;
+    background: var(--surface-canvas);
+    border-block-end: 1px solid var(--border-default);
+  }
+
+  .demoblock-code-tab {
+    margin: 0;
+    margin-block-end: -1px;
+    border: 0;
+    border-inline-end: 1px solid var(--border-default);
+    border-block-end: 1px solid transparent;
+    padding: var(--space-50) var(--space-75);
+    background: transparent;
+    color: var(--content-subtle);
+    font-family:
+      var(--font-family-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
+      Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: var(--font-size-2);
+    font-weight: var(--font-weight-regular);
+    line-height: 1.4;
+    cursor: pointer;
+  }
+
+  .demoblock-code-tab:hover {
+    color: var(--content-default);
+  }
+
+  .demoblock-code-tab[data-state="active"] {
+    background: var(--surface-base);
+    border-block-end-color: var(--surface-base);
+    color: var(--content-default);
+  }
+
+  .demoblock-code-tab:focus-visible {
+    outline: var(--focus-width) solid var(--focus-default);
+    outline-offset: -2px;
+  }
+
+  .demoblock-code-tab:disabled,
+  .demoblock-code-tab[data-disabled] {
+    color: var(--content-disabled);
+    cursor: not-allowed;
+  }
+
+  .demoblock-code-panel {
+    outline: none;
   }
 
   .demoblock-code-content {

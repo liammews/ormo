@@ -1,0 +1,47 @@
+---
+import * as Tabs from "@ormo/primitives/tabs";
+import "./TabsDemo.css";
+---
+
+<div class="tabs-controlled-row">
+  <Tabs.Root
+    class="tabs"
+    id="controlled-tabs"
+    data-tabs-demo="controlled"
+    defaultValue="overview"
+  >
+    <Tabs.List class="tabs-list" aria-label="Controlled account">
+      <Tabs.Tab class="tabs-tab" value="overview">Overview</Tabs.Tab>
+      <Tabs.Tab class="tabs-tab" value="projects">Projects</Tabs.Tab>
+      <Tabs.Tab class="tabs-tab" value="billing">Billing</Tabs.Tab>
+    </Tabs.List>
+    <Tabs.Panel class="tabs-panel" value="overview">
+      Overview selected from the script or the tablist.
+    </Tabs.Panel>
+    <Tabs.Panel class="tabs-panel" value="projects">
+      Projects selected from the script or the tablist.
+    </Tabs.Panel>
+    <Tabs.Panel class="tabs-panel" value="billing">
+      Billing selected from the script or the tablist.
+    </Tabs.Panel>
+  </Tabs.Root>
+
+  <button
+    type="button"
+    class="tabs-controlled-button"
+    data-tabs-select="projects"
+  >
+    Select projects
+  </button>
+</div>
+
+<script>
+  const root = document.getElementById("controlled-tabs");
+  const button = document.querySelector("[data-tabs-select='projects']");
+
+  button?.addEventListener("click", () => {
+    if (root && "value" in root) {
+      root.value = "projects";
+    }
+  });
+</script>

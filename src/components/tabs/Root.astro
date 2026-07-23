@@ -1,0 +1,51 @@
+---
+import {
+  createTabsRootId,
+  renderWithTabsContext,
+} from "../../internal/tabs-ssr-context";
+import type { TabsRootProps } from "./types";
+
+type Props = TabsRootProps;
+
+const {
+  defaultValue,
+  orientation = "horizontal",
+  activateOnFocus = false,
+  loopFocus = true,
+  disabled = false,
+  id,
+  ...attributes
+} = Astro.props;
+
+const rootId = id ?? createTabsRootId();
+
+const ssrContext = {
+  defaultValue,
+  orientation,
+  disabled,
+  selectedValue: null as string | null,
+  rootId,
+  nextIndex: 0,
+  parts: new Map(),
+};
+
+const content = await renderWithTabsContext(ssrContext, () =>
+  Astro.slots.render("default"),
+);
+---
+
+<ormo-tabs
+  {...attributes}
+  id={rootId}
+  data-ormo-tabs-root
+  data-orientation={orientation}
+  data-activate-on-focus={activateOnFocus ? "" : undefined}
+  data-loop-focus={loopFocus ? undefined : "false"}
+  data-disabled={disabled ? "" : undefined}
+  data-default-value={defaultValue}
+  set:html={content}
+/>
+
+<script>
+  import "../../runtime/tabs";
+</script>

@@ -1,0 +1,20 @@
+---
+import { getTabsSsrContext } from "../../internal/tabs-ssr-context";
+import type { TabsListProps } from "./types";
+
+type Props = TabsListProps;
+
+const attributes: Props = Astro.props;
+const tabs = getTabsSsrContext();
+const orientation = tabs?.orientation ?? "horizontal";
+---
+
+<div
+  {...attributes}
+  role="tablist"
+  data-ormo-tabs-list
+  data-orientation={orientation}
+  aria-orientation={orientation === "vertical" ? "vertical" : undefined}
+>
+  <slot />
+</div>

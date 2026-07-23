@@ -1,0 +1,121 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Accordion toolbar demo"
+description: "Intentionally broken Accordions for trying the Ormo development toolbar"
+---
+
+import * as Accordion from "@ormo/primitives/accordion";
+import "../../../components/demos/Accordion/index.css";
+import "./accordion-demo.css";
+
+This page is a sandbox. Each example below is intentionally invalid so the Ormo development toolbar has something to report.
+
+Start the docs site with <code>pnpm docs:dev</code>, open this page, then select <strong>Ormo</strong> in Astro’s toolbar. You should see warnings you can click to highlight the matching element.
+
+## Empty root
+
+An Accordion with no items.
+
+<div class="toolbar-demo">
+  <Accordion.Root class="accordion" data-toolbar-demo="empty-root" />
+</div>
+
+## Missing value
+
+An item whose <code>value</code> is empty.
+
+<div class="toolbar-demo">
+  <Accordion.Root class="accordion" data-toolbar-demo="missing-value">
+    <Accordion.Item class="accordion-item" value="">
+      <Accordion.Header class="accordion-header" as="h2">
+        <Accordion.Trigger class="accordion-trigger">
+          Shipping
+        </Accordion.Trigger>
+      </Accordion.Header>
+      <Accordion.Content class="accordion-content">
+        <div class="accordion-content-inner">Panel content</div>
+      </Accordion.Content>
+    </Accordion.Item>
+  </Accordion.Root>
+</div>
+
+## Duplicate values
+
+Two items that share the same <code>value</code>.
+
+<div class="toolbar-demo">
+  <Accordion.Root class="accordion" data-toolbar-demo="duplicate-values">
+    <Accordion.Item class="accordion-item" value="shipping">
+      <Accordion.Header class="accordion-header" as="h2">
+        <Accordion.Trigger class="accordion-trigger">
+          Shipping
+        </Accordion.Trigger>
+      </Accordion.Header>
+      <Accordion.Content class="accordion-content">
+        <div class="accordion-content-inner">First shipping panel</div>
+      </Accordion.Content>
+    </Accordion.Item>
+    <Accordion.Item class="accordion-item" value="shipping">
+      <Accordion.Header class="accordion-header" as="h2">
+        <Accordion.Trigger class="accordion-trigger">
+          Shipping again
+        </Accordion.Trigger>
+      </Accordion.Header>
+      <Accordion.Content class="accordion-content">
+        <div class="accordion-content-inner">Duplicate shipping panel</div>
+      </Accordion.Content>
+    </Accordion.Item>
+  </Accordion.Root>
+</div>
+
+## Missing Trigger
+
+An item with Content but no Trigger.
+
+<div class="toolbar-demo">
+  <Accordion.Root class="accordion" data-toolbar-demo="missing-trigger">
+    <Accordion.Item class="accordion-item" value="returns">
+      <Accordion.Header class="accordion-header" as="h2">
+        Returns
+      </Accordion.Header>
+      <Accordion.Content class="accordion-content">
+        <div class="accordion-content-inner">No trigger in this item</div>
+      </Accordion.Content>
+    </Accordion.Item>
+  </Accordion.Root>
+</div>
+
+## Missing Content
+
+An item with a Trigger but no Content panel.
+
+<div class="toolbar-demo">
+  <Accordion.Root class="accordion" data-toolbar-demo="missing-content">
+    <Accordion.Item class="accordion-item" value="warranty">
+      <Accordion.Header class="accordion-header" as="h2">
+        <Accordion.Trigger class="accordion-trigger">
+          Warranty
+        </Accordion.Trigger>
+      </Accordion.Header>
+    </Accordion.Item>
+  </Accordion.Root>
+</div>
+
+## Trigger without an accessible name
+
+A Trigger that has no text or accessible name.
+
+<div class="toolbar-demo">
+  <Accordion.Root class="accordion" data-toolbar-demo="unnamed-trigger">
+    <Accordion.Item class="accordion-item" value="unnamed">
+      <Accordion.Header class="accordion-header" as="h2">
+        <Accordion.Trigger class="accordion-trigger" />
+      </Accordion.Header>
+      <Accordion.Content class="accordion-content">
+        <div class="accordion-content-inner">
+          The trigger above has no accessible name.
+        </div>
+      </Accordion.Content>
+    </Accordion.Item>
+  </Accordion.Root>
+</div>
