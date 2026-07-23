@@ -1,3 +1,22 @@
+.button-demo-field {
+  display: grid;
+  gap: var(--space-25);
+  margin-block-end: var(--space-100);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-2);
+  color: var(--content-default);
+}
+
+.button-demo-field input {
+  min-height: 2.5rem;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  padding: var(--space-50) var(--space-75);
+  background: var(--surface-base);
+  color: var(--content-default);
+  font: inherit;
+}
+
 .button-demo-control {
   display: inline-flex;
   min-width: 0;

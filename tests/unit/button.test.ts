@@ -206,6 +206,20 @@ describe("development diagnostics", () => {
       button,
     );
   });
+
+  it("warns when data-native-button does not match the element", () => {
+    const button = createButton();
+    button.textContent = "Broken";
+    button.setAttribute("data-native-button", "true");
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+    validateButtons();
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("data-native-button"),
+      button,
+    );
+  });
 });
 
 describe("button state controller", () => {
@@ -218,6 +232,7 @@ describe("button state controller", () => {
     expect(button.disabled).toBe(true);
     expect(button.hasAttribute("data-disabled")).toBe(true);
     expect(button.hasAttribute("data-pending")).toBe(true);
+    expect(button.getAttribute("aria-busy")).toBe("true");
     expect(button.hasAttribute("aria-disabled")).toBe(false);
 
     setButtonState(button, { disabled: false, pending: false });
@@ -225,6 +240,7 @@ describe("button state controller", () => {
     expect(button.disabled).toBe(false);
     expect(button.hasAttribute("data-disabled")).toBe(false);
     expect(button.hasAttribute("data-pending")).toBe(false);
+    expect(button.hasAttribute("aria-busy")).toBe(false);
   });
 
   it("keeps a native disabled button focusable on request", () => {
@@ -242,7 +258,30 @@ describe("button state controller", () => {
 
     expect(button.disabled).toBe(false);
     expect(button.getAttribute("aria-disabled")).toBe("true");
+    expect(button.hasAttribute("data-focusable-when-disabled")).toBe(true);
     expect(handleClick).not.toHaveBeenCalled();
+  });
+
+  it("remembers focusableWhenDisabled across disabled-only updates", () => {
+    const button = document.createElement("button");
+    button.setAttribute("data-ormo-button", "");
+    document.body.append(button);
+
+    setButtonState(button, {
+      disabled: true,
+      focusableWhenDisabled: true,
+    });
+    setButtonState(button, { disabled: true });
+
+    expect(button.disabled).toBe(false);
+    expect(button.getAttribute("aria-disabled")).toBe("true");
+    expect(button.hasAttribute("data-focusable-when-disabled")).toBe(true);
+
+    setButtonState(button, { disabled: false });
+    setButtonState(button, { disabled: true });
+
+    expect(button.disabled).toBe(false);
+    expect(button.getAttribute("aria-disabled")).toBe("true");
   });
 
   it("restores a non-native button's tabindex", () => {
@@ -258,12 +297,66 @@ describe("button state controller", () => {
     expect(button.hasAttribute("aria-disabled")).toBe(false);
   });
 
+  it("keeps a positive tabindex when disabling as focusable", () => {
+    const button = createButton();
+    button.tabIndex = 3;
+
+    setButtonState(button, {
+      disabled: true,
+      focusableWhenDisabled: true,
+    });
+
+    expect(button.tabIndex).toBe(3);
+    expect(button.getAttribute("aria-disabled")).toBe("true");
+  });
+
+  it("forces focusability when an authored tabindex was -1", () => {
+    const button = createButton();
+    button.tabIndex = -1;
+
+    setButtonState(button, {
+      disabled: true,
+      focusableWhenDisabled: true,
+    });
+
+    expect(button.tabIndex).toBe(0);
+  });
+
   it("restores default focusability after server-rendered disabled state", () => {
     const button = createButton({ disabled: true });
 
     setButtonState(button, { disabled: false });
 
     expect(button.tabIndex).toBe(0);
+  });
+
+  it("blocks submit events from an aria-disabled submitter", () => {
+    const form = document.createElement("form");
+    const button = document.createElement("button");
+    button.type = "submit";
+    button.setAttribute("data-ormo-button", "");
+    button.setAttribute("aria-disabled", "true");
+    form.append(button);
+    document.body.append(form);
+
+    setButtonState(button, {
+      disabled: true,
+      focusableWhenDisabled: true,
+    });
+
+    const handleSubmit = vi.fn((event: Event) => event.preventDefault());
+    form.addEventListener("submit", handleSubmit);
+
+    const submitted = form.dispatchEvent(
+      new SubmitEvent("submit", {
+        bubbles: true,
+        cancelable: true,
+        submitter: button,
+      }),
+    );
+
+    expect(submitted).toBe(false);
+    expect(handleSubmit).not.toHaveBeenCalled();
   });
 
   it("rejects elements that are not Ormo buttons", () => {
