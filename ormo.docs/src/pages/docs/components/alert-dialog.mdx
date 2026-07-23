@@ -363,6 +363,8 @@ The <code>ormo-alert-dialog</code> element exposes framework-independent modal c
 
 Listen for <code>ormo:alert-dialog-open-change</code> on Root. It fires after Content opens or closes and bubbles across shadow boundaries. Its detail contains <code>open</code>, <code>reason</code>, and <code>returnValue</code>. Reason is <code>trigger</code>, <code>action</code>, <code>cancel</code>, <code>escape</code>, or <code>programmatic</code>.
 
+There is no Astro <code>open</code> or <code>defaultOpen</code> prop. Open Alert Dialog with Trigger or <code>showModal()</code> after the custom element connects — native modal opening requires JavaScript. Prevent Content's native <code>cancel</code> event when Escape must not dismiss an irreversible confirmation. A native <code>&lt;form method="dialog"&gt;</code> submit closes Content with the <code>programmatic</code> reason.
+
 ## Accessibility
 
 Follow the [WAI-ARIA Alert Dialog pattern](https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/). Every alert dialog needs a concise accessible name and description. Prefer the visible Title and Description parts; use explicit ARIA relationships only when another visible element provides the same information.
@@ -393,26 +395,32 @@ The native modal dialog supplies focus containment and Escape behaviour. Ormo su
 
 ## Styling
 
-Root, Trigger, and Content expose <code>data-state="open|closed"</code> and <code>data-open</code>. A detached Trigger also exposes its target through <code>data-ormo-alert-dialog-for</code>. Content briefly exposes <code>data-starting-style</code> when it opens and <code>data-ending-style</code> when it closes. While any Ormo modal is open, the document element exposes <code>data-ormo-scroll-locked</code>. Action and Cancel expose the Ormo Button state hooks, including <code>data-disabled</code> and <code>data-pending</code>. Every part exposes a stable <code>data-ormo-alert-dialog-\*</code> selector.
+Pass your own <code>class</code> values to each part. Public part state hooks are <code>data-state="open|closed"</code>, <code>data-open</code>, Content's brief <code>data-starting-style</code> / <code>data-ending-style</code> transition attributes, and Button's <code>data-disabled</code> / <code>data-pending</code> on Action and Cancel. Attributes prefixed with <code>data-ormo-*</code> on primitive parts are internal runtime selectors, not styling APIs.
 
-Style the modal surface through Content and the inert-page overlay through <code>[data-ormo-alert-dialog-content]::backdrop</code>. Native discrete transitions can keep a closing dialog in the top layer without requiring Ormo to delay its semantic closed state:
+While any Ormo modal is open, the document element exposes <code>data-ormo-scroll-locked</code>. That attribute is shared document-level state for Dialog and Alert Dialog — use it to observe or style around background scroll locking. It remains until the final nested or sibling modal closes.
+
+Style the modal surface through your Content class and the inert-page overlay through that class's <code>::backdrop</code>. Native discrete transitions can keep a closing dialog in the top layer without requiring Ormo to delay its semantic closed state:
 
 <CodeBlock
   lang="css"
-  code={`[data-ormo-alert-dialog-content] {
+  code={`.alert-dialog {
   transition:
     opacity 120ms,
     overlay 120ms allow-discrete,
     display 120ms allow-discrete;
 }
 
-[data-ormo-alert-dialog-content][data-starting-style],
-[data-ormo-alert-dialog-content][data-ending-style] {
-opacity: 0;
+.alert-dialog[data-starting-style],
+.alert-dialog[data-ending-style] {
+  opacity: 0;
+}
+
+.alert-dialog::backdrop {
+  background: rgb(0 0 0 / 55%);
 }
 
 @media (prefers-reduced-motion: reduce) {
-[data-ormo-alert-dialog-content] { transition: none; }
+  .alert-dialog { transition: none; }
 }`}
 />
 

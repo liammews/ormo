@@ -212,7 +212,9 @@ The <code>ormo-dialog</code> element exposes framework-independent modal control
 
 Listen for <code>ormo:dialog-open-change</code> on Root. It bubbles with <code>open</code>, <code>reason</code>, and <code>returnValue</code>. Reason is <code>trigger</code>, <code>close</code>, <code>escape</code>, <code>outside</code>, or <code>programmatic</code>.
 
-A Close click occurs before Ormo handles it, so a synchronous <code>event.preventDefault()</code> keeps the dialog open. Prevent the native, cancelable <code>cancel</code> event on Content to override Escape dismissal.
+There is no Astro <code>open</code> or <code>defaultOpen</code> prop. Open Dialog with Trigger or <code>showModal()</code> after the custom element connects — native modal opening requires JavaScript.
+
+A Close click occurs before Ormo handles it, so a synchronous <code>event.preventDefault()</code> keeps the dialog open. Prevent the native, cancelable <code>cancel</code> event on Content to override Escape dismissal. A native <code>&lt;form method="dialog"&gt;</code> submit also closes Content; Ormo reports that close as <code>programmatic</code>.
 
 ## Accessibility
 
@@ -234,12 +236,41 @@ Development builds and the optional Ormo toolbar report missing or multiple Cont
 
 ## Styling
 
-Root, Trigger, and Content expose <code>data-state="open|closed"</code> and <code>data-open</code>. Detached Trigger exposes <code>data-ormo-dialog-for</code>. Content briefly exposes <code>data-starting-style</code> and <code>data-ending-style</code>. While any Ormo modal is open, the document element exposes <code>data-ormo-scroll-locked</code>. Every part has a stable <code>data-ormo-dialog-\*</code> selector.
+Pass your own <code>class</code> values to each part. Public part state hooks are <code>data-state="open|closed"</code>, <code>data-open</code>, and Content's brief <code>data-starting-style</code> / <code>data-ending-style</code> transition attributes. Attributes prefixed with <code>data-ormo-*</code> on primitive parts are internal runtime selectors, not styling APIs.
 
-Style the modal surface through Content and its backdrop through <code>[data-ormo-dialog-content]::backdrop</code>. Ormo applies no component CSS. Consumers own surface and backdrop distinction, contrast, focus indicators, viewport-safe sizing, and reduced-motion behavior.
+While any Ormo modal is open, the document element exposes <code>data-ormo-scroll-locked</code>. That attribute is shared document-level state for Dialog and Alert Dialog — use it to observe or style around background scroll locking. It remains until the final nested or sibling modal closes.
+
+Style the modal surface through your Content class and the inert-page overlay through that class's <code>::backdrop</code>. Native discrete transitions can keep a closing dialog in the top layer without delaying its semantic closed state:
+
+<CodeBlock
+  lang="css"
+  code={`.dialog {
+  transition:
+    opacity 120ms,
+    overlay 120ms allow-discrete,
+    display 120ms allow-discrete;
+}
+
+.dialog[data-starting-style],
+.dialog[data-ending-style] {
+  opacity: 0;
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 55%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog { transition: none; }
+}`}
+/>
+
+Ormo applies no component CSS. Consumers own surface and backdrop distinction, contrast, focus indicators, viewport-safe sizing, and reduced-motion behavior.
 
 ## Runtime
 
 Dialog loads one Astro-processed, deduplicated runtime. The browser owns the modal top layer and outside-page inertness. Ormo connects its parts, locks background document scrolling, manages initial and final focus, supplies a cross-browser Tab sequence, coordinates dismissal and state, and handles Astro client-router document swaps.
 
 One document-scoped listener and observer coordinate descendant, detached, and dynamically inserted Triggers regardless of how many Dialogs are rendered. Scroll locking is shared with Alert Dialog and remains active until the final nested or sibling modal closes. An authored inline <code>overflow</code> value is restored afterward.
+
+Before an Astro client-router document swap, an open dialog closes synchronously and restores focus. This lets Astro's own focus-preservation step begin from a meaningful element rather than from content that is about to be removed.
