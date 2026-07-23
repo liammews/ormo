@@ -38,6 +38,22 @@ function preventDisabledInteraction(event: Event): void {
   event.stopImmediatePropagation();
 }
 
+function preventDisabledSubmit(event: Event): void {
+  if (!(event instanceof SubmitEvent)) {
+    return;
+  }
+
+  const submitter = event.submitter;
+
+  if (
+    submitter instanceof HTMLElement &&
+    submitter.matches(disabledButtonSelector)
+  ) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }
+}
+
 function handleKeyDown(event: KeyboardEvent): void {
   const button = closestButton(event, nonNativeButtonSelector);
 
@@ -141,6 +157,16 @@ export function validateButtons(root: ParentNode = document): void {
       );
     }
 
+    const isNative = button.tagName === "BUTTON";
+    const declaredNative = button.getAttribute("data-native-button") === "true";
+
+    if (isNative !== declaredNative) {
+      console.warn(
+        '[Ormo Button] data-native-button does not match the rendered element. Native rendering is inferred from as="button".',
+        button,
+      );
+    }
+
     if (
       button.querySelector(
         'a[href], button, input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])',
@@ -168,6 +194,7 @@ export function initializeButtonRuntime(targetDocument: Document): void {
   );
   targetDocument.addEventListener("keydown", preventDisabledInteraction, true);
   targetDocument.addEventListener("keyup", preventDisabledInteraction, true);
+  targetDocument.addEventListener("submit", preventDisabledSubmit, true);
   targetDocument.addEventListener("keydown", handleKeyDown);
   targetDocument.addEventListener("keyup", handleKeyUp);
   targetDocument.addEventListener("focusout", clearSpacePress);

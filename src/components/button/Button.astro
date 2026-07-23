@@ -14,16 +14,17 @@ const {
   nativeButton: _nativeButton,
   focusableWhenDisabled = false,
   pending = false,
+  "aria-busy": ariaBusy,
   ...buttonRest
 } = buttonAttributes as HTMLAttributes<"button"> & {
-  nativeButton?: true;
+  nativeButton?: boolean;
   focusableWhenDisabled?: boolean;
   pending?: boolean;
 };
 void _nativeButton;
 const nonNativeAttributes = attributes as HTMLAttributes<"div"> & {
   disabled?: boolean;
-  nativeButton: false;
+  nativeButton?: boolean;
   focusableWhenDisabled?: boolean;
   pending?: boolean;
 };
@@ -33,12 +34,30 @@ const {
   focusableWhenDisabled: nonNativeFocusableWhenDisabled = false,
   pending: nonNativePending = false,
   tabindex,
+  "aria-busy": nonNativeAriaBusy,
   ...nonNativeRest
 } = nonNativeAttributes;
 void _nonNativeButton;
+
+const authoredTabIndex =
+  tabindex === undefined || tabindex === "" ? undefined : Number(tabindex);
+const nonNativeTabIndex =
+  nonNativeDisabled && !nonNativeFocusableWhenDisabled
+    ? -1
+    : nonNativeDisabled &&
+        nonNativeFocusableWhenDisabled &&
+        (authoredTabIndex === undefined ||
+          Number.isNaN(authoredTabIndex) ||
+          authoredTabIndex < 0)
+      ? 0
+      : (tabindex ?? 0);
+
 const NonNativeTag = isNonNative ? as : "div";
 const needsRuntime =
-  import.meta.env.DEV || isNonNative || Boolean(focusableWhenDisabled);
+  import.meta.env.DEV ||
+  isNonNative ||
+  Boolean(focusableWhenDisabled) ||
+  Boolean(nonNativeFocusableWhenDisabled);
 ---
 
 {
@@ -46,16 +65,16 @@ const needsRuntime =
     <NonNativeTag
       {...nonNativeRest}
       role="button"
-      tabindex={
-        nonNativeDisabled && !nonNativeFocusableWhenDisabled
-          ? -1
-          : (tabindex ?? 0)
-      }
+      tabindex={nonNativeTabIndex}
       aria-disabled={nonNativeDisabled ? "true" : undefined}
+      aria-busy={nonNativePending ? "true" : nonNativeAriaBusy}
       data-ormo-button
       data-native-button="false"
       data-disabled={nonNativeDisabled ? "" : undefined}
       data-pending={nonNativePending ? "" : undefined}
+      data-focusable-when-disabled={
+        nonNativeFocusableWhenDisabled ? "" : undefined
+      }
     >
       <slot />
     </NonNativeTag>
@@ -65,10 +84,12 @@ const needsRuntime =
       type={type}
       disabled={disabled && !focusableWhenDisabled}
       aria-disabled={disabled && focusableWhenDisabled ? "true" : undefined}
+      aria-busy={pending ? "true" : ariaBusy}
       data-ormo-button
       data-native-button="true"
       data-disabled={disabled ? "" : undefined}
       data-pending={pending ? "" : undefined}
+      data-focusable-when-disabled={focusableWhenDisabled ? "" : undefined}
     >
       <slot />
     </button>
