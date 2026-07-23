@@ -16,8 +16,6 @@ import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
-## Default
-
 Alert Dialog uses the native <code>&lt;dialog&gt;</code> element as a modal alert dialog. It makes the rest of the page inert, contains keyboard focus, focuses the least destructive action by default, closes with <kbd>Escape</kbd>, and returns focus to its trigger.
 
 Use Alert Dialog only when an important message requires an immediate response, such as confirming an irreversible action. Use a standard Dialog for interactions that do not interrupt the user's workflow.
@@ -37,17 +35,12 @@ import * as AlertDialog from "@ormo/primitives/alert-dialog";
 ---
 
 <AlertDialog.Root>
-  <AlertDialog.Trigger>Delete project</AlertDialog.Trigger>
-
+  <AlertDialog.Trigger />
   <AlertDialog.Content>
-    <AlertDialog.Title>Delete this project?</AlertDialog.Title>
-    <AlertDialog.Description>
-      This permanently deletes the project and cannot be undone.
-    </AlertDialog.Description>
-
-    <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-    <AlertDialog.Action>Delete project</AlertDialog.Action>
-
+    <AlertDialog.Title />
+    <AlertDialog.Description />
+    <AlertDialog.Cancel />
+    <AlertDialog.Action />
   </AlertDialog.Content>
 </AlertDialog.Root>`}
 />
@@ -395,7 +388,7 @@ The native modal dialog supplies focus containment and Escape behaviour. Ormo su
 
 ## Styling
 
-Pass your own <code>class</code> values to each part. Public part state hooks are <code>data-state="open|closed"</code>, <code>data-open</code>, Content's brief <code>data-starting-style</code> / <code>data-ending-style</code> transition attributes, and Button's <code>data-disabled</code> / <code>data-pending</code> on Action and Cancel. Attributes prefixed with <code>data-ormo-*</code> on primitive parts are internal runtime selectors, not styling APIs.
+Pass your own <code>class</code> values to each part. Public part state hooks are <code>data-state="open|closed"</code>, <code>data-open</code>, Content's brief <code>data-starting-style</code> / <code>data-ending-style</code> transition attributes, and Button's <code>data-disabled</code> / <code>data-pending</code> on Action and Cancel. Attributes prefixed with <code>data-ormo-\*</code> on primitive parts are internal runtime selectors, not styling APIs.
 
 While any Ormo modal is open, the document element exposes <code>data-ormo-scroll-locked</code>. That attribute is shared document-level state for Dialog and Alert Dialog — use it to observe or style around background scroll locking. It remains until the final nested or sibling modal closes.
 
@@ -412,15 +405,15 @@ Style the modal surface through your Content class and the inert-page overlay th
 
 .alert-dialog[data-starting-style],
 .alert-dialog[data-ending-style] {
-  opacity: 0;
+opacity: 0;
 }
 
 .alert-dialog::backdrop {
-  background: rgb(0 0 0 / 55%);
+background: rgb(0 0 0 / 55%);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .alert-dialog { transition: none; }
+.alert-dialog { transition: none; }
 }`}
 />
 

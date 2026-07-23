@@ -12,10 +12,12 @@
   --content-error: var(--color-amber-11);
   --content-warning: var(--color-red-11);
   --content-onbrand: var(--color-gray-12);
+  --content-invert: var(--color-white);
 
   --surface-canvas: var(--color-gray-2);
   --surface-elevated: var(--color-gray-3);
   --surface-base: var(--color-gray-1);
+  --surface-invert: var(--color-gray-12);
   --surface-disabled: var(--color-gray-3);
   --surface-brand: var(--color-brand-9);
   --surface-brand-hover: var(--color-brand-11);

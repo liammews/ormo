@@ -236,7 +236,7 @@ Development builds and the optional Ormo toolbar report missing or multiple Cont
 
 ## Styling
 
-Pass your own <code>class</code> values to each part. Public part state hooks are <code>data-state="open|closed"</code>, <code>data-open</code>, and Content's brief <code>data-starting-style</code> / <code>data-ending-style</code> transition attributes. Attributes prefixed with <code>data-ormo-*</code> on primitive parts are internal runtime selectors, not styling APIs.
+Pass your own <code>class</code> values to each part. Public part state hooks are <code>data-state="open|closed"</code>, <code>data-open</code>, and Content's brief <code>data-starting-style</code> / <code>data-ending-style</code> transition attributes. Attributes prefixed with <code>data-ormo-\*</code> on primitive parts are internal runtime selectors, not styling APIs.
 
 While any Ormo modal is open, the document element exposes <code>data-ormo-scroll-locked</code>. That attribute is shared document-level state for Dialog and Alert Dialog — use it to observe or style around background scroll locking. It remains until the final nested or sibling modal closes.
 
@@ -253,15 +253,15 @@ Style the modal surface through your Content class and the inert-page overlay th
 
 .dialog[data-starting-style],
 .dialog[data-ending-style] {
-  opacity: 0;
+opacity: 0;
 }
 
 .dialog::backdrop {
-  background: rgb(0 0 0 / 55%);
+background: rgb(0 0 0 / 55%);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dialog { transition: none; }
+.dialog { transition: none; }
 }`}
 />
 

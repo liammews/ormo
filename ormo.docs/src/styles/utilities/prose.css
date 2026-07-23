@@ -116,10 +116,11 @@
 
 .prose > :is(ul, ol) {
   padding-inline-start: var(--space-125);
+  margin-block: var(--space-125);
 }
 
 .prose > :is(ul, ol) li + li {
-  margin-block-start: var(--space-25);
+  margin-block: var(--space-50);
 }
 
 .prose > :where(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, table) a {
