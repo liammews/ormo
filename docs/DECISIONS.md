@@ -314,7 +314,7 @@ The Popover API provides light dismiss, Escape, and top-layer rendering without 
 ### Consequences
 
 - Without CSS Anchor support, default placement falls back to the user-agent top-layer default (typically centered). Docs point consumers to the Floating UI opt-in when that matters.
-- `positioning="floating"` without the floating import warns in development and falls back to CSS anchors.
+- `positioning="floating"` without the floating import warns in development and keeps CSS Anchor Positioning until the floating entry is loaded.
 - `@floating-ui/dom` is an optional peer dependency required only when using the floating entry.
 - Portal, Backdrop, Arrow, separate Positioner/Popup/Viewport, and `asChild` are out of scope for the initial Popover.
 

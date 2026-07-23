@@ -103,6 +103,66 @@ test("supports detached triggers and restores the exact invoker", async ({
   await expect(menu).toBeFocused();
 });
 
+test("positions with Floating UI and preserves requested side", async ({
+  page,
+}) => {
+  const demo = page.locator('[data-popover-demo="floating"]');
+  const trigger = demo.getByRole("button", { name: "Floating UI" });
+  const content = demo.locator("[data-ormo-popover-content]");
+
+  await trigger.click();
+  await expect(content).toBeVisible();
+  await expect(content).toHaveAttribute("data-side", "bottom");
+  await expect(content).toHaveAttribute("data-align", "start");
+  await expect(content).toHaveAttribute(
+    "data-ormo-popover-positioning",
+    "floating",
+  );
+  await expect(content).toHaveAttribute("data-resolved-side", /.+/);
+  await expect
+    .poll(async () => content.evaluate((el) => (el as HTMLElement).style.left))
+    .not.toBe("");
+
+  await page.keyboard.press("Escape");
+  await expect(content).toBeHidden();
+  await expect(content).not.toHaveAttribute("data-ormo-popover-positioning");
+  await expect(content).not.toHaveAttribute("data-resolved-side");
+  await expect(content).toHaveAttribute("data-side", "bottom");
+});
+
+test("exposes trigger size CSS variables while open", async ({ page }) => {
+  const demo = page.locator('[data-popover-demo="default"]');
+  const trigger = demo.getByRole("button", { name: "Filters" });
+  const content = demo.locator("[data-ormo-popover-content]");
+
+  await trigger.click();
+  await expect(content).toBeVisible();
+
+  const metrics = await content.evaluate((el) => {
+    const styles = getComputedStyle(el);
+    return {
+      width: styles.getPropertyValue("--ormo-popover-trigger-width").trim(),
+      height: styles.getPropertyValue("--ormo-popover-trigger-height").trim(),
+    };
+  });
+
+  expect(metrics.width).toMatch(/^\d+(\.\d+)?px$/);
+  expect(metrics.height).toMatch(/^\d+(\.\d+)?px$/);
+
+  await page.keyboard.press("Escape");
+  await expect(content).toBeHidden();
+
+  const closedMetrics = await content.evaluate((el) => {
+    const style = (el as HTMLElement).style;
+    return {
+      width: style.getPropertyValue("--ormo-popover-trigger-width"),
+      height: style.getPropertyValue("--ormo-popover-trigger-height"),
+    };
+  });
+  expect(closedMetrics.width).toBe("");
+  expect(closedMetrics.height).toBe("");
+});
+
 test("has no critical accessibility violations on the docs page", async ({
   page,
 }) => {

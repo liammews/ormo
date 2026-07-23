@@ -120,6 +120,8 @@ function createPopover(options?: {
 afterEach(() => {
   document.body.replaceChildren();
   vi.restoreAllMocks();
+  delete (globalThis as { __ormoPopoverFloatingPositioner?: unknown })
+    .__ormoPopoverFloatingPositioner;
 });
 
 describe("popover", () => {
@@ -285,11 +287,13 @@ describe("popover", () => {
     const { registerPopoverFloatingPositioner } =
       await import("../../src/runtime/popover");
 
-    registerPopoverFloatingPositioner(({ content }) => {
+    registerPopoverFloatingPositioner(({ content, side, align }) => {
       content.setAttribute("data-ormo-popover-positioning", "floating");
       content.style.left = "24px";
       content.style.top = "48px";
       content.style.position = "fixed";
+      content.dataset.resolvedSide = side === "bottom" ? "top" : side;
+      content.dataset.resolvedAlign = align;
       return () => {
         content.style.removeProperty("left");
         content.style.removeProperty("top");
@@ -299,16 +303,242 @@ describe("popover", () => {
     const { root, trigger, content } = createPopover({
       positioning: "floating",
     });
+    content.dataset.side = "bottom";
+    content.dataset.align = "start";
+    content.style.right = "12px";
+    content.style.position = "absolute";
 
     trigger.click();
 
     expect(content.getAttribute("data-ormo-popover-positioning")).toBe(
       "floating",
     );
+    expect(content.dataset.side).toBe("bottom");
+    expect(content.dataset.align).toBe("start");
+    expect(content.dataset.resolvedSide).toBe("top");
+    expect(content.dataset.resolvedAlign).toBe("start");
     expect(content.style.left).toBe("24px");
     expect(content.style.top).toBe("48px");
 
     root.hide();
     expect(content.getAttribute("data-ormo-popover-positioning")).toBeNull();
+    expect(content.hasAttribute("data-resolved-side")).toBe(false);
+    expect(content.hasAttribute("data-resolved-align")).toBe(false);
+    expect(content.dataset.side).toBe("bottom");
+    expect(content.style.left).toBe("");
+    expect(content.style.top).toBe("");
+    expect(content.style.right).toBe("12px");
+    expect(content.style.position).toBe("absolute");
+  });
+
+  it("ignores stale floating updates after close", async () => {
+    const { registerPopoverFloatingPositioner } =
+      await import("../../src/runtime/popover");
+
+    let finishUpdate: (() => void) | undefined;
+    registerPopoverFloatingPositioner(({ content }) => {
+      let active = true;
+      void new Promise<void>((resolve) => {
+        finishUpdate = resolve;
+      }).then(() => {
+        if (!active) return;
+        content.style.left = "99px";
+        content.dataset.resolvedSide = "left";
+      });
+      return () => {
+        active = false;
+      };
+    });
+
+    const { root, trigger, content } = createPopover({
+      positioning: "floating",
+    });
+
+    trigger.click();
+    root.hide();
+    finishUpdate?.();
+    await Promise.resolve();
+
+    expect(content.style.left).toBe("");
+    expect(content.hasAttribute("data-resolved-side")).toBe(false);
+  });
+
+  it("measures trigger size on open and clears metrics on close", () => {
+    const { root, trigger, content } = createPopover();
+    vi.spyOn(trigger, "getBoundingClientRect").mockReturnValue({
+      bottom: 40,
+      height: 32,
+      left: 10,
+      right: 130,
+      top: 8,
+      width: 120,
+      x: 10,
+      y: 8,
+      toJSON: () => undefined,
+    });
+
+    trigger.click();
+
+    expect(content.style.getPropertyValue("--ormo-popover-trigger-width")).toBe(
+      "120px",
+    );
+    expect(
+      content.style.getPropertyValue("--ormo-popover-trigger-height"),
+    ).toBe("32px");
+
+    root.hide();
+
+    expect(content.style.getPropertyValue("--ormo-popover-trigger-width")).toBe(
+      "",
+    );
+    expect(
+      content.style.getPropertyValue("--ormo-popover-trigger-height"),
+    ).toBe("");
+  });
+
+  it("allows a Close click to be prevented", () => {
+    const { root, trigger, close } = createPopover();
+    close.addEventListener("click", (event) => event.preventDefault());
+
+    trigger.click();
+    close.click();
+
+    expect(root.open).toBe(true);
+  });
+
+  it("supports explicit final focus", () => {
+    const { root } = createPopover();
+    const destination = document.createElement("button");
+    document.body.append(destination);
+    root.finalFocus = destination;
+
+    root.show();
+    root.hide();
+
+    expect(document.activeElement).toBe(destination);
+  });
+
+  it("honours autofocus on open", () => {
+    const { trigger, title } = createPopover();
+    title.tabIndex = -1;
+    title.setAttribute("autofocus", "");
+
+    trigger.click();
+    expect(document.activeElement).toBe(title);
+  });
+
+  it("preserves authored accessible relationships", () => {
+    const root = document.createElement("ormo-popover") as OrmoPopoverElement;
+    root.innerHTML = `
+      <button type="button" data-ormo-popover-trigger>Open</button>
+      <div
+        role="dialog"
+        popover="auto"
+        tabindex="-1"
+        data-ormo-popover-content
+        aria-label="Preferences"
+        aria-describedby="custom-description"
+      >
+        <h2 data-ormo-popover-title>Generated title</h2>
+        <p id="custom-description">Custom description</p>
+        <button type="button" data-ormo-popover-close>Close</button>
+      </div>
+    `;
+    document.body.append(root);
+    const content = root.querySelector<HTMLElement>(
+      "[data-ormo-popover-content]",
+    )!;
+    installPopoverPolyfill(content);
+    root.remove();
+    document.body.append(root);
+
+    expect(content.getAttribute("aria-label")).toBe("Preferences");
+    expect(content.hasAttribute("aria-labelledby")).toBe(false);
+    expect(content.getAttribute("aria-describedby")).toBe("custom-description");
+  });
+
+  it("allows Description to be omitted", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const root = document.createElement("ormo-popover") as OrmoPopoverElement;
+    root.innerHTML = `
+      <button type="button" data-ormo-popover-trigger>Open</button>
+      <div role="dialog" popover="auto" tabindex="-1" data-ormo-popover-content>
+        <h2 data-ormo-popover-title>Shortcuts</h2>
+        <button type="button" data-ormo-popover-close>Close</button>
+      </div>
+    `;
+    document.body.append(root);
+    const content = root.querySelector<HTMLElement>(
+      "[data-ormo-popover-content]",
+    )!;
+    installPopoverPolyfill(content);
+    root.remove();
+    document.body.append(root);
+
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it("warns when its accessible name is missing", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const root = document.createElement("ormo-popover") as OrmoPopoverElement;
+    root.innerHTML = `
+      <button type="button" data-ormo-popover-trigger>Open</button>
+      <div role="dialog" popover="auto" tabindex="-1" data-ormo-popover-content>
+        <button type="button" data-ormo-popover-close>Close</button>
+      </div>
+    `;
+    document.body.append(root);
+    const content = root.querySelector<HTMLElement>(
+      "[data-ormo-popover-content]",
+    )!;
+    installPopoverPolyfill(content);
+    root.remove();
+    document.body.append(root);
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("Popover.Title"),
+      root,
+    );
+  });
+
+  it("warns when Close is missing", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const root = document.createElement("ormo-popover") as OrmoPopoverElement;
+    root.innerHTML = `
+      <button type="button" data-ormo-popover-trigger>Open</button>
+      <div role="dialog" popover="auto" tabindex="-1" data-ormo-popover-content>
+        <h2 data-ormo-popover-title>Filters</h2>
+      </div>
+    `;
+    document.body.append(root);
+    const content = root.querySelector<HTMLElement>(
+      "[data-ormo-popover-content]",
+    )!;
+    installPopoverPolyfill(content);
+    root.remove();
+    document.body.append(root);
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("Popover.Close"),
+      root,
+    );
+  });
+
+  it("ignores and diagnoses a detached trigger with no matching Root", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const { content } = createPopover();
+    const trigger = document.createElement("button");
+    trigger.type = "button";
+    trigger.setAttribute("data-ormo-popover-trigger", "");
+    trigger.setAttribute("data-ormo-popover-for", "missing-popover");
+    document.body.append(trigger);
+
+    trigger.click();
+
+    expect(content.matches(":popover-open")).toBe(false);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("must match a Popover.Root id"),
+      trigger,
+    );
   });
 });

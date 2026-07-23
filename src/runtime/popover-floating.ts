@@ -45,13 +45,32 @@ registerPopoverFloatingPositioner(
     }
 
     const placement = mapPlacement(side, align);
+    let active = true;
 
-    return autoUpdate(trigger, content, () => {
+    const stop = autoUpdate(trigger, content, () => {
+      if (!active) {
+        return;
+      }
+
+      const rect = trigger.getBoundingClientRect();
+      content.style.setProperty(
+        "--ormo-popover-trigger-width",
+        `${rect.width}px`,
+      );
+      content.style.setProperty(
+        "--ormo-popover-trigger-height",
+        `${rect.height}px`,
+      );
+
       void computePosition(trigger, content, {
         placement,
         strategy: "fixed",
         middleware: [offset(sideOffset), flip(), shift({ padding: 8 })],
       }).then(({ x, y, placement: resolved }) => {
+        if (!active) {
+          return;
+        }
+
         Object.assign(content.style, {
           left: `${x}px`,
           top: `${y}px`,
@@ -65,9 +84,14 @@ registerPopoverFloatingPositioner(
           PopoverPositionerContext["side"],
           "start" | "end" | undefined,
         ];
-        content.dataset.side = resolvedSide;
-        content.dataset.align = resolvedAlign ?? "center";
+        content.dataset.resolvedSide = resolvedSide;
+        content.dataset.resolvedAlign = resolvedAlign ?? "center";
       });
     });
+
+    return () => {
+      active = false;
+      stop();
+    };
   },
 );

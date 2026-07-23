@@ -36,7 +36,7 @@ Use Dialog when the task needs exclusive attention and an inert page. Use a futu
 
 ## Anatomy
 
-Compose the trigger, anchored content, accessible name, optional description, and usually a Close control:
+Compose the trigger, anchored content, accessible name, optional description, and a Close control:
 
 <CodeBlock
   lang="astro"
@@ -60,7 +60,7 @@ import * as Popover from "@ormo/primitives/popover";
 </Popover.Root>`}
 />
 
-Content renders a <code>div</code> with <code>popover="auto"</code> and <code>role="dialog"</code>. Ormo generates IDs and connects Title and Description through <code>aria-labelledby</code> and <code>aria-describedby</code>. Opening uses the native Popover API. Default placement uses CSS Anchor Positioning.
+Content renders a <code>div</code> with <code>role="dialog"</code> and <code>popover="auto"</code> by default (<code>popover="manual"</code> when Root sets <code>disablePointerDismissal</code>). Ormo generates IDs and connects Title and Description through <code>aria-labelledby</code> and <code>aria-describedby</code>. Opening uses the native Popover API. Default placement uses CSS Anchor Positioning.
 
 Trigger always renders a native <code>&lt;button&gt;</code>. Put icons and labels in its slot — do not nest another button (including Ormo Button) inside Trigger.
 
@@ -68,7 +68,7 @@ Trigger always renders a native <code>&lt;button&gt;</code>. Put icons and label
 
 ### Placement
 
-Set <code>side</code>, <code>align</code>, and <code>sideOffset</code> on Content. These drive CSS Anchor Positioning and the public <code>data-side</code> / <code>data-align</code> attributes.
+Set <code>side</code>, <code>align</code>, and <code>sideOffset</code> on Content. These drive CSS Anchor Positioning and the public <code>data-side</code> / <code>data-align</code> attributes (requested placement). With Floating UI, resolved placement is exposed as <code>data-resolved-side</code> / <code>data-resolved-align</code> without mutating the requested attributes.
 
 <DemoBlock code={popoverPlacementDemoCode}>
   <PopoverPlacementDemo />
@@ -100,7 +100,7 @@ Because Popover is non-modal, keyboard users can Tab from Content into the rest 
 
 ### Pointer dismissal
 
-Outside pointer presses close Popover by default (<code>popover="auto"</code>). Set <code>disablePointerDismissal</code> to use <code>popover="manual"</code>. Escape still closes unless the application prevents it.
+Outside pointer presses close Popover by default (<code>popover="auto"</code>). Set <code>disablePointerDismissal</code> to use <code>popover="manual"</code> in both SSR HTML and the runtime. Escape still closes unless the application prevents it.
 
 <DemoBlock code={popoverPersistentDemoCode}>
   <PopoverPersistentDemo />
@@ -141,7 +141,7 @@ import * as Popover from "@ormo/primitives/popover";
 
 />
 
-Without the floating import, <code>positioning="floating"</code> warns in development and falls back to CSS anchors.
+Without the floating import, <code>positioning="floating"</code> warns in development and keeps CSS Anchor Positioning until the floating entry is loaded.
 
 ## API reference
 
@@ -158,7 +158,7 @@ Groups the parts and coordinates open state. It renders <code>&lt;ormo-popover&g
       type: "boolean",
       defaultValue: "false",
       description:
-        "Uses popover=manual so outside pointer presses do not close Content. Escape and Close remain available.",
+        "Uses popover=manual so outside pointer presses do not close Content (also in SSR HTML). Escape and Close remain available.",
     },
     {
       name: "positioning",
@@ -316,13 +316,13 @@ There is no Astro <code>open</code> or <code>defaultOpen</code> prop. Open Popov
 
 ## Accessibility
 
-Popover follows a non-modal dialog pattern: <code>role="dialog"</code> without <code>aria-modal</code>. Every Popover needs a concise accessible name. Prefer a visible Title.
+Popover follows a non-modal dialog pattern: <code>role="dialog"</code> without <code>aria-modal</code>. Every Popover needs a concise accessible name. Prefer a visible Title. Include a visible Close control so keyboard and touch screen reader users can dismiss Content — especially when <code>disablePointerDismissal</code> is set.
 
 Focus moves into Content on open (autofocus, first tabbable, or Content). Focus returns to the invoker or <code>finalFocus</code> on close. Tab is not trapped — users can leave Content into the page.
 
 Do not use Popover as a Tooltip substitute. Hover and focus open with delay belong on Tooltip / HoverCard so WCAG 1.4.13 can be handled deliberately.
 
-Development builds and the optional Ormo toolbar report missing or multiple Content parts, missing accessible names, invalid final-focus selectors, detached Triggers with invalid targets, and floating positioning without the floating import.
+Development builds and the optional Ormo toolbar report missing or multiple Content parts, missing accessible names, missing Close controls, invalid final-focus selectors, detached Triggers with invalid targets, and floating positioning without the floating import.
 
 ## Keyboard behavior
 
@@ -334,7 +334,15 @@ Development builds and the optional Ormo toolbar report missing or multiple Cont
 
 ## Styling
 
-Pass your own <code>class</code> values to each part. Public state hooks are <code>data-state="open|closed"</code>, <code>data-open</code>, Content <code>data-side</code> / <code>data-align</code>, and brief <code>data-starting-style</code> / <code>data-ending-style</code> transition attributes. CSS custom properties include <code>--ormo-popover-side-offset</code>, <code>--ormo-popover-anchor</code>, and when measurable <code>--ormo-popover-trigger-width</code> / <code>--ormo-popover-trigger-height</code> (Floating UI path may also update left/top). Attributes prefixed with <code>data-ormo-\*</code> are internal runtime selectors.
+Pass your own <code>class</code> values to each part. Public state hooks are <code>data-state="open|closed"</code>, <code>data-open</code>, Content <code>data-side</code> / <code>data-align</code> (requested placement), Floating UI <code>data-resolved-side</code> / <code>data-resolved-align</code>, and brief <code>data-starting-style</code> / <code>data-ending-style</code> transition attributes.
+
+CSS custom properties set by Ormo:
+
+- <code>--ormo-popover-side-offset</code> — from Content <code>sideOffset</code>
+- <code>--ormo-popover-anchor</code> — CSS Anchor name when using css-anchor positioning
+- <code>--ormo-popover-trigger-width</code> / <code>--ormo-popover-trigger-height</code> — measured from the trigger when Content opens (cleared on close)
+
+Floating UI may also write <code>left</code> / <code>top</code> on Content. Attributes prefixed with <code>data-ormo-\*</code> are internal runtime selectors.
 
 Ormo ships only behaviour-critical CSS for CSS Anchor Positioning. Consumers own surface chrome, contrast, focus indicators, and motion.
 

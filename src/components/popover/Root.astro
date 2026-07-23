@@ -1,4 +1,5 @@
 ---
+import { renderWithPopoverContext } from "../../internal/popover-ssr-context";
 import type { PopoverRootProps } from "./types";
 
 type Props = PopoverRootProps;
@@ -8,6 +9,11 @@ const {
   positioning = "css-anchor",
   ...attributes
 }: Props = Astro.props;
+
+const content = await renderWithPopoverContext(
+  { disablePointerDismissal },
+  () => Astro.slots.render("default"),
+);
 ---
 
 <ormo-popover
@@ -16,9 +22,8 @@ const {
   data-positioning={positioning === "floating" ? "floating" : undefined}
   data-ormo-popover-root
   data-state="closed"
->
-  <slot />
-</ormo-popover>
+  set:html={content}
+/>
 
 <script>
   import "../../runtime/popover";

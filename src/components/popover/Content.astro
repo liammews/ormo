@@ -1,4 +1,5 @@
 ---
+import { getPopoverSsrContext } from "../../internal/popover-ssr-context";
 import type { PopoverContentProps } from "./types";
 
 type Props = PopoverContentProps;
@@ -13,20 +14,45 @@ const {
   ...attributes
 }: Props = Astro.props;
 
+const ssrContext = getPopoverSsrContext();
+const popoverMode = ssrContext?.disablePointerDismissal ? "manual" : "auto";
+
+function styleToCssText(value: unknown): string {
+  if (value == null || value === false) {
+    return "";
+  }
+
+  if (typeof value === "string") {
+    return value.trim();
+  }
+
+  if (typeof value === "object") {
+    return Object.entries(value as Record<string, unknown>)
+      .filter(([, entry]) => entry != null && entry !== false)
+      .map(([property, entry]) => {
+        const cssProperty = property.startsWith("--")
+          ? property
+          : property.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
+        return `${cssProperty}: ${String(entry)}`;
+      })
+      .join("; ");
+  }
+
+  return "";
+}
+
 const sideOffsetStyle = `--ormo-popover-side-offset: ${sideOffset}px`;
-const mergedStyle =
-  style == null || style === false
-    ? sideOffsetStyle
-    : typeof style === "string"
-      ? `${style};${sideOffsetStyle}`
-      : sideOffsetStyle;
+const authoredStyle = styleToCssText(style);
+const mergedStyle = authoredStyle
+  ? `${authoredStyle}; ${sideOffsetStyle}`
+  : sideOffsetStyle;
 ---
 
 <div
   {...attributes}
   tabindex={tabindex}
   role="dialog"
-  popover="auto"
+  popover={popoverMode}
   data-side={side}
   data-align={align}
   data-final-focus={finalFocus}

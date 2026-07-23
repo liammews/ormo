@@ -314,6 +314,29 @@ function scanPopovers(): Diagnostic[] {
       });
     }
 
+    const close = Array.from(
+      content.querySelectorAll<HTMLElement>("[data-ormo-popover-close]"),
+    ).find(owns);
+
+    if (!close) {
+      diagnostics.push({
+        element: content,
+        message: "Popover needs a visible Close control.",
+      });
+    }
+
+    if (
+      root.getAttribute("data-positioning") === "floating" &&
+      !(globalThis as { __ormoPopoverFloatingPositioner?: unknown })
+        .__ormoPopoverFloatingPositioner
+    ) {
+      diagnostics.push({
+        element: root,
+        message:
+          'Popover positioning="floating" requires import "@ormo/primitives/popover/floating".',
+      });
+    }
+
     const finalFocus = content.dataset.finalFocus?.trim();
     if (finalFocus) {
       try {
