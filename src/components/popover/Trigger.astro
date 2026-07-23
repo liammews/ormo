@@ -1,0 +1,19 @@
+---
+import type { PopoverTriggerProps } from "./types";
+
+type Props = PopoverTriggerProps;
+
+const { type = "button", for: target, ...attributes }: Props = Astro.props;
+---
+
+<button
+  {...attributes}
+  type={type}
+  data-ormo-popover-for={target}
+  aria-haspopup="dialog"
+  aria-expanded="false"
+  data-ormo-popover-trigger
+  data-state="closed"
+>
+  <slot />
+</button>

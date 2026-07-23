@@ -38,6 +38,14 @@
       "types": "./src/components/input/index.ts",
       "import": "./src/components/input/index.ts"
     },
+    "./popover": {
+      "types": "./src/components/popover/index.ts",
+      "import": "./src/components/popover/index.ts"
+    },
+    "./popover/floating": {
+      "types": "./src/components/popover/floating.ts",
+      "import": "./src/components/popover/floating.ts"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -64,13 +72,20 @@
     "release": "changeset publish"
   },
   "peerDependencies": {
+    "@floating-ui/dom": "^1.7.0",
     "astro": "^7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@floating-ui/dom": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
     "@axe-core/playwright": "^4.12.1",
     "@changesets/cli": "^2.31.1",
     "@eslint/js": "^10.0.1",
+    "@floating-ui/dom": "^1.8.0",
     "@playwright/test": "^1.61.1",
     "@types/node": "^26.1.1",
     "astro": "^7.0.9",

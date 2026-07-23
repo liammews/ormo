@@ -1,0 +1,43 @@
+---
+import * as Popover from "@ormo/primitives/popover";
+import "./PopoverDemo.css";
+---
+
+<div class="popover-demo" data-popover-demo="form">
+  <Popover.Root>
+    <Popover.Trigger class="popover-trigger">Share</Popover.Trigger>
+
+    <Popover.Content class="popover-content" sideOffset={8}>
+      <Popover.Title class="popover-title">Share link</Popover.Title>
+      <Popover.Description class="popover-description">
+        The page stays interactive. Tab can leave this popover.
+      </Popover.Description>
+
+      <form class="popover-form">
+        <label class="popover-label" for="popover-share-email">Email</label>
+        <input
+          class="popover-input"
+          id="popover-share-email"
+          name="email"
+          type="email"
+          autocomplete="email"
+        />
+        <div class="popover-actions">
+          <Popover.Close class="popover-button popover-primary"
+            >Send</Popover.Close
+          >
+        </div>
+      </form>
+    </Popover.Content>
+  </Popover.Root>
+
+  <label class="popover-label" for="popover-outside-field">
+    Outside the popover
+  </label>
+  <input
+    class="popover-outside"
+    id="popover-outside-field"
+    name="outside"
+    autocomplete="off"
+  />
+</div>

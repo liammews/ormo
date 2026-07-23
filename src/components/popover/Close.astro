@@ -1,0 +1,12 @@
+---
+import type { PopoverCloseProps } from "./types";
+import Button from "../button/Button.astro";
+
+type Props = PopoverCloseProps;
+
+const attributes: Props = Astro.props;
+---
+
+<Button {...attributes} data-ormo-popover-close>
+  <slot />
+</Button>

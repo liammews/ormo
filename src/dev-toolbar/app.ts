@@ -260,8 +260,93 @@ function scanDialogs(): Diagnostic[] {
   return diagnostics;
 }
 
+function scanPopovers(): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+
+  for (const trigger of document.querySelectorAll<HTMLElement>(
+    "[data-ormo-popover-trigger][data-ormo-popover-for]",
+  )) {
+    const target = trigger.dataset.ormoPopoverFor?.trim();
+    const root = target ? document.getElementById(target) : null;
+    if (!root || root.localName !== "ormo-popover") {
+      diagnostics.push({
+        element: trigger,
+        message: `Detached Popover Trigger does not match a Root id: ${target || "(empty)"}`,
+      });
+    }
+  }
+
+  for (const root of document.querySelectorAll<HTMLElement>("ormo-popover")) {
+    const owns = (element: Element): boolean =>
+      element.closest("ormo-popover") === root;
+    const contents = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-ormo-popover-content]"),
+    ).filter(owns);
+    const content = contents[0];
+
+    if (!content) {
+      diagnostics.push({
+        element: root,
+        message: "Popover needs one Content part.",
+      });
+      continue;
+    }
+
+    if (contents.length > 1) {
+      diagnostics.push({
+        element: root,
+        message: "Popover has more than one Content part.",
+      });
+    }
+
+    const title = Array.from(
+      content.querySelectorAll<HTMLElement>("[data-ormo-popover-title]"),
+    ).find(owns);
+
+    if (
+      !title &&
+      !content.getAttribute("aria-label")?.trim() &&
+      !content.getAttribute("aria-labelledby")?.trim()
+    ) {
+      diagnostics.push({
+        element: content,
+        message: "Popover needs a Title or another accessible name.",
+      });
+    }
+
+    const finalFocus = content.dataset.finalFocus?.trim();
+    if (finalFocus) {
+      try {
+        const target = document.querySelector<HTMLElement>(finalFocus);
+        if (
+          !target ||
+          target.matches(":disabled") ||
+          !target.matches(programmaticFocusSelector)
+        ) {
+          diagnostics.push({
+            element: content,
+            message: `Popover finalFocus does not match an available element: ${finalFocus}`,
+          });
+        }
+      } catch {
+        diagnostics.push({
+          element: content,
+          message: `Popover finalFocus is not valid CSS: ${finalFocus}`,
+        });
+      }
+    }
+  }
+
+  return diagnostics;
+}
+
 function scan(): Diagnostic[] {
-  return [...scanButtons(), ...scanAlertDialogs(), ...scanDialogs()];
+  return [
+    ...scanButtons(),
+    ...scanAlertDialogs(),
+    ...scanDialogs(),
+    ...scanPopovers(),
+  ];
 }
 
 function identify(element: HTMLElement): string {

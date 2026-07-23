@@ -1,0 +1,11 @@
+---
+import type { PopoverDescriptionProps } from "./types";
+
+type Props = PopoverDescriptionProps;
+
+const { as: Tag = "p", ...attributes }: Props = Astro.props;
+---
+
+<Tag {...attributes} data-ormo-popover-description>
+  <slot />
+</Tag>

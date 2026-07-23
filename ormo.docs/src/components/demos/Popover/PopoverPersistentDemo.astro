@@ -1,0 +1,20 @@
+---
+import * as Popover from "@ormo/primitives/popover";
+import "./PopoverDemo.css";
+---
+
+<div class="popover-demo" data-popover-demo="persistent">
+  <Popover.Root disablePointerDismissal>
+    <Popover.Trigger class="popover-trigger">Review notes</Popover.Trigger>
+
+    <Popover.Content class="popover-content" sideOffset={8}>
+      <Popover.Title class="popover-title">Review notes</Popover.Title>
+      <Popover.Description class="popover-description">
+        Outside pointer presses do not close this popover. Escape still does.
+      </Popover.Description>
+      <div class="popover-actions">
+        <Popover.Close class="popover-button">Done</Popover.Close>
+      </div>
+    </Popover.Content>
+  </Popover.Root>
+</div>

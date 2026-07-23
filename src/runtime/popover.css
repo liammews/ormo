@@ -1,0 +1,96 @@
+/* Behaviour-critical placement (GD-006 / GD-013).
+   Wrapped in :where() so consumer classes always win for presentation. */
+
+:where([data-ormo-popover-content]) {
+  margin: 0;
+  border: none;
+  padding: 0;
+  overflow: auto;
+  color: inherit;
+  background: transparent;
+  inset: auto;
+  position: fixed;
+  position-anchor: var(--ormo-popover-anchor);
+}
+
+@supports (anchor-name: --ormo-popover) {
+  :where([data-ormo-popover-content][data-side="bottom"][data-align="center"]) {
+    position-area: bottom center;
+    margin-block-start: var(--ormo-popover-side-offset, 0px);
+  }
+
+  :where([data-ormo-popover-content][data-side="bottom"][data-align="start"]) {
+    position-area: bottom span-right;
+    margin-block-start: var(--ormo-popover-side-offset, 0px);
+  }
+
+  :where([data-ormo-popover-content][data-side="bottom"][data-align="end"]) {
+    position-area: bottom span-left;
+    margin-block-start: var(--ormo-popover-side-offset, 0px);
+  }
+
+  :where([data-ormo-popover-content][data-side="top"][data-align="center"]) {
+    position-area: top center;
+    margin-block-end: var(--ormo-popover-side-offset, 0px);
+  }
+
+  :where([data-ormo-popover-content][data-side="top"][data-align="start"]) {
+    position-area: top span-right;
+    margin-block-end: var(--ormo-popover-side-offset, 0px);
+  }
+
+  :where([data-ormo-popover-content][data-side="top"][data-align="end"]) {
+    position-area: top span-left;
+    margin-block-end: var(--ormo-popover-side-offset, 0px);
+  }
+
+  :where([data-ormo-popover-content][data-side="right"][data-align="center"]) {
+    position-area: right center;
+    margin-inline-start: var(--ormo-popover-side-offset, 0px);
+  }
+
+  :where([data-ormo-popover-content][data-side="right"][data-align="start"]) {
+    position-area: right span-bottom;
+    margin-inline-start: var(--ormo-popover-side-offset, 0px);
+  }
+
+  :where([data-ormo-popover-content][data-side="right"][data-align="end"]) {
+    position-area: right span-top;
+    margin-inline-start: var(--ormo-popover-side-offset, 0px);
+  }
+
+  :where([data-ormo-popover-content][data-side="left"][data-align="center"]) {
+    position-area: left center;
+    margin-inline-end: var(--ormo-popover-side-offset, 0px);
+  }
+
+  :where([data-ormo-popover-content][data-side="left"][data-align="start"]) {
+    position-area: left span-bottom;
+    margin-inline-end: var(--ormo-popover-side-offset, 0px);
+  }
+
+  :where([data-ormo-popover-content][data-side="left"][data-align="end"]) {
+    position-area: left span-top;
+    margin-inline-end: var(--ormo-popover-side-offset, 0px);
+  }
+
+  :where([data-ormo-popover-content]) {
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+  }
+}
+
+:where([data-ormo-popover-content][data-ormo-popover-positioning="floating"]) {
+  inset: auto;
+  top: 0;
+  left: 0;
+  right: auto;
+  bottom: auto;
+  margin: 0;
+  position: fixed;
+  position-anchor: --ormo-popover-none;
+  position-area: none;
+  position-try-fallbacks: none;
+}
