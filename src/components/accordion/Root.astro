@@ -1,13 +1,15 @@
 ---
-import type { AccordionOrientation, AccordionRootProps } from "./types";
+import {
+  normalizeDefaultOpenValues,
+  renderWithAccordionContext,
+} from "../../internal/accordion-ssr-context";
+import type { AccordionRootProps } from "./types";
 
-type Props = Omit<AccordionRootProps, "orientation"> & {
-  orientation?: AccordionOrientation;
-};
+type Props = AccordionRootProps;
 
 const {
   type = "single",
-  collapsible = false,
+  collapsible = true,
   defaultValue,
   disabled = false,
   hiddenUntilFound = false,
@@ -17,6 +19,16 @@ const {
 
 const serializedDefaultValue =
   defaultValue === undefined ? undefined : JSON.stringify(defaultValue);
+
+const content = await renderWithAccordionContext(
+  {
+    type,
+    collapsible,
+    openValues: normalizeDefaultOpenValues(type, defaultValue),
+    hiddenUntilFound,
+  },
+  () => Astro.slots.render("default"),
+);
 ---
 
 <ormo-accordion
@@ -24,13 +36,12 @@ const serializedDefaultValue =
   data-ormo-accordion-root
   data-type={type}
   data-orientation={orientation}
-  data-collapsible={collapsible ? "" : undefined}
+  data-collapsible={collapsible ? undefined : "false"}
   data-disabled={disabled ? "" : undefined}
   data-hidden-until-found={hiddenUntilFound ? "" : undefined}
   data-default-value={serializedDefaultValue}
->
-  <slot />
-</ormo-accordion>
+  set:html={content}
+/>
 
 <script>
   import "../../runtime/accordion";

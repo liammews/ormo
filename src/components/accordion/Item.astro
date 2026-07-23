@@ -1,19 +1,29 @@
 ---
+import {
+  getAccordionSsrContext,
+  renderWithAccordionItemContext,
+} from "../../internal/accordion-ssr-context";
 import type { AccordionItemProps } from "./types";
 
 type Props = AccordionItemProps;
 
 const { value, disabled = false, ...attributes } = Astro.props;
+const accordion = getAccordionSsrContext();
+const open = accordion?.openValues.has(value) ?? false;
+
+const content = await renderWithAccordionItemContext({ open }, () =>
+  Astro.slots.render("default"),
+);
 ---
 
 <div
   {...attributes}
   data-ormo-accordion-item
   data-value={value}
-  data-state="closed"
+  data-state={open ? "open" : "closed"}
   data-index=""
   data-item-disabled={disabled ? "" : undefined}
   data-disabled={disabled ? "" : undefined}
->
-  <slot />
-</div>
+  data-open={open ? "" : undefined}
+  set:html={content}
+/>

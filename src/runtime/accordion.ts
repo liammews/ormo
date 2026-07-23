@@ -61,6 +61,7 @@ export class OrmoAccordion extends HTMLElement {
 
   #controller: AbortController | undefined;
   #authoredTriggerDisabled = new WeakMap<HTMLButtonElement, boolean>();
+  #lastAppliedTriggerDisabled = new WeakMap<HTMLButtonElement, boolean>();
   #initialized = false;
   #observer: MutationObserver | undefined;
   #resizeObserver: ResizeObserver | undefined;
@@ -114,6 +115,14 @@ export class OrmoAccordion extends HTMLElement {
     this.#applyValue(value, false, false);
   }
 
+  get type(): AccordionType {
+    return this.#type;
+  }
+
+  set type(type: AccordionType) {
+    this.dataset.type = type === "multiple" ? "multiple" : "single";
+  }
+
   get value(): AccordionValue {
     const openValues = this.#getParts()
       .filter(({ item }) => item.dataset.state === "open")
@@ -131,7 +140,11 @@ export class OrmoAccordion extends HTMLElement {
   }
 
   set collapsible(collapsible: boolean) {
-    this.toggleAttribute("data-collapsible", collapsible);
+    if (collapsible) {
+      this.removeAttribute("data-collapsible");
+    } else {
+      this.setAttribute("data-collapsible", "false");
+    }
   }
 
   get disabled(): boolean {
@@ -155,7 +168,7 @@ export class OrmoAccordion extends HTMLElement {
   }
 
   get #collapsible(): boolean {
-    return this.hasAttribute("data-collapsible");
+    return this.getAttribute("data-collapsible") !== "false";
   }
 
   #getParts(): AccordionPart[] {
@@ -174,12 +187,7 @@ export class OrmoAccordion extends HTMLElement {
           return [];
         }
 
-        if (!this.#authoredTriggerDisabled.has(trigger)) {
-          this.#authoredTriggerDisabled.set(
-            trigger,
-            trigger.hasAttribute("disabled"),
-          );
-        }
+        this.#syncAuthoredTriggerDisabled(trigger);
 
         return [
           {
@@ -197,6 +205,20 @@ export class OrmoAccordion extends HTMLElement {
       });
   }
 
+  #syncAuthoredTriggerDisabled(trigger: HTMLButtonElement): void {
+    const lastApplied = this.#lastAppliedTriggerDisabled.get(trigger);
+    const currentlyDisabled = trigger.disabled;
+
+    if (lastApplied === undefined) {
+      this.#authoredTriggerDisabled.set(trigger, currentlyDisabled);
+      return;
+    }
+
+    if (currentlyDisabled !== lastApplied) {
+      this.#authoredTriggerDisabled.set(trigger, currentlyDisabled);
+    }
+  }
+
   #prepareParts(): void {
     if (!this.id) {
       generatedId += 1;
@@ -211,6 +233,7 @@ export class OrmoAccordion extends HTMLElement {
         content.id ||= `${this.id}-content-${index + 1}`;
 
         trigger.disabled = disabled;
+        this.#lastAppliedTriggerDisabled.set(trigger, disabled);
         trigger.setAttribute("aria-controls", content.id);
         content.setAttribute("aria-labelledby", trigger.id);
         content.dataset.orientation =

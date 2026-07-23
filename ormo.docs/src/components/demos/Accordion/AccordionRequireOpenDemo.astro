@@ -6,9 +6,9 @@ import "./AccordionDemo.css";
 
 <Accordion.Root
   class="accordion"
-  type="single"
-  collapsible
+  collapsible={false}
   defaultValue="shipping"
+  data-accordion-demo="require-open"
 >
   <Accordion.Item class="accordion-item" value="shipping">
     <Accordion.Header class="accordion-header" as="h2">
@@ -19,7 +19,7 @@ import "./AccordionDemo.css";
     </Accordion.Header>
     <Accordion.Content class="accordion-content">
       <div class="accordion-content-inner">
-        Select the open trigger again to close every panel.
+        Selecting the open trigger again keeps this panel open.
       </div>
     </Accordion.Content>
   </Accordion.Item>
