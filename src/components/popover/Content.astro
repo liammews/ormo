@@ -1,0 +1,38 @@
+---
+import type { PopoverContentProps } from "./types";
+
+type Props = PopoverContentProps;
+
+const {
+  side = "bottom",
+  align = "center",
+  sideOffset = 0,
+  finalFocus,
+  tabindex = -1,
+  style,
+  ...attributes
+}: Props = Astro.props;
+
+const sideOffsetStyle = `--ormo-popover-side-offset: ${sideOffset}px`;
+const mergedStyle =
+  style == null || style === false
+    ? sideOffsetStyle
+    : typeof style === "string"
+      ? `${style};${sideOffsetStyle}`
+      : sideOffsetStyle;
+---
+
+<div
+  {...attributes}
+  tabindex={tabindex}
+  role="dialog"
+  popover="auto"
+  data-side={side}
+  data-align={align}
+  data-final-focus={finalFocus}
+  data-ormo-popover-content
+  data-state="closed"
+  style={mergedStyle}
+>
+  <slot />
+</div>

@@ -1,0 +1,38 @@
+---
+import * as Popover from "@ormo/primitives/popover";
+import "./PopoverDemo.css";
+---
+
+<div class="popover-demo" data-popover-demo="default">
+  <Popover.Root>
+    <Popover.Trigger class="popover-trigger">Filters</Popover.Trigger>
+
+    <Popover.Content
+      class="popover-content"
+      side="bottom"
+      align="start"
+      sideOffset={8}
+    >
+      <Popover.Title class="popover-title">Filters</Popover.Title>
+      <Popover.Description class="popover-description">
+        Narrow the results by keyword.
+      </Popover.Description>
+
+      <form class="popover-form">
+        <label class="popover-label" for="popover-keyword">Keyword</label>
+        <input
+          class="popover-input"
+          id="popover-keyword"
+          name="keyword"
+          autocomplete="off"
+        />
+        <div class="popover-actions">
+          <Popover.Close class="popover-button">Cancel</Popover.Close>
+          <Popover.Close class="popover-button popover-primary" value="apply">
+            Apply
+          </Popover.Close>
+        </div>
+      </form>
+    </Popover.Content>
+  </Popover.Root>
+</div>

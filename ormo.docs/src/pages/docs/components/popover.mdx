@@ -1,0 +1,345 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Popover"
+description: "A non-modal panel anchored to a trigger for rich interactive content"
+---
+
+import PopoverDemo from "../../../components/demos/Popover/PopoverDemo.astro";
+import popoverDemoCode from "../../../components/demos/Popover/PopoverDemo.astro?raw";
+import PopoverPlacementDemo from "../../../components/demos/Popover/PopoverPlacementDemo.astro";
+import popoverPlacementDemoCode from "../../../components/demos/Popover/PopoverPlacementDemo.astro?raw";
+import PopoverSlotTriggerDemo from "../../../components/demos/Popover/PopoverSlotTriggerDemo.astro";
+import popoverSlotTriggerDemoCode from "../../../components/demos/Popover/PopoverSlotTriggerDemo.astro?raw";
+import PopoverDetachedTriggerDemo from "../../../components/demos/Popover/PopoverDetachedTriggerDemo.astro";
+import popoverDetachedTriggerDemoCode from "../../../components/demos/Popover/PopoverDetachedTriggerDemo.astro?raw";
+import PopoverFormDemo from "../../../components/demos/Popover/PopoverFormDemo.astro";
+import popoverFormDemoCode from "../../../components/demos/Popover/PopoverFormDemo.astro?raw";
+import PopoverPersistentDemo from "../../../components/demos/Popover/PopoverPersistentDemo.astro";
+import popoverPersistentDemoCode from "../../../components/demos/Popover/PopoverPersistentDemo.astro?raw";
+import PopoverProgrammaticDemo from "../../../components/demos/Popover/PopoverProgrammaticDemo.astro";
+import popoverProgrammaticDemoCode from "../../../components/demos/Popover/PopoverProgrammaticDemo.astro?raw";
+import PopoverFloatingDemo from "../../../components/demos/Popover/PopoverFloatingDemo.astro";
+import popoverFloatingDemoCode from "../../../components/demos/Popover/PopoverFloatingDemo.astro?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+## Default
+
+Popover opens a non-modal panel anchored to a button for rich interactive content such as filters or short forms. The rest of the page stays interactive. There is no focus trap and no page scroll lock.
+
+Use Dialog when the task needs exclusive attention and an inert page. Use a future Tooltip or HoverCard for hover or focus-triggered content — Popover is click-triggered only.
+
+<DemoBlock code={popoverDemoCode}>
+  <PopoverDemo />
+</DemoBlock>
+
+## Anatomy
+
+Compose the trigger, anchored content, accessible name, optional description, and usually a Close control:
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Popover from "@ormo/primitives/popover";
+---
+
+<Popover.Root>
+  <Popover.Trigger>Filters</Popover.Trigger>
+
+  <Popover.Content side="bottom" align="start" sideOffset={8}>
+    <Popover.Title>Filters</Popover.Title>
+    <Popover.Description>
+      Narrow the results by keyword.
+    </Popover.Description>
+
+    <!-- Forms and controls compose normally. -->
+    <Popover.Close>Close</Popover.Close>
+
+  </Popover.Content>
+</Popover.Root>`}
+/>
+
+Content renders a <code>div</code> with <code>popover="auto"</code> and <code>role="dialog"</code>. Ormo generates IDs and connects Title and Description through <code>aria-labelledby</code> and <code>aria-describedby</code>. Opening uses the native Popover API. Default placement uses CSS Anchor Positioning.
+
+Trigger always renders a native <code>&lt;button&gt;</code>. Put icons and labels in its slot — do not nest another button (including Ormo Button) inside Trigger.
+
+## Examples
+
+### Placement
+
+Set <code>side</code>, <code>align</code>, and <code>sideOffset</code> on Content. These drive CSS Anchor Positioning and the public <code>data-side</code> / <code>data-align</code> attributes.
+
+<DemoBlock code={popoverPlacementDemoCode}>
+  <PopoverPlacementDemo />
+</DemoBlock>
+
+### Custom trigger content
+
+Style Trigger and place non-button content in the slot. Decorative icons need <code>aria-hidden="true"</code>.
+
+<DemoBlock code={popoverSlotTriggerDemoCode}>
+  <PopoverSlotTriggerDemo />
+</DemoBlock>
+
+### Detached triggers
+
+Add <code>for</code> with a Root <code>id</code> when Trigger is rendered elsewhere. Use the ID without a leading <code>#</code>.
+
+<DemoBlock code={popoverDetachedTriggerDemoCode}>
+  <PopoverDetachedTriggerDemo />
+</DemoBlock>
+
+### Interactive content
+
+Because Popover is non-modal, keyboard users can Tab from Content into the rest of the page.
+
+<DemoBlock code={popoverFormDemoCode}>
+  <PopoverFormDemo />
+</DemoBlock>
+
+### Pointer dismissal
+
+Outside pointer presses close Popover by default (<code>popover="auto"</code>). Set <code>disablePointerDismissal</code> to use <code>popover="manual"</code>. Escape still closes unless the application prevents it.
+
+<DemoBlock code={popoverPersistentDemoCode}>
+  <PopoverPersistentDemo />
+</DemoBlock>
+
+### Programmatic control
+
+After Root connects, call <code>show()</code>, <code>hide()</code>, or <code>toggle()</code> on the <code>ormo-popover</code> element.
+
+<DemoBlock code={popoverProgrammaticDemoCode}>
+  <PopoverProgrammaticDemo />
+</DemoBlock>
+
+### Floating UI (opt-in)
+
+CSS Anchor Positioning is the default. For Floating UI placement, install <code>@floating-ui/dom</code>, import the floating entry from a client <code>&lt;script&gt;</code> (so it never runs during Astro SSR), and set <code>positioning="floating"</code> on Root.
+
+<DemoBlock code={popoverFloatingDemoCode}>
+  <PopoverFloatingDemo />
+</DemoBlock>
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Popover from "@ormo/primitives/popover";
+---
+
+<Popover.Root positioning="floating">
+  <Popover.Trigger>Filters</Popover.Trigger>
+  <Popover.Content side="bottom" sideOffset={8}>
+    ...
+  </Popover.Content>
+</Popover.Root>
+
+<script>
+  import "@ormo/primitives/popover/floating";
+</script>`}
+
+/>
+
+Without the floating import, <code>positioning="floating"</code> warns in development and falls back to CSS anchors.
+
+## API reference
+
+### Root
+
+Groups the parts and coordinates open state. It renders <code>&lt;ormo-popover&gt;</code> and accepts global HTML attributes.
+
+<PropsTable
+  id="popover-root-props"
+  caption="Popover Root properties"
+  rows={[
+    {
+      name: "disablePointerDismissal",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Uses popover=manual so outside pointer presses do not close Content. Escape and Close remain available.",
+    },
+    {
+      name: "positioning",
+      type: '"css-anchor" | "floating"',
+      defaultValue: '"css-anchor"',
+      description:
+        'Placement engine. "floating" requires import "@ormo/primitives/popover/floating" and the optional @floating-ui/dom peer.',
+    },
+  ]}
+/>
+
+### Trigger
+
+Renders the native button that toggles Popover. Slot content is for labels and icons, not nested buttons.
+
+<PropsTable
+  id="popover-trigger-props"
+  caption="Popover Trigger properties"
+  rows={[
+    {
+      name: "type",
+      type: '"button" | "submit" | "reset"',
+      defaultValue: '"button"',
+      description: "Sets the native button type.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Uses native semantics to prevent Popover from opening.",
+    },
+    {
+      name: "for",
+      type: "string",
+      description:
+        "Targets a Popover Root by id when Trigger is outside that Root. Omit the leading # character.",
+    },
+  ]}
+/>
+
+### Content
+
+Renders the popover panel. Ormo owns <code>role</code> and <code>popover</code>.
+
+<PropsTable
+  id="popover-content-props"
+  caption="Popover Content properties"
+  rows={[
+    {
+      name: "side",
+      type: '"top" | "right" | "bottom" | "left"',
+      defaultValue: '"bottom"',
+      description: "Preferred side of the trigger for placement.",
+    },
+    {
+      name: "align",
+      type: '"start" | "center" | "end"',
+      defaultValue: '"center"',
+      description: "Alignment along the chosen side.",
+    },
+    {
+      name: "sideOffset",
+      type: "number",
+      defaultValue: "0",
+      description: "Distance in pixels from the trigger.",
+    },
+    {
+      name: "aria-label",
+      type: "string",
+      description:
+        "Provides an accessible name when Content intentionally has no visible Title.",
+    },
+    {
+      name: "aria-labelledby",
+      type: "string",
+      description: "Overrides the relationship generated from Popover.Title.",
+    },
+    {
+      name: "aria-describedby",
+      type: "string",
+      description:
+        "Overrides the optional relationship generated from Popover.Description.",
+    },
+    {
+      name: "finalFocus",
+      type: "string",
+      description:
+        "Selects a focus-restoration destination. Falls back to the invoker when absent or invalid.",
+    },
+    {
+      name: "tabindex",
+      type: "number | string",
+      defaultValue: "-1",
+      description:
+        "Keeps Content programmatically focusable as a fallback without adding it to the Tab order.",
+    },
+  ]}
+/>
+
+### Title
+
+Provides the visible accessible name. Its <code>as</code> prop accepts <code>h1</code> through <code>h6</code> and defaults to <code>h2</code>.
+
+### Description
+
+Provides a concise description and defaults to <code>p</code>. It may render as <code>div</code>.
+
+### Close
+
+Renders an Ormo Button that closes Content. It accepts Button's native-button props, including <code>value</code>, which becomes the open-change <code>returnValue</code>.
+
+## Browser API and events
+
+The <code>ormo-popover</code> element exposes framework-independent control:
+
+<PropsTable
+  id="popover-browser-api"
+  caption="Popover browser element API"
+  nameHeader="Member"
+  rows={[
+    {
+      name: "finalFocus",
+      type: "HTMLElement | null",
+      description:
+        "Gets or sets a dynamic focus-restoration destination. It takes precedence over Content's selector.",
+    },
+    {
+      name: "open",
+      type: "boolean",
+      description: "Reads whether Content is open.",
+    },
+    {
+      name: "show()",
+      type: "() => void",
+      description:
+        "Opens Content and remembers the focused element for restoration.",
+    },
+    {
+      name: "hide(returnValue?)",
+      type: "(returnValue?: string) => void",
+      description: "Closes Content and optionally sets returnValue.",
+    },
+    {
+      name: "toggle(force?)",
+      type: "(force?: boolean) => void",
+      description:
+        "Toggles open state, or forces open/closed when force is provided.",
+    },
+  ]}
+/>
+
+Listen for <code>ormo:popover-open-change</code> on Root. It bubbles with <code>open</code>, <code>reason</code>, and <code>returnValue</code>. Reason is <code>trigger</code>, <code>close</code>, <code>escape</code>, <code>outside</code>, or <code>programmatic</code>.
+
+There is no Astro <code>open</code> or <code>defaultOpen</code> prop. Open Popover with Trigger or <code>show()</code> after the custom element connects.
+
+## Accessibility
+
+Popover follows a non-modal dialog pattern: <code>role="dialog"</code> without <code>aria-modal</code>. Every Popover needs a concise accessible name. Prefer a visible Title.
+
+Focus moves into Content on open (autofocus, first tabbable, or Content). Focus returns to the invoker or <code>finalFocus</code> on close. Tab is not trapped — users can leave Content into the page.
+
+Do not use Popover as a Tooltip substitute. Hover and focus open with delay belong on Tooltip / HoverCard so WCAG 1.4.13 can be handled deliberately.
+
+Development builds and the optional Ormo toolbar report missing or multiple Content parts, missing accessible names, invalid final-focus selectors, detached Triggers with invalid targets, and floating positioning without the floating import.
+
+## Keyboard behavior
+
+- <kbd>Enter</kbd> or <kbd>Space</kbd> on Trigger toggles Content.
+- <kbd>Tab</kbd> and <kbd>Shift</kbd> + <kbd>Tab</kbd> move through focusable
+  elements normally and may leave Content.
+- <kbd>Escape</kbd> closes Content.
+- Activating Close closes Content after consumer click handlers run.
+
+## Styling
+
+Pass your own <code>class</code> values to each part. Public state hooks are <code>data-state="open|closed"</code>, <code>data-open</code>, Content <code>data-side</code> / <code>data-align</code>, and brief <code>data-starting-style</code> / <code>data-ending-style</code> transition attributes. CSS custom properties include <code>--ormo-popover-side-offset</code>, <code>--ormo-popover-anchor</code>, and when measurable <code>--ormo-popover-trigger-width</code> / <code>--ormo-popover-trigger-height</code> (Floating UI path may also update left/top). Attributes prefixed with <code>data-ormo-\*</code> are internal runtime selectors.
+
+Ormo ships only behaviour-critical CSS for CSS Anchor Positioning. Consumers own surface chrome, contrast, focus indicators, and motion.
+
+## Runtime
+
+Popover loads one Astro-processed, deduplicated runtime. The browser owns top-layer rendering and light dismiss for <code>popover="auto"</code>. Ormo connects parts, manages initial and final focus without trapping Tab, coordinates dismissal reasons and state, applies CSS Anchor hooks, and handles Astro client-router document swaps.
+
+The Floating UI entry is separate: importing <code>@ormo/primitives/popover/floating</code> registers that engine. Pages that never import it never download Floating UI.

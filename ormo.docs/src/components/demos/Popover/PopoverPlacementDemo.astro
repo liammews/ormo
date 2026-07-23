@@ -1,0 +1,44 @@
+---
+import * as Popover from "@ormo/primitives/popover";
+import "./PopoverDemo.css";
+---
+
+<div class="popover-demo" data-popover-demo="placement">
+  <div class="popover-trigger-group">
+    <Popover.Root>
+      <Popover.Trigger class="popover-trigger">Top</Popover.Trigger>
+      <Popover.Content
+        class="popover-content"
+        side="top"
+        align="center"
+        sideOffset={8}
+      >
+        <Popover.Title class="popover-title">Top</Popover.Title>
+        <Popover.Description class="popover-description">
+          Anchored above the trigger.
+        </Popover.Description>
+        <div class="popover-actions">
+          <Popover.Close class="popover-button">Close</Popover.Close>
+        </div>
+      </Popover.Content>
+    </Popover.Root>
+
+    <Popover.Root>
+      <Popover.Trigger class="popover-trigger">Right</Popover.Trigger>
+      <Popover.Content
+        class="popover-content"
+        side="right"
+        align="start"
+        sideOffset={8}
+      >
+        <Popover.Title class="popover-title">Right</Popover.Title>
+        <Popover.Description class="popover-description">
+          Anchored to the right of the trigger.
+        </Popover.Description>
+        <div class="popover-actions">
+          <Popover.Close class="popover-button">Close</Popover.Close>
+        </div>
+      </Popover.Content>
+    </Popover.Root>
+  </div>
+</div>

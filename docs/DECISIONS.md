@@ -291,6 +291,33 @@ The documentation and its demos are part of the open-source developer experience
 - The docs package remains private and is not published to npm.
 - Public docs examples must remain synchronized with the package API.
 
+## GD-013: Popover uses the Popover API, CSS anchors by default, and opt-in Floating UI
+
+- **Date:** 2026-07-23
+- **Status:** Accepted
+
+### Decision
+
+Ormo Popover is a non-modal, click-triggered overlay for rich interactive content.
+
+- Open, dismiss, and top-layer behaviour use the native HTML Popover API (`popover="auto"` by default).
+- Default placement uses CSS Anchor Positioning driven by Content `side`, `align`, and `sideOffset`.
+- Floating UI is opt-in only: import `@ormo/primitives/popover/floating` from an Astro client `<script>` (not the frontmatter) and set `positioning="floating"` on Root. The default popover entry must not load Floating UI.
+- Hover/focus open and delay belong to future Tooltip / HoverCard primitives, not Popover.
+- Modal interruption remains Dialog / Alert Dialog. Popover does not trap focus, set `aria-modal`, or lock page scroll.
+- Triggers are native buttons with slot content. Ormo does not implement Radix `asChild` or Base UI `render` prop merging.
+
+### Rationale
+
+The Popover API provides light dismiss, Escape, and top-layer rendering without making the page inert. CSS Anchor Positioning is the platform placement model and keeps the default path free of positioning JavaScript. Floating UI remains available for consumers who need broader browser coverage or advanced collision behaviour, but only when they opt in explicitly. Separating hover-triggered overlays preserves WCAG 1.4.13 responsibilities for those patterns and keeps Popover focused on intentional click open.
+
+### Consequences
+
+- Without CSS Anchor support, default placement falls back to the user-agent top-layer default (typically centered). Docs point consumers to the Floating UI opt-in when that matters.
+- `positioning="floating"` without the floating import warns in development and falls back to CSS anchors.
+- `@floating-ui/dom` is an optional peer dependency required only when using the floating entry.
+- Portal, Backdrop, Arrow, separate Positioner/Popup/Viewport, and `asChild` are out of scope for the initial Popover.
+
 ## Entry template
 
 ```md
