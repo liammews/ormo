@@ -48,6 +48,11 @@ function setFloatingPositioner(positioner: PopoverPositioner): void {
   (globalThis as PopoverGlobalRegistry)[floatingPositionerKey] = positioner;
 }
 
+/** True when `@ormo/primitives/popover/floating` has registered a positioner. */
+export function isPopoverFloatingPositionerRegistered(): boolean {
+  return Boolean(getFloatingPositioner());
+}
+
 let generatedId = 0;
 
 interface TriggerSnapshot {
@@ -56,6 +61,48 @@ interface TriggerSnapshot {
   ariaHasPopup: string | null;
   dataOpen: boolean;
   dataState: string | undefined;
+}
+
+interface FloatingStyleSnapshot {
+  bottom: string;
+  left: string;
+  margin: string;
+  position: string;
+  right: string;
+  top: string;
+}
+
+function snapshotFloatingStyles(content: HTMLElement): FloatingStyleSnapshot {
+  return {
+    bottom: content.style.bottom,
+    left: content.style.left,
+    margin: content.style.margin,
+    position: content.style.position,
+    right: content.style.right,
+    top: content.style.top,
+  };
+}
+
+function restoreFloatingStyles(
+  content: HTMLElement,
+  snapshot: FloatingStyleSnapshot,
+): void {
+  const entries: Array<[keyof FloatingStyleSnapshot, string]> = [
+    ["bottom", snapshot.bottom],
+    ["left", snapshot.left],
+    ["margin", snapshot.margin],
+    ["position", snapshot.position],
+    ["right", snapshot.right],
+    ["top", snapshot.top],
+  ];
+
+  for (const [property, value] of entries) {
+    if (value) {
+      content.style[property] = value;
+    } else {
+      content.style.removeProperty(property);
+    }
+  }
 }
 
 interface PopoverDocumentState {
@@ -153,12 +200,23 @@ export function validatePopover(root: HTMLElement): void {
     );
   }
 
+  const closeControls = Array.from(
+    content.querySelectorAll<HTMLElement>(closeSelector),
+  ).filter((element) => belongsToRoot(element, root));
+
+  if (closeControls.length === 0) {
+    console.warn(
+      "[Ormo Popover] Add Popover.Close so keyboard and touch screen reader users can close the popover.",
+      root,
+    );
+  }
+
   if (
     root.getAttribute("data-positioning") === "floating" &&
     !getFloatingPositioner()
   ) {
     console.warn(
-      '[Ormo Popover] positioning="floating" requires `import "@ormo/primitives/popover/floating"`. Falling back to CSS Anchor Positioning.',
+      '[Ormo Popover] positioning="floating" requires `import "@ormo/primitives/popover/floating"`. Keeping CSS Anchor Positioning until the floating entry is loaded.',
       root,
     );
   }
@@ -174,6 +232,7 @@ export class OrmoPopover extends HTMLElement {
   #observer: MutationObserver | undefined;
   #openReason: "programmatic" | "trigger" | undefined;
   #pendingReason: PopoverCloseReason | "trigger" = "programmatic";
+  #floatingStyleSnapshot: FloatingStyleSnapshot | undefined;
   #positionerCleanup: PopoverPositionerCleanup | undefined;
   #returnValue = "";
   #suppressToggle = false;
@@ -357,6 +416,7 @@ export class OrmoPopover extends HTMLElement {
   #onOpened(content: HTMLElement, reason: "programmatic" | "trigger"): void {
     this.#openReason = undefined;
     this.#setOpenState(true);
+    this.#syncTriggerMetrics(content);
     this.#startPositioner(content);
     this.#getInitialFocus(content).focus();
     this.#dispatchOpenChange({
@@ -371,6 +431,7 @@ export class OrmoPopover extends HTMLElement {
     reason: PopoverCloseReason | "trigger",
   ): void {
     this.#stopPositioner();
+    this.#clearTriggerMetrics(content);
     this.#setOpenState(false);
     this.#resolveFinalFocus(content)?.focus();
     this.#invoker = undefined;
@@ -483,6 +544,29 @@ export class OrmoPopover extends HTMLElement {
     }
   }
 
+  #syncTriggerMetrics(content: HTMLElement): void {
+    const trigger = this.#invoker ?? this.#getTriggers()[0];
+    if (!trigger) {
+      this.#clearTriggerMetrics(content);
+      return;
+    }
+
+    const rect = trigger.getBoundingClientRect();
+    content.style.setProperty(
+      "--ormo-popover-trigger-width",
+      `${rect.width}px`,
+    );
+    content.style.setProperty(
+      "--ormo-popover-trigger-height",
+      `${rect.height}px`,
+    );
+  }
+
+  #clearTriggerMetrics(content: HTMLElement): void {
+    content.style.removeProperty("--ormo-popover-trigger-width");
+    content.style.removeProperty("--ormo-popover-trigger-height");
+  }
+
   #usesFloating(): boolean {
     return (
       this.getAttribute("data-positioning") === "floating" &&
@@ -500,6 +584,7 @@ export class OrmoPopover extends HTMLElement {
     }
 
     content.setAttribute("data-ormo-popover-positioning", "floating");
+    this.#floatingStyleSnapshot = snapshotFloatingStyles(content);
     const trigger = this.#invoker ?? this.#getTriggers()[0];
     this.#positionerCleanup =
       positioner({
@@ -516,18 +601,19 @@ export class OrmoPopover extends HTMLElement {
     this.#positionerCleanup?.();
     this.#positionerCleanup = undefined;
     const content = this.#content;
+    const snapshot = this.#floatingStyleSnapshot;
+    this.#floatingStyleSnapshot = undefined;
+
     if (!content) {
       return;
     }
 
     content.removeAttribute("data-ormo-popover-positioning");
-    if (this.getAttribute("data-positioning") === "floating") {
-      content.style.removeProperty("left");
-      content.style.removeProperty("top");
-      content.style.removeProperty("right");
-      content.style.removeProperty("bottom");
-      content.style.removeProperty("position");
-      content.style.removeProperty("margin");
+    content.removeAttribute("data-resolved-side");
+    content.removeAttribute("data-resolved-align");
+
+    if (snapshot) {
+      restoreFloatingStyles(content, snapshot);
     }
   }
 
