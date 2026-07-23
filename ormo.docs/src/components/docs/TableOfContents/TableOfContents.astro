@@ -1,0 +1,243 @@
+---
+import type { MarkdownHeading } from "astro";
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+const tocHeadings = headings.filter(
+  (heading) => heading.depth === 2 || heading.depth === 3,
+);
+---
+
+{
+  tocHeadings.length > 0 && (
+    <nav class="toc" aria-labelledby="toc-title" data-toc>
+      <p id="toc-title" class="toc_title">
+        On this page
+      </p>
+      <ul class="toc_list">
+        {tocHeadings.map((heading) => (
+          <li
+            class:list={[
+              "toc_item",
+              heading.depth === 3 && "toc_item--nested",
+            ]}
+          >
+            <a class="toc_link" href={`#${heading.slug}`}>
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
+<script>
+  const initToc = (toc: HTMLElement) => {
+    if (toc.dataset.tocInitialized === "true") return;
+    toc.dataset.tocInitialized = "true";
+
+    const links = [
+      ...toc.querySelectorAll<HTMLAnchorElement>(".toc_link[href^='#']"),
+    ];
+    if (links.length === 0) return;
+
+    const headings = links
+      .map((link) => {
+        const id = decodeURIComponent(link.hash.slice(1));
+        const heading = document.getElementById(id);
+        return heading ? { link, heading } : null;
+      })
+      .filter((entry): entry is { link: HTMLAnchorElement; heading: HTMLElement } =>
+        entry !== null,
+      );
+
+    if (headings.length === 0) return;
+
+    let activeId: string | null = null;
+    // While true, ignore scroll-spy so programmatic hash jumps don't flicker
+    // through intermediate headings (or land on a tight sibling).
+    let navigationLock = false;
+    let unlockTimer = 0;
+
+    const setActive = (id: string | null) => {
+      if (id === activeId) return;
+      activeId = id;
+
+      for (const { link, heading } of headings) {
+        const isActive = heading.id === id;
+        if (isActive) {
+          link.setAttribute("aria-current", "true");
+        } else {
+          link.removeAttribute("aria-current");
+        }
+      }
+    };
+
+    // Match html { scroll-padding-top } so hash jumps and spy share one marker line.
+    const getMarkerY = () => {
+      const padding = Number.parseFloat(
+        getComputedStyle(document.documentElement).scrollPaddingTop,
+      );
+      return Number.isFinite(padding) ? padding : 96;
+    };
+
+    const pickActive = () => {
+      if (navigationLock) return;
+
+      const markerY = getMarkerY();
+      const hashId = decodeURIComponent(location.hash.slice(1));
+
+      // After a ToC/hash jump, prefer the hashed heading while it sits near the
+      // marker — otherwise a nearby h2/h3 pair can steal the active state.
+      if (hashId) {
+        const hashed = headings.find(({ heading }) => heading.id === hashId);
+        if (hashed) {
+          const top = hashed.heading.getBoundingClientRect().top;
+          if (Math.abs(top - markerY) < 48) {
+            setActive(hashId);
+            return;
+          }
+        }
+      }
+
+      // Otherwise: last heading that has crossed the marker.
+      let current: string | null = headings[0]?.heading.id ?? null;
+      for (const { heading } of headings) {
+        if (heading.getBoundingClientRect().top <= markerY + 1) {
+          current = heading.id;
+        }
+      }
+
+      setActive(current);
+    };
+
+    const releaseNavigationLock = () => {
+      if (!navigationLock) return;
+      window.clearTimeout(unlockTimer);
+      window.removeEventListener("scrollend", releaseNavigationLock);
+      navigationLock = false;
+      pickActive();
+    };
+
+    const observer = new IntersectionObserver(
+      () => {
+        pickActive();
+      },
+      {
+        rootMargin: "0px 0px -70% 0px",
+        threshold: [0, 1],
+      },
+    );
+
+    for (const { heading } of headings) {
+      observer.observe(heading);
+    }
+
+    toc.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+
+      const link = target.closest<HTMLAnchorElement>("a.toc_link[href^='#']");
+      if (!link) return;
+
+      const id = decodeURIComponent(link.hash.slice(1));
+      navigationLock = true;
+      setActive(id);
+
+      window.clearTimeout(unlockTimer);
+      window.removeEventListener("scrollend", releaseNavigationLock);
+      window.addEventListener("scrollend", releaseNavigationLock, {
+        once: true,
+      });
+      // Safety net if scrollend never fires (already in view / unsupported).
+      unlockTimer = window.setTimeout(releaseNavigationLock, 1000);
+    });
+
+    pickActive();
+  };
+
+  const initAll = () => {
+    for (const toc of document.querySelectorAll<HTMLElement>("[data-toc]")) {
+      initToc(toc);
+    }
+  };
+
+  initAll();
+  document.addEventListener("astro:page-load", initAll);
+</script>
+
+<style>
+  .toc {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-75);
+  }
+
+  .toc_title {
+    margin: 0;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-1);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-base);
+    letter-spacing: var(--letter-spacing-loose);
+    text-transform: uppercase;
+    color: var(--content-subtle);
+  }
+
+  .toc_list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-inline-start: 1px solid var(--border-active);
+  }
+
+  .toc_item {
+    margin: 0;
+  }
+
+  .toc_link {
+    display: block;
+    margin-inline-start: -1px;
+    padding-block: var(--space-25);
+    padding-inline: var(--space-75) var(--space-50);
+    border-inline-start: 2px solid transparent;
+    font-size: var(--font-size-1);
+    line-height: var(--line-height-loose);
+    color: var(--content-subtle);
+    text-decoration: none;
+    transition:
+      color var(--duration-1) var(--ease-1),
+      border-color var(--duration-1) var(--ease-1);
+  }
+
+  .toc_item--nested .toc_link {
+    padding-inline-start: var(--space-150);
+  }
+
+  .toc_link:hover {
+    color: var(--content-default);
+  }
+
+  .toc_link:focus-visible {
+    outline: var(--focus-width) solid var(--focus-default);
+    outline-offset: var(--focus-offset);
+  }
+
+  .toc_link[aria-current="true"] {
+    border-inline-start-color: var(--border-brand);
+    color: var(--content-default);
+    font-weight: var(--font-weight-medium);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toc_link {
+      transition: none;
+    }
+  }
+</style>

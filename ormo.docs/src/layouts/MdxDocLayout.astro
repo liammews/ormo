@@ -1,5 +1,7 @@
 ---
+import type { MarkdownHeading } from "astro";
 import Layout from "./layout.astro";
+import TableOfContents from "../components/docs/TableOfContents/TableOfContents.astro";
 
 interface Frontmatter {
   title: string;
@@ -8,13 +10,15 @@ interface Frontmatter {
 
 interface Props {
   frontmatter: Frontmatter;
+  headings: MarkdownHeading[];
 }
 
-const { frontmatter } = Astro.props;
+const { frontmatter, headings } = Astro.props;
 ---
 
 <Layout title={frontmatter.title} description={frontmatter.description}>
   <article class="prose">
     <slot />
   </article>
+  <TableOfContents slot="table-of-contents" headings={headings} />
 </Layout>
