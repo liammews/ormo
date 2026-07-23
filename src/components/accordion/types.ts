@@ -53,6 +53,11 @@ export interface AccordionOpenChangeDetail {
 
 export type AccordionOpenChangeEvent = CustomEvent<AccordionOpenChangeDetail>;
 
+/** Shared by Accordion and Tabs selection changes. */
+export type OrmoValueChangeEvent = CustomEvent<{
+  value: string | string[] | null;
+}>;
+
 export interface OrmoAccordionElement extends HTMLElement {
   type: AccordionType;
   value: AccordionValue;
@@ -67,7 +72,7 @@ declare global {
   }
 
   interface GlobalEventHandlersEventMap {
-    "ormo:value-change": AccordionValueChangeEvent;
+    "ormo:value-change": OrmoValueChangeEvent;
     "ormo:open-change": AccordionOpenChangeEvent;
   }
 }

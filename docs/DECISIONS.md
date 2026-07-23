@@ -342,6 +342,27 @@ The Popover API provides light dismiss, Escape, and top-layer rendering without 
 - `@floating-ui/dom` is an optional peer dependency required only when using the floating entry.
 - Portal, Backdrop, Arrow, separate Positioner/Popup/Viewport, and `asChild` are out of scope for the initial Popover.
 
+## GD-014: Tabs follow the APG composite keyboard model
+
+- **Date:** 2026-07-23
+- **Status:** Accepted
+
+### Decision
+
+Ormo Tabs implements the WAI-ARIA Authoring Practices tabs pattern, including `tablist` / `tab` / `tabpanel` roles, roving tabindex among tabs, orientation-aware arrow keys, and Home / End. Manual activation is the default (`activateOnFocus={false}`); automatic activation is opt-in.
+
+This deliberately differs from Accordion (GD-012), which keeps triggers in the normal document Tab sequence without arrow-key roving focus.
+
+### Rationale
+
+HTML has no native tabs widget. Screen reader and keyboard users expect the established composite tabs pattern: Tab enters the selected tab, arrows move within the tablist, and Tab leaves to the panel. Matching APG is correctness for Tabs, whereas Accordion’s common FAQ and settings layouts are better served by ordinary buttons in Tab order.
+
+### Consequences
+
+- Tabs requires a custom-element runtime for selection, ARIA relationships, and keyboard behaviour.
+- Docs and tests assert arrow-key navigation, Home / End, and roving tabindex.
+- Accordion and Tabs remain intentionally different keyboard models; wrappers must not assume one policy for both.
+
 ## Entry template
 
 ```md

@@ -1,0 +1,26 @@
+---
+import * as Tabs from "@ormo/primitives/tabs";
+import "./TabsDemo.css";
+---
+
+<Tabs.Root
+  class="tabs"
+  data-tabs-demo="activate-on-focus"
+  defaultValue="overview"
+  activateOnFocus
+>
+  <Tabs.List class="tabs-list" aria-label="Documentation">
+    <Tabs.Tab class="tabs-tab" value="overview">Overview</Tabs.Tab>
+    <Tabs.Tab class="tabs-tab" value="api">API</Tabs.Tab>
+    <Tabs.Tab class="tabs-tab" value="a11y">Accessibility</Tabs.Tab>
+  </Tabs.List>
+  <Tabs.Panel class="tabs-panel" value="overview">
+    Arrow keys move focus and select the tab automatically.
+  </Tabs.Panel>
+  <Tabs.Panel class="tabs-panel" value="api">
+    Props, events, and the browser element API.
+  </Tabs.Panel>
+  <Tabs.Panel class="tabs-panel" value="a11y">
+    Roles, keyboard behaviour, and naming guidance.
+  </Tabs.Panel>
+</Tabs.Root>

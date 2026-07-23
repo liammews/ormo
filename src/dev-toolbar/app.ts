@@ -388,6 +388,7 @@ function scan(): Diagnostic[] {
     ...scanPopovers(),
     ...scanAccordions(),
     ...scanAvatars(),
+    ...scanTabs(),
   ];
 }
 
@@ -459,6 +460,126 @@ function scanAccordions(): Diagnostic[] {
   return diagnostics;
 }
 
+function scanTabs(): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+
+  for (const root of document.querySelectorAll<HTMLElement>("ormo-tabs")) {
+    const owns = (element: Element): boolean =>
+      element.closest("ormo-tabs") === root;
+    const lists = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-ormo-tabs-list]"),
+    ).filter(owns);
+    const tabs = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-ormo-tabs-tab]"),
+    ).filter(owns);
+    const panels = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-ormo-tabs-panel]"),
+    ).filter(owns);
+    const tabValues = new Map<string, HTMLElement>();
+    const panelValues = new Map<string, HTMLElement>();
+
+    if (lists.length === 0) {
+      diagnostics.push({
+        element: root,
+        message: "Tabs needs a List.",
+      });
+    }
+
+    for (const list of lists) {
+      const labelledBy = list.getAttribute("aria-labelledby");
+      const hasLabel =
+        Boolean(list.getAttribute("aria-label")?.trim()) ||
+        (labelledBy !== null &&
+          labelledBy
+            .split(/\s+/)
+            .some((id) =>
+              Boolean(
+                id &&
+                list.ownerDocument.getElementById(id)?.textContent?.trim(),
+              ),
+            ));
+
+      if (!hasLabel) {
+        diagnostics.push({
+          element: list,
+          message:
+            "Tabs List needs an accessible name via aria-label or aria-labelledby.",
+        });
+      }
+    }
+
+    for (const tab of tabs) {
+      const value = tab.dataset.value;
+
+      if (value === undefined || value === "") {
+        diagnostics.push({
+          element: tab,
+          message: "Tabs Tab needs a non-empty value.",
+        });
+      } else if (tabValues.has(value)) {
+        diagnostics.push({
+          element: tab,
+          message: `Tabs Tab value is duplicated: ${value}`,
+        });
+      } else {
+        tabValues.set(value, tab);
+      }
+
+      if (!tab.closest("[data-ormo-tabs-list]")) {
+        diagnostics.push({
+          element: tab,
+          message: "Tabs Tab should be inside Tabs List.",
+        });
+      }
+
+      if (!hasAccessibleName(tab)) {
+        diagnostics.push({
+          element: tab,
+          message: "Tabs Tab needs an accessible name.",
+        });
+      }
+    }
+
+    for (const panel of panels) {
+      const value = panel.dataset.value;
+
+      if (value === undefined || value === "") {
+        diagnostics.push({
+          element: panel,
+          message: "Tabs Panel needs a non-empty value.",
+        });
+      } else if (panelValues.has(value)) {
+        diagnostics.push({
+          element: panel,
+          message: `Tabs Panel value is duplicated: ${value}`,
+        });
+      } else {
+        panelValues.set(value, panel);
+      }
+    }
+
+    for (const [value, tab] of tabValues) {
+      if (!panelValues.has(value)) {
+        diagnostics.push({
+          element: tab,
+          message: `Tabs Tab value "${value}" has no matching Panel.`,
+        });
+      }
+    }
+
+    for (const [value, panel] of panelValues) {
+      if (!tabValues.has(value)) {
+        diagnostics.push({
+          element: panel,
+          message: `Tabs Panel value "${value}" has no matching Tab.`,
+        });
+      }
+    }
+  }
+
+  return diagnostics;
+}
+
 function identify(element: HTMLElement): string {
   if (element.id) return `#${element.id}`;
   if (element.hasAttribute("data-ormo-alert-dialog-content")) return "Content";
@@ -473,6 +594,10 @@ function identify(element: HTMLElement): string {
   if (element.localName === "ormo-accordion") return "Accordion";
   if (element.hasAttribute("data-ormo-avatar-image")) return "Avatar Image";
   if (element.localName === "ormo-avatar") return "Avatar";
+  if (element.hasAttribute("data-ormo-tabs-list")) return "Tabs List";
+  if (element.hasAttribute("data-ormo-tabs-tab")) return "Tabs Tab";
+  if (element.hasAttribute("data-ormo-tabs-panel")) return "Tabs Panel";
+  if (element.localName === "ormo-tabs") return "Tabs";
   if (element.hasAttribute("data-ormo-button")) return "Button";
   return element.localName;
 }

@@ -1,0 +1,21 @@
+---
+import * as Tabs from "@ormo/primitives/tabs";
+import "./TabsDemo.css";
+---
+
+<Tabs.Root class="tabs" data-tabs-demo="default" defaultValue="overview">
+  <Tabs.List class="tabs-list" aria-label="Account">
+    <Tabs.Tab class="tabs-tab" value="overview">Overview</Tabs.Tab>
+    <Tabs.Tab class="tabs-tab" value="projects">Projects</Tabs.Tab>
+    <Tabs.Tab class="tabs-tab" value="billing">Billing</Tabs.Tab>
+  </Tabs.List>
+  <Tabs.Panel class="tabs-panel" value="overview">
+    Workspace stats and recent activity.
+  </Tabs.Panel>
+  <Tabs.Panel class="tabs-panel" value="projects">
+    Milestones, deadlines, and assigned work.
+  </Tabs.Panel>
+  <Tabs.Panel class="tabs-panel" value="billing">
+    Plan, invoices, and payment methods.
+  </Tabs.Panel>
+</Tabs.Root>

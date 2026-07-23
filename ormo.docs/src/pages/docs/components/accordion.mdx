@@ -4,24 +4,38 @@ title: "Accordion"
 description: "A set of collapsible content panels with accessible headings"
 ---
 
-import AccordionDemo from "../../../components/demos/Accordion/AccordionDemo.astro";
-import accordionDemoCode from "../../../components/demos/Accordion/AccordionDemo.astro?raw";
-import AccordionInitialValueDemo from "../../../components/demos/Accordion/AccordionInitialValueDemo.astro";
-import accordionInitialValueDemoCode from "../../../components/demos/Accordion/AccordionInitialValueDemo.astro?raw";
-import AccordionDisabledDemo from "../../../components/demos/Accordion/AccordionDisabledDemo.astro";
-import accordionDisabledDemoCode from "../../../components/demos/Accordion/AccordionDisabledDemo.astro?raw";
-import AccordionMultipleDemo from "../../../components/demos/Accordion/AccordionMultipleDemo.astro";
-import accordionMultipleDemoCode from "../../../components/demos/Accordion/AccordionMultipleDemo.astro?raw";
-import AccordionRequireOpenDemo from "../../../components/demos/Accordion/AccordionRequireOpenDemo.astro";
-import accordionRequireOpenDemoCode from "../../../components/demos/Accordion/AccordionRequireOpenDemo.astro?raw";
+import AccordionDemo from "../../../components/demos/Accordion/AccordionDefault/AccordionDemo.astro";
+import accordionDemoCode from "../../../components/demos/Accordion/AccordionDefault/AccordionDemo.astro?raw";
+import accordionDemoCss from "../../../components/demos/Accordion/index.css?raw";
+import AccordionInitialValueDemo from "../../../components/demos/Accordion/AccordionInitial/AccordionInitialValueDemo.astro";
+import accordionInitialValueDemoCode from "../../../components/demos/Accordion/AccordionInitial/AccordionInitialValueDemo.astro?raw";
+import AccordionDisabledDemo from "../../../components/demos/Accordion/AccordionDisabled/AccordionDisabledDemo.astro";
+import accordionDisabledDemoCode from "../../../components/demos/Accordion/AccordionDisabled/AccordionDisabledDemo.astro?raw";
+import accordionDisabledDemoCss from "../../../components/demos/Accordion/AccordionDisabled/index.css?raw";
+import AccordionMultipleDemo from "../../../components/demos/Accordion/AccordionMultiple/AccordionMultipleDemo.astro";
+import accordionMultipleDemoCode from "../../../components/demos/Accordion/AccordionMultiple/AccordionMultipleDemo.astro?raw";
+import AccordionRequireOpenDemo from "../../../components/demos/Accordion/AccordionRequireOpen/AccordionRequireOpenDemo.astro";
+import accordionRequireOpenDemoCode from "../../../components/demos/Accordion/AccordionRequireOpen/AccordionRequireOpenDemo.astro?raw";
 import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
-
-<DemoBlock code={accordionDemoCode}>
+<DemoBlock
+  files={[
+    { filename: "AccordionDemo.astro", code: accordionDemoCode },
+    { filename: "index.css", code: accordionDemoCss },
+  ]}
+>
   <AccordionDemo />
 </DemoBlock>
+
+## Installation
+
+<CodeBlock
+  singleLine
+  lang="bash"
+  code={`npm install @ormo/primitives/accordion`}
+/>
 
 ## Anatomy
 
@@ -34,46 +48,57 @@ import * as Accordion from "@ormo/primitives/accordion";
 ---
 
 <Accordion.Root>
-  <Accordion.Item value="delivery">
-    <Accordion.Header as="h2">
-      <Accordion.Trigger>Delivery</Accordion.Trigger>
+  <Accordion.Item>
+    <Accordion.Header>
+      <Accordion.Trigger />
     </Accordion.Header>
-    <Accordion.Content>Delivery information</Accordion.Content>
+    <Accordion.Content />
   </Accordion.Item>
 </Accordion.Root>`}
 />
 
 ## Examples
 
-### Initial value
+### Default value
 
-Use <code>defaultValue</code> to select the panel that is open when the Accordion initializes. For a multiple Accordion, pass an array of item values to open more than one panel initially.
+Use <code>defaultValue</code> to select the item that is open when the Accordion initializes. To initialise with multiple items open, pass an array of item values.
 
-<DemoBlock code={accordionInitialValueDemoCode}>
+<DemoBlock
+  files={[{ filename: "Accordion.astro", code: accordionInitialValueDemoCode }]}
+>
   <AccordionInitialValueDemo />
 </DemoBlock>
 
 ### Multiple
 
-Use <code>type="multiple"</code> to allow any number of Accordion items to be open.
+Use <code>type="multiple"</code> to allow any number of accordion items to be open at once.
 
-<DemoBlock code={accordionMultipleDemoCode}>
+<DemoBlock
+  files={[{ filename: "Accordion.astro", code: accordionMultipleDemoCode }]}
+>
   <AccordionMultipleDemo />
 </DemoBlock>
 
 ### Require an open panel
 
-Set <code>collapsible={false}</code> on a single Accordion when one panel must stay open. Selecting the open trigger again does nothing; selecting another item moves the open state.
+Set `collapsible={false}` on `Accordion.Root` when atleast one item must stay open at all times. Selecting the open item's trigger again does nothing; selecting another item moves the open state.
 
-<DemoBlock code={accordionRequireOpenDemoCode}>
+<DemoBlock
+  files={[{ filename: "Accordion.astro", code: accordionRequireOpenDemoCode }]}
+>
   <AccordionRequireOpenDemo />
 </DemoBlock>
 
 ### Item disabled
 
-Set <code>disabled</code> on an item to prevent interaction with that item while keeping the rest of the Accordion available. Add <code>disabled</code> to <code>Accordion.Root</code> to disable the entire group of Accordion items.
+Set <code>disabled</code> on an item to prevent interaction with that item while keeping the rest of the accordion items available. Add <code>disabled</code> to <code>Accordion.Root</code> to disable the entire group of accordion items.
 
-<DemoBlock code={accordionDisabledDemoCode}>
+<DemoBlock
+  files={[
+    { filename: "Accordion.astro", code: accordionDisabledDemoCode },
+    { filename: "index.css", code: accordionDisabledDemoCss },
+  ]}
+>
   <AccordionDisabledDemo />
 </DemoBlock>
 
@@ -91,35 +116,34 @@ Groups all Accordion parts and coordinates their open, disabled, and browser-sea
       name: "type",
       type: '"single" | "multiple"',
       defaultValue: '"single"',
-      description:
-        "Determines whether one panel or multiple panels can be open.",
+      description: "Determines whether one item or multiple items can be open.",
     },
     {
       name: "collapsible",
       type: "boolean",
       defaultValue: "true",
       description:
-        "Allows the open panel in a single accordion to be closed without opening another panel. Set to false to require one open panel.",
+        "Allows the open panel in an accordion to be closed without opening another item. Set to false to require one open item.",
     },
     {
       name: "defaultValue",
       type: "string | string[]",
       description:
-        "Selects the initially open item or items. Use a string for a single accordion and an array for a multiple accordion.",
+        "Selects the initially open item or items. Use a string to initialise with a single item and an array for multiple items.",
     },
     {
       name: "disabled",
       type: "boolean",
       defaultValue: "false",
       description:
-        "Disables every trigger and exposes the disabled state on every Accordion part.",
+        "Disables every item and exposes the disabled state on every accordion part.",
     },
     {
       name: "hiddenUntilFound",
       type: "boolean",
       defaultValue: "false",
       description:
-        "Keeps closed content discoverable by the browser’s Find in Page feature and opens a matching panel.",
+        "Keeps closed content discoverable by the browser’s 'Find in Page' feature and opens a matching item.",
       details: [
         {
           label: "HTML",
@@ -212,7 +236,7 @@ Renders the collapsible content panel.
       type: "boolean",
       defaultValue: "false",
       description:
-        "Makes this individual closed panel discoverable with Find in Page. The root option applies the behavior to every panel.",
+        "Makes this individual closed panel discoverable with 'Find in Page'. The root option applies the behavior to every panel.",
     },
   ]}
 />
@@ -231,7 +255,7 @@ The <code>ormo-accordion</code> custom element exposes state for framework-free 
       type: '"single" | "multiple"',
       defaultValue: '"single"',
       description:
-        "Gets or sets whether one panel or multiple panels can be open. Changing type remaps the current value to the matching shape.",
+        "Gets or sets whether one item or multiple items can be open. Changing type remaps the current value to the matching shape.",
     },
     {
       name: "value",
@@ -244,7 +268,7 @@ The <code>ormo-accordion</code> custom element exposes state for framework-free 
       type: "boolean",
       defaultValue: "true",
       description:
-        "Gets or sets whether the open panel in a single Accordion can be closed. Set to false to require one open panel.",
+        "Gets or sets whether the open item in an accordion can be closed. Set to false to require one open item.",
     },
     {
       name: "disabled",
@@ -257,14 +281,14 @@ The <code>ormo-accordion</code> custom element exposes state for framework-free 
       type: "boolean",
       defaultValue: "false",
       description:
-        "Gets or sets whether every closed panel supports Find in Page.",
+        "Gets or sets whether every closed items supports 'Find in Page'.",
     },
   ]}
 />
 
 ## Events
 
-Listen for <code>ormo:value-change</code> on the root before the value changes. The event bubbles and crosses shadow boundaries. Changes from user interaction can be canceled with <code>preventDefault()</code>. A change that reveals a browser Find in Page match is not cancelable, because the browser must be able to reveal the matched content.
+Listen for <code>ormo:value-change</code> on the root before the value changes. The event bubbles and crosses shadow boundaries. Changes from user interaction can be canceled with <code>preventDefault()</code>. A change that reveals a browser 'Find in Page' match is not cancelable, because the browser must be able to reveal the matched content.
 
 Listen for <code>ormo:open-change</code> after an individual item opens or closes. Its detail contains the item’s <code>value</code> and new <code>open</code> state.
 
@@ -281,7 +305,7 @@ ${String.fromCharCode(32, 32)}console.log(event.detail.value, event.detail.open)
 
 ## Controlling value after render
 
-Astro props configure the initial Accordion. After the page loads, read and write open state on the <code>ormo-accordion</code> element. Assigning <code>value</code> updates the panels immediately. Listening for <code>ormo:value-change</code> and calling <code>preventDefault()</code> keeps the previous value, which is the controlled pattern for plain Astro scripts and islands.
+Astro props configure the initial accordion item. After the page loads, read and write open state on the <code>ormo-accordion</code> element. Assigning <code>value</code> updates the items immediately. Listening for <code>ormo:value-change</code> and calling <code>preventDefault()</code> keeps the previous value, which is the controlled pattern for plain Astro scripts and islands.
 
 <CodeBlock
   lang="astro"
@@ -313,9 +337,23 @@ import * as Accordion from "@ormo/primitives/accordion";
 
 />
 
+## Development toolbar
+
+With the optional [Ormo development toolbar](/docs/dev-toolbar) enabled, Astro’s toolbar scans rendered Accordions and flags common composition mistakes:
+
+- Roots with no Item parts
+- Items missing a non-empty <code>value</code>
+- Duplicate Item values in the same Accordion
+- Items missing a Trigger or Content part
+- Triggers without an accessible name
+
+Select an issue in the toolbar to jump to the element. These checks catch structural mistakes during development; they do not replace keyboard and screen-reader testing.
+
+Try the [Accordion toolbar demo](/docs/dev-toolbar/accordion-demo) for intentionally broken examples.
+
 ## Keyboard behavior
 
-Every trigger is a native button in the normal Tab sequence. Use <kbd>Enter</kbd> or <kbd>Space</kbd> to toggle it. Accordion does not capture Arrow, Home, or End keys. See GD-012 for the rationale.
+Every trigger is a native button in the normal Tab sequence. Use <kbd>Enter</kbd> or <kbd>Space</kbd> to toggle it.
 
 ## Styling
 

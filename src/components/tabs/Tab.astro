@@ -1,0 +1,47 @@
+---
+import {
+  ensureTabsSsrPart,
+  getTabsSsrContext,
+  resolveTabSelected,
+} from "../../internal/tabs-ssr-context";
+import type { TabsTabProps } from "./types";
+
+type Props = TabsTabProps;
+
+const {
+  value,
+  disabled = false,
+  type = "button",
+  id,
+  ...attributes
+} = Astro.props;
+
+const tabs = getTabsSsrContext();
+const orientation = tabs?.orientation ?? "horizontal";
+const rootDisabled = tabs?.disabled ?? false;
+const isDisabled = rootDisabled || disabled;
+const selected = tabs ? resolveTabSelected(tabs, value, disabled) : false;
+
+const part = tabs
+  ? ensureTabsSsrPart(tabs, value, id ? { tabId: id } : undefined)
+  : undefined;
+---
+
+<button
+  {...attributes}
+  id={part?.tabId ?? id}
+  type={type}
+  role="tab"
+  data-ormo-tabs-tab
+  data-value={value}
+  data-state={selected ? "active" : "inactive"}
+  data-orientation={orientation}
+  data-disabled={isDisabled ? "" : undefined}
+  data-item-disabled={disabled ? "" : undefined}
+  disabled={isDisabled || undefined}
+  tabindex={selected ? 0 : -1}
+  aria-selected={selected ? "true" : "false"}
+  aria-controls={part?.panelId}
+>
+  <slot />
+</button>

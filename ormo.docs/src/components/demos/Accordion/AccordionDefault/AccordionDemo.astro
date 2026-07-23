@@ -1,50 +1,45 @@
 ---
 import * as Accordion from "@ormo/primitives/accordion";
+import "../index.css";
 import { ChevronDown } from "@lucide/astro";
-import "./AccordionDemo.css";
 ---
 
-<Accordion.Root
-  class="accordion"
-  defaultValue="shipping"
-  data-accordion-demo="disabled"
->
-  <Accordion.Item class="accordion-item" value="shipping">
+<Accordion.Root class="accordion" data-accordion-demo="default">
+  <Accordion.Item class="accordion-item" value="about">
     <Accordion.Header class="accordion-header" as="h2">
       <Accordion.Trigger class="accordion-trigger">
-        Shipping information
+        What is Ormo?
         <ChevronDown class="indicator" size="14" aria-hidden="true" />
       </Accordion.Trigger>
     </Accordion.Header>
     <Accordion.Content class="accordion-content">
       <div class="accordion-content-inner">
-        Standard shipping takes three to five working days.
+        Ormo is a library of unstyled components for building accessible user
+        interfaces with Astro.
       </div>
     </Accordion.Content>
   </Accordion.Item>
-  <Accordion.Item class="accordion-item" value="returns" disabled>
+  <Accordion.Item class="accordion-item" value="price">
     <Accordion.Header class="accordion-header" as="h2">
       <Accordion.Trigger class="accordion-trigger">
-        Returns unavailable
+        How much does it cost?
         <ChevronDown class="indicator" size="14" aria-hidden="true" />
       </Accordion.Trigger>
     </Accordion.Header>
     <Accordion.Content class="accordion-content">
-      <div class="accordion-content-inner">
-        Returns are accepted within 30 days of delivery.
-      </div>
+      <div class="accordion-content-inner">Ormo is free and open source.</div>
     </Accordion.Content>
   </Accordion.Item>
-  <Accordion.Item class="accordion-item" value="warranty">
+  <Accordion.Item class="accordion-item" value="how-to">
     <Accordion.Header class="accordion-header" as="h2">
       <Accordion.Trigger class="accordion-trigger">
-        Warranty
+        How do I use it?
         <ChevronDown class="indicator" size="14" aria-hidden="true" />
       </Accordion.Trigger>
     </Accordion.Header>
     <Accordion.Content class="accordion-content">
       <div class="accordion-content-inner">
-        Every product includes a two-year limited warranty.
+        Head to <a>ormo.dev/docs</a> to get started.
       </div>
     </Accordion.Content>
   </Accordion.Item>

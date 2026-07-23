@@ -1,10 +1,14 @@
 ---
 import * as Accordion from "@ormo/primitives/accordion";
-import "./AccordionDemo.css";
 import { ChevronDown } from "@lucide/astro";
+import "../index.css";
 ---
 
-<Accordion.Root class="accordion" data-accordion-demo="default">
+<Accordion.Root
+  class="accordion"
+  defaultValue="about"
+  data-accordion-demo="initial"
+>
   <Accordion.Item class="accordion-item" value="about">
     <Accordion.Header class="accordion-header" as="h2">
       <Accordion.Trigger class="accordion-trigger">
@@ -14,8 +18,7 @@ import { ChevronDown } from "@lucide/astro";
     </Accordion.Header>
     <Accordion.Content class="accordion-content">
       <div class="accordion-content-inner">
-        Ormo is a library of unstyled components for building accessible user
-        interfaces with Astro.
+        Ormo is a headless component library for Astro.
       </div>
     </Accordion.Content>
   </Accordion.Item>
@@ -39,7 +42,7 @@ import { ChevronDown } from "@lucide/astro";
     </Accordion.Header>
     <Accordion.Content class="accordion-content">
       <div class="accordion-content-inner">
-        Head to <a>ormo.dev/docs</a> to get started.
+        Head to the documentation to get started.
       </div>
     </Accordion.Content>
   </Accordion.Item>

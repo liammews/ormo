@@ -23,4 +23,5 @@ export type {
   AccordionValueChangeDetail,
   AccordionValueChangeEvent,
   OrmoAccordionElement,
+  OrmoValueChangeEvent,
 } from "./types";
