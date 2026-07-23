@@ -23,22 +23,21 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
           <CodeBlock code={code} lang="astro" />
         </div>
 
-        <div class="demoblock-code-actions" data-demo-code-actions hidden>
-          <button
-            type="button"
-            class="demoblock-code-toggle"
-            aria-expanded="false"
-            aria-controls={codeId}
-            data-demo-code-toggle
-          >
-            <span data-demo-code-toggle-label>Show all code</span>
-            <ChevronDown
-              class="demoblock-code-toggle-icon"
-              size={16}
-              aria-hidden="true"
-            />
-          </button>
-        </div>
+        <button
+          type="button"
+          class="demoblock-code-toggle"
+          aria-expanded="false"
+          aria-controls={codeId}
+          data-demo-code-toggle
+          hidden
+        >
+          <span data-demo-code-toggle-label>Show all code</span>
+          <ChevronDown
+            class="demoblock-code-toggle-icon"
+            size={16}
+            aria-hidden="true"
+          />
+        </button>
       </div>
     )
   }
@@ -59,9 +58,6 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
     const content = block.querySelector<HTMLElement>(
       "[data-demo-code-content]",
     );
-    const actions = block.querySelector<HTMLElement>(
-      "[data-demo-code-actions]",
-    );
     const toggle = block.querySelector<HTMLButtonElement>(
       "[data-demo-code-toggle]",
     );
@@ -69,7 +65,7 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
       "[data-demo-code-toggle-label]",
     );
 
-    if (!container || !content || !actions || !toggle || !label) continue;
+    if (!container || !content || !toggle || !label) continue;
 
     const rootFontSize = Number.parseFloat(
       getComputedStyle(document.documentElement).fontSize,
@@ -79,7 +75,7 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
     if (content.scrollHeight <= collapsedHeight) continue;
 
     container.dataset.collapsible = "";
-    actions.hidden = false;
+    toggle.hidden = false;
 
     toggle.addEventListener("click", () => {
       const expanded = toggle.getAttribute("aria-expanded") === "true";
@@ -135,31 +131,26 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
     pointer-events: none;
   }
 
-  .demoblock-code-actions {
-    display: flex;
-    justify-content: center;
-    padding: var(--space-50);
-    border-block-start: 1px solid var(--border-default);
-  }
-
-  .demoblock-code-actions[hidden] {
-    display: none;
-  }
-
   .demoblock-code-toggle {
-    display: inline-flex;
-    min-block-size: 2rem;
+    display: flex;
+    width: 100%;
+    min-block-size: 3.25rem;
     align-items: center;
     justify-content: center;
     gap: var(--space-25);
     border: 0;
-    padding: var(--space-25) var(--space-75);
-    border-radius: var(--radius-2);
-    background: transparent;
+    border-block-start: 1px solid var(--border-default);
+    border-radius: 0;
+    padding: var(--space-50);
+    background: var(--surface-canvas);
     color: var(--content-default);
     font: inherit;
     font-size: var(--font-size-2);
     cursor: pointer;
+  }
+
+  .demoblock-code-toggle[hidden] {
+    display: none;
   }
 
   .demoblock-code-toggle:hover {
@@ -168,7 +159,7 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
 
   .demoblock-code-toggle:focus-visible {
     outline: var(--focus-width) solid var(--focus-default);
-    outline-offset: 2px;
+    outline-offset: -2px;
   }
 
   .demoblock-code-toggle-icon {

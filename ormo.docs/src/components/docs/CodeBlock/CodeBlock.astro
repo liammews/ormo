@@ -36,6 +36,7 @@ const highlightedCode = await codeToHtml(code, {
     border-radius: var(--radius-3);
     overflow: clip;
     border: 1px solid var(--border-default);
+    background: var(--surface-base);
   }
 
   .code-block_copy {
@@ -57,6 +58,7 @@ const highlightedCode = await codeToHtml(code, {
     line-height: 2;
     letter-spacing: var(--letter-spacing-base);
     tab-size: 2;
+    background-color: transparent !important;
   }
 
   .code-block :global(pre code) {
@@ -86,7 +88,7 @@ const highlightedCode = await codeToHtml(code, {
     .code-block :global(.shiki),
     .code-block :global(.shiki span) {
       color: var(--shiki-dark) !important;
-      background-color: var(--shiki-dark-bg) !important;
+      background-color: transparent !important;
       font-style: var(--shiki-dark-font-style) !important;
       font-weight: var(--shiki-dark-font-weight) !important;
       text-decoration: var(--shiki-dark-text-decoration) !important;
