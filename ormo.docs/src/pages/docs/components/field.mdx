@@ -35,6 +35,10 @@ import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
 Use explicit <code>for</code>, <code>id</code>, and <code>aria-describedby</code> values when the relationships must be complete in the initial server-rendered HTML. Field preserves explicit relationships and fills in missing label, description, and error relationships when it connects.
 
+Field owns a single native <code>input</code>, <code>select</code>, or <code>textarea</code>. Put one control in each <code>Field.Root</code>. Radio and checkbox groups need a dedicated group primitive.
+
+<code>Field.Error</code> stays hidden in the server-rendered HTML unless <code>match={true}</code>. The runtime reveals matching errors, exposes them with <code>role="alert"</code>, and only adds visible errors to <code>aria-describedby</code>.
+
 ## Anatomy
 
 ```astro
