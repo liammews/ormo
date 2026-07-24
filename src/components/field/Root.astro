@@ -6,7 +6,11 @@ type Props = FieldRootProps;
 const {
   invalid = false,
   disabled = false,
+  name,
+  required,
+  readOnly,
   validationMode = "onSubmit",
+  validationDebounceTime = 0,
   ...attributes
 }: Props = Astro.props;
 ---
@@ -16,7 +20,13 @@ const {
   data-ormo-field-root
   data-invalid={invalid ? "" : undefined}
   data-disabled={disabled ? "" : undefined}
+  data-required={required ? "" : undefined}
+  data-readonly={readOnly ? "" : undefined}
   data-validation-mode={validationMode}
+  data-validation-debounce-time={validationDebounceTime > 0
+    ? String(validationDebounceTime)
+    : undefined}
+  name={name}
 >
   <slot />
 </ormo-field>
