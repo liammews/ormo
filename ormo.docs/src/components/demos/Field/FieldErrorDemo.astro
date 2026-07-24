@@ -18,7 +18,11 @@ import "./FieldDemo.css";
     aria-invalid="true"
     aria-describedby="field-error-demo-message"
   />
-  <Field.Error class="field-demo-error" id="field-error-demo-message">
+  <Field.Error
+    class="field-demo-error"
+    id="field-error-demo-message"
+    match={true}
+  >
     Enter an email address in the format name@example.com.
   </Field.Error>
 </Field.Root>

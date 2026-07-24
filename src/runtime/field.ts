@@ -11,13 +11,13 @@ const tagName = "ormo-field";
 const labelSelector = "[data-ormo-field-label]";
 const descriptionSelector = "[data-ormo-field-description]";
 const errorSelector = "[data-ormo-field-error]";
-const controlSelector =
-  'input:not([type="hidden"]), select, textarea, [data-ormo-field-control]';
+const controlSelector = 'input:not([type="hidden"]), select, textarea';
 
 let generatedId = 0;
 
 interface FieldParts {
   control: FieldControlElement | undefined;
+  controls: FieldControlElement[];
   labels: HTMLLabelElement[];
   descriptions: HTMLElement[];
   errors: HTMLElement[];
@@ -68,6 +68,64 @@ function getControlValue(control: FieldControlElement): string {
   }
 
   return control.value;
+}
+
+function isControlFilled(control: FieldControlElement): boolean {
+  if (control instanceof HTMLInputElement) {
+    if (control.type === "checkbox" || control.type === "radio") {
+      return control.checked;
+    }
+
+    if (control.type === "file") {
+      return (control.files?.length ?? 0) > 0;
+    }
+  }
+
+  if (control instanceof HTMLSelectElement && control.multiple) {
+    return control.selectedOptions.length > 0;
+  }
+
+  return control.value !== "";
+}
+
+export function validateField(root: HTMLElement): void {
+  if (!import.meta.env.DEV) {
+    return;
+  }
+
+  const controls = Array.from(root.querySelectorAll(controlSelector))
+    .filter((element) => belongsToRoot(element, root))
+    .filter(isFieldControl);
+  const labels = Array.from(
+    root.querySelectorAll<HTMLLabelElement>(labelSelector),
+  ).filter((element) => belongsToRoot(element, root));
+  const control = controls[0];
+
+  if (!control) {
+    console.warn(
+      "[Ormo Field] Add a native input, select, or textarea inside Field.Root.",
+      root,
+    );
+    return;
+  }
+
+  if (controls.length > 1) {
+    console.warn(
+      "[Ormo Field] Field.Root owns only the first native control. Use one control per field, or a dedicated group primitive for radios and checkboxes.",
+      root,
+    );
+  }
+
+  if (
+    labels.length === 0 &&
+    !control.hasAttribute("aria-label") &&
+    !control.hasAttribute("aria-labelledby")
+  ) {
+    console.warn(
+      "[Ormo Field] Add Field.Label or an aria-label to the field control.",
+      root,
+    );
+  }
 }
 
 function setStateAttribute(
@@ -148,6 +206,10 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     this.#bindForm();
     this.#applyState();
 
+    if (import.meta.env.DEV) {
+      validateField(this);
+    }
+
     this.#observer?.disconnect();
     this.#observer = new MutationObserver(this.#handleMutations);
     this.#observer.observe(this, { childList: true, subtree: true });
@@ -225,9 +287,9 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   }
 
   #getParts(): FieldParts {
-    const control = Array.from(this.querySelectorAll(controlSelector))
+    const controls = Array.from(this.querySelectorAll(controlSelector))
       .filter((element) => belongsToRoot(element, this))
-      .find(isFieldControl);
+      .filter(isFieldControl);
     const labels = Array.from(
       this.querySelectorAll<HTMLLabelElement>(labelSelector),
     ).filter((element) => belongsToRoot(element, this));
@@ -238,7 +300,13 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       this.querySelectorAll<HTMLElement>(errorSelector),
     ).filter((element) => belongsToRoot(element, this));
 
-    return { control, labels, descriptions, errors };
+    return {
+      control: controls[0],
+      controls,
+      labels,
+      descriptions,
+      errors,
+    };
   }
 
   #setControl(control: FieldControlElement | undefined): void {
@@ -328,8 +396,20 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       .filter((id) => !this.#managedDescribedByIds.has(id))
       .forEach((id) => this.#authoredDescribedByIds.add(id));
 
+    this.#syncDescribedBy(parts);
+  }
+
+  #syncDescribedBy(parts: FieldParts): void {
+    const { control, descriptions, errors } = parts;
+
+    if (!control) {
+      return;
+    }
+
+    const visibleErrors = errors.filter((error) => !error.hidden);
+
     this.#managedDescribedByIds = new Set(
-      [...descriptions, ...errors].map((element) => element.id),
+      [...descriptions, ...visibleErrors].map((element) => element.id),
     );
 
     const describedByIds = [
@@ -385,7 +465,7 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     return {
       disabled,
       dirty: control ? getControlValue(control) !== this.#initialValue : false,
-      filled: control ? getControlValue(control) !== "" : false,
+      filled: control ? isControlFilled(control) : false,
       focused: control ? this.#focused : false,
       invalid,
       touched: this.#touched,
@@ -470,8 +550,14 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     }
 
     errors.forEach((error) => {
+      if (!error.hasAttribute("role")) {
+        error.setAttribute("role", "alert");
+      }
+
       error.hidden = !this.#errorMatches(error, control, state);
     });
+
+    this.#syncDescribedBy(parts);
 
     if (
       this.#previousState &&
@@ -568,13 +654,30 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   #handleSubmit = (event: SubmitEvent): void => {
     this.#validated = true;
     this.#runValidator();
+    this.#applyState();
 
-    if (this.#control && !this.#control.checkValidity()) {
-      event.preventDefault();
-      this.#control.reportValidity();
+    const control = this.#control;
+
+    if (!control || control.checkValidity()) {
+      return;
     }
 
-    this.#applyState();
+    event.preventDefault();
+
+    const form = control.form;
+    const firstInvalidControl = form
+      ? Array.from(form.querySelectorAll(controlSelector))
+          .filter(isFieldControl)
+          .find((candidate) => {
+            const field = candidate.closest(tagName);
+            return field instanceof OrmoField && !candidate.validity.valid;
+          })
+      : control;
+
+    if (firstInvalidControl === control) {
+      control.focus();
+      control.reportValidity();
+    }
   };
 
   #handleMutations = (): void => {
@@ -588,6 +691,10 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
 
     this.#prepareRelationships(parts);
     this.#applyState();
+
+    if (import.meta.env.DEV) {
+      validateField(this);
+    }
   };
 }
 

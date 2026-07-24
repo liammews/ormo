@@ -1,6 +1,7 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { OrmoFieldElement } from "../../src/components/field/types";
+import { validateField } from "../../src/runtime/field";
 import "../../src/runtime/field";
 
 interface FieldOptions {
@@ -9,6 +10,7 @@ interface FieldOptions {
   inForm?: boolean;
   invalid?: boolean;
   controlAttributes?: string;
+  controlMarkup?: string;
   existingDescriptionId?: string;
   validationMode?: "onSubmit" | "onBlur" | "onChange";
 }
@@ -30,7 +32,9 @@ function createField(options: FieldOptions = {}): OrmoFieldElement {
 
   root.innerHTML = `
     <label data-ormo-field-label>Email address</label>
-    <input
+    ${
+      options.controlMarkup ??
+      `<input
       type="email"
       ${options.controlAttributes ?? ""}
       ${
@@ -38,11 +42,12 @@ function createField(options: FieldOptions = {}): OrmoFieldElement {
           ? `aria-describedby="${options.existingDescriptionId}"`
           : ""
       }
-    >
+    >`
+    }
     <div data-ormo-field-description>Used for receipts.</div>
     <div
       data-ormo-field-error
-      ${options.errorMatch ? `data-match="${options.errorMatch}" hidden` : ""}
+      ${options.errorMatch ? `data-match="${options.errorMatch}" hidden` : "hidden"}
     >
       Enter a valid email address.
     </div>
@@ -74,8 +79,11 @@ afterEach(() => {
 });
 
 describe("field", () => {
-  it("wires its label, description, and error to the control", () => {
-    const root = createField({ existingDescriptionId: "external-hint" });
+  it("wires its label, description, and visible error to the control", () => {
+    const root = createField({
+      existingDescriptionId: "external-hint",
+      invalid: true,
+    });
     const control = getControl(root);
     const label = root.querySelector<HTMLLabelElement>(
       "[data-ormo-field-label]",
@@ -91,8 +99,34 @@ describe("field", () => {
     expect(label?.id).not.toBe("");
     expect(description?.id).not.toBe("");
     expect(error?.id).not.toBe("");
+    expect(error?.hidden).toBe(false);
+    expect(error?.getAttribute("role")).toBe("alert");
     expect(control.getAttribute("aria-describedby")?.split(/\s+/)).toEqual([
       "external-hint",
+      description?.id,
+      error?.id,
+    ]);
+  });
+
+  it("omits hidden errors from aria-describedby until they apply", () => {
+    const root = createField({
+      controlAttributes: "required",
+      validationMode: "onBlur",
+    });
+    const control = getControl(root);
+    const description = root.querySelector<HTMLElement>(
+      "[data-ormo-field-description]",
+    );
+    const error = root.querySelector<HTMLElement>("[data-ormo-field-error]");
+
+    expect(error?.hidden).toBe(true);
+    expect(control.getAttribute("aria-describedby")).toBe(description?.id);
+
+    control.focus();
+    control.blur();
+
+    expect(error?.hidden).toBe(false);
+    expect(control.getAttribute("aria-describedby")?.split(/\s+/)).toEqual([
       description?.id,
       error?.id,
     ]);
@@ -142,6 +176,19 @@ describe("field", () => {
     control.dispatchEvent(new InputEvent("input", { bubbles: true }));
     expect(root.hasAttribute("data-invalid")).toBe(true);
     expect(control.getAttribute("aria-invalid")).toBe("true");
+  });
+
+  it("treats unchecked checkboxes as empty", () => {
+    const root = createField({
+      controlMarkup: '<input type="checkbox">',
+    });
+    const control = getControl(root);
+
+    expect(root.state.filled).toBe(false);
+
+    control.checked = true;
+    control.dispatchEvent(new Event("input", { bubbles: true }));
+    expect(root.state.filled).toBe(true);
   });
 
   it("supports submit, blur, and change validation modes", () => {
@@ -237,6 +284,42 @@ describe("field", () => {
     expect(root.state.valid).toBe(false);
   });
 
+  it("focuses the first invalid field on submit", () => {
+    const form = document.createElement("form");
+    const first = createField({ controlAttributes: "required" });
+    const second = createField({ controlAttributes: "required" });
+    first.remove();
+    second.remove();
+    form.append(first, second);
+    document.body.append(form);
+
+    const firstControl = getControl(first);
+    const secondControl = getControl(second);
+    const reportFirst = vi
+      .spyOn(firstControl, "reportValidity")
+      .mockReturnValue(false);
+    const reportSecond = vi
+      .spyOn(secondControl, "reportValidity")
+      .mockReturnValue(false);
+    const focusFirst = vi
+      .spyOn(firstControl, "focus")
+      .mockImplementation(() => undefined);
+    const focusSecond = vi
+      .spyOn(secondControl, "focus")
+      .mockImplementation(() => undefined);
+
+    form.dispatchEvent(
+      new Event("submit", { bubbles: true, cancelable: true }),
+    );
+
+    expect(first.state.invalid).toBe(true);
+    expect(second.state.invalid).toBe(true);
+    expect(focusFirst).toHaveBeenCalledOnce();
+    expect(reportFirst).toHaveBeenCalledOnce();
+    expect(focusSecond).not.toHaveBeenCalled();
+    expect(reportSecond).not.toHaveBeenCalled();
+  });
+
   it("rewires dynamically inserted parts and replacement controls", async () => {
     const root = createField();
     const originalControl = getControl(root);
@@ -291,5 +374,42 @@ describe("field", () => {
     expect(root.disabled).toBe(false);
     expect(control.disabled).toBe(false);
     expect(control.hasAttribute("aria-invalid")).toBe(false);
+  });
+});
+
+describe("development diagnostics", () => {
+  it("warns about missing labels, missing controls, and multiple controls", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+    const unlabeled = document.createElement("ormo-field");
+    unlabeled.innerHTML = `<input type="text">`;
+    document.body.append(unlabeled);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("Field.Label"),
+      unlabeled,
+    );
+
+    warn.mockClear();
+    const empty = document.createElement("ormo-field");
+    empty.innerHTML = `<label data-ormo-field-label>Name</label>`;
+    document.body.append(empty);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("native input, select, or textarea"),
+      empty,
+    );
+
+    warn.mockClear();
+    const multiple = document.createElement("ormo-field");
+    multiple.innerHTML = `
+      <label data-ormo-field-label>Choice</label>
+      <input type="radio" name="choice" value="a">
+      <input type="radio" name="choice" value="b">
+    `;
+    document.body.append(multiple);
+    validateField(multiple);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("only the first native control"),
+      multiple,
+    );
   });
 });
