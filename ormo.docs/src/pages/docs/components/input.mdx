@@ -13,27 +13,51 @@ import inputDisabledDemoCode from "../../../components/demos/Input/InputDisabled
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
+Input is a thin native <code>&lt;input&gt;</code> wrapper. For labels, descriptions, errors, and validation state, prefer composing it inside <a href="/docs/components/field/">Field</a> (or use <code>Field.Control</code>).
+
 ## Default
 
-<DemoBlock code={inputDemoCode}>
-  <InputDemo />
-</DemoBlock>
+<div data-input-demo>
+  <DemoBlock code={inputDemoCode}>
+    <InputDemo />
+  </DemoBlock>
+</div>
 
 ## Error
 
-<DemoBlock code={inputErrorDemoCode}>
-  <InputErrorDemo />
-</DemoBlock>
+<div data-input-error-demo>
+  <DemoBlock code={inputErrorDemoCode}>
+    <InputErrorDemo />
+  </DemoBlock>
+</div>
 
 ## Disabled
 
-<DemoBlock code={inputDisabledDemoCode}>
-  <InputDisabledDemo />
-</DemoBlock>
+<div data-input-disabled-demo>
+  <DemoBlock code={inputDisabledDemoCode}>
+    <InputDisabledDemo />
+  </DemoBlock>
+</div>
+
+## With Field
+
+```astro
+---
+import * as Field from "@ormo/primitives/field";
+import { Input } from "@ormo/primitives/input";
+---
+
+<Field.Root name="email" required validationMode="onBlur">
+  <Field.Label>Email address</Field.Label>
+  <Input type="email" autocomplete="email" />
+  <Field.Description>We’ll only use this for account mail.</Field.Description>
+  <Field.Error match="valueMissing">Enter your email address.</Field.Error>
+</Field.Root>
+```
 
 ## API reference
 
-Input renders a native <code>&lt;input&gt;</code> and forwards its HTML attributes.
+Input renders a native <code>&lt;input&gt;</code>, forwards its HTML attributes, and adds <code>data-ormo-input</code> for theming hooks.
 
 <PropsTable
   id="input-props"

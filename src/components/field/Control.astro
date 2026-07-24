@@ -1,0 +1,9 @@
+---
+import type { FieldControlProps } from "./types";
+
+type Props = FieldControlProps;
+
+const attributes: Props = Astro.props;
+---
+
+<input {...attributes} data-ormo-field-control />

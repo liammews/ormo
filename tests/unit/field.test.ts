@@ -191,14 +191,14 @@ describe("field", () => {
     expect(root.state.filled).toBe(true);
   });
 
-  it("supports submit, blur, and change validation modes", () => {
+  it("supports submit, blur, and change validation modes", async () => {
     const submitField = createField({ controlAttributes: "required" });
     const submitControl = getControl(submitField);
 
     submitControl.focus();
     submitControl.blur();
     expect(submitField.state.invalid).toBe(false);
-    expect(submitField.validate()).toBe(false);
+    expect(await submitField.validate()).toBe(false);
     expect(submitField.state.invalid).toBe(true);
 
     const changeField = createField({
@@ -209,14 +209,16 @@ describe("field", () => {
 
     changeControl.value = "not-an-email";
     changeControl.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    await Promise.resolve();
     expect(changeField.state.invalid).toBe(true);
 
     changeControl.value = "person@example.com";
     changeControl.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    await Promise.resolve();
     expect(changeField.state.valid).toBe(true);
   });
 
-  it("matches errors against native validity reasons", () => {
+  it("matches errors against native validity reasons", async () => {
     const root = createField({
       controlAttributes: 'type="email"',
       errorMatch: "typeMismatch",
@@ -229,14 +231,16 @@ describe("field", () => {
 
     control.value = "not-an-email";
     control.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    await Promise.resolve();
     expect(error?.hidden).toBe(false);
 
     control.value = "person@example.com";
     control.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    await Promise.resolve();
     expect(error?.hidden).toBe(true);
   });
 
-  it("runs a synchronous validator and emits state changes", () => {
+  it("runs a synchronous validator and emits state changes", async () => {
     const root = createField({ validationMode: "onChange" });
     const control = getControl(root);
     const states: boolean[] = [];
@@ -249,15 +253,80 @@ describe("field", () => {
 
     control.value = "person@elsewhere.com";
     control.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    await Promise.resolve();
     expect(control.validity.customError).toBe(true);
     expect(root.state.invalid).toBe(true);
 
     control.value = "person@example.com";
     control.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    await Promise.resolve();
     expect(control.validity.customError).toBe(false);
     expect(root.state.valid).toBe(true);
     expect(states).toContain(true);
     expect(states.at(-1)).toBe(false);
+  });
+
+  it("runs async validators and exposes validating state", async () => {
+    const root = createField({ validationMode: "onChange" });
+    const control = getControl(root);
+    let resolveValidation!: (value: string | null) => void;
+
+    root.validator = () =>
+      new Promise((resolve) => {
+        resolveValidation = resolve;
+      });
+
+    control.value = "person@example.com";
+    control.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    await Promise.resolve();
+
+    expect(root.state.validating).toBe(true);
+    expect(root.hasAttribute("data-validating")).toBe(true);
+
+    resolveValidation("Use a different address.");
+    await vi.waitFor(() => {
+      expect(root.state.validating).toBe(false);
+      expect(root.state.invalid).toBe(true);
+      expect(control.validity.customError).toBe(true);
+    });
+  });
+
+  it("debounces onChange validation", async () => {
+    vi.useFakeTimers();
+    const root = createField({ validationMode: "onChange" });
+    root.validationDebounceTime = 100;
+    const control = getControl(root);
+    const validator = vi.fn(() => "Too soon");
+    root.validator = validator;
+
+    control.value = "a";
+    control.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    control.value = "ab";
+    control.dispatchEvent(new InputEvent("input", { bubbles: true }));
+
+    expect(validator).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(100);
+
+    expect(validator).toHaveBeenCalledOnce();
+    expect(root.state.invalid).toBe(true);
+    vi.useRealTimers();
+  });
+
+  it("propagates name, required, and readOnly to the control", () => {
+    const root = createField();
+    const control = getControl(root);
+
+    root.name = "email";
+    root.required = true;
+    root.readOnly = true;
+
+    expect(control.name).toBe("email");
+    expect(control.required).toBe(true);
+    expect(control.readOnly).toBe(true);
+    expect(root.getAttribute("name")).toBe("email");
+    expect(root.hasAttribute("data-required")).toBe(true);
+    expect(root.hasAttribute("data-readonly")).toBe(true);
   });
 
   it("resets tracked state with its native form", async () => {
@@ -284,7 +353,7 @@ describe("field", () => {
     expect(root.state.valid).toBe(false);
   });
 
-  it("focuses the first invalid field on submit", () => {
+  it("focuses the first invalid field on submit", async () => {
     const form = document.createElement("form");
     const first = createField({ controlAttributes: "required" });
     const second = createField({ controlAttributes: "required" });
@@ -312,10 +381,13 @@ describe("field", () => {
       new Event("submit", { bubbles: true, cancelable: true }),
     );
 
-    expect(first.state.invalid).toBe(true);
-    expect(second.state.invalid).toBe(true);
-    expect(focusFirst).toHaveBeenCalledOnce();
-    expect(reportFirst).toHaveBeenCalledOnce();
+    await vi.waitFor(() => {
+      expect(first.state.invalid).toBe(true);
+      expect(second.state.invalid).toBe(true);
+      expect(focusFirst).toHaveBeenCalledOnce();
+      expect(reportFirst).toHaveBeenCalledOnce();
+    });
+
     expect(focusSecond).not.toHaveBeenCalled();
     expect(reportSecond).not.toHaveBeenCalled();
   });

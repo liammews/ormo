@@ -1,17 +1,15 @@
 ---
 import * as Field from "@ormo/primitives/field";
-import { Input } from "@ormo/primitives/input";
 import "./FieldDemo.css";
 ---
 
-<Field.Root class="field-demo" invalid>
+<Field.Root class="field-demo" invalid name="email">
   <Field.Label class="field-demo-label" for="field-error-demo-email">
     Email address
   </Field.Label>
-  <Input
+  <Field.Control
     class="field-demo-input"
     id="field-error-demo-email"
-    name="email"
     type="email"
     value="not-an-email"
     autocomplete="email"
