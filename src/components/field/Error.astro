@@ -10,13 +10,17 @@ const serializedMatch =
     : typeof match === "boolean"
       ? String(match)
       : match;
+// Stay hidden in SSR unless match={true}. The field runtime reveals errors when
+// they apply, which avoids flashing invalid copy before JavaScript connects.
+const initiallyHidden = match !== true;
 ---
 
 <div
   {...attributes}
   data-ormo-field-error
   data-match={serializedMatch}
-  hidden={match === false || typeof match === "string"}
+  role="alert"
+  hidden={initiallyHidden}
 >
   <slot />
 </div>

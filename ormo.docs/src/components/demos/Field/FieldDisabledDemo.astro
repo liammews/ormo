@@ -1,21 +1,18 @@
 ---
 import * as Field from "@ormo/primitives/field";
-import { Input } from "@ormo/primitives/input";
 import "./FieldDemo.css";
 ---
 
-<Field.Root class="field-demo" disabled>
+<Field.Root class="field-demo" disabled name="email">
   <Field.Label class="field-demo-label" for="field-disabled-demo-email">
     Email address
   </Field.Label>
-  <Input
+  <Field.Control
     class="field-demo-input"
     id="field-disabled-demo-email"
-    name="email"
     type="email"
     value="you@example.com"
     aria-describedby="field-disabled-demo-description"
-    disabled
   />
   <Field.Description
     class="field-demo-description"

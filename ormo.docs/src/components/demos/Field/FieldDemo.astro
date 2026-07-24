@@ -1,22 +1,19 @@
 ---
 import * as Field from "@ormo/primitives/field";
-import { Input } from "@ormo/primitives/input";
 import "./FieldDemo.css";
 ---
 
-<Field.Root class="field-demo" validationMode="onBlur">
+<Field.Root class="field-demo" validationMode="onBlur" name="email" required>
   <Field.Label class="field-demo-label" for="field-default-demo-email">
     Email address
   </Field.Label>
-  <Input
+  <Field.Control
     class="field-demo-input"
     id="field-default-demo-email"
-    name="email"
     type="email"
     autocomplete="email"
     placeholder="you@example.com"
     aria-describedby="field-default-demo-description field-default-demo-error"
-    required
   />
   <Field.Description
     class="field-demo-description"

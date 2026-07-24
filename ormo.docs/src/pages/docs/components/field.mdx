@@ -15,41 +15,52 @@ import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
 ## Default
 
-<DemoBlock code={fieldDemoCode}>
-  <FieldDemo />
-</DemoBlock>
+<div data-field-demo>
+  <DemoBlock code={fieldDemoCode}>
+    <FieldDemo />
+  </DemoBlock>
+</div>
 
 ## Error
 
-<DemoBlock code={fieldErrorDemoCode}>
-  <FieldErrorDemo />
-</DemoBlock>
+<div data-field-error-demo>
+  <DemoBlock code={fieldErrorDemoCode}>
+    <FieldErrorDemo />
+  </DemoBlock>
+</div>
 
 ## Disabled
 
-<DemoBlock code={fieldDisabledDemoCode}>
-  <FieldDisabledDemo />
-</DemoBlock>
+<div data-field-disabled-demo>
+  <DemoBlock code={fieldDisabledDemoCode}>
+    <FieldDisabledDemo />
+  </DemoBlock>
+</div>
 
 ## Accessible relationships
 
 Use explicit <code>for</code>, <code>id</code>, and <code>aria-describedby</code> values when the relationships must be complete in the initial server-rendered HTML. Field preserves explicit relationships and fills in missing label, description, and error relationships when it connects.
+
+Field owns a single native <code>input</code>, <code>select</code>, or <code>textarea</code>. Put one control in each <code>Field.Root</code>. Radio and checkbox groups need a dedicated group primitive.
+
+<code>Field.Error</code> stays hidden in the server-rendered HTML unless <code>match={true}</code>. The runtime reveals matching errors, exposes them with <code>role="alert"</code>, and only adds visible errors to <code>aria-describedby</code>.
 
 ## Anatomy
 
 ```astro
 ---
 import * as Field from "@ormo/primitives/field";
-import { Input } from "@ormo/primitives/input";
 ---
 
 <Field.Root>
   <Field.Label />
-  <Input />
+  <Field.Control />
   <Field.Description />
   <Field.Error />
 </Field.Root>
 ```
+
+You can replace <code>Field.Control</code> with <code>Input</code> or another native control. Prefer Field for labeling, descriptions, errors, and validation state.
 
 ## API reference
 
@@ -76,6 +87,25 @@ Groups the label, control, description, and errors while coordinating their rela
         "Disables the owned native control and exposes the disabled state on every Field part.",
     },
     {
+      name: "name",
+      type: "string",
+      description:
+        "Sets the name on the owned control for form submission.",
+    },
+    {
+      name: "required",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Marks the owned control as required.",
+    },
+    {
+      name: "readOnly",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Marks the owned input or textarea as read-only when the control supports it.",
+    },
+    {
       name: "validationMode",
       type: '"onSubmit" | "onBlur" | "onChange"',
       defaultValue: '"onSubmit"',
@@ -90,10 +120,84 @@ Groups the label, control, description, and errors while coordinating their rela
       ],
     },
     {
+      name: "validationDebounceTime",
+      type: "number",
+      defaultValue: "0",
+      description:
+        "Debounces custom and native validation when validationMode is onChange, in milliseconds.",
+      details: [
+        {
+          label: "Attribute",
+          value: "data-validation-debounce-time",
+          code: true,
+        },
+      ],
+    },
+    {
       name: "class",
       type: "string",
       description:
         "Applies a consumer-owned class to the Field root custom element.",
+    },
+  ]}
+/>
+
+### Label
+
+Renders a native <code>&lt;label&gt;</code> and forwards its HTML attributes. Field wires <code>for</code> to the owned control when it is missing.
+
+<PropsTable
+  id="field-label-props"
+  caption="Field Label properties"
+  rows={[
+    {
+      name: "for",
+      type: "string",
+      description:
+        "Associates the label with a control id. Field fills this in when omitted.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Applies a consumer-owned class to the label element.",
+    },
+  ]}
+/>
+
+### Control
+
+Renders a native <code>&lt;input&gt;</code> for use inside Field. Forward the usual input attributes, or swap in <code>Input</code> / another native control instead.
+
+<PropsTable
+  id="field-control-props"
+  caption="Field Control properties"
+  rows={[
+    {
+      name: "type",
+      type: "HTMLInputTypeAttribute",
+      defaultValue: '"text"',
+      description: "Sets the kind of input control.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Applies a consumer-owned class to the control.",
+    },
+  ]}
+/>
+
+### Description
+
+Provides supporting guidance associated with the control through <code>aria-describedby</code>.
+
+<PropsTable
+  id="field-description-props"
+  caption="Field Description properties"
+  rows={[
+    {
+      name: "class",
+      type: "string",
+      description: "Applies a consumer-owned class to the description element.",
     },
   ]}
 />
@@ -135,7 +239,7 @@ The <code>ormo-field</code> custom element exposes live state and validation con
       name: "state",
       type: "FieldState",
       description:
-        "Returns the current disabled, dirty, filled, focused, invalid, touched, and valid state.",
+        "Returns the current disabled, dirty, filled, focused, invalid, touched, valid, and validating state.",
       details: [{ label: "Writable", value: "No" }],
     },
     {
@@ -153,29 +257,52 @@ The <code>ormo-field</code> custom element exposes live state and validation con
         "Gets or sets whether the field and its owned control are disabled.",
     },
     {
+      name: "name",
+      type: "string",
+      description: "Gets or sets the owned control’s form name.",
+    },
+    {
+      name: "required",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Gets or sets whether the owned control is required.",
+    },
+    {
+      name: "readOnly",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Gets or sets whether the owned control is read-only.",
+    },
+    {
       name: "validationMode",
       type: "FieldValidationMode",
       defaultValue: '"onSubmit"',
       description: "Gets or sets when the field validates in the browser.",
     },
     {
+      name: "validationDebounceTime",
+      type: "number",
+      defaultValue: "0",
+      description: "Gets or sets the onChange validation debounce in milliseconds.",
+    },
+    {
       name: "validator",
       type: "FieldValidator | undefined",
       description:
-        "Accepts a synchronous browser-side function that returns an error message or null.",
+        "Accepts a sync or async browser-side function that returns an error message or null.",
     },
     {
       name: "validate()",
-      type: "() => boolean",
+      type: "() => Promise<boolean>",
       description:
-        "Runs custom and native validation immediately and returns whether the control is valid.",
+        "Runs custom and native validation immediately and resolves to whether the control is valid.",
     },
   ]}
 />
 
 ## State
 
-Field exposes <code>data-disabled</code>, <code>data-invalid</code>, <code>data-valid</code>, <code>data-dirty</code>, <code>data-touched</code>, <code>data-filled</code>, and <code>data-focused</code> on its parts for consumer styling.
+Field exposes <code>data-disabled</code>, <code>data-invalid</code>, <code>data-valid</code>, <code>data-validating</code>, <code>data-dirty</code>, <code>data-touched</code>, <code>data-filled</code>, and <code>data-focused</code> on its parts for consumer styling.
 
 Listen for <code>ormo:state-change</code> when application code needs the complete state.
 
@@ -187,10 +314,14 @@ field.addEventListener("ormo:state-change", (event) => {
 
 ## Validation timing
 
-Field validates on submit by default. Use <code>validationMode</code> to validate on blur or whenever the value changes.
+Field validates on submit by default. Use <code>validationMode</code> to validate on blur or whenever the value changes. Debounce onChange validation with <code>validationDebounceTime</code>.
 
 ```astro
 <Field.Root validationMode="onBlur">
+  <!-- Field parts -->
+</Field.Root>
+
+<Field.Root validationMode="onChange" validationDebounceTime={300}>
   <!-- Field parts -->
 </Field.Root>
 ```
@@ -209,7 +340,7 @@ Field supports <code>badInput</code>, <code>customError</code>, <code>patternMis
 
 ## Browser API
 
-Call <code>validate()</code> to validate immediately. Assign a synchronous <code>validator</code> in a browser script for custom rules.
+Call <code>validate()</code> to validate immediately. Assign a sync or async <code>validator</code> in a browser script for custom rules.
 
 ```astro
 <Field.Root id="account-email">
@@ -222,7 +353,7 @@ Call <code>validate()</code> to validate immediately. Assign a synchronous <code
   const field = document.querySelector<OrmoFieldElement>("#account-email");
 
   if (field) {
-    field.validator = (value) =>
+    field.validator = async (value) =>
       value.endsWith("@example.com")
         ? null
         : "Use your example.com email address.";
