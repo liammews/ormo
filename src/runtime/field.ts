@@ -1,3 +1,4 @@
+import type { OrmoCheckboxGroupElement } from "../components/checkbox/types";
 import type {
   FieldControlElement,
   FieldState,
@@ -12,12 +13,14 @@ const labelSelector = "[data-ormo-field-label]";
 const descriptionSelector = "[data-ormo-field-description]";
 const errorSelector = "[data-ormo-field-error]";
 const controlSelector = 'input:not([type="hidden"]), select, textarea';
+const checkboxGroupSelector = "ormo-checkbox-group";
 
 let generatedId = 0;
 
 interface FieldParts {
   control: FieldControlElement | undefined;
   controls: FieldControlElement[];
+  group: OrmoCheckboxGroupElement | undefined;
   labels: HTMLLabelElement[];
   descriptions: HTMLElement[];
   errors: HTMLElement[];
@@ -118,17 +121,53 @@ function firstInvalidControl(
     });
 }
 
+function isCheckboxGroup(
+  element: Element | null | undefined,
+): element is OrmoCheckboxGroupElement {
+  return (
+    element instanceof HTMLElement &&
+    element.localName === "ormo-checkbox-group"
+  );
+}
+
+function getGroupValue(group: OrmoCheckboxGroupElement): string {
+  return group.value.slice().sort().join("|");
+}
+
 export function validateField(root: HTMLElement): void {
   if (!import.meta.env.DEV) {
     return;
   }
 
+  const group = Array.from(root.querySelectorAll(checkboxGroupSelector))
+    .filter((element) => belongsToRoot(element, root))
+    .find(isCheckboxGroup);
   const controls = Array.from(root.querySelectorAll(controlSelector))
     .filter((element) => belongsToRoot(element, root))
-    .filter(isFieldControl);
+    .filter(isFieldControl)
+    .filter((control) => !control.closest(checkboxGroupSelector));
   const labels = Array.from(
     root.querySelectorAll<HTMLLabelElement>(labelSelector),
   ).filter((element) => belongsToRoot(element, root));
+
+  if (group) {
+    if (labels.length > 0) {
+      console.warn(
+        "[Ormo Field] Use CheckboxGroup.Label for the group name. Field.Label targets a single control.",
+        root,
+      );
+    }
+
+    if (root.hasAttribute("data-required")) {
+      console.warn(
+        "[Ormo Field] Put required and requiredMessage on CheckboxGroup.Root for at-least-one validation.",
+        root,
+      );
+    }
+
+    return;
+  }
+
   const control = controls[0];
 
   if (!control) {
@@ -187,6 +226,7 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   #observer: MutationObserver | undefined;
   #debounceTimer: ReturnType<typeof setTimeout> | undefined;
   #control: FieldControlElement | undefined;
+  #group: OrmoCheckboxGroupElement | undefined;
   #initialValue = "";
   #initialized = false;
   #invalidOverride = false;
@@ -199,6 +239,7 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   #originalRequired = false;
   #originalReadOnly = false;
   #originalName = "";
+  #originalGroupAriaInvalid: string | null = null;
   #authoredDescribedByIds = new Set<string>();
   #managedDescribedByIds = new Set<string>();
   #managedLabels = new Set<HTMLLabelElement>();
@@ -228,6 +269,12 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     this.addEventListener("input", this.#handleInput, {
       signal: this.#controller.signal,
     });
+    this.addEventListener("change", this.#handleGroupChange, {
+      signal: this.#controller.signal,
+    });
+    this.addEventListener("ormo:value-change", this.#handleGroupChange, {
+      signal: this.#controller.signal,
+    });
     this.addEventListener("focusin", this.#handleFocusIn, {
       signal: this.#controller.signal,
     });
@@ -240,7 +287,8 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     });
 
     const parts = this.#getParts();
-    this.#setControl(parts.control);
+    this.#setGroup(parts.group);
+    this.#setControl(parts.group ? undefined : parts.control);
     this.#prepareRelationships(parts);
     this.#bindForm();
     this.#applyState();
@@ -290,12 +338,15 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   }
 
   get name(): string {
-    return this.#nameOverride ?? this.#control?.name ?? "";
+    return this.#nameOverride ?? this.#group?.name ?? this.#control?.name ?? "";
   }
 
   set name(value: string) {
     this.#nameOverride = value;
     this.setAttribute("name", value);
+    if (this.#group) {
+      this.#group.name = value;
+    }
     this.#applyState();
   }
 
@@ -358,14 +409,22 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   }
 
   async validate(): Promise<boolean> {
+    this.#validated = true;
+    this.#clearDebounce();
+
+    if (this.#group) {
+      await this.#runValidator();
+      const valid = this.#group.checkValidity();
+      this.#applyState();
+      return valid;
+    }
+
     const control = this.#control;
 
     if (!control) {
       return true;
     }
 
-    this.#validated = true;
-    this.#clearDebounce();
     await this.#runValidator();
     const valid = control.checkValidity();
     this.#applyState();
@@ -373,9 +432,13 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   }
 
   #getParts(): FieldParts {
+    const group = Array.from(this.querySelectorAll(checkboxGroupSelector))
+      .filter((element) => belongsToRoot(element, this))
+      .find(isCheckboxGroup);
     const controls = Array.from(this.querySelectorAll(controlSelector))
       .filter((element) => belongsToRoot(element, this))
-      .filter(isFieldControl);
+      .filter(isFieldControl)
+      .filter((control) => !group || !control.closest(checkboxGroupSelector));
     const labels = Array.from(
       this.querySelectorAll<HTMLLabelElement>(labelSelector),
     ).filter((element) => belongsToRoot(element, this));
@@ -387,12 +450,66 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     ).filter((element) => belongsToRoot(element, this));
 
     return {
-      control: controls[0],
+      control: group ? undefined : controls[0],
       controls,
+      group,
       labels,
       descriptions,
       errors,
     };
+  }
+
+  #setGroup(group: OrmoCheckboxGroupElement | undefined): void {
+    if (group === this.#group) {
+      return;
+    }
+
+    this.#releaseGroup();
+    this.#group = group;
+    this.#managedDescribedByIds.clear();
+    this.#authoredDescribedByIds.clear();
+    this.#touched = false;
+    this.#validated = false;
+    this.#focused = false;
+    this.#validatorApplied = false;
+    this.#validating = false;
+    this.#validatorGeneration += 1;
+    this.#clearDebounce();
+
+    if (!group) {
+      this.#initialValue = "";
+      this.#originalGroupAriaInvalid = null;
+      return;
+    }
+
+    this.#initialValue = getGroupValue(group);
+    this.#originalGroupAriaInvalid = group.getAttribute("aria-invalid");
+    this.#authoredDescribedByIds = new Set(
+      getTokens(group.getAttribute("aria-describedby")),
+    );
+    this.#focused = group.contains(group.ownerDocument.activeElement);
+  }
+
+  #releaseGroup(): void {
+    const group = this.#group;
+
+    if (!group) {
+      return;
+    }
+
+    if (this.#originalGroupAriaInvalid === null) {
+      group.removeAttribute("aria-invalid");
+    } else {
+      group.setAttribute("aria-invalid", this.#originalGroupAriaInvalid);
+    }
+
+    const describedBy = Array.from(this.#authoredDescribedByIds).join(" ");
+
+    if (describedBy) {
+      group.setAttribute("aria-describedby", describedBy);
+    } else {
+      group.removeAttribute("aria-describedby");
+    }
   }
 
   #setControl(control: FieldControlElement | undefined): void {
@@ -464,9 +581,10 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   }
 
   #prepareRelationships(parts: FieldParts): void {
-    const { control, labels, descriptions, errors } = parts;
+    const { control, group, labels, descriptions, errors } = parts;
+    const describedTarget = group ?? control;
 
-    if (!control) {
+    if (!describedTarget) {
       return;
     }
 
@@ -475,12 +593,18 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       this.id = `ormo-field-${generatedId}`;
     }
 
-    control.id ||= `${this.id}-control`;
+    if (control) {
+      control.id ||= `${this.id}-control`;
+    }
+
+    if (group && !group.id) {
+      group.id = `${this.id}-group`;
+    }
 
     labels.forEach((label, index) => {
       label.id ||= `${this.id}-label-${index + 1}`;
 
-      if (!label.htmlFor || this.#managedLabels.has(label)) {
+      if (control && (!label.htmlFor || this.#managedLabels.has(label))) {
         label.htmlFor = control.id;
         this.#managedLabels.add(label);
       }
@@ -492,7 +616,7 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       error.id ||= `${this.id}-error-${index + 1}`;
     });
 
-    getTokens(control.getAttribute("aria-describedby"))
+    getTokens(describedTarget.getAttribute("aria-describedby"))
       .filter((id) => !this.#managedDescribedByIds.has(id))
       .forEach((id) => this.#authoredDescribedByIds.add(id));
 
@@ -500,9 +624,10 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   }
 
   #syncDescribedBy(parts: FieldParts): void {
-    const { control, descriptions, errors } = parts;
+    const { control, group, descriptions, errors } = parts;
+    const describedTarget = group ?? control;
 
-    if (!control) {
+    if (!describedTarget) {
       return;
     }
 
@@ -518,16 +643,22 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     ];
 
     if (describedByIds.length > 0) {
-      control.setAttribute("aria-describedby", describedByIds.join(" "));
+      describedTarget.setAttribute(
+        "aria-describedby",
+        describedByIds.join(" "),
+      );
     } else {
-      control.removeAttribute("aria-describedby");
+      describedTarget.removeAttribute("aria-describedby");
     }
   }
 
   #bindForm(): void {
     this.#formController?.abort();
     this.#formController = new AbortController();
-    const form = this.#control?.form;
+    const form =
+      this.#control?.form ??
+      this.#group?.querySelector<HTMLInputElement>("input[type='checkbox']")
+        ?.form;
 
     if (!form) {
       return;
@@ -551,14 +682,30 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
 
   async #runValidator(): Promise<void> {
     const control = this.#control;
+    const group = this.#group;
 
-    if (!control || !this.#validator) {
+    if ((!control && !group) || !this.#validator) {
       this.#validating = false;
       return;
     }
 
     const generation = ++this.#validatorGeneration;
-    const result = this.#validator(getControlValue(control), control);
+    const value = group
+      ? getGroupValue(group)
+      : getControlValue(control as FieldControlElement);
+    // Group fields pass the first member as the control argument when present.
+    const validatorControl =
+      control ??
+      group?.querySelector<HTMLInputElement>(
+        'input[type="checkbox"]:not([data-ormo-checkbox-parent])',
+      );
+
+    if (!validatorControl || !isFieldControl(validatorControl)) {
+      this.#validating = false;
+      return;
+    }
+
+    const result = this.#validator(value, validatorControl);
 
     if (
       result !== null &&
@@ -574,12 +721,13 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
 
         if (
           generation !== this.#validatorGeneration ||
-          control !== this.#control
+          (control && control !== this.#control) ||
+          (group && group !== this.#group)
         ) {
           return;
         }
 
-        control.setCustomValidity(message ?? "");
+        validatorControl.setCustomValidity(message ?? "");
         this.#validatorApplied = true;
       } finally {
         if (generation === this.#validatorGeneration) {
@@ -591,7 +739,9 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     }
 
     this.#validating = false;
-    control.setCustomValidity((result as string | null | undefined) ?? "");
+    validatorControl.setCustomValidity(
+      (result as string | null | undefined) ?? "",
+    );
     this.#validatorApplied = true;
   }
 
@@ -612,11 +762,18 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   }
 
   #getState(parts: FieldParts): FieldState {
-    const { control } = parts;
-    const disabled = this.#disabledOverride || this.#originalDisabled;
+    const { control, group } = parts;
+    const disabled =
+      this.#disabledOverride ||
+      this.#originalDisabled ||
+      Boolean(group?.disabled);
+    const groupInvalid =
+      group !== undefined && this.#validated && !group.checkValidity();
     const invalid =
       this.#invalidOverride ||
       this.#originalAriaInvalid === "true" ||
+      this.#originalGroupAriaInvalid === "true" ||
+      groupInvalid ||
       (this.#validated &&
         !this.#validating &&
         control !== undefined &&
@@ -624,9 +781,17 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
 
     return {
       disabled,
-      dirty: control ? getControlValue(control) !== this.#initialValue : false,
-      filled: control ? isControlFilled(control) : false,
-      focused: control ? this.#focused : false,
+      dirty: group
+        ? getGroupValue(group) !== this.#initialValue
+        : control
+          ? getControlValue(control) !== this.#initialValue
+          : false,
+      filled: group
+        ? group.value.length > 0
+        : control
+          ? isControlFilled(control)
+          : false,
+      focused: group || control ? this.#focused : false,
       invalid,
       touched: this.#touched,
       valid: this.#validated && !this.#validating && !invalid,
@@ -682,17 +847,35 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     }
   }
 
+  #applyGroupAttributes(group: OrmoCheckboxGroupElement): void {
+    if (this.#disabledOverride) {
+      group.disabled = true;
+    }
+
+    if (this.#nameOverride !== undefined) {
+      group.name = this.#nameOverride;
+    }
+  }
+
   #applyState(): void {
     const parts = this.#getParts();
-    const { control, labels, descriptions, errors } = parts;
+    const { control, group, labels, descriptions, errors } = parts;
 
-    if (control !== this.#control) {
-      this.#setControl(control);
+    if (group !== this.#group) {
+      this.#setGroup(group);
       this.#prepareRelationships(parts);
       this.#bindForm();
     }
 
-    if (control) {
+    if (control !== this.#control) {
+      this.#setControl(group ? undefined : control);
+      this.#prepareRelationships(parts);
+      this.#bindForm();
+    }
+
+    if (group) {
+      this.#applyGroupAttributes(group);
+    } else if (control) {
       this.#applyControlAttributes(control);
     }
 
@@ -703,6 +886,7 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       ...descriptions,
       ...errors,
       ...(control ? [control] : []),
+      ...(group ? [group] : []),
     ];
 
     setStateAttribute(stateElements, "data-disabled", state.disabled);
@@ -724,12 +908,34 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       }
     }
 
+    if (group) {
+      if (state.invalid) {
+        group.setAttribute("aria-invalid", "true");
+      } else if (this.#originalGroupAriaInvalid === null) {
+        group.removeAttribute("aria-invalid");
+      } else {
+        group.setAttribute("aria-invalid", this.#originalGroupAriaInvalid);
+      }
+    }
+
+    const validityControl =
+      control ??
+      group?.querySelector<HTMLInputElement>(
+        'input[type="checkbox"]:not([data-ormo-checkbox-parent])',
+      );
+
     errors.forEach((error) => {
       if (!error.hasAttribute("role")) {
         error.setAttribute("role", "alert");
       }
 
-      error.hidden = !this.#errorMatches(error, control, state);
+      error.hidden = !this.#errorMatches(
+        error,
+        validityControl && isFieldControl(validityControl)
+          ? validityControl
+          : undefined,
+        state,
+      );
     });
 
     this.#syncDescribedBy(parts);
@@ -755,6 +961,18 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     return event.target === this.#control;
   }
 
+  #isGroupEvent(event: Event): boolean {
+    const group = this.#group;
+    if (!group) {
+      return false;
+    }
+
+    const target = event.target;
+    return (
+      target instanceof Node && (target === group || group.contains(target))
+    );
+  }
+
   #handleInput = (event: Event): void => {
     if (!this.#isControlEvent(event)) {
       return;
@@ -771,15 +989,49 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     this.#applyState();
   };
 
+  #handleGroupChange = (event: Event): void => {
+    if (!this.#group || !this.#isGroupEvent(event)) {
+      return;
+    }
+
+    if (this.validationMode === "onChange") {
+      this.#validated = true;
+    }
+
+    if (this.#validated) {
+      this.#scheduleValidation();
+    }
+
+    this.#applyState();
+  };
+
   #handleFocusIn = (event: FocusEvent): void => {
-    if (this.#isControlEvent(event)) {
+    if (this.#isControlEvent(event) || this.#isGroupEvent(event)) {
       this.#focused = true;
       this.#applyState();
     }
   };
 
   #handleFocusOut = (event: FocusEvent): void => {
-    if (!this.#isControlEvent(event)) {
+    const related = event.relatedTarget;
+    const stayingInGroup =
+      this.#group && related instanceof Node && this.#group.contains(related);
+
+    if (this.#isControlEvent(event)) {
+      this.#focused = false;
+      this.#touched = true;
+
+      if (this.validationMode === "onBlur") {
+        this.#validated = true;
+        this.#clearDebounce();
+        void this.#runValidator().then(() => this.#applyState());
+      }
+
+      this.#applyState();
+      return;
+    }
+
+    if (!this.#isGroupEvent(event) || stayingInGroup) {
       return;
     }
 
@@ -796,7 +1048,7 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   };
 
   #handleInvalid = (event: Event): void => {
-    if (!this.#isControlEvent(event)) {
+    if (!this.#isControlEvent(event) && !this.#isGroupEvent(event)) {
       return;
     }
 
@@ -810,8 +1062,9 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   #handleReset = (): void => {
     queueMicrotask(() => {
       const control = this.#control;
+      const group = this.#group;
 
-      if (!control) {
+      if (!control && !group) {
         return;
       }
 
@@ -819,22 +1072,29 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       this.#validatorGeneration += 1;
       this.#validating = false;
 
-      if (this.#validatorApplied) {
+      if (this.#validatorApplied && control) {
         control.setCustomValidity("");
         this.#validatorApplied = false;
       }
 
-      this.#initialValue = getControlValue(control);
+      this.#initialValue = group
+        ? getGroupValue(group)
+        : getControlValue(control as FieldControlElement);
       this.#touched = false;
       this.#validated = false;
-      this.#focused = control === control.ownerDocument.activeElement;
+      this.#focused = group
+        ? group.contains(group.ownerDocument.activeElement)
+        : control === control?.ownerDocument.activeElement;
       this.#applyState();
     });
   };
 
   #handleSubmit = (event: SubmitEvent): void => {
     const control = this.#control;
-    const form = control?.form;
+    const group = this.#group;
+    const form =
+      control?.form ??
+      group?.querySelector<HTMLInputElement>("input[type='checkbox']")?.form;
 
     if (form && resumableSubmitForms.has(form)) {
       return;
@@ -849,6 +1109,11 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       event.preventDefault();
       void validation.then(() => {
         this.#applyState();
+
+        if (group && !group.checkValidity()) {
+          group.reportValidity();
+          return;
+        }
 
         if (control && !control.checkValidity()) {
           control.focus();
@@ -909,9 +1174,17 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   #handleMutations = (): void => {
     const parts = this.#getParts();
     const controlChanged = parts.control !== this.#control;
+    const groupChanged = parts.group !== this.#group;
+
+    if (groupChanged) {
+      this.#setGroup(parts.group);
+    }
 
     if (controlChanged) {
-      this.#setControl(parts.control);
+      this.#setControl(parts.group ? undefined : parts.control);
+    }
+
+    if (controlChanged || groupChanged) {
       this.#bindForm();
     }
 

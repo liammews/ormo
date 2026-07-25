@@ -1,0 +1,7 @@
+/* Behaviour-critical: decorative indicators must not steal pointer input
+   from the native checkbox (GD-006 / GD-015). Wrapped in :where() so
+   consumer classes can override when they intentionally need hits. */
+
+:where([data-ormo-checkbox-indicator]) {
+  pointer-events: none;
+}

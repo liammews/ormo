@@ -1,0 +1,26 @@
+---
+import { Checkbox } from "@ormo/primitives/checkbox";
+import * as CheckboxGroup from "@ormo/primitives/checkbox/group";
+import "./index.css";
+---
+
+<CheckboxGroup.Root
+  class="checkbox-group"
+  name="features"
+  defaultValue={["beta"]}
+  disabled
+>
+  <CheckboxGroup.Label class="checkbox-group-label">
+    Features
+  </CheckboxGroup.Label>
+  <div class="checkbox-stack">
+    <label class="checkbox-field">
+      <Checkbox class="checkbox" value="beta" />
+      Beta access
+    </label>
+    <label class="checkbox-field">
+      <Checkbox class="checkbox" value="analytics" />
+      Usage analytics
+    </label>
+  </div>
+</CheckboxGroup.Root>

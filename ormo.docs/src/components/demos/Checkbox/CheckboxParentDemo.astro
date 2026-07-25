@@ -1,0 +1,31 @@
+---
+import { Checkbox } from "@ormo/primitives/checkbox";
+import * as CheckboxGroup from "@ormo/primitives/checkbox/group";
+import "./index.css";
+---
+
+<CheckboxGroup.Root
+  class="checkbox-group"
+  name="apples"
+  defaultValue={["fuji"]}
+>
+  <CheckboxGroup.Label class="checkbox-group-label">Apples</CheckboxGroup.Label>
+  <div class="checkbox-stack">
+    <label class="checkbox-field checkbox-parent-row">
+      <Checkbox class="checkbox" parent />
+      Select all
+    </label>
+    <label class="checkbox-field">
+      <Checkbox class="checkbox" value="fuji" />
+      Fuji
+    </label>
+    <label class="checkbox-field">
+      <Checkbox class="checkbox" value="gala" />
+      Gala
+    </label>
+    <label class="checkbox-field">
+      <Checkbox class="checkbox" value="granny" />
+      Granny Smith
+    </label>
+  </div>
+</CheckboxGroup.Root>

@@ -1,0 +1,62 @@
+---
+import { getCheckboxGroupSsrContext } from "../../internal/checkbox-group-ssr-context";
+import Runtime from "./Runtime.astro";
+import type { CheckboxProps } from "./types";
+
+type Props = CheckboxProps;
+
+const {
+  indeterminate = false,
+  parent = false,
+  name,
+  value,
+  checked,
+  disabled = false,
+  ...attributes
+} = Astro.props as CheckboxProps & {
+  indeterminate?: boolean;
+  parent?: boolean;
+  name?: string;
+  value?: string | number | string[];
+  checked?: boolean | string;
+  disabled?: boolean;
+};
+
+const group = getCheckboxGroupSsrContext();
+const stringValue =
+  value === undefined || Array.isArray(value) ? undefined : String(value);
+
+const resolvedName = parent ? undefined : (name ?? group?.name);
+const itemDisabled = Boolean(disabled);
+const resolvedDisabled = itemDisabled || Boolean(group?.disabled);
+const fromDefault =
+  !parent &&
+  stringValue !== undefined &&
+  group !== undefined &&
+  group.defaultValue.has(stringValue);
+const resolvedChecked =
+  parent || indeterminate
+    ? undefined
+    : checked !== undefined
+      ? checked
+      : fromDefault
+        ? true
+        : undefined;
+
+const needsRuntime = import.meta.env.DEV || Boolean(indeterminate);
+---
+
+<input
+  {...attributes}
+  type="checkbox"
+  name={resolvedName}
+  value={parent ? undefined : value}
+  checked={resolvedChecked || undefined}
+  disabled={resolvedDisabled || undefined}
+  data-ormo-checkbox
+  data-ormo-checkbox-parent={parent ? "" : undefined}
+  data-item-disabled={itemDisabled ? "" : undefined}
+  data-indeterminate={indeterminate ? "" : undefined}
+  data-disabled={resolvedDisabled ? "" : undefined}
+/>
+{needsRuntime && <Runtime />}

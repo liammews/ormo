@@ -1,0 +1,41 @@
+---
+import { Checkbox } from "@ormo/primitives/checkbox";
+import * as CheckboxGroup from "@ormo/primitives/checkbox/group";
+import * as Field from "@ormo/primitives/field";
+import "./index.css";
+---
+
+<form>
+  <Field.Root class="checkbox-group" name="protocols">
+    <CheckboxGroup.Root
+      name="protocols"
+      required
+      requiredMessage="Select at least one protocol."
+    >
+      <CheckboxGroup.Label class="checkbox-group-label">
+        Allowed protocols
+      </CheckboxGroup.Label>
+      <div class="checkbox-stack">
+        <label class="checkbox-field">
+          <Checkbox class="checkbox" value="http" />
+          HTTP
+        </label>
+        <label class="checkbox-field">
+          <Checkbox class="checkbox" value="https" />
+          HTTPS
+        </label>
+        <label class="checkbox-field">
+          <Checkbox class="checkbox" value="ssh" />
+          SSH
+        </label>
+      </div>
+    </CheckboxGroup.Root>
+    <Field.Description class="checkbox-hint">
+      Choose the protocols this service may accept.
+    </Field.Description>
+    <Field.Error class="checkbox-error" match="customError">
+      Select at least one protocol.
+    </Field.Error>
+  </Field.Root>
+  <button type="submit" style="margin-block-start: 0.75rem">Save</button>
+</form>

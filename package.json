@@ -26,6 +26,18 @@
       "types": "./src/components/button/index.ts",
       "import": "./src/components/button/index.ts"
     },
+    "./breadcrumbs": {
+      "types": "./src/components/breadcrumbs/index.ts",
+      "import": "./src/components/breadcrumbs/index.ts"
+    },
+    "./checkbox": {
+      "types": "./src/components/checkbox/index.ts",
+      "import": "./src/components/checkbox/index.ts"
+    },
+    "./checkbox/group": {
+      "types": "./src/components/checkbox/group.ts",
+      "import": "./src/components/checkbox/group.ts"
+    },
     "./dialog": {
       "types": "./src/components/dialog/index.ts",
       "import": "./src/components/dialog/index.ts"
@@ -74,8 +86,9 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run --passWithNoTests && vitest run --config vitest.astro.config.ts --passWithNoTests",
     "test:watch": "vitest",
+    "test:astro": "vitest run --config vitest.astro.config.ts",
     "test:browser": "pnpm docs:build && playwright test",
     "validate:library": "pnpm format:check && pnpm lint && pnpm check && pnpm test",
     "validate:docs": "pnpm --dir ormo.docs validate",

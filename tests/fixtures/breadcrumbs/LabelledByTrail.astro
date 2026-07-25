@@ -1,0 +1,15 @@
+---
+import * as Breadcrumbs from "../../../src/components/breadcrumbs/index";
+---
+
+<Breadcrumbs.Root aria-labelledby="crumb-heading">
+  <h2 id="crumb-heading">You are here</h2>
+  <Breadcrumbs.List>
+    <Breadcrumbs.Item>
+      <Breadcrumbs.Link href="/">Home</Breadcrumbs.Link>
+    </Breadcrumbs.Item>
+    <Breadcrumbs.Item>
+      <Breadcrumbs.Page>Current</Breadcrumbs.Page>
+    </Breadcrumbs.Item>
+  </Breadcrumbs.List>
+</Breadcrumbs.Root>

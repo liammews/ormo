@@ -4,5 +4,6 @@ export default defineConfig({
   test: {
     environment: "happy-dom",
     include: ["tests/unit/**/*.test.ts"],
+    exclude: ["tests/unit/**/*.astro.test.ts"],
   },
 });
