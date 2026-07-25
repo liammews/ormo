@@ -38,6 +38,7 @@ const ssrContext = {
   rootId,
   labelId,
   hasLabel: false,
+  memberValues: [] as string[],
 };
 
 const content = await renderWithCheckboxGroupContext(ssrContext, () =>
@@ -46,6 +47,16 @@ const content = await renderWithCheckboxGroupContext(ssrContext, () =>
 
 const resolvedLabelledBy =
   ariaLabelledBy ?? (ssrContext.hasLabel ? labelId : undefined);
+
+const checkedCount = ssrContext.memberValues.filter((value) =>
+  ssrContext.defaultValue.has(value),
+).length;
+const dataState =
+  checkedCount === 0
+    ? "none"
+    : checkedCount === ssrContext.memberValues.length
+      ? "all"
+      : "partial";
 ---
 
 <ormo-checkbox-group
@@ -55,7 +66,7 @@ const resolvedLabelledBy =
   aria-labelledby={resolvedLabelledBy}
   aria-label={ariaLabel}
   data-ormo-checkbox-group
-  data-state="none"
+  data-state={dataState}
   data-disabled={disabled ? "" : undefined}
   data-required={required ? "" : undefined}
   data-name={name}

@@ -17,7 +17,11 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   ...astro.configs.recommended,
   {
-    files: ["src/components/**/index.ts"],
+    files: [
+      "src/components/**/index.ts",
+      "src/components/**/group.ts",
+      "src/components/**/floating.ts",
+    ],
     rules: {
       "@typescript-eslint/ban-ts-comment": [
         "error",

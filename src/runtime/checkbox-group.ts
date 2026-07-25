@@ -53,15 +53,6 @@ function parseDefaultValue(raw: string | undefined): string[] {
   }
 }
 
-function valuesEqual(left: string[], right: string[]): boolean {
-  if (left.length !== right.length) {
-    return false;
-  }
-
-  const rightSet = new Set(right);
-  return left.every((value) => rightSet.has(value));
-}
-
 export function validateCheckboxGroup(root: HTMLElement): void {
   if (!import.meta.env.DEV) {
     return;
@@ -155,7 +146,6 @@ export class OrmoCheckboxGroup
   #controller: AbortController | undefined;
   #observer: MutationObserver | undefined;
   #initialized = false;
-  #initialValue: string[] = [];
   #validityTarget: HTMLInputElement | undefined;
   #suppressEvents = false;
 
@@ -165,7 +155,6 @@ export class OrmoCheckboxGroup
     if (!this.#initialized) {
       this.#applyName();
       this.#applyDisabled();
-      this.#initialValue = this.#readMemberValues();
       this.#initialized = true;
     }
 
