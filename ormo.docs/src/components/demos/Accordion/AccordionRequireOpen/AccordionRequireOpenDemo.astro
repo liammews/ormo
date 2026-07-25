@@ -4,12 +4,7 @@ import { ChevronDown } from "@lucide/astro";
 import "../index.css";
 ---
 
-<Accordion.Root
-  class="accordion"
-  collapsible={false}
-  defaultValue="shipping"
-  data-accordion-demo="require-open"
->
+<Accordion.Root class="accordion" collapsible={false} defaultValue="shipping">
   <Accordion.Item class="accordion-item" value="shipping">
     <Accordion.Header class="accordion-header" as="h2">
       <Accordion.Trigger class="accordion-trigger">

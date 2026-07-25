@@ -1,14 +1,9 @@
 ---
 import * as Tabs from "@ormo/primitives/tabs";
-import "./TabsDemo.css";
+import "./index.css";
 ---
 
-<Tabs.Root
-  class="tabs"
-  data-tabs-demo="vertical"
-  defaultValue="overview"
-  orientation="vertical"
->
+<Tabs.Root class="tabs" defaultValue="overview" orientation="vertical">
   <Tabs.List class="tabs-list" aria-label="Settings">
     <Tabs.Tab class="tabs-tab" value="overview">Overview</Tabs.Tab>
     <Tabs.Tab class="tabs-tab" value="team">Team</Tabs.Tab>

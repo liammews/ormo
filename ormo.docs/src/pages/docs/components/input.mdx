@@ -6,10 +6,13 @@ description: "A text input component"
 
 import InputDemo from "../../../components/demos/Input/InputDemo.astro";
 import inputDemoCode from "../../../components/demos/Input/InputDemo.astro?raw";
+import inputCss from "../../../components/demos/Input/index.css?raw";
 import InputErrorDemo from "../../../components/demos/Input/InputErrorDemo.astro";
 import inputErrorDemoCode from "../../../components/demos/Input/InputErrorDemo.astro?raw";
+import inputErrorCss from "../../../components/demos/Input/error.css?raw";
 import InputDisabledDemo from "../../../components/demos/Input/InputDisabledDemo.astro";
 import inputDisabledDemoCode from "../../../components/demos/Input/InputDisabledDemo.astro?raw";
+import inputDisabledCss from "../../../components/demos/Input/disabled.css?raw";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
@@ -17,29 +20,38 @@ Input is a thin native <code>&lt;input&gt;</code> wrapper. For labels, descripti
 
 ## Default
 
-<div data-input-demo>
-  <DemoBlock code={inputDemoCode}>
-    <InputDemo />
-  </DemoBlock>
-</div>
+<DemoBlock
+  files={[
+    { filename: "Input.astro", code: inputDemoCode },
+    { filename: "index.css", code: inputCss },
+  ]}
+>
+  <InputDemo />
+</DemoBlock>
 
 ## Error
 
-<div data-input-error-demo>
-  <DemoBlock code={inputErrorDemoCode}>
-    <InputErrorDemo />
-  </DemoBlock>
-</div>
+<DemoBlock
+  files={[
+    { filename: "Input.astro", code: inputErrorDemoCode },
+    { filename: "error.css", code: inputErrorCss },
+  ]}
+>
+  <InputErrorDemo />
+</DemoBlock>
 
 ## Disabled
 
-<div data-input-disabled-demo>
-  <DemoBlock code={inputDisabledDemoCode}>
-    <InputDisabledDemo />
-  </DemoBlock>
-</div>
+<DemoBlock
+  files={[
+    { filename: "Input.astro", code: inputDisabledDemoCode },
+    { filename: "disabled.css", code: inputDisabledCss },
+  ]}
+>
+  <InputDisabledDemo />
+</DemoBlock>
 
-## With Field
+## Using Field
 
 ```astro
 ---
@@ -110,3 +122,7 @@ Input renders a native <code>&lt;input&gt;</code>, forwards its HTML attributes,
     },
   ]}
 />
+
+## Development toolbar
+
+The [Ormo development toolbar](/docs/dev-toolbar) currently has no component-specific checks for Input. Supported Ormo primitives nested nearby or elsewhere on the page are still scanned. Continue to provide an associated label, communicate validation clearly, and test the complete input with keyboard and screen-reader workflows.

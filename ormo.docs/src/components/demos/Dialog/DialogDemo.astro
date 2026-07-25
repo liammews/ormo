@@ -1,9 +1,9 @@
 ---
 import * as Dialog from "@ormo/primitives/dialog";
-import "./DialogDemo.css";
+import "./index.css";
 ---
 
-<div class="dialog-demo" data-dialog-demo>
+<div data-profile-editor>
   <Dialog.Root>
     <Dialog.Trigger class="dialog-trigger">Edit profile</Dialog.Trigger>
 
@@ -39,15 +39,15 @@ import "./DialogDemo.css";
     </Dialog.Content>
   </Dialog.Root>
 
-  <p class="dialog-status" aria-live="polite" data-dialog-status></p>
+  <p class="dialog-status" aria-live="polite" data-profile-status></p>
 </div>
 
 <script>
-  for (const demo of document.querySelectorAll<HTMLElement>(
-    "[data-dialog-demo]",
+  for (const editor of document.querySelectorAll<HTMLElement>(
+    "[data-profile-editor]",
   )) {
-    const save = demo.querySelector<HTMLElement>("[data-save-profile]");
-    const status = demo.querySelector<HTMLElement>("[data-dialog-status]");
+    const save = editor.querySelector<HTMLElement>("[data-save-profile]");
+    const status = editor.querySelector<HTMLElement>("[data-profile-status]");
     save?.addEventListener("click", () => {
       if (status) status.textContent = "Profile saved.";
     });

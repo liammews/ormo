@@ -6,21 +6,30 @@ description: "A modal dialog that interrupts a workflow with an important messag
 
 import AlertDialogDemo from "../../../components/demos/AlertDialog/AlertDialogDemo.astro";
 import alertDialogDemoCode from "../../../components/demos/AlertDialog/AlertDialogDemo.astro?raw";
+import alertDialogDemoCss from "../../../components/demos/AlertDialog/index.css?raw";
 import AlertDialogInitialFocusDemo from "../../../components/demos/AlertDialog/AlertDialogInitialFocusDemo.astro";
 import alertDialogInitialFocusDemoCode from "../../../components/demos/AlertDialog/AlertDialogInitialFocusDemo.astro?raw";
 import AlertDialogPendingDemo from "../../../components/demos/AlertDialog/AlertDialogPendingDemo.astro";
 import alertDialogPendingDemoCode from "../../../components/demos/AlertDialog/AlertDialogPendingDemo.astro?raw";
+import alertDialogPendingDemoCss from "../../../components/demos/AlertDialog/pending.css?raw";
 import AlertDialogDetachedTriggerDemo from "../../../components/demos/AlertDialog/AlertDialogDetachedTriggerDemo.astro";
 import alertDialogDetachedTriggerDemoCode from "../../../components/demos/AlertDialog/AlertDialogDetachedTriggerDemo.astro?raw";
 import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
+## Default
+
 Alert Dialog uses the native <code>&lt;dialog&gt;</code> element as a modal alert dialog. It makes the rest of the page inert, contains keyboard focus, focuses the least destructive action by default, closes with <kbd>Escape</kbd>, and returns focus to its trigger.
 
-Use Alert Dialog only when an important message requires an immediate response, such as confirming an irreversible action. Use a standard Dialog for interactions that do not interrupt the user's workflow.
+Use Alert Dialog only when an important message requires an immediate response, such as confirming an irreversible action. Use a standard [Dialog](/docs/components/dialog) for interactions that do not interrupt the user's workflow.
 
-<DemoBlock code={alertDialogDemoCode}>
+<DemoBlock
+  files={[
+    { filename: "AlertDialog.astro", code: alertDialogDemoCode },
+    { filename: "index.css", code: alertDialogDemoCss },
+  ]}
+>
   <AlertDialogDemo />
 </DemoBlock>
 
@@ -53,9 +62,13 @@ Content always renders <code>&lt;dialog role="alertdialog" aria-modal="true"&gt;
 
 Add <code>for</code> with a Root <code>id</code> when a Trigger must be rendered somewhere else in the document. The value is an ID without a leading <code>#</code>. Multiple detached and descendant triggers can control the same Root.
 
-Ormo connects every matching Trigger to Content with <code>aria-controls</code>, synchronizes its open state, and restores focus to the specific Trigger that opened the dialog.
+Ormo connects every matching Trigger to Content with <code>aria-controls</code>, synchronises its open state, and restores focus to the specific Trigger that opened the dialog.
 
-<DemoBlock code={alertDialogDetachedTriggerDemoCode}>
+<DemoBlock
+  files={[
+    { filename: "AlertDialog.astro", code: alertDialogDetachedTriggerDemoCode },
+  ]}
+>
   <AlertDialogDetachedTriggerDemo />
 </DemoBlock>
 
@@ -63,7 +76,11 @@ Ormo connects every matching Trigger to Content with <code>aria-controls</code>,
 
 Cancel receives initial focus by default because it is normally the least destructive response. Add native <code>autofocus</code> to another control when the alert only communicates information or another response is clearly safer and more likely.
 
-<DemoBlock code={alertDialogInitialFocusDemoCode}>
+<DemoBlock
+  files={[
+    { filename: "AlertDialog.astro", code: alertDialogInitialFocusDemoCode },
+  ]}
+>
   <AlertDialogInitialFocusDemo />
 </DemoBlock>
 
@@ -86,9 +103,14 @@ if (succeeded) root?.close("delete");
 
 ### Pending actions
 
-Action and Cancel use the Ormo Button primitive internally, so they support its <code>pending</code>, <code>disabled</code>, and <code>focusableWhenDisabled</code> states. Pending is presentational state only. Disable the action explicitly to prevent repeat activation, set <code>aria-busy</code> on Content, and announce the eventual result outside the dialog.
+Action and Cancel use the Ormo [Button](/docs/components/button) primitive internally, so they support its <code>pending</code>, <code>disabled</code>, and <code>focusableWhenDisabled</code> states. Pending is presentational state only. Disable the action explicitly to prevent repeat activation, set <code>aria-busy</code> on Content, and announce the eventual result outside the dialog.
 
-<DemoBlock code={alertDialogPendingDemoCode}>
+<DemoBlock
+  files={[
+    { filename: "AlertDialog.astro", code: alertDialogPendingDemoCode },
+    { filename: "pending.css", code: alertDialogPendingDemoCss },
+  ]}
+>
   <AlertDialogPendingDemo />
 </DemoBlock>
 
@@ -362,7 +384,7 @@ There is no Astro <code>open</code> or <code>defaultOpen</code> prop. Open Alert
 
 Follow the [WAI-ARIA Alert Dialog pattern](https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/). Every alert dialog needs a concise accessible name and description. Prefer the visible Title and Description parts; use explicit ARIA relationships only when another visible element provides the same information.
 
-Keep the alert message brief enough to be understood when announced as one description. A standard Dialog is more appropriate for long, structured, or exploratory content.
+Keep the alert message brief enough to be understood when announced as one description. A standard [Dialog](/docs/components/dialog) is more appropriate for long, structured, or exploratory content.
 
 Alert Dialog uses native modal behaviour, which makes the rest of the document inert and provides a backdrop. Do not remove the visual distinction between the dialog and inert page content. Always include at least one visible response button.
 
@@ -374,7 +396,20 @@ Nested alert dialogs are supported: focus remains within the topmost dialog, clo
 
 Development builds report a missing Content, accessible name, description, response control, multiple Content elements, or a detached Trigger with an invalid target in the browser console.
 
-## Keyboard behavior
+## Development toolbar
+
+With the optional [Ormo development toolbar](/docs/dev-toolbar) enabled, Astro’s toolbar scans rendered Alert Dialogs and flags common composition mistakes:
+
+- Detached Triggers with an empty or invalid Root target
+- Roots with no Content part or more than one Content part
+- Content without a Title or another accessible name
+- Content without a Description or <code>aria-describedby</code>
+- Content without a Cancel or Action response
+- Invalid <code>finalFocus</code> CSS selectors, or selectors that do not match an available programmatically focusable element
+
+Select an issue in the toolbar to jump to the element. These checks catch structural mistakes during development; they do not replace keyboard and screen-reader testing.
+
+## Keyboard behaviour
 
 - <kbd>Tab</kbd> moves focus to the next focusable element inside Content and
   wraps from the last element to the first.
@@ -384,13 +419,13 @@ Development builds report a missing Content, accessible name, description, respo
   the native <code>cancel</code> event is prevented.
 - Activating Cancel or Action closes Content after consumer click handlers run.
 
-The native modal dialog supplies focus containment and Escape behaviour. Ormo supplies initial focus selection, state synchronization, response controls, events, and focus restoration.
+The native modal dialog supplies focus containment and Escape behaviour. Ormo supplies initial focus selection, state synchronisation, response controls, events, and focus restoration.
 
 ## Styling
 
-Pass your own <code>class</code> values to each part. Public part state hooks are <code>data-state="open|closed"</code>, <code>data-open</code>, Content's brief <code>data-starting-style</code> / <code>data-ending-style</code> transition attributes, and Button's <code>data-disabled</code> / <code>data-pending</code> on Action and Cancel. Attributes prefixed with <code>data-ormo-\*</code> on primitive parts are internal runtime selectors, not styling APIs.
+Pass your own <code>class</code> values to each part. Public part state hooks are <code>data-state="open|closed"</code>, <code>data-open</code>, Content's brief <code>data-starting-style</code> / <code>data-ending-style</code> transition attributes, and [Button](/docs/components/button)'s <code>data-disabled</code> / <code>data-pending</code> on Action and Cancel. Attributes prefixed with <code>data-ormo-\*</code> on primitive parts are internal runtime selectors, not styling APIs.
 
-While any Ormo modal is open, the document element exposes <code>data-ormo-scroll-locked</code>. That attribute is shared document-level state for Dialog and Alert Dialog — use it to observe or style around background scroll locking. It remains until the final nested or sibling modal closes.
+While any Ormo modal is open, the document element exposes <code>data-ormo-scroll-locked</code>. That attribute is shared document-level state for [Dialog](/docs/components/dialog) and Alert Dialog — use it to observe or style around background scroll locking. It remains until the final nested or sibling modal closes.
 
 Style the modal surface through your Content class and the inert-page overlay through that class's <code>::backdrop</code>. Native discrete transitions can keep a closing dialog in the top layer without requiring Ormo to delay its semantic closed state:
 
@@ -423,6 +458,6 @@ Ormo applies no component CSS. Consumers are responsible for a visible modal sur
 
 Alert Dialog always loads one Astro-processed, deduplicated runtime because opening a native dialog from a separate Trigger and coordinating its parts requires client behaviour. One document-scoped listener and observer coordinate descendant, detached, and dynamically inserted Triggers regardless of how many Alert Dialogs are rendered. The browser continues to own the modal top layer, outside-page inertness, and Escape interaction. Ormo locks background document scrolling and supplies a visibility-aware Tab sequence because native focus wrapping is not consistent across engines.
 
-Scroll locking is shared with Dialog and remains active until the final nested or sibling modal closes. An authored inline <code>overflow</code> value is restored afterward.
+Scroll locking is shared with [Dialog](/docs/components/dialog) and remains active until the final nested or sibling modal closes. An authored inline <code>overflow</code> value is restored afterward.
 
 Before an Astro client-router document swap, an open alert dialog closes synchronously and restores focus. This lets Astro's own focus-preservation step begin from a meaningful element rather than from content that is about to be removed.

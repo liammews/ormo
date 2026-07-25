@@ -1,0 +1,5 @@
+.button[data-disabled] {
+  background: var(--surface-disabled);
+  color: var(--content-disabled);
+  cursor: not-allowed;
+}

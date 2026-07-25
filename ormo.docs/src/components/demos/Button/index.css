@@ -1,4 +1,4 @@
-.button-demo-field {
+.button-field {
   display: grid;
   gap: var(--space-25);
   margin-block-end: var(--space-100);
@@ -7,7 +7,7 @@
   color: var(--content-default);
 }
 
-.button-demo-field input {
+.button-field input {
   min-height: 2.5rem;
   border: 1px solid var(--border-default);
   border-radius: var(--radius-2);
@@ -17,7 +17,7 @@
   font: inherit;
 }
 
-.button-demo-control {
+.button {
   display: inline-flex;
   min-width: 0;
   min-height: 2.75rem;
@@ -40,51 +40,21 @@
     transform var(--duration-1) var(--ease-1);
 }
 
-.button-demo-control:hover:not([data-disabled]) {
+.button:hover:not([data-disabled]) {
   background: var(--content-subtle);
 }
 
-.button-demo-control:active:not([data-disabled]) {
+.button:active:not([data-disabled]) {
   transform: translateY(1px);
 }
 
-.button-demo-control:focus-visible {
+.button:focus-visible {
   outline: var(--focus-width) solid var(--focus-default);
   outline-offset: var(--focus-offset);
 }
 
-.button-demo-control[data-disabled] {
-  background: var(--surface-disabled);
-  color: var(--content-disabled);
-  cursor: not-allowed;
-}
-
-.button-demo-spinner {
-  display: none;
-  width: 1em;
-  height: 1em;
-  border: 0.125em solid currentColor;
-  border-inline-end-color: transparent;
-  border-radius: 50%;
-  animation: button-demo-spin 700ms linear infinite;
-}
-
-.button-demo-control[data-pending] .button-demo-spinner {
-  display: inline-block;
-}
-
-@keyframes button-demo-spin {
-  to {
-    transform: rotate(1turn);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .button-demo-control {
+  .button {
     transition: none;
-  }
-
-  .button-demo-spinner {
-    animation: none;
   }
 }

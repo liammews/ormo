@@ -1,19 +1,15 @@
 ---
 import { Button } from "@ormo/primitives/button";
-import "./ButtonDemo.css";
+import "./index.css";
+import "./disabled.css";
 ---
 
-<form data-button-demo="submit-guard" method="get" action="#">
-  <label class="button-demo-field">
+<form method="get" action="#">
+  <label class="button-field">
     <span>Display name</span>
     <input name="name" value="Ormo" />
   </label>
-  <Button
-    class="button-demo-control"
-    type="submit"
-    disabled
-    focusableWhenDisabled
-  >
+  <Button class="button" type="submit" disabled focusableWhenDisabled>
     Save profile
   </Button>
 </form>

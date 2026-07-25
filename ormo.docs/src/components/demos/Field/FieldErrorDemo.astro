@@ -1,26 +1,22 @@
 ---
 import * as Field from "@ormo/primitives/field";
-import "./FieldDemo.css";
+import "./index.css";
 ---
 
-<Field.Root class="field-demo" invalid name="email">
-  <Field.Label class="field-demo-label" for="field-error-demo-email">
+<Field.Root class="field" invalid name="email">
+  <Field.Label class="field-label" for="invalid-email">
     Email address
   </Field.Label>
   <Field.Control
-    class="field-demo-input"
-    id="field-error-demo-email"
+    class="field-input"
+    id="invalid-email"
     type="email"
     value="not-an-email"
     autocomplete="email"
     aria-invalid="true"
-    aria-describedby="field-error-demo-message"
+    aria-describedby="invalid-email-message"
   />
-  <Field.Error
-    class="field-demo-error"
-    id="field-error-demo-message"
-    match={true}
-  >
+  <Field.Error class="field-error" id="invalid-email-message" match={true}>
     Enter an email address in the format name@example.com.
   </Field.Error>
 </Field.Root>

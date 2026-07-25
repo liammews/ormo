@@ -1,25 +1,21 @@
 ---
 import { Input } from "@ormo/primitives/input";
-import "./InputErrorDemo.css";
+import "./index.css";
+import "./error.css";
 ---
 
-<div class="input-demo">
-  <label class="input-demo-label" for="input-error-demo-email">
-    Email address
-  </label>
+<div class="input-field">
+  <label class="input-label" for="recovery-email"> Email address </label>
   <Input
-    class="input-demo-input"
-    id="input-error-demo-email"
+    class="input"
+    id="recovery-email"
     name="email"
     type="email"
     value="not-an-email"
     aria-invalid="true"
-    aria-describedby="input-error-demo-email-message"
+    aria-describedby="recovery-email-error"
   />
-  <p
-    class="input-demo-hint input-demo-error"
-    id="input-error-demo-email-message"
-  >
+  <p class="input-hint input-error" id="recovery-email-error">
     Enter an email address in the format name@example.com.
   </p>
 </div>

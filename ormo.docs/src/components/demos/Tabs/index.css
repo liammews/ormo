@@ -79,27 +79,3 @@
 .tabs-panel[hidden] {
   display: none;
 }
-
-.tabs-controlled-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-50);
-  align-items: center;
-}
-
-.tabs-controlled-button {
-  margin: 0;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-2);
-  padding: var(--space-25) var(--space-50);
-  background: var(--surface-elevated);
-  color: var(--content-default);
-  font: inherit;
-  font-size: var(--font-size-2);
-  cursor: pointer;
-}
-
-.tabs-controlled-button:focus-visible {
-  outline: var(--focus-width) solid var(--focus-default);
-  outline-offset: var(--focus-offset);
-}

@@ -1,0 +1,25 @@
+.button-spinner {
+  display: none;
+  width: 1em;
+  height: 1em;
+  border: 0.125em solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+  animation: button-spin 700ms linear infinite;
+}
+
+.button[data-pending] .button-spinner {
+  display: inline-block;
+}
+
+@keyframes button-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button-spinner {
+    animation: none;
+  }
+}

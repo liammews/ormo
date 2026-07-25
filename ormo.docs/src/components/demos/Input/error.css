@@ -1,0 +1,11 @@
+.input[aria-invalid="true"] {
+  border-color: var(--surface-error);
+}
+
+.input[aria-invalid="true"]:focus-visible {
+  outline-color: var(--surface-error);
+}
+
+.input-error {
+  color: var(--content-error);
+}

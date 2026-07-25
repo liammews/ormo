@@ -6,6 +6,7 @@ description: "A profile image with a fallback for initials or icons"
 
 import AvatarDemo from "../../../components/demos/Avatar/AvatarDemo.astro";
 import avatarDemoCode from "../../../components/demos/Avatar/AvatarDemo.astro?raw";
+import avatarDemoCss from "../../../components/demos/Avatar/index.css?raw";
 import AvatarFallbackOnlyDemo from "../../../components/demos/Avatar/AvatarFallbackOnlyDemo.astro";
 import avatarFallbackOnlyDemoCode from "../../../components/demos/Avatar/AvatarFallbackOnlyDemo.astro?raw";
 import AvatarBrokenDemo from "../../../components/demos/Avatar/AvatarBrokenDemo.astro";
@@ -24,9 +25,14 @@ import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
 ## Default
 
-Avatar shows a profile image when it loads, and falls back to initials or other content when the image is missing or fails. It is presentational by itself: wrap it in a Button or link when the avatar should be interactive.
+Avatar shows a profile image when it loads, and falls back to initials or other content when the image is missing or fails. It is presentational by itself: wrap it in a [Button](/docs/components/button) or link when the avatar should be interactive.
 
-<DemoBlock code={avatarDemoCode}>
+<DemoBlock
+  files={[
+    { filename: "Avatar.astro", code: avatarDemoCode },
+    { filename: "index.css", code: avatarDemoCss },
+  ]}
+>
   <AvatarDemo />
 </DemoBlock>
 
@@ -50,17 +56,19 @@ import * as Avatar from "@ormo/primitives/avatar";
 
 ### Fallback only
 
-Omit Image when you only have initials or another stand-in. Give Root an accessible name when the avatar is the sole identity cue.
+Omit Image when you only have initials or another stand-in. When the avatar is the sole identity cue, add <code>role="img"</code> and an <code>aria-label</code> containing the person’s or entity’s full name to Root.
 
-<DemoBlock code={avatarFallbackOnlyDemoCode}>
+<DemoBlock
+  files={[{ filename: "Avatar.astro", code: avatarFallbackOnlyDemoCode }]}
+>
   <AvatarFallbackOnlyDemo />
 </DemoBlock>
 
 ### Broken or missing image
 
-When the image fails to load, Avatar hides the image and shows Fallback. Name Root when Fallback may become the only visible face so assistive technology still hears the person’s name rather than bare initials.
+When the image fails to load, Avatar hides the image and shows Fallback. If Fallback may become the only identity cue, add <code>role="img"</code> and a clear <code>aria-label</code>, such as the person’s full name, to Root so assistive technology does not announce only the initials.
 
-<DemoBlock code={avatarBrokenDemoCode}>
+<DemoBlock files={[{ filename: "Avatar.astro", code: avatarBrokenDemoCode }]}>
   <AvatarBrokenDemo />
 </DemoBlock>
 
@@ -68,7 +76,9 @@ When the image fails to load, Avatar hides the image and shows Fallback. Name Ro
 
 Set <code>delay</code> on Fallback to wait before showing it while the image is still loading. This reduces flash when the image arrives quickly from cache.
 
-<DemoBlock code={avatarDelayedFallbackDemoCode}>
+<DemoBlock
+  files={[{ filename: "Avatar.astro", code: avatarDelayedFallbackDemoCode }]}
+>
   <AvatarDelayedFallbackDemo />
 </DemoBlock>
 
@@ -76,23 +86,29 @@ Set <code>delay</code> on Fallback to wait before showing it while the image is 
 
 When adjacent text already names the person, mark the image decorative with <code>alt=""</code> so assistive technology does not announce the name twice.
 
-<DemoBlock code={avatarDecorativeDemoCode}>
+<DemoBlock
+  files={[{ filename: "Avatar.astro", code: avatarDecorativeDemoCode }]}
+>
   <AvatarDecorativeDemo />
 </DemoBlock>
 
 ### Icon fallback
 
-Fallback can contain a consumer-owned icon. Hide decorative icons from assistive technology and keep the accessible name on Root or adjacent text.
+Fallback can contain a consumer-owned icon. Hide decorative icons from assistive technology. If adjacent text does not identify the avatar, add <code>role="img"</code> and a clear <code>aria-label</code> to Root.
 
-<DemoBlock code={avatarIconFallbackDemoCode}>
+<DemoBlock
+  files={[{ filename: "Avatar.astro", code: avatarIconFallbackDemoCode }]}
+>
   <AvatarIconFallbackDemo />
 </DemoBlock>
 
 ### Interactive button or link
 
-Avatar itself is not focusable. Wrap it in Button or a link when it should open a profile or trigger an action. Put the accessible name on the wrapper, hide the Avatar from the accessibility tree with <code>aria-hidden="true"</code>, and use <code>alt=""</code> on Image.
+Avatar itself is not focusable. Wrap it in [Button](/docs/components/button) or a link when it should open a profile or trigger an action. Put the accessible name on the wrapper, hide the Avatar from the accessibility tree with <code>aria-hidden="true"</code>, and use <code>alt=""</code> on Image.
 
-<DemoBlock code={avatarInteractiveDemoCode}>
+<DemoBlock
+  files={[{ filename: "Avatar.astro", code: avatarInteractiveDemoCode }]}
+>
   <AvatarInteractiveDemo />
 </DemoBlock>
 
@@ -116,20 +132,20 @@ Groups Image and Fallback and owns loading status. It renders <code>&lt;ormo-ava
       name: "role",
       type: "string",
       description:
-        'Optional. Use role="img" with an accessible name when Fallback-only content is the sole identity cue.',
+        'Optional. Use role="img" with aria-label when Fallback is the sole identity cue.',
     },
     {
       name: "aria-label",
       type: "string",
       description:
-        "Optional accessible name for Root when the avatar conveys identity without a meaningful Image alt.",
+        'Provides a clear name, such as the person’s full name, when Root uses role="img" and no meaningful Image alt is available.',
     },
   ]}
 />
 
 ### Image
 
-Renders a native <code>&lt;img&gt;</code> and forwards its HTML attributes. Use this part rather than Astro’s <code>&lt;Image&gt;</code> from <code>astro:assets</code>: pass optimized <code>src</code> or <code>srcset</code> values from your app if you use the asset pipeline.
+Renders a native <code>&lt;img&gt;</code> and forwards its HTML attributes. Use this part rather than Astro’s <code>&lt;Image&gt;</code> from <code>astro:assets</code>: pass optimised <code>src</code> or <code>srcset</code> values from your app if you use the asset pipeline.
 
 <PropsTable
   id="avatar-image-props"
@@ -200,10 +216,24 @@ Renders a <code>&lt;span&gt;</code> shown when there is no usable image.
 
 Root exposes loading status for scripts and islands.
 
-| Member                                         | Type                                                 | Description                                                                    |
-| ---------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------ |
-| <code>imageLoadingStatus</code>                | <code>"loading" \| "loaded" \| "error"</code>        | Current image loading status.                                                  |
-| <code>ormo:avatar-loading-status-change</code> | <code>CustomEvent&lt;&#123; status &#125;&gt;</code> | Fired when <code>imageLoadingStatus</code> changes after the first connection. |
+<PropsTable
+  id="avatar-browser-api"
+  caption="Avatar browser API and events"
+  nameHeader="Member"
+  rows={[
+    {
+      name: "imageLoadingStatus",
+      type: '"loading" | "loaded" | "error"',
+      description: "Current image loading status.",
+    },
+    {
+      name: "ormo:avatar-loading-status-change",
+      type: "CustomEvent<{ status }>",
+      description:
+        "Fired when imageLoadingStatus changes after the first connection.",
+    },
+  ]}
+/>
 
 ## Accessibility
 
@@ -211,12 +241,18 @@ Avatar does not invent names or roles. Authors choose the correct WCAG 1.1.1 tre
 
 1. **Decorative** — When a visible name sits beside the avatar, use <code>alt=""</code> on Image. Do not add a second name on Root. Optionally set <code>aria-hidden="true"</code> on Root when the whole graphic is redundant.
 2. **Informative image** — Provide a meaningful <code>alt</code> on Image (typically the person’s or entity’s name).
-3. **Fallback only** — Put an accessible name on Root, usually <code>role="img"</code> and <code>aria-label</code> with the full name. Initials alone are often announced letter by letter without <code>role="img"</code>.
-4. **Image error or loading fallback** — When Image is hidden and Fallback is showing, the image <code>alt</code> is no longer exposed. Name Root (or keep adjacent visible text) so the identity is still available.
+3. **Fallback only** — Add <code>role="img"</code> and an <code>aria-label</code> containing the person’s or entity’s full name to Root. Initials alone are often announced letter by letter without <code>role="img"</code>.
+4. **Image error or loading fallback** — When Image is hidden and Fallback is showing, the image <code>alt</code> is no longer exposed. Keep identifying text adjacent to the avatar, or add <code>role="img"</code> and a clear <code>aria-label</code> to Root.
 5. **Icons in Fallback** — Mark decorative SVGs with <code>aria-hidden="true"</code>.
-6. **Interactive** — Wrap Avatar in Button or a link. The wrapper owns focus and the accessible name; hide Avatar with <code>aria-hidden="true"</code> and use <code>alt=""</code>.
+6. **Interactive** — Wrap Avatar in [Button](/docs/components/button) or a link. The wrapper owns focus and the accessible name; hide Avatar with <code>aria-hidden="true"</code> and use <code>alt=""</code>.
 
 In development, Ormo warns when Image is missing the <code>alt</code> attribute entirely. An empty <code>alt=""</code> is valid and does not warn.
+
+## Development toolbar
+
+With the optional [Ormo development toolbar](/docs/dev-toolbar) enabled, Astro’s toolbar scans rendered Avatars and flags an Image that is missing the <code>alt</code> attribute. A meaningful value and an intentionally empty <code>alt=""</code> are both valid, depending on context.
+
+Select an issue in the toolbar to jump to the element. This check catches a clear accessibility mistake during development; it does not replace keyboard and screen-reader testing.
 
 ## Keyboard behaviour
 
@@ -224,11 +260,28 @@ Avatar is not focusable and has no keyboard behaviour of its own. Interactive wr
 
 ## Styling
 
-| Attribute                | Element          | Description                                                       |
-| ------------------------ | ---------------- | ----------------------------------------------------------------- |
-| <code>data-status</code> | Root             | <code>loading</code>, <code>loaded</code>, or <code>error</code>. |
-| <code>hidden</code>      | Image / Fallback | Applied to the inactive face.                                     |
-| <code>data-delay</code>  | Fallback         | Present when a positive <code>delay</code> is set.                |
+<PropsTable
+  id="avatar-styling-attributes"
+  caption="Avatar styling attributes"
+  nameHeader="Attribute"
+  rows={[
+    {
+      name: "data-status",
+      type: "Root",
+      description: 'Set to "loading", "loaded", or "error".',
+    },
+    {
+      name: "hidden",
+      type: "Image | Fallback",
+      description: "Applied to the inactive face.",
+    },
+    {
+      name: "data-delay",
+      type: "Fallback",
+      description: "Present when a positive delay is set.",
+    },
+  ]}
+/>
 
 Avatar ships no layout or brand styles. Size, shape, colour, and typography belong to the consumer.
 

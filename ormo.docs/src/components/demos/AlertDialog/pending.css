@@ -1,0 +1,29 @@
+.alert-dialog-button[data-pending] {
+  cursor: wait;
+}
+
+.alert-dialog-spinner {
+  display: none;
+  width: 1em;
+  height: 1em;
+  border: 0.125em solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+  animation: alert-dialog-spin 700ms linear infinite;
+}
+
+.alert-dialog-button[data-pending] .alert-dialog-spinner {
+  display: inline-block;
+}
+
+@keyframes alert-dialog-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .alert-dialog-spinner {
+    animation: none;
+  }
+}
