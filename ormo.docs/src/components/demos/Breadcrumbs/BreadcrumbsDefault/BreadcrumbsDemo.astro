@@ -1,0 +1,37 @@
+---
+import { ChevronRight } from "@lucide/astro";
+import * as Breadcrumbs from "@ormo/primitives/breadcrumbs";
+import "../index.css";
+---
+
+<Breadcrumbs.Root class="breadcrumbs">
+  <Breadcrumbs.List class="breadcrumbs-list">
+    <Breadcrumbs.Item class="breadcrumbs-item">
+      <Breadcrumbs.Link class="breadcrumbs-link" href="/books">
+        Books
+      </Breadcrumbs.Link>
+    </Breadcrumbs.Item>
+    <Breadcrumbs.Separator class="breadcrumbs-separator">
+      <ChevronRight
+        class="breadcrumbs-separator-icon"
+        size={14}
+        aria-hidden="true"
+      />
+    </Breadcrumbs.Separator>
+    <Breadcrumbs.Item class="breadcrumbs-item">
+      <Breadcrumbs.Link class="breadcrumbs-link" href="/books/sciencefiction">
+        Science Fiction
+      </Breadcrumbs.Link>
+    </Breadcrumbs.Item>
+    <Breadcrumbs.Separator class="breadcrumbs-separator">
+      <ChevronRight
+        class="breadcrumbs-separator-icon"
+        size={14}
+        aria-hidden="true"
+      />
+    </Breadcrumbs.Separator>
+    <Breadcrumbs.Item class="breadcrumbs-item">
+      <Breadcrumbs.Page class="breadcrumbs-page">Award Winners</Breadcrumbs.Page>
+    </Breadcrumbs.Item>
+  </Breadcrumbs.List>
+</Breadcrumbs.Root>

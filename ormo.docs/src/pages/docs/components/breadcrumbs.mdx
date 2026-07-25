@@ -1,0 +1,292 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Breadcrumbs"
+description: "A hierarchical trail that shows the current page’s location in a site"
+---
+
+import BreadcrumbsDemo from "../../../components/demos/Breadcrumbs/BreadcrumbsDefault/BreadcrumbsDemo.astro";
+import breadcrumbsDemoCode from "../../../components/demos/Breadcrumbs/BreadcrumbsDefault/BreadcrumbsDemo.astro?raw";
+import breadcrumbsCss from "../../../components/demos/Breadcrumbs/index.css?raw";
+import BreadcrumbsCurrentLinkDemo from "../../../components/demos/Breadcrumbs/BreadcrumbsCurrentLink/BreadcrumbsCurrentLinkDemo.astro";
+import breadcrumbsCurrentLinkDemoCode from "../../../components/demos/Breadcrumbs/BreadcrumbsCurrentLink/BreadcrumbsCurrentLinkDemo.astro?raw";
+import BreadcrumbsCssSeparatorsDemo from "../../../components/demos/Breadcrumbs/BreadcrumbsCssSeparators/BreadcrumbsCssSeparatorsDemo.astro";
+import breadcrumbsCssSeparatorsDemoCode from "../../../components/demos/Breadcrumbs/BreadcrumbsCssSeparators/BreadcrumbsCssSeparatorsDemo.astro?raw";
+import breadcrumbsCssSeparatorsCss from "../../../components/demos/Breadcrumbs/css-separators.css?raw";
+import BreadcrumbsMicrodataDemo from "../../../components/demos/Breadcrumbs/BreadcrumbsMicrodata/BreadcrumbsMicrodataDemo.astro";
+import breadcrumbsMicrodataDemoCode from "../../../components/demos/Breadcrumbs/BreadcrumbsMicrodata/BreadcrumbsMicrodataDemo.astro?raw";
+import BreadcrumbsLabelledByDemo from "../../../components/demos/Breadcrumbs/BreadcrumbsLabelledBy/BreadcrumbsLabelledByDemo.astro";
+import breadcrumbsLabelledByDemoCode from "../../../components/demos/Breadcrumbs/BreadcrumbsLabelledBy/BreadcrumbsLabelledByDemo.astro?raw";
+import breadcrumbsLabelledByCss from "../../../components/demos/Breadcrumbs/BreadcrumbsLabelledBy/labelled-by.css?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+Breadcrumbs render a navigation landmark with an ordered list of ancestor links and the current page. The primitive ships no client JavaScript.
+
+## Default
+
+The safest default marks the current page with <code>Breadcrumbs.Page</code> (a non-link <code>&lt;span aria-current="page"&gt;</code>) and places decorative separators in their own list items so they stay out of the accessibility tree.
+
+<DemoBlock
+  files={[
+    { filename: "Breadcrumbs.astro", code: breadcrumbsDemoCode },
+    { filename: "index.css", code: breadcrumbsCss },
+  ]}
+>
+  <BreadcrumbsDemo />
+</DemoBlock>
+
+## Installation
+
+<CodeBlock
+  singleLine
+  lang="bash"
+  code={`npm install @ormo/primitives/breadcrumbs`}
+/>
+
+## Anatomy
+
+Import the namespace and assemble the trail:
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Breadcrumbs from "@ormo/primitives/breadcrumbs";
+---
+
+<Breadcrumbs.Root>
+  <Breadcrumbs.List>
+    <Breadcrumbs.Item>
+      <Breadcrumbs.Link href="/books">Books</Breadcrumbs.Link>
+    </Breadcrumbs.Item>
+    <Breadcrumbs.Separator />
+    <Breadcrumbs.Item>
+      <Breadcrumbs.Page>Award Winners</Breadcrumbs.Page>
+    </Breadcrumbs.Item>
+  </Breadcrumbs.List>
+</Breadcrumbs.Root>`}
+/>
+
+## Examples
+
+### Current page as a link
+
+Use <code>Link current</code> when the current crumb should remain a link. Ormo sets <code>aria-current="page"</code> on that link. Prefer <code>Page</code> when the current location should not navigate.
+
+<DemoBlock
+  files={[
+    { filename: "Breadcrumbs.astro", code: breadcrumbsCurrentLinkDemoCode },
+    { filename: "index.css", code: breadcrumbsCss },
+  ]}
+>
+  <BreadcrumbsCurrentLinkDemo />
+</DemoBlock>
+
+### CSS-only separators
+
+When a character separator is enough, skip <code>Separator</code> and draw it with CSS on each item except the last. This matches the APG example’s approach of keeping separators out of the accessibility tree entirely.
+
+<DemoBlock
+  files={[
+    { filename: "Breadcrumbs.astro", code: breadcrumbsCssSeparatorsDemoCode },
+    { filename: "index.css", code: breadcrumbsCss },
+    { filename: "css-separators.css", code: breadcrumbsCssSeparatorsCss },
+  ]}
+>
+  <BreadcrumbsCssSeparatorsDemo />
+</DemoBlock>
+
+### Microdata
+
+Set <code>microdata</code> on Root to annotate the trail as Schema.org <code>BreadcrumbList</code>. Ormo adds <code>itemscope</code> / <code>itemtype</code> / <code>itemprop</code> attributes and sequential <code>position</code> values. By default, each link wraps its slot in <code>&lt;span itemprop="name"&gt;</code>. Pass <code>name</code> on <code>Link</code> or <code>Page</code> to emit a <code>&lt;meta itemprop="name"&gt;</code> sibling instead when the wrapper would disturb layout.
+
+<DemoBlock
+  files={[
+    { filename: "Breadcrumbs.astro", code: breadcrumbsMicrodataDemoCode },
+    { filename: "index.css", code: breadcrumbsCss },
+  ]}
+>
+  <BreadcrumbsMicrodataDemo />
+</DemoBlock>
+
+### Landmark labelled by a heading
+
+Pass <code>aria-labelledby</code> when a visible heading names the trail. Root then omits its default <code>aria-label</code>.
+
+<DemoBlock
+  files={[
+    { filename: "Breadcrumbs.astro", code: breadcrumbsLabelledByDemoCode },
+    { filename: "index.css", code: breadcrumbsCss },
+    { filename: "labelled-by.css", code: breadcrumbsLabelledByCss },
+  ]}
+>
+  <BreadcrumbsLabelledByDemo />
+</DemoBlock>
+
+## API reference
+
+### Root
+
+Renders <code>&lt;nav&gt;</code> and establishes microdata context for descendant parts.
+
+<PropsTable
+  id="breadcrumbs-root-props"
+  caption="Breadcrumbs.Root properties"
+  rows={[
+    {
+      name: "label",
+      type: "string",
+      defaultValue: '"Breadcrumb"',
+      description:
+        "Accessible name for the navigation landmark. Ignored when aria-labelledby is set.",
+    },
+    {
+      name: "microdata",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "When true, annotate the trail with Schema.org BreadcrumbList microdata.",
+    },
+    {
+      name: "...nav attributes",
+      type: 'HTMLAttributes<"nav">',
+      description:
+        "Native nav attributes are forwarded. aria-label overrides label when both are set; aria-labelledby suppresses the default aria-label.",
+    },
+  ]}
+/>
+
+### List
+
+Renders <code>&lt;ol&gt;</code>. With microdata, becomes the BreadcrumbList container.
+
+<PropsTable
+  id="breadcrumbs-list-props"
+  caption="Breadcrumbs.List properties"
+  rows={[
+    {
+      name: "...ol attributes",
+      type: 'HTMLAttributes<"ol">',
+      description: "Native ordered-list attributes are forwarded.",
+    },
+  ]}
+/>
+
+### Item
+
+Renders <code>&lt;li&gt;</code>. With microdata, becomes a ListItem and receives an auto-assigned position.
+
+<PropsTable
+  id="breadcrumbs-item-props"
+  caption="Breadcrumbs.Item properties"
+  rows={[
+    {
+      name: "...li attributes",
+      type: 'HTMLAttributes<"li">',
+      description: "Native list-item attributes are forwarded.",
+    },
+  ]}
+/>
+
+### Link
+
+Renders a native <code>&lt;a&gt;</code> for an ancestor (or optionally the current page).
+
+<PropsTable
+  id="breadcrumbs-link-props"
+  caption="Breadcrumbs.Link properties"
+  rows={[
+    {
+      name: "href",
+      type: "string",
+      description: "Required destination URL.",
+    },
+    {
+      name: "current",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        'When true, sets aria-current="page". Prefer Page for a non-link current crumb.',
+    },
+    {
+      name: "name",
+      type: "string",
+      description:
+        "In microdata mode, emits a meta name sibling instead of wrapping the slot.",
+    },
+    {
+      name: "...a attributes",
+      type: 'HTMLAttributes<"a">',
+      description: "Native anchor attributes are forwarded.",
+    },
+  ]}
+/>
+
+### Page
+
+Renders the current page as <code>&lt;span aria-current="page"&gt;</code>.
+
+<PropsTable
+  id="breadcrumbs-page-props"
+  caption="Breadcrumbs.Page properties"
+  rows={[
+    {
+      name: "name",
+      type: "string",
+      description:
+        "In microdata mode, emits a meta name sibling instead of putting itemprop=\"name\" on the span.",
+    },
+    {
+      name: "...span attributes",
+      type: 'HTMLAttributes<"span">',
+      description: "Native span attributes are forwarded.",
+    },
+  ]}
+/>
+
+### Separator
+
+Renders a decorative <code>&lt;li role="presentation" aria-hidden="true"&gt;</code>. Put an icon in the slot; keep icons <code>aria-hidden</code> as well. For character separators, prefer CSS (see the CSS-only separators example).
+
+<PropsTable
+  id="breadcrumbs-separator-props"
+  caption="Breadcrumbs.Separator properties"
+  rows={[
+    {
+      name: "...li attributes",
+      type: 'HTMLAttributes<"li">',
+      description: "Native list-item attributes are forwarded.",
+    },
+  ]}
+/>
+
+## Accessibility
+
+Breadcrumbs follow the [APG Breadcrumb pattern](https://www.w3.org/WAI/ARIA/apg/patterns/breadcrumb/):
+
+- The trail is a navigation landmark. Root defaults <code>aria-label</code> to <code>"Breadcrumb"</code>, or use <code>aria-labelledby</code> with a visible heading.
+- Mark exactly one current page with <code>Page</code> or <code>Link current</code>.
+- Separators must not be announced. <code>Separator</code> uses <code>role="presentation"</code> and <code>aria-hidden="true"</code>; CSS-only separators never enter the accessibility tree.
+- Style the current crumb with <code>[aria-current="page"]</code>. Ormo does not add a redundant <code>data-current</code> attribute.
+- Provide meaningful link text (WCAG 2.4.4). Empty links warn in development.
+
+## Keyboard behaviour
+
+No composite keyboard model. Links participate in the normal Tab sequence and activate with the browser’s native link keys.
+
+## Styling
+
+Consumers own classes. Useful hooks:
+
+| Selector / attribute | Meaning |
+| --- | --- |
+| <code>[data-ormo-breadcrumbs-root]</code> | Root nav (internal; prefer your class) |
+| <code>[data-microdata]</code> | Microdata mode is on |
+| <code>[aria-current="page"]</code> | Current page crumb |
+| <code>[data-ormo-breadcrumbs-separator]</code> | Decorative separator item |
+
+Attributes prefixed with <code>data-ormo-*</code> are internal runtime/structure selectors, not a public styling API.
+
+## Runtime
+
+Breadcrumbs is a static primitive. It ships no client JavaScript in development or production. Microdata, positions, and accessible names are resolved during SSR.

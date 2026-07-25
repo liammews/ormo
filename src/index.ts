@@ -11,6 +11,7 @@ export type {
   ButtonProps,
 } from "./components/button/types";
 export type { ButtonElement, ButtonState } from "./components/button/state";
+export * as Breadcrumbs from "./components/breadcrumbs/index";
 export { Checkbox, CheckboxIndicator } from "./components/checkbox/index";
 export type {
   CheckboxGroupDataState,

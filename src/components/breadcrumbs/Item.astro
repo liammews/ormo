@@ -1,0 +1,29 @@
+---
+import {
+  claimBreadcrumbPosition,
+  getBreadcrumbsListSsrContext,
+} from "../../internal/breadcrumbs-ssr-context";
+import type { BreadcrumbsItemProps } from "./types";
+
+type Props = BreadcrumbsItemProps;
+
+const { ...attributes } = Astro.props;
+const list = getBreadcrumbsListSsrContext();
+const microdata = list?.microdata ?? false;
+const position = list && microdata ? claimBreadcrumbPosition(list) : undefined;
+---
+
+<li
+  {...attributes}
+  data-ormo-breadcrumbs-item
+  itemprop={microdata ? "itemListElement" : undefined}
+  itemscope={microdata ? true : undefined}
+  itemtype={microdata ? "https://schema.org/ListItem" : undefined}
+>
+  <slot />
+  {
+    microdata && position !== undefined ? (
+      <meta itemprop="position" content={String(position)} />
+    ) : null
+  }
+</li>

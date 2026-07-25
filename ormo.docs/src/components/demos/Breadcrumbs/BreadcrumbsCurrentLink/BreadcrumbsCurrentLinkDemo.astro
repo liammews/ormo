@@ -1,0 +1,35 @@
+---
+import { ChevronRight } from "@lucide/astro";
+import * as Breadcrumbs from "@ormo/primitives/breadcrumbs";
+import "../index.css";
+---
+
+<Breadcrumbs.Root class="breadcrumbs">
+  <Breadcrumbs.List class="breadcrumbs-list">
+    <Breadcrumbs.Item class="breadcrumbs-item">
+      <Breadcrumbs.Link class="breadcrumbs-link" href="/">Home</Breadcrumbs.Link>
+    </Breadcrumbs.Item>
+    <Breadcrumbs.Separator class="breadcrumbs-separator">
+      <ChevronRight
+        class="breadcrumbs-separator-icon"
+        size={14}
+        aria-hidden="true"
+      />
+    </Breadcrumbs.Separator>
+    <Breadcrumbs.Item class="breadcrumbs-item">
+      <Breadcrumbs.Link class="breadcrumbs-link" href="/docs">Docs</Breadcrumbs.Link>
+    </Breadcrumbs.Item>
+    <Breadcrumbs.Separator class="breadcrumbs-separator">
+      <ChevronRight
+        class="breadcrumbs-separator-icon"
+        size={14}
+        aria-hidden="true"
+      />
+    </Breadcrumbs.Separator>
+    <Breadcrumbs.Item class="breadcrumbs-item">
+      <Breadcrumbs.Link class="breadcrumbs-link" href="/docs/breadcrumbs" current>
+        Breadcrumbs
+      </Breadcrumbs.Link>
+    </Breadcrumbs.Item>
+  </Breadcrumbs.List>
+</Breadcrumbs.Root>
