@@ -1,0 +1,9 @@
+.breadcrumbs-css .breadcrumbs-list {
+  gap: 0;
+}
+
+.breadcrumbs-css .breadcrumbs-item:not(:last-child)::after {
+  content: "/";
+  margin-inline: var(--space-50);
+  color: var(--content-disabled);
+}

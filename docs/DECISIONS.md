@@ -435,6 +435,52 @@ the custom element only coordinates.
 - Field’s “one control” warning does not apply when a checkbox group is present.
 - Docs document APG keyboard behaviour (Space / Tab only — no arrow roving).
 
+## GD-017: Breadcrumbs are a static trail with opt-in microdata
+
+- **Date:** 2026-07-25
+- **Status:** Accepted
+
+### Decision
+
+Ormo Breadcrumbs is a composable, zero-JavaScript navigation trail:
+
+`Root` (`nav`) → `List` (`ol`) → `Item` (`li`) with `Link` (`a`) or `Page`
+(`span aria-current="page"`), plus an optional `Separator`
+(`li role="presentation" aria-hidden="true"`).
+
+The current page is expressed with `Page` by default, or with `Link current`
+when the crumb should remain a link. Current-page styling uses
+`[aria-current="page"]`; Ormo does not add `data-current`.
+
+`Root` accepts `microdata` (boolean). When enabled, SSR annotates the trail as
+Schema.org `BreadcrumbList` / `ListItem` microdata, including sequential
+`position` values claimed per `List`. Link names wrap the slot in
+`<span itemprop="name">` by default; an optional `name` prop switches to a
+`<meta itemprop="name">` sibling. JSON-LD is out of scope for this prop; a
+future format would be a separate API.
+
+Long-trail collapse, ellipsis parts, and overflow menus are out of scope.
+Consumers who need overflow compose other Ormo primitives themselves.
+
+### Rationale
+
+Native `nav` / `ol` / `li` / `a` already provide the APG Breadcrumb pattern.
+There is no composite keyboard model and no client state, so a custom-element
+runtime would add nothing. Microdata is the structured-data format that can
+annotate the trail Ormo already owns without duplicating labels and URLs into a
+JSON-LD authoring API. Collapse APIs from other libraries are either
+presentation or a second interaction pattern; shipping them would violate
+“prioritise needs over possibilities” and break the zero-JS contract.
+
+### Consequences
+
+- Breadcrumbs ships no client JavaScript.
+- Markup and microdata are verified with Astro Container API unit tests and
+  Playwright (including no-JS) browser tests.
+- Overflow behaviour is not documented as an Ormo-supported pattern.
+- Enabling `microdata` may insert a name wrapper span inside links unless
+  authors pass `name`.
+
 ## Entry template
 
 ```md
