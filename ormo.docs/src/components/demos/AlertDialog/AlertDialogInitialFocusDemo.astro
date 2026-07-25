@@ -4,7 +4,7 @@ import "./index.css";
 ---
 
 <AlertDialog.Root>
-  <AlertDialog.Trigger class="alert-dialog-trigger">
+  <AlertDialog.Trigger class="alert-dialog-trigger button">
     Show session warning
   </AlertDialog.Trigger>
 
@@ -17,9 +17,11 @@ import "./index.css";
       preserved.
     </AlertDialog.Description>
 
-    <div class="alert-dialog-actions">
+    <div
+      class="alert-dialog-actions button-group button-group--compact button-group--end"
+    >
       <AlertDialog.Action
-        class="alert-dialog-button alert-dialog-primary"
+        class="alert-dialog-button alert-dialog-primary button"
         autofocus
       >
         I understand

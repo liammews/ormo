@@ -5,7 +5,7 @@ import "./index.css";
 
 <div class="popover-example">
   <Popover.Root>
-    <Popover.Trigger class="popover-trigger">
+    <Popover.Trigger class="popover-trigger button">
       <svg
         class="popover-icon"
         viewBox="0 0 16 16"
@@ -26,8 +26,10 @@ import "./index.css";
       <Popover.Description class="popover-description">
         Trigger owns the button. Slot content is for icons and labels.
       </Popover.Description>
-      <div class="popover-actions">
-        <Popover.Close class="popover-button">Close</Popover.Close>
+      <div class="popover-actions button-group button-group--end">
+        <Popover.Close class="popover-button button button--secondary">
+          Close
+        </Popover.Close>
       </div>
     </Popover.Content>
   </Popover.Root>

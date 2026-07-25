@@ -27,18 +27,24 @@ describe("checkbox-group-ssr-context", () => {
       defaultValue: normalizeDefaultValues(["https"]),
       rootId: "group-1",
       labelId: "group-1-label",
-      hasLabel: false,
+      labelIds: [],
+      memberCount: 0,
+      checkedMemberCount: 0,
     };
 
     const result = await renderWithCheckboxGroupContext(context, async () => {
       const active = getCheckboxGroupSsrContext();
       expect(active).toBe(context);
-      active!.hasLabel = true;
+      active!.labelIds.push("group-1-label");
+      active!.memberCount += 1;
+      active!.checkedMemberCount += 1;
       return "ok";
     });
 
     expect(result).toBe("ok");
-    expect(context.hasLabel).toBe(true);
+    expect(context.labelIds).toEqual(["group-1-label"]);
+    expect(context.memberCount).toBe(1);
+    expect(context.checkedMemberCount).toBe(1);
     expect(getCheckboxGroupSsrContext()).toBeUndefined();
   });
 });

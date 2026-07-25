@@ -1,0 +1,65 @@
+---
+import * as Fieldset from "@ormo/primitives/fieldset";
+import "./index.css";
+---
+
+<form class="fieldset-demo">
+  <Fieldset.Root
+    class="fieldset"
+    name="contact-preference"
+    aria-describedby="contact-method-hint"
+  >
+    <Fieldset.Legend class="fieldset-legend">
+      Preferred contact method
+    </Fieldset.Legend>
+    <p class="fieldset-hint" id="contact-method-hint">
+      Choose how you would like us to send account updates.
+    </p>
+    <div class="fieldset-options">
+      <label class="fieldset-option">
+        <input
+          class="fieldset-radio"
+          type="radio"
+          name="contact-method"
+          value="email"
+          checked
+          required
+        />
+        <span class="fieldset-option-content">
+          <span class="fieldset-option-title">Email</span>
+          <span class="fieldset-option-description">
+            Updates are sent to your primary email address.
+          </span>
+        </span>
+      </label>
+      <label class="fieldset-option">
+        <input
+          class="fieldset-radio"
+          type="radio"
+          name="contact-method"
+          value="text"
+        />
+        <span class="fieldset-option-content">
+          <span class="fieldset-option-title">Text message</span>
+          <span class="fieldset-option-description">
+            Standard messaging rates may apply.
+          </span>
+        </span>
+      </label>
+      <label class="fieldset-option">
+        <input
+          class="fieldset-radio"
+          type="radio"
+          name="contact-method"
+          value="phone"
+        />
+        <span class="fieldset-option-content">
+          <span class="fieldset-option-title">Phone call</span>
+          <span class="fieldset-option-description">
+            We will call during your local business hours.
+          </span>
+        </span>
+      </label>
+    </div>
+  </Fieldset.Root>
+</form>

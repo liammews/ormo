@@ -5,7 +5,7 @@ import "./index.css";
 
 <div data-profile-editor>
   <Dialog.Root>
-    <Dialog.Trigger class="dialog-trigger">Edit profile</Dialog.Trigger>
+    <Dialog.Trigger class="dialog-trigger button">Edit profile</Dialog.Trigger>
 
     <Dialog.Content class="dialog-content">
       <Dialog.Title class="dialog-title">Edit profile</Dialog.Title>
@@ -25,10 +25,12 @@ import "./index.css";
           autocomplete="name"
         />
 
-        <div class="dialog-actions">
-          <Dialog.Close class="dialog-button">Cancel</Dialog.Close>
+        <div class="dialog-actions button-group button-group--end">
+          <Dialog.Close class="dialog-button button button--secondary">
+            Cancel
+          </Dialog.Close>
           <Dialog.Close
-            class="dialog-button dialog-primary"
+            class="dialog-button dialog-primary button"
             value="save"
             data-save-profile
           >

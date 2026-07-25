@@ -50,26 +50,13 @@ function hasAccessibleName(checkbox: HTMLInputElement): boolean {
   return Boolean(checkbox.getAttribute("title")?.trim());
 }
 
-function isVisuallyHidden(checkbox: HTMLInputElement): boolean {
+function isRemovedFromInteraction(checkbox: HTMLInputElement): boolean {
   if (checkbox.hidden) {
     return true;
   }
 
   const style = checkbox.ownerDocument.defaultView?.getComputedStyle(checkbox);
-  if (!style) {
-    return false;
-  }
-
-  if (
-    style.display === "none" ||
-    style.visibility === "hidden" ||
-    style.opacity === "0"
-  ) {
-    return true;
-  }
-
-  const rect = checkbox.getBoundingClientRect();
-  return rect.width === 0 && rect.height === 0;
+  return style?.display === "none" || style?.visibility === "hidden";
 }
 
 export function validateCheckboxes(root: ParentNode = document): void {
@@ -89,9 +76,9 @@ export function validateCheckboxes(root: ParentNode = document): void {
       );
     }
 
-    if (isVisuallyHidden(element)) {
+    if (isRemovedFromInteraction(element)) {
       console.warn(
-        "[Ormo Checkbox] The checkbox is visually hidden. Style with appearance: none instead of display: none, visibility: hidden, or zero size so keyboard and screen-reader users can still reach it.",
+        "[Ormo Checkbox] The checkbox is removed from interaction or the accessibility tree. Use appearance: none or another focusable native-input technique instead of hidden, display: none, or visibility: hidden.",
         element,
       );
     }

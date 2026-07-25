@@ -40,6 +40,23 @@ test("opens on hover after delay and stays open over content", async ({
   await expect(tooltip).toBeHidden();
 });
 
+test("skips delay when moving directly between toolbar triggers", async ({
+  page,
+}) => {
+  const demo = page.locator('[data-tooltip-demo="toolbar"]');
+  const bold = demo.getByRole("button", { name: "Bold" });
+  const italic = demo.getByRole("button", { name: "Italic" });
+  const boldTooltip = demo.getByRole("tooltip", { name: /Bold/ });
+  const italicTooltip = demo.getByRole("tooltip", { name: /Italic/ });
+
+  await bold.hover();
+  await expect(boldTooltip).toBeVisible({ timeout: 2000 });
+
+  await italic.hover();
+  await expect(italicTooltip).toBeVisible({ timeout: 500 });
+  await expect(boldTooltip).toBeHidden();
+});
+
 test("supports detached triggers", async ({ page }) => {
   const demo = page.locator('[data-tooltip-demo="detached"]');
   const save = demo.getByRole("button", { name: "Save", exact: true });

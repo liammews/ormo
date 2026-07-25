@@ -5,7 +5,7 @@ import "./index.css";
 
 <div>
   <Dialog.Root disablePointerDismissal>
-    <Dialog.Trigger class="dialog-trigger"
+    <Dialog.Trigger class="dialog-trigger button"
       >Review keyboard shortcuts</Dialog.Trigger
     >
     <Dialog.Content class="dialog-content">
@@ -14,8 +14,10 @@ import "./index.css";
         <li><kbd>⌘</kbd> + <kbd>S</kbd> — Save the current document</li>
         <li><kbd>⌘</kbd> + <kbd>K</kbd> — Open the command menu</li>
       </ul>
-      <div class="dialog-actions">
-        <Dialog.Close class="dialog-button dialog-primary"> Done </Dialog.Close>
+      <div class="dialog-actions button-group button-group--end">
+        <Dialog.Close class="dialog-button dialog-primary button">
+          Done
+        </Dialog.Close>
       </div>
     </Dialog.Content>
   </Dialog.Root>

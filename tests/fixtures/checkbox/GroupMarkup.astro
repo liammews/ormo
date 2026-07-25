@@ -1,0 +1,18 @@
+---
+import { Checkbox } from "../../../src/components/checkbox/index";
+import * as CheckboxGroup from "../../../src/components/checkbox/group";
+---
+
+<CheckboxGroup.Root
+  id="transport-options"
+  name="transport"
+  defaultValue={["train"]}
+>
+  <CheckboxGroup.Label id="transport-label">
+    Preferred transport
+  </CheckboxGroup.Label>
+  <CheckboxGroup.Label>Choose any that apply</CheckboxGroup.Label>
+  <label><Checkbox value="train" /> Train</label>
+  <label><Checkbox name="custom-transport" value="bike" /> Bike</label>
+  <label><Checkbox value="walk" checked="" /> Walk</label>
+</CheckboxGroup.Root>

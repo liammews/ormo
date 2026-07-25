@@ -1,0 +1,11 @@
+---
+import type { FieldsetRootProps } from "./types";
+
+type Props = FieldsetRootProps;
+
+const attributes: Props = Astro.props;
+---
+
+<fieldset {...attributes} data-ormo-fieldset-root>
+  <slot />
+</fieldset>

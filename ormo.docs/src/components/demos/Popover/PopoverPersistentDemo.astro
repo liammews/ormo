@@ -5,15 +5,19 @@ import "./index.css";
 
 <div class="popover-example">
   <Popover.Root disablePointerDismissal>
-    <Popover.Trigger class="popover-trigger">Review notes</Popover.Trigger>
+    <Popover.Trigger class="popover-trigger button">
+      Review notes
+    </Popover.Trigger>
 
     <Popover.Content class="popover-content" sideOffset={8}>
       <Popover.Title class="popover-title">Review notes</Popover.Title>
       <Popover.Description class="popover-description">
         Outside pointer presses do not close this popover. Escape still does.
       </Popover.Description>
-      <div class="popover-actions">
-        <Popover.Close class="popover-button">Done</Popover.Close>
+      <div class="popover-actions button-group button-group--end">
+        <Popover.Close class="popover-button button button--secondary">
+          Done
+        </Popover.Close>
       </div>
     </Popover.Content>
   </Popover.Root>

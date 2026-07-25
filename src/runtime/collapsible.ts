@@ -173,6 +173,7 @@ export function setCollapsibleWidth(
 function hideElement(element: HTMLElement, hiddenUntilFound: boolean): void {
   if (hiddenUntilFound) {
     element.setAttribute("hidden", "until-found");
+    element.removeAttribute("inert");
   } else {
     element.hidden = true;
   }

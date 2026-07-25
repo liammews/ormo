@@ -4,31 +4,44 @@ import "./index.css";
 ---
 
 <div class="tooltip-example" data-tooltip-demo="toolbar">
-  <div class="tooltip-trigger-group" role="toolbar" aria-label="Text style">
+  <div
+    class="tooltip-trigger-group button-group"
+    role="toolbar"
+    aria-label="Text style"
+  >
     <Tooltip.Root>
-      <Tooltip.Trigger class="tooltip-trigger" aria-label="Bold">
+      <Tooltip.Trigger
+        class="tooltip-trigger button button--square button--secondary"
+        aria-label="Bold"
+      >
         B
       </Tooltip.Trigger>
-      <Tooltip.Content class="tooltip-content" sideOffset={6}>
-        Bold <kbd>⌘B</kbd>
+      <Tooltip.Content class="tooltip-content" sideOffset={10}>
+        Bold
       </Tooltip.Content>
     </Tooltip.Root>
 
     <Tooltip.Root>
-      <Tooltip.Trigger class="tooltip-trigger" aria-label="Italic">
+      <Tooltip.Trigger
+        class="tooltip-trigger button button--square button--secondary"
+        aria-label="Italic"
+      >
         I
       </Tooltip.Trigger>
-      <Tooltip.Content class="tooltip-content" sideOffset={6}>
-        Italic <kbd>⌘I</kbd>
+      <Tooltip.Content class="tooltip-content" sideOffset={10}>
+        Italic
       </Tooltip.Content>
     </Tooltip.Root>
 
     <Tooltip.Root>
-      <Tooltip.Trigger class="tooltip-trigger" aria-label="Underline">
+      <Tooltip.Trigger
+        class="tooltip-trigger button button--square button--secondary"
+        aria-label="Underline"
+      >
         U
       </Tooltip.Trigger>
-      <Tooltip.Content class="tooltip-content" sideOffset={6}>
-        Underline <kbd>⌘U</kbd>
+      <Tooltip.Content class="tooltip-content" sideOffset={10}>
+        Underline
       </Tooltip.Content>
     </Tooltip.Root>
   </div>

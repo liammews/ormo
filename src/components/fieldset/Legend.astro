@@ -1,0 +1,11 @@
+---
+import type { FieldsetLegendProps } from "./types";
+
+type Props = FieldsetLegendProps;
+
+const attributes: Props = Astro.props;
+---
+
+<legend {...attributes} data-ormo-fieldset-legend>
+  <slot />
+</legend>

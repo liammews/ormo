@@ -1,7 +1,7 @@
 ---
 layout: ../../../layouts/MdxDocLayout.astro
 title: "Accordion"
-description: "A set of collapsible content panels with accessible headings"
+description: "A stacked set of collapsible content panels with interactive headings."
 ---
 
 import AccordionDemo from "../../../components/demos/Accordion/AccordionDefault/AccordionDemo.astro";
@@ -16,13 +16,11 @@ import AccordionMultipleDemo from "../../../components/demos/Accordion/Accordion
 import accordionMultipleDemoCode from "../../../components/demos/Accordion/AccordionMultiple/AccordionMultipleDemo.astro?raw";
 import AccordionRequireOpenDemo from "../../../components/demos/Accordion/AccordionRequireOpen/AccordionRequireOpenDemo.astro";
 import accordionRequireOpenDemoCode from "../../../components/demos/Accordion/AccordionRequireOpen/AccordionRequireOpenDemo.astro?raw";
+import AccordionHiddenUntilFoundDemo from "../../../components/demos/Accordion/AccordionHiddenUntilFound/AccordionHiddenUntilFoundDemo.astro";
+import accordionHiddenUntilFoundDemoCode from "../../../components/demos/Accordion/AccordionHiddenUntilFound/AccordionHiddenUntilFoundDemo.astro?raw";
 import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
-
-## Default
-
-By default, Accordion allows one item to be open at a time. Selecting another trigger closes the open item and reveals the selected panel.
 
 <DemoBlock
   files={[
@@ -32,14 +30,6 @@ By default, Accordion allows one item to be open at a time. Selecting another tr
 >
   <AccordionDemo />
 </DemoBlock>
-
-## Installation
-
-<CodeBlock
-  singleLine
-  lang="bash"
-  code={`npm install @ormo/primitives/accordion`}
-/>
 
 ## Anatomy
 
@@ -52,11 +42,11 @@ import * as Accordion from "@ormo/primitives/accordion";
 ---
 
 <Accordion.Root>
-  <Accordion.Item>
+  <Accordion.Item value="value">
     <Accordion.Header>
-      <Accordion.Trigger />
+      <Accordion.Trigger>Trigger label</Accordion.Trigger>
     </Accordion.Header>
-    <Accordion.Content />
+    <Accordion.Content>Content</Accordion.Content>
   </Accordion.Item>
 </Accordion.Root>`}
 />
@@ -65,7 +55,7 @@ import * as Accordion from "@ormo/primitives/accordion";
 
 ### Default value
 
-Use <code>defaultValue</code> to select the item that is open when the accordion initialises. To initialise with multiple items open, pass an array of item values.
+Use `defaultValue` to specify which item is open when the accordion initialises. To open [multiple items](#multiple) initially, set `type="multiple"` and pass an array of item values.
 
 <DemoBlock
   files={[{ filename: "Accordion.astro", code: accordionInitialValueDemoCode }]}
@@ -75,7 +65,7 @@ Use <code>defaultValue</code> to select the item that is open when the accordion
 
 ### Multiple
 
-Use <code>type="multiple"</code> to allow any number of accordion items to be open at once.
+Use `type="multiple"` to allow one or more accordion items to be open at the same time.
 
 <DemoBlock
   files={[{ filename: "Accordion.astro", code: accordionMultipleDemoCode }]}
@@ -85,7 +75,7 @@ Use <code>type="multiple"</code> to allow any number of accordion items to be op
 
 ### Require an open panel
 
-Set `collapsible={false}` on `Accordion.Root` when at least one item must stay open at all times. Selecting the open item's trigger again does nothing; selecting another item moves the open state.
+For `type="single"`, set `collapsible={false}` to prevent the open item from being closed without opening another. This does not choose an initial item, so provide `defaultValue` when a panel must be open from first render. `collapsible` has no effect with `type="multiple"`.
 
 <DemoBlock
   files={[{ filename: "Accordion.astro", code: accordionRequireOpenDemoCode }]}
@@ -95,7 +85,7 @@ Set `collapsible={false}` on `Accordion.Root` when at least one item must stay o
 
 ### Disabled item
 
-Set <code>disabled</code> on an item to prevent interaction with it while keeping the other accordion items available. Add <code>disabled</code> to <code>Accordion.Root</code> to disable the entire group.
+Set `disabled` on `Accordion.Item` to prevent interaction with that item while keeping the others available. Set `disabled` on `Accordion.Root` to disable the entire accordion.
 
 <DemoBlock
   files={[
@@ -106,11 +96,28 @@ Set <code>disabled</code> on an item to prevent interaction with it while keepin
   <AccordionDisabledDemo />
 </DemoBlock>
 
+### Find in page
+
+Closed panels are discoverable by the browser’s Find in page feature by default. On this page, search for `OSPREY-742`, then move to the next result to reveal the matching panel. Set `hiddenUntilFound={false}` on `Accordion.Root` to opt out for every panel, or on an individual `Accordion.Content` to opt out for that panel.
+
+<DemoBlock
+  files={[
+    {
+      filename: "Accordion.astro",
+      code: accordionHiddenUntilFoundDemoCode,
+    },
+  ]}
+>
+  <AccordionHiddenUntilFoundDemo />
+</DemoBlock>
+
 ## API reference
+
+All parts forward the relevant native HTML attributes unless noted otherwise.
 
 ### Root
 
-Groups all accordion parts and coordinates their open, disabled, and browser-search state.
+Renders `<ormo-accordion>`, groups the parts, and coordinates open state, disabled state, and browser-search reveal behaviour.
 
 <PropsTable
   id="accordion-root-props"
@@ -120,20 +127,21 @@ Groups all accordion parts and coordinates their open, disabled, and browser-sea
       name: "type",
       type: '"single" | "multiple"',
       defaultValue: '"single"',
-      description: "Determines whether one item or multiple items can be open.",
+      description:
+        "Determines whether one or more items can be open at the same time.",
     },
     {
       name: "collapsible",
       type: "boolean",
       defaultValue: "true",
       description:
-        "Allows the open panel in an accordion to be closed without opening another item. Set to false to require one open item.",
+        'For type="single", allows the open item to be closed without opening another. It does not select an initial item and has no effect with type="multiple".',
     },
     {
       name: "defaultValue",
       type: "string | string[]",
       description:
-        "Selects the initially open item or items. Use a string to initialise with a single item and an array for multiple items.",
+        'Specifies the initially open item. With type="multiple", pass an array to open multiple items.',
     },
     {
       name: "disabled",
@@ -145,9 +153,9 @@ Groups all accordion parts and coordinates their open, disabled, and browser-sea
     {
       name: "hiddenUntilFound",
       type: "boolean",
-      defaultValue: "false",
+      defaultValue: "true",
       description:
-        "Keeps closed content discoverable by the browser’s 'Find in Page' feature and opens a matching item.",
+        "Keeps closed content discoverable by the browser’s Find in page feature and opens a matching item. Set to false to use ordinary hidden content.",
       details: [
         {
           label: "HTML",
@@ -161,14 +169,14 @@ Groups all accordion parts and coordinates their open, disabled, and browser-sea
       type: '"vertical" | "horizontal"',
       defaultValue: '"vertical"',
       description:
-        "Provides styling metadata through data-orientation. It does not change keyboard behaviour and is deprecated as a behavioural API.",
+        "Deprecated. Exposes styling metadata through data-orientation but does not change keyboard behaviour.",
     },
   ]}
 />
 
 ### Item
 
-Groups one heading, trigger, and content panel.
+Renders `<div>` and groups one `Accordion.Header`, `Accordion.Trigger`, and `Accordion.Content`.
 
 <PropsTable
   id="accordion-item-props"
@@ -178,7 +186,7 @@ Groups one heading, trigger, and content panel.
       name: "value",
       type: "string",
       description:
-        "Provides the unique string used to identify this item in default and browser-controlled values.",
+        "Provides the unique identifier used by Accordion.Root defaultValue and the browser element’s value.",
       details: [{ label: "Required", value: "Yes" }],
     },
     {
@@ -186,14 +194,14 @@ Groups one heading, trigger, and content panel.
       type: "boolean",
       defaultValue: "false",
       description:
-        "Disables this item while leaving the other Accordion items interactive.",
+        "Disables this item while leaving the other accordion items interactive.",
     },
   ]}
 />
 
 ### Header
 
-Provides the semantic heading that contains an item’s trigger.
+Renders the selected heading element and contains an item’s trigger.
 
 <PropsTable
   id="accordion-header-props"
@@ -211,7 +219,7 @@ Provides the semantic heading that contains an item’s trigger.
 
 ### Trigger
 
-Renders the native button that opens or closes its corresponding content panel.
+Renders `<button>` and opens or closes its corresponding content panel.
 
 <PropsTable
   id="accordion-trigger-props"
@@ -219,7 +227,7 @@ Renders the native button that opens or closes its corresponding content panel.
   rows={[
     {
       name: "type",
-      type: "string",
+      type: '"button" | "submit" | "reset"',
       defaultValue: '"button"',
       description:
         "Sets the native button type. The default prevents accidental form submission.",
@@ -229,7 +237,7 @@ Renders the native button that opens or closes its corresponding content panel.
 
 ### Content
 
-Renders the collapsible content panel.
+Renders `<div>` as the collapsible content panel.
 
 <PropsTable
   id="accordion-content-props"
@@ -238,16 +246,16 @@ Renders the collapsible content panel.
     {
       name: "hiddenUntilFound",
       type: "boolean",
-      defaultValue: "false",
+      defaultValue: "Root",
       description:
-        "Makes this individual closed panel discoverable with 'Find in Page'. The root option applies the behaviour to every panel.",
+        "Overrides the Root setting for this panel. Set to false to make its closed content undiscoverable with Find in page.",
     },
   ]}
 />
 
-### Browser element
+## Browser API and events
 
-The <code>ormo-accordion</code> custom element exposes state for framework-free browser scripts.
+The `<ormo-accordion>` custom element exposes state for framework-independent browser scripts.
 
 <PropsTable
   id="accordion-browser-api"
@@ -259,20 +267,20 @@ The <code>ormo-accordion</code> custom element exposes state for framework-free 
       type: '"single" | "multiple"',
       defaultValue: '"single"',
       description:
-        "Gets or sets whether one item or multiple items can be open. Changing type remaps the current value to the matching shape.",
+        "Gets or sets whether one or more items can be open. Changing type remaps the current value to the matching shape.",
     },
     {
       name: "value",
-      type: "AccordionValue",
+      type: "string | string[] | null",
       description:
-        "Gets or sets the currently open value. Returns a string or null for single accordions and an array for multiple accordions.",
+        "Gets or sets the open value. A single accordion uses a string or null; a multiple accordion uses an array.",
     },
     {
       name: "collapsible",
       type: "boolean",
       defaultValue: "true",
       description:
-        "Gets or sets whether the open item in an accordion can be closed. Set to false to require one open item.",
+        "Gets or sets whether the open item can be closed in a single accordion. It does not select an initial item and has no effect for multiple accordions.",
     },
     {
       name: "disabled",
@@ -283,84 +291,153 @@ The <code>ormo-accordion</code> custom element exposes state for framework-free 
     {
       name: "hiddenUntilFound",
       type: "boolean",
-      defaultValue: "false",
+      defaultValue: "true",
       description:
-        "Gets or sets whether every closed item supports 'Find in Page'.",
+        "Gets or sets whether every closed item supports Find in page.",
     },
   ]}
 />
 
-## Events
+`ormo:value-change` fires before a user-requested value change, bubbles across shadow boundaries, and can be cancelled with `preventDefault()`. A browser-search reveal also emits the event, but cannot be cancelled. Assigning `value` directly updates the items without emitting `ormo:value-change`.
 
-Listen for <code>ormo:value-change</code> on the root before the value changes. The event bubbles and crosses shadow boundaries. Changes from user interaction can be cancelled with <code>preventDefault()</code>. A change that reveals a browser 'Find in Page' match is not cancellable, because the browser must be able to reveal the matched content.
-
-Listen for <code>ormo:open-change</code> after an individual item opens or closes. Its detail contains the item’s <code>value</code> and new <code>open</code> state.
+`ormo:open-change` fires after each affected item opens or closes. It bubbles from `Accordion.Item`, cannot be cancelled, and includes the item’s `value` and new `open` state.
 
 <CodeBlock
   lang="js"
   code={`accordion.addEventListener("ormo:value-change", (event) => {
   console.log(event.detail.value);
+  // event.preventDefault();
 });
 
 accordion.addEventListener("ormo:open-change", (event) => {
-${String.fromCharCode(32, 32)}console.log(event.detail.value, event.detail.open);
-});`}
+console.log(event.detail.value, event.detail.open);
+});
+
+// Direct assignment does not emit ormo:value-change.
+accordion.value = "delivery";`}
 />
 
-## Controlling value after render
+## Accessibility
 
-Astro props configure the accordion's initial open state. After the page loads, read and write the open state on the <code>ormo-accordion</code> element. Assigning <code>value</code> updates the items immediately. Listening for <code>ormo:value-change</code> and calling <code>preventDefault()</code> keeps the previous value, which is the controlled pattern for plain Astro scripts and islands.
+Accordion follows the [WAI-ARIA Accordion pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/). Ormo uses native headings and buttons, connects each trigger and panel with ARIA relationships, and keeps every trigger in the normal Tab sequence. Choose the `Accordion.Header` level that fits the surrounding page hierarchy.
 
-<CodeBlock
-  lang="astro"
-  code={`---
-import * as Accordion from "@ormo/primitives/accordion";
----
-
-<Accordion.Root id="faq" defaultValue="delivery">
-  <Accordion.Item value="delivery">
-    <Accordion.Header>
-      <Accordion.Trigger>Delivery</Accordion.Trigger>
-    </Accordion.Header>
-    <Accordion.Content>Delivery information</Accordion.Content>
-  </Accordion.Item>
-</Accordion.Root>
-
-<script>
-  const accordion = document.getElementById("faq");
-
-  accordion?.addEventListener("ormo:value-change", (event) => {
-    // Keep the previous value to fully control open state.
-    // event.preventDefault();
-    console.log(event.detail.value);
-  });
-
-  // Open a panel from application code:
-  // accordion.value = "delivery";
-</script>`}
-
+<PropsTable
+  id="accordion-keyboard"
+  caption="Accordion keyboard behaviour"
+  nameHeader="Key"
+  rows={[
+    {
+      name: "Tab / Shift + Tab",
+      type: "Focus",
+      description: "Moves focus through the triggers in document order.",
+    },
+    {
+      name: "Enter / Space",
+      type: "Activation",
+      description: "Opens or closes the focused item when it is available.",
+    },
+    {
+      name: "Arrow / Home / End",
+      type: "Native",
+      description:
+        "Retains native browser behaviour; Accordion does not move focus between triggers.",
+    },
+  ]}
 />
-
-## Development toolbar
-
-With the optional [Ormo development toolbar](/docs/dev-toolbar) enabled, Astro’s toolbar scans rendered Accordions and flags common composition mistakes:
-
-- Roots with no Item parts
-- Items missing a non-empty <code>value</code>
-- Duplicate Item values in the same Accordion
-- Items missing a Trigger or Content part
-- Triggers without an accessible name
-
-Select an issue in the toolbar to jump to the element. These checks catch structural mistakes during development; they do not replace keyboard and screen-reader testing.
-
-Try the [Accordion toolbar demo](/docs/dev-toolbar/accordion-demo) for intentionally broken examples.
-
-## Keyboard behaviour
-
-Every trigger is a native button in the normal Tab sequence. Use <kbd>Enter</kbd> or <kbd>Space</kbd> to toggle it.
 
 ## Styling
 
-Item, Header, Trigger, and Content expose <code>data-open</code>, <code>data-disabled</code>, and <code>data-index</code>. Root exposes <code>data-disabled</code> and <code>data-orientation</code>. The existing <code>data-state="open|closed"</code> attribute remains available for explicit state selectors.
+Accordion ships no layout or brand styles. Pass `class` values to its parts and use the public state hooks below. Attributes prefixed with `data-ormo-*` are internal runtime selectors, not styling APIs.
 
-Content exposes <code>data-starting-style</code> and <code>data-ending-style</code> during transitions, along with <code>--ormo-accordion-content-height</code> and <code>--ormo-accordion-content-width</code>.
+Closed Content uses `hidden="until-found"`, which retains the Content element’s own layout box. Put padding, borders, and backgrounds on an inner wrapper when they should disappear with the panel.
+
+<PropsTable
+  id="accordion-styling"
+  caption="Accordion styling hooks"
+  nameHeader="Hook"
+  rows={[
+    {
+      name: "data-state",
+      type: '"open" | "closed"',
+      description: "Explicit open state for CSS selectors.",
+      details: [{ label: "Element", value: "Item, Trigger, Content" }],
+    },
+    {
+      name: "data-open",
+      type: "boolean attribute",
+      description: "Present while the item is open.",
+      details: [{ label: "Element", value: "Item, Header, Trigger, Content" }],
+    },
+    {
+      name: "data-disabled",
+      type: "boolean attribute",
+      description: "Present when Root or the corresponding Item is disabled.",
+      details: [
+        { label: "Element", value: "Root, Item, Header, Trigger, Content" },
+      ],
+    },
+    {
+      name: "data-index",
+      type: "string",
+      description: "Zero-based item position.",
+      details: [{ label: "Element", value: "Item, Header, Trigger, Content" }],
+    },
+    {
+      name: "data-orientation",
+      type: '"vertical" | "horizontal"',
+      description: "Deprecated styling metadata.",
+      details: [{ label: "Element", value: "Root, Content" }],
+    },
+    {
+      name: "data-starting-style",
+      type: "boolean attribute",
+      description: "Present while Content enters.",
+      details: [{ label: "Element", value: "Content" }],
+    },
+    {
+      name: "data-ending-style",
+      type: "boolean attribute",
+      description: "Present while Content exits.",
+      details: [{ label: "Element", value: "Content" }],
+    },
+    {
+      name: "--ormo-accordion-content-height",
+      type: "<length> | auto",
+      description: "Measured Content height for transitions.",
+      details: [{ label: "Element", value: "Content" }],
+    },
+    {
+      name: "--ormo-accordion-content-width",
+      type: "<length>",
+      description: "Measured Content width for transitions.",
+      details: [{ label: "Element", value: "Content" }],
+    },
+  ]}
+/>
+
+<CodeBlock
+  lang="css"
+  code={`.accordion-content {
+  height: var(--ormo-accordion-content-height, auto);
+  overflow: hidden;
+  transition:
+    height 160ms ease,
+    opacity 120ms ease;
+}
+
+.accordion-content[data-starting-style],
+.accordion-content[data-ending-style] {
+height: 0;
+opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+.accordion-content {
+transition: none;
+}
+}`}
+/>
+
+## Runtime
+
+`Accordion.Root` loads one deduplicated runtime that coordinates state, ARIA relationships, transitions, and browser-search reveals. Initial state is rendered on the server; without JavaScript, any initially open panel remains available but the triggers do not change panels.

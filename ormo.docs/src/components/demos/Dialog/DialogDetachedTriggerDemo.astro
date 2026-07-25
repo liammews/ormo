@@ -4,11 +4,14 @@ import "./index.css";
 ---
 
 <div data-profile-editor>
-  <div class="dialog-trigger-group" aria-label="Profile shortcuts">
-    <Dialog.Trigger class="dialog-trigger" for="profile-dialog">
+  <div class="dialog-trigger-group button-group" aria-label="Profile shortcuts">
+    <Dialog.Trigger class="dialog-trigger button" for="profile-dialog">
       Open from toolbar
     </Dialog.Trigger>
-    <Dialog.Trigger class="dialog-trigger-secondary" for="profile-dialog">
+    <Dialog.Trigger
+      class="dialog-trigger-secondary button button--secondary"
+      for="profile-dialog"
+    >
       Open from account menu
     </Dialog.Trigger>
   </div>
@@ -19,8 +22,10 @@ import "./index.css";
       <Dialog.Description class="dialog-description">
         Your public profile is visible to everyone in your workspace.
       </Dialog.Description>
-      <div class="dialog-actions">
-        <Dialog.Close class="dialog-button">Close</Dialog.Close>
+      <div class="dialog-actions button-group button-group--end">
+        <Dialog.Close class="dialog-button button button--secondary">
+          Close
+        </Dialog.Close>
       </div>
     </Dialog.Content>
   </Dialog.Root>

@@ -7,11 +7,17 @@ type Props = CheckboxGroupLabelProps;
 const { id, ...attributes }: Props = Astro.props;
 const group = getCheckboxGroupSsrContext();
 
-if (group) {
-  group.hasLabel = true;
-}
+const labelId =
+  id ??
+  (group
+    ? group.labelIds.length === 0
+      ? group.labelId
+      : `${group.labelId}-${group.labelIds.length + 1}`
+    : undefined);
 
-const labelId = id ?? group?.labelId;
+if (group && labelId) {
+  group.labelIds.push(labelId);
+}
 ---
 
 <span {...attributes} id={labelId} data-ormo-checkbox-group-label>

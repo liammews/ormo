@@ -13,6 +13,10 @@ export interface AccordionRootProps extends HTMLAttributes<"div"> {
   collapsible?: boolean;
   defaultValue?: string | string[];
   disabled?: boolean;
+  /**
+   * Keeps closed content discoverable with the browser’s Find in page feature.
+   * @default true
+   */
   hiddenUntilFound?: boolean;
   /**
    * Exposes styling metadata only. Accordion triggers remain in the normal tab
@@ -37,6 +41,7 @@ export interface AccordionHeaderProps extends HTMLAttributes<"h3"> {
 export type AccordionTriggerProps = HTMLAttributes<"button">;
 
 export interface AccordionContentProps extends HTMLAttributes<"div"> {
+  /** Overrides the Root setting for this panel. */
   hiddenUntilFound?: boolean;
 }
 

@@ -257,6 +257,21 @@ describe("tooltip", () => {
     expect(second.root.open).toBe(true);
   });
 
+  it("skips open delay when moving directly between tooltip triggers", () => {
+    const first = createTooltip({ delay: 700, closeDelay: 100 });
+    const second = createTooltip({ delay: 700 });
+
+    pointerOver(first.trigger);
+    vi.advanceTimersByTime(700);
+    expect(first.root.open).toBe(true);
+
+    pointerOut(first.trigger, second.trigger);
+    pointerOver(second.trigger);
+
+    expect(first.root.open).toBe(false);
+    expect(second.root.open).toBe(true);
+  });
+
   it("closes the previous tooltip when another opens", () => {
     const first = createTooltip({ delay: 0 });
     const second = createTooltip({ delay: 0 });

@@ -167,6 +167,8 @@ test.describe("without JavaScript", () => {
     );
     await expect(aboutPanel).toHaveAttribute("data-state", "open");
     await expect(pricePanel).toBeHidden();
+    await expect(pricePanel).toHaveAttribute("hidden", "until-found");
+    await expect(pricePanel).not.toHaveAttribute("inert", "");
     await expect(pricePanel).toHaveAttribute("data-state", "closed");
   });
 });

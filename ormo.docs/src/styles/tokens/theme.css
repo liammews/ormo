@@ -1,7 +1,7 @@
 :root {
   --content-default: var(--color-gray-12);
   --content-subtle: var(--color-gray-11);
-  --content-inverse: var(--color-gray-1);
+  --content-invert: var(--color-gray-1);
   --content-disabled: var(--color-gray-10);
   --content-placeholder: var(--color-gray-8);
   --content-brand: var(--color-brand-12);
@@ -12,15 +12,12 @@
   --content-error: var(--color-amber-11);
   --content-warning: var(--color-red-11);
   --content-onbrand: var(--color-gray-12);
-  --content-invert: var(--color-white);
 
   --surface-canvas: var(--color-gray-2);
   --surface-elevated: var(--color-gray-3);
   --surface-base: var(--color-gray-1);
   --surface-invert: var(--color-gray-12);
   --surface-disabled: var(--color-gray-3);
-  --surface-brand: var(--color-brand-9);
-  --surface-brand-hover: var(--color-brand-11);
   --surface-overlay: ;
   --surface-info: var(--color-blue-10);
   --surface-info-tint: var(--color-blue-2);

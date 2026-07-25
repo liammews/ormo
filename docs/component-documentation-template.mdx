@@ -1,0 +1,211 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Component name"
+description: "A concise description of the component and its purpose."
+---
+
+<!--
+Copy this file to:
+
+ormo.docs/src/pages/docs/components/<component-name>.mdx
+
+Replace every generic Component name, path, value, and description. Delete this
+comment and every optional section or example that does not apply. Keep examples
+valid, accessible, and aligned with the implemented public API.
+-->
+
+import ComponentDemo from "../../../components/demos/Component/ComponentDemo.astro";
+import componentDemoCode from "../../../components/demos/Component/ComponentDemo.astro?raw";
+import componentDemoCss from "../../../components/demos/Component/index.css?raw";
+import ComponentExampleDemo from "../../../components/demos/Component/ComponentExampleDemo.astro";
+import componentExampleDemoCode from "../../../components/demos/Component/ComponentExampleDemo.astro?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+<DemoBlock
+  files={[
+    { filename: "Component.astro", code: componentDemoCode },
+    { filename: "index.css", code: componentDemoCss },
+  ]}
+>
+  <ComponentDemo />
+</DemoBlock>
+
+## Anatomy
+
+Import the component and assemble its parts. Keep this example valid: include required props, meaningful trigger labels, and representative content. Adapt the example for a single-component primitive rather than inventing multipart anatomy.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Component from "@ormo/primitives/component-name";
+---
+
+<Component.Root>
+  <Component.Item value="value">
+    <Component.Trigger>Trigger label</Component.Trigger>
+    <Component.Content>Content</Component.Content>
+  </Component.Item>
+</Component.Root>`}
+/>
+
+<!-- Optional: omit Examples when the opening demo demonstrates the complete useful API. -->
+
+## Examples
+
+### Example behaviour
+
+Explain when to use the option, what it changes, and any interaction with other props or browser behaviour. Link to a related example heading when that prevents duplicated explanation.
+
+<DemoBlock
+  files={[{ filename: "Component.astro", code: componentExampleDemoCode }]}
+>
+  <ComponentExampleDemo />
+</DemoBlock>
+
+## API reference
+
+All parts forward the relevant native HTML attributes unless noted otherwise.
+
+### Root
+
+State the native element or custom element rendered by `Component.Root`, then summarise its responsibility in one sentence.
+
+<PropsTable
+  id="component-root-props"
+  caption="Component Root properties"
+  rows={[
+    {
+      name: "propName",
+      type: '"value" | "other-value"',
+      defaultValue: '"value"',
+      description:
+        "Explain what the prop changes, when to use it, and any important constraints.",
+    },
+    {
+      name: "requiredProp",
+      type: "string",
+      description: "Explain how this value identifies or configures the part.",
+      details: [{ label: "Required", value: "Yes" }],
+    },
+  ]}
+/>
+
+### Part
+
+State the native element rendered by `Component.Part` and its semantic purpose.
+
+<PropsTable
+  id="component-part-props"
+  caption="Component Part properties"
+  rows={[
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Explain the exact disabled behaviour and its scope.",
+    },
+  ]}
+/>
+
+<!-- Optional: include only when the primitive exposes post-render DOM control. -->
+
+## Browser API and events
+
+The `<ormo-component>` custom element exposes state for framework-independent browser scripts.
+
+<PropsTable
+  id="component-browser-api"
+  caption="Component browser element API"
+  nameHeader="Member"
+  rows={[
+    {
+      name: "value",
+      type: "string | null",
+      description: "Gets or sets the current value.",
+    },
+  ]}
+/>
+
+Describe when each event fires, whether it bubbles or crosses shadow boundaries, whether it can be cancelled, and the shape of its `detail`. Distinguish user-requested changes from direct property assignment.
+
+<CodeBlock
+  lang="js"
+  code={`component.addEventListener("ormo:value-change", (event) => {
+  console.log(event.detail.value);
+  // event.preventDefault();
+});
+
+component.value = "value";`}
+/>
+
+## Accessibility
+
+State the native semantics or established WAI-ARIA pattern followed by the component. Briefly describe accessible naming, generated relationships, focus behaviour, and the responsibilities that remain with the author.
+
+<PropsTable
+  id="component-keyboard"
+  caption="Component keyboard behaviour"
+  nameHeader="Key"
+  rows={[
+    {
+      name: "Tab / Shift + Tab",
+      type: "Focus",
+      description:
+        "Describe how focus enters, leaves, or moves through the component.",
+    },
+    {
+      name: "Enter / Space",
+      type: "Activation",
+      description: "Describe the action performed by the focused control.",
+    },
+  ]}
+/>
+
+## Styling
+
+State that the component ships no layout or brand styles. Tell consumers where to pass `class` values, and distinguish public state hooks from internal `data-ormo-*` runtime selectors.
+
+<PropsTable
+  id="component-styling"
+  caption="Component styling hooks"
+  nameHeader="Hook"
+  rows={[
+    {
+      name: "data-state",
+      type: '"active" | "inactive"',
+      description: "Describe the state represented by the attribute.",
+      details: [{ label: "Element", value: "Root, Part" }],
+    },
+    {
+      name: "--ormo-component-size",
+      type: "<length>",
+      description: "Describe the measured or authored CSS value.",
+      details: [{ label: "Element", value: "Part" }],
+    },
+  ]}
+/>
+
+<!-- Optional: include a focused styling example when hooks need composition. -->
+
+<CodeBlock
+  lang="css"
+  code={String.raw`.component-part {
+  transition: opacity 120ms ease;
+}
+
+.component-part[data-state="inactive"] {
+opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+.component-part {
+transition: none;
+}
+}`}
+/>
+
+## Runtime
+
+In one short paragraph, explain whether the primitive ships JavaScript, what the runtime coordinates, what is rendered on the server, and what remains functional without JavaScript.

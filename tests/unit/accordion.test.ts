@@ -37,8 +37,8 @@ function createAccordion(
     root.setAttribute("data-disabled", "");
   }
 
-  if (options.hiddenUntilFound) {
-    root.setAttribute("data-hidden-until-found", "");
+  if (options.hiddenUntilFound === false) {
+    root.setAttribute("data-hidden-until-found", "false");
   }
 
   root.innerHTML = values
@@ -99,15 +99,39 @@ describe("accordion", () => {
     expect(contents[1]?.getAttribute("aria-labelledby")).toBe(triggers[1]?.id);
     expect(contents[1]?.hasAttribute("role")).toBe(false);
     expect(triggers[1]?.hasAttribute("aria-disabled")).toBe(false);
-    expect(contents[0]?.hidden).toBe(true);
+    expect(root.hiddenUntilFound).toBe(true);
+    expect(contents[0]?.getAttribute("hidden")).toBe("until-found");
     expect(contents[0]?.getAttribute("aria-hidden")).toBe("true");
-    expect(contents[0]?.hasAttribute("inert")).toBe(true);
+    expect(contents[0]?.hasAttribute("inert")).toBe(false);
     expect(contents[1]?.hidden).toBe(false);
     expect(contents[1]?.hasAttribute("aria-hidden")).toBe(false);
     expect(contents[1]?.hasAttribute("inert")).toBe(false);
     expect(
       contents[1]?.style.getPropertyValue("--ormo-accordion-content-height"),
     ).toBe("auto");
+  });
+
+  it("supports Root and Content browser-search opt-outs", () => {
+    const root = createAccordion(["first", "second"]);
+    const contents = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-ormo-accordion-content]"),
+    );
+
+    root.hiddenUntilFound = false;
+
+    expect(root.hiddenUntilFound).toBe(false);
+    expect(contents[0]?.getAttribute("hidden")).toBe("");
+    expect(contents[0]?.hasAttribute("inert")).toBe(true);
+
+    contents[0]?.setAttribute("data-hidden-until-found", "false");
+    contents[1]?.setAttribute("data-hidden-until-found", "");
+    root.hiddenUntilFound = true;
+    root.hiddenUntilFound = false;
+
+    expect(contents[0]?.getAttribute("hidden")).toBe("");
+    expect(contents[0]?.hasAttribute("inert")).toBe(true);
+    expect(contents[1]?.getAttribute("hidden")).toBe("until-found");
+    expect(contents[1]?.hasAttribute("inert")).toBe(false);
   });
 
   it("opens and collapses a single item", () => {
@@ -264,9 +288,7 @@ describe("accordion", () => {
   });
 
   it("does not let a canceled value event block a browser search match", () => {
-    const root = createAccordion(["first", "second"], {
-      hiddenUntilFound: true,
-    });
+    const root = createAccordion(["first", "second"]);
     const listener = vi.fn((event: Event) => event.preventDefault());
     const content = root.querySelector<HTMLElement>(
       '[data-ormo-accordion-item][data-value="second"] [data-ormo-accordion-content]',
@@ -274,6 +296,7 @@ describe("accordion", () => {
 
     root.addEventListener("ormo:value-change", listener);
     expect(content?.getAttribute("hidden")).toBe("until-found");
+    expect(content?.hasAttribute("inert")).toBe(false);
 
     content?.dispatchEvent(new Event("beforematch", { bubbles: true }));
 
@@ -365,8 +388,8 @@ describe("accordion", () => {
     root.value = null;
 
     expect(document.activeElement).toBe(trigger);
-    expect(content?.hidden).toBe(true);
-    expect(content?.hasAttribute("inert")).toBe(true);
+    expect(content?.getAttribute("hidden")).toBe("until-found");
+    expect(content?.hasAttribute("inert")).toBe(false);
   });
 
   it("leaves arrow, Home, and End keys to their native behavior", () => {

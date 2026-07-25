@@ -12,7 +12,7 @@ const {
   collapsible = true,
   defaultValue,
   disabled = false,
-  hiddenUntilFound = false,
+  hiddenUntilFound = true,
   orientation = "vertical",
   ...attributes
 } = Astro.props;
@@ -38,7 +38,7 @@ const content = await renderWithAccordionContext(
   data-orientation={orientation}
   data-collapsible={collapsible ? undefined : "false"}
   data-disabled={disabled ? "" : undefined}
-  data-hidden-until-found={hiddenUntilFound ? "" : undefined}
+  data-hidden-until-found={hiddenUntilFound ? undefined : "false"}
   data-default-value={serializedDefaultValue}
   set:html={content}
 />

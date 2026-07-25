@@ -5,22 +5,22 @@ import "./index.css";
 
 <div class="tooltip-example" data-tooltip-demo="programmatic">
   <Tooltip.Root id="programmatic-tooltip" delay={0}>
-    <Tooltip.Trigger class="tooltip-trigger">Target</Tooltip.Trigger>
-    <Tooltip.Content class="tooltip-content" sideOffset={6}>
+    <Tooltip.Trigger class="tooltip-trigger button">Target</Tooltip.Trigger>
+    <Tooltip.Content class="tooltip-content" sideOffset={10}>
       Opened with show()
     </Tooltip.Content>
   </Tooltip.Root>
 
-  <div class="tooltip-trigger-group">
+  <div class="tooltip-trigger-group button-group">
     <button
-      class="tooltip-trigger tooltip-trigger-secondary"
+      class="tooltip-trigger tooltip-trigger-secondary button button--secondary"
       type="button"
       data-tooltip-show
     >
       Show
     </button>
     <button
-      class="tooltip-trigger tooltip-trigger-secondary"
+      class="tooltip-trigger tooltip-trigger-secondary button button--secondary"
       type="button"
       data-tooltip-hide
     >

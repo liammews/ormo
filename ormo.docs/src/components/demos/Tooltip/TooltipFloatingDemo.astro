@@ -5,12 +5,14 @@ import "./index.css";
 
 <div class="tooltip-example" data-tooltip-demo="floating">
   <Tooltip.Root positioning="floating">
-    <Tooltip.Trigger class="tooltip-trigger">Floating UI</Tooltip.Trigger>
+    <Tooltip.Trigger class="tooltip-trigger button button--secondary">
+      Floating UI
+    </Tooltip.Trigger>
     <Tooltip.Content
-      class="tooltip-content"
+      class="tooltip-content tooltip-content-wide"
       side="bottom"
       align="start"
-      sideOffset={8}
+      sideOffset={10}
     >
       Opt in with the floating import and positioning="floating".
     </Tooltip.Content>

@@ -5,7 +5,9 @@ import "./index.css";
 
 <div class="popover-example">
   <Popover.Root positioning="floating">
-    <Popover.Trigger class="popover-trigger">Floating UI</Popover.Trigger>
+    <Popover.Trigger class="popover-trigger button">
+      Floating UI
+    </Popover.Trigger>
 
     <Popover.Content
       class="popover-content"
@@ -17,8 +19,10 @@ import "./index.css";
       <Popover.Description class="popover-description">
         Opt in with the floating import and positioning="floating".
       </Popover.Description>
-      <div class="popover-actions">
-        <Popover.Close class="popover-button">Close</Popover.Close>
+      <div class="popover-actions button-group button-group--end">
+        <Popover.Close class="popover-button button button--secondary">
+          Close
+        </Popover.Close>
       </div>
     </Popover.Content>
   </Popover.Root>

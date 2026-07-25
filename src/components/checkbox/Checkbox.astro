@@ -43,6 +43,16 @@ const resolvedChecked =
         ? true
         : undefined;
 
+const isResolvedChecked =
+  resolvedChecked !== undefined && resolvedChecked !== false;
+
+if (group && !parent) {
+  group.memberCount += 1;
+  if (isResolvedChecked) {
+    group.checkedMemberCount += 1;
+  }
+}
+
 const needsRuntime = import.meta.env.DEV || Boolean(indeterminate);
 ---
 
@@ -51,11 +61,12 @@ const needsRuntime = import.meta.env.DEV || Boolean(indeterminate);
   type="checkbox"
   name={resolvedName}
   value={parent ? undefined : value}
-  checked={resolvedChecked || undefined}
+  checked={isResolvedChecked || undefined}
   disabled={resolvedDisabled || undefined}
   data-ormo-checkbox
   data-ormo-checkbox-parent={parent ? "" : undefined}
   data-item-disabled={itemDisabled ? "" : undefined}
+  data-item-name-authored={name != null ? "" : undefined}
   data-indeterminate={indeterminate ? "" : undefined}
   data-disabled={resolvedDisabled ? "" : undefined}
 />

@@ -1,0 +1,19 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Fieldset"
+description: "Groups related form controls under a native legend"
+---
+
+import FieldsetDemo from "../../../components/demos/Fieldset/FieldsetDemo.astro";
+import fieldsetDemoCode from "../../../components/demos/Fieldset/FieldsetDemo.astro?raw";
+import fieldsetDemoCss from "../../../components/demos/Fieldset/index.css?raw";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+
+<DemoBlock
+  files={[
+    { filename: "Fieldset.astro", code: fieldsetDemoCode },
+    { filename: "index.css", code: fieldsetDemoCss },
+  ]}
+>
+  <FieldsetDemo />
+</DemoBlock>

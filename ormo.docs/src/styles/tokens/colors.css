@@ -123,18 +123,18 @@
     --color-gray-11: hsla(0, 0%, 72%, 1);
     --color-gray-12: hsla(0, 0%, 93%, 1);
 
-    --color-brand-1: var(--color-purple-1);
-    --color-brand-2: var(--color-purple-2);
-    --color-brand-3: var(--color-purple-3);
-    --color-brand-4: var(--color-purple-4);
-    --color-brand-5: var(--color-purple-5);
-    --color-brand-6: var(--color-purple-6);
-    --color-brand-7: var(--color-purple-7);
-    --color-brand-8: var(--color-purple-8);
-    --color-brand-9: var(--color-purple-9);
-    --color-brand-10: var(--color-purple-10);
-    --color-brand-11: var(--color-purple-11);
-    --color-brand-12: var(--color-purple-12);
+    --color-brand-1: var(--color-orange-1);
+    --color-brand-2: var(--color-orange-2);
+    --color-brand-3: var(--color-orange-3);
+    --color-brand-4: var(--color-orange-4);
+    --color-brand-5: var(--color-orange-5);
+    --color-brand-6: var(--color-orange-6);
+    --color-brand-7: var(--color-orange-7);
+    --color-brand-8: var(--color-orange-8);
+    --color-brand-9: var(--color-orange-9);
+    --color-brand-10: var(--color-orange-10);
+    --color-brand-11: var(--color-orange-11);
+    --color-brand-12: var(--color-orange-12);
 
     --color-blue-1: oklch(15% 0.004 251.56);
     --color-blue-2: oklch(18% 0.008 251.56);

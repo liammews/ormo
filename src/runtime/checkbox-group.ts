@@ -12,6 +12,31 @@ function belongsToRoot(element: Element, root: HTMLElement): boolean {
   return element.closest(tagName) === root;
 }
 
+function isEffectivelyDisabled(checkbox: HTMLInputElement): boolean {
+  if (checkbox.disabled) {
+    return true;
+  }
+
+  for (
+    let ancestor = checkbox.parentElement;
+    ancestor;
+    ancestor = ancestor.parentElement
+  ) {
+    if (!(ancestor instanceof HTMLFieldSetElement) || !ancestor.disabled) {
+      continue;
+    }
+
+    const firstLegend = Array.from(ancestor.children).find(
+      (child): child is HTMLLegendElement => child instanceof HTMLLegendElement,
+    );
+    if (!firstLegend?.contains(checkbox)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function isMemberCheckbox(
   element: Element,
   root: HTMLElement,
@@ -144,8 +169,11 @@ export class OrmoCheckboxGroup
   ];
 
   #controller: AbortController | undefined;
+  #formController: AbortController | undefined;
   #observer: MutationObserver | undefined;
   #initialized = false;
+  #managedNames = new WeakMap<HTMLInputElement, string | null>();
+  #validityMessage: string | undefined;
   #validityTarget: HTMLInputElement | undefined;
   #suppressEvents = false;
 
@@ -168,6 +196,7 @@ export class OrmoCheckboxGroup
     this.#syncLabel();
     this.#reconcile();
     this.#applyRequiredValidity();
+    this.#bindFormEvents();
 
     if (import.meta.env.DEV) {
       validateCheckboxGroup(this);
@@ -175,7 +204,8 @@ export class OrmoCheckboxGroup
     }
 
     this.#observer?.disconnect();
-    this.#observer = new MutationObserver(() => {
+    this.#observer = new MutationObserver((records) => {
+      this.#captureMemberMutations(records);
       this.#applyName();
       this.#applyDisabled();
       this.#syncLabel();
@@ -193,6 +223,8 @@ export class OrmoCheckboxGroup
       attributeFilter: [
         "data-ormo-checkbox-parent",
         "data-item-disabled",
+        "disabled",
+        "id",
         "value",
         "name",
       ],
@@ -202,6 +234,8 @@ export class OrmoCheckboxGroup
   disconnectedCallback(): void {
     this.#controller?.abort();
     this.#controller = undefined;
+    this.#formController?.abort();
+    this.#formController = undefined;
     this.#observer?.disconnect();
     this.#observer = undefined;
     this.#clearValidity();
@@ -246,20 +280,30 @@ export class OrmoCheckboxGroup
   }
 
   set value(next: string[]) {
+    const previous = this.value;
     const values = new Set(next);
     this.#suppressEvents = true;
 
     for (const member of this.#members()) {
-      if (member.disabled) {
-        continue;
-      }
       member.checked = values.has(member.value);
     }
 
     this.#suppressEvents = false;
     this.#reconcile();
     this.#applyRequiredValidity();
-    this.#emitValueChange();
+
+    const current = this.value;
+    if (
+      previous.length !== current.length ||
+      previous.some((value, index) => value !== current[index])
+    ) {
+      this.#emitValueChange();
+    }
+  }
+
+  get form(): HTMLFormElement | null {
+    const checkbox = this.#members()[0] ?? this.#parents()[0];
+    return checkbox?.form ?? null;
   }
 
   get disabled(): boolean {
@@ -294,19 +338,28 @@ export class OrmoCheckboxGroup
     this.#applyRequiredValidity();
   }
 
+  get valid(): boolean {
+    this.#applyRequiredValidity();
+    return this.#members().every((member) => member.validity.valid);
+  }
+
   checkValidity(): boolean {
     this.#applyRequiredValidity();
-    const target = this.#validityTarget;
-    return target ? target.validity.valid : true;
+    let valid = true;
+
+    for (const member of this.#members()) {
+      if (!member.checkValidity()) {
+        valid = false;
+      }
+    }
+
+    return valid;
   }
 
   reportValidity(): boolean {
     this.#applyRequiredValidity();
-    const target = this.#validityTarget;
-    if (!target) {
-      return true;
-    }
-    return target.reportValidity();
+    const invalid = this.#members().find((member) => !member.validity.valid);
+    return invalid ? invalid.reportValidity() : true;
   }
 
   #members(): HTMLInputElement[] {
@@ -322,7 +375,7 @@ export class OrmoCheckboxGroup
   }
 
   #enabledMembers(): HTMLInputElement[] {
-    return this.#members().filter((member) => !member.disabled);
+    return this.#members().filter((member) => !isEffectivelyDisabled(member));
   }
 
   #readMemberValues(): string[] {
@@ -331,14 +384,53 @@ export class OrmoCheckboxGroup
       .map((member) => member.value);
   }
 
+  #captureMemberMutations(records: MutationRecord[]): void {
+    for (const record of records) {
+      const target = record.target;
+      if (
+        !(target instanceof HTMLInputElement) ||
+        !belongsToRoot(target, this)
+      ) {
+        continue;
+      }
+
+      if (record.attributeName === "name" && isMemberCheckbox(target, this)) {
+        const current = target.getAttribute("name");
+        if (this.#managedNames.get(target) !== current) {
+          target.setAttribute("data-item-name-authored", "");
+          this.#managedNames.delete(target);
+        }
+      }
+
+      if (
+        record.attributeName === "disabled" &&
+        (!this.disabled || !target.disabled)
+      ) {
+        target.toggleAttribute("data-item-disabled", target.disabled);
+      }
+    }
+  }
+
   #applyName(): void {
     const name = this.name;
-    if (!name) {
-      return;
-    }
 
     for (const member of this.#members()) {
-      member.name = name;
+      if (member.hasAttribute("data-item-name-authored")) {
+        this.#managedNames.delete(member);
+        continue;
+      }
+
+      const desired = name || null;
+      this.#managedNames.set(member, desired);
+      if (member.getAttribute("name") === desired) {
+        continue;
+      }
+
+      if (desired === null) {
+        member.removeAttribute("name");
+      } else {
+        member.name = desired;
+      }
     }
   }
 
@@ -354,26 +446,77 @@ export class OrmoCheckboxGroup
       }
 
       const itemDisabled = checkbox.hasAttribute("data-item-disabled");
-      checkbox.disabled = groupDisabled || itemDisabled;
-      checkbox.toggleAttribute("data-disabled", checkbox.disabled);
+      const disabled = groupDisabled || itemDisabled;
+      if (checkbox.disabled !== disabled) {
+        checkbox.disabled = disabled;
+      }
+      checkbox.toggleAttribute("data-disabled", disabled);
     }
   }
 
   #syncLabel(): void {
-    if (
-      this.hasAttribute("aria-label") ||
-      this.getAttribute("aria-labelledby")
-    ) {
+    const managed = this.getAttribute("data-managed-labelledby");
+    const current = this.getAttribute("aria-labelledby");
+
+    if (this.getAttribute("aria-label")?.trim()) {
+      if (managed !== null && current === managed) {
+        this.removeAttribute("aria-labelledby");
+        this.removeAttribute("data-managed-labelledby");
+      }
       return;
     }
 
-    const label = this.querySelector(labelSelector);
-    if (label instanceof HTMLElement) {
-      if (!label.id) {
-        label.id = `${this.id || "ormo-checkbox-group"}-label`;
-      }
-      this.setAttribute("aria-labelledby", label.id);
+    if (current !== null && current !== managed) {
+      this.removeAttribute("data-managed-labelledby");
+      return;
     }
+
+    const labels = Array.from(this.querySelectorAll(labelSelector)).filter(
+      (label): label is HTMLElement =>
+        label instanceof HTMLElement && belongsToRoot(label, this),
+    );
+    const baseId = `${this.id || "ormo-checkbox-group"}-label`;
+    const labelIds = labels.map((label, index) => {
+      if (!label.id) {
+        label.id = index === 0 ? baseId : `${baseId}-${index + 1}`;
+      }
+      return label.id;
+    });
+    const next = labelIds.join(" ");
+
+    if (!next) {
+      if (managed !== null && current === managed) {
+        this.removeAttribute("aria-labelledby");
+        this.removeAttribute("data-managed-labelledby");
+      }
+      return;
+    }
+
+    if (current !== next) {
+      this.setAttribute("aria-labelledby", next);
+    }
+    if (managed !== next) {
+      this.setAttribute("data-managed-labelledby", next);
+    }
+  }
+
+  #bindFormEvents(): void {
+    this.#formController?.abort();
+    this.#formController = new AbortController();
+    this.ownerDocument.addEventListener("reset", this.#handleReset, {
+      capture: true,
+      signal: this.#formController.signal,
+    });
+    this.ownerDocument.addEventListener("submit", this.#handleSubmit, {
+      capture: true,
+      signal: this.#formController.signal,
+    });
+  }
+
+  #belongsToForm(form: HTMLFormElement): boolean {
+    return [...this.#members(), ...this.#parents()].some(
+      (checkbox) => checkbox.form === form,
+    );
   }
 
   #aggregateState(): CheckboxGroupDataState {
@@ -422,10 +565,17 @@ export class OrmoCheckboxGroup
   }
 
   #clearValidity(): void {
-    if (this.#validityTarget) {
+    if (
+      this.#validityTarget &&
+      this.#validityMessage !== undefined &&
+      this.#validityTarget.validity.customError &&
+      this.#validityTarget.validationMessage === this.#validityMessage
+    ) {
       this.#validityTarget.setCustomValidity("");
-      this.#validityTarget = undefined;
     }
+
+    this.#validityTarget = undefined;
+    this.#validityMessage = undefined;
   }
 
   #applyRequiredValidity(): void {
@@ -441,15 +591,18 @@ export class OrmoCheckboxGroup
     }
 
     const enabled = this.#enabledMembers();
-    const anyChecked = enabled.some((member) => member.checked);
-    const target = enabled[0];
+    if (enabled.some((member) => member.checked)) {
+      return;
+    }
 
+    const target = enabled.find((member) => member.validity.valid);
     if (!target) {
       return;
     }
 
     this.#validityTarget = target;
-    target.setCustomValidity(anyChecked ? "" : message);
+    this.#validityMessage = message;
+    target.setCustomValidity(message);
   }
 
   #emitValueChange(): void {
@@ -466,6 +619,49 @@ export class OrmoCheckboxGroup
     );
   }
 
+  #handleReset = (event: Event): void => {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement) || !this.#belongsToForm(form)) {
+      return;
+    }
+
+    queueMicrotask(() => {
+      if (!this.isConnected) {
+        return;
+      }
+
+      this.#reconcile();
+      this.#applyRequiredValidity();
+    });
+  };
+
+  #handleSubmit = (event: Event): void => {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement) || !this.#belongsToForm(form)) {
+      return;
+    }
+
+    const submitter = event instanceof SubmitEvent ? event.submitter : null;
+    const bypassesValidation =
+      form.noValidate ||
+      ((submitter instanceof HTMLButtonElement ||
+        submitter instanceof HTMLInputElement) &&
+        submitter.formNoValidate);
+    if (bypassesValidation) {
+      return;
+    }
+
+    this.#applyRequiredValidity();
+    const invalid = this.#members().find((member) => !member.validity.valid);
+    if (!invalid) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    invalid.reportValidity();
+  };
+
   #handleChange = (event: Event): void => {
     if (this.#suppressEvents) {
       return;
@@ -477,9 +673,11 @@ export class OrmoCheckboxGroup
     }
 
     if (isParentCheckbox(target, this)) {
-      if (target.disabled) {
+      if (isEffectivelyDisabled(target)) {
         return;
       }
+
+      const previous = this.value;
 
       // After the native toggle, checked is the intent: indeterminate or
       // unchecked become checked (select all); checked becomes unchecked.
@@ -494,7 +692,14 @@ export class OrmoCheckboxGroup
 
       this.#reconcile();
       this.#applyRequiredValidity();
-      this.#emitValueChange();
+
+      const current = this.value;
+      if (
+        previous.length !== current.length ||
+        previous.some((value, index) => value !== current[index])
+      ) {
+        this.#emitValueChange();
+      }
       return;
     }
 

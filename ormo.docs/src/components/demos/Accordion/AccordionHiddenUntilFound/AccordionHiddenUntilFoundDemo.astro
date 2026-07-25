@@ -1,0 +1,34 @@
+---
+import * as Accordion from "@ormo/primitives/accordion";
+import { ChevronDown } from "@lucide/astro";
+import "../index.css";
+---
+
+<Accordion.Root class="accordion">
+  <Accordion.Item class="accordion-item" value="delivery">
+    <Accordion.Header class="accordion-header" as="h2">
+      <Accordion.Trigger class="accordion-trigger">
+        Delivery
+        <ChevronDown class="indicator" size="14" aria-hidden="true" />
+      </Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Content class="accordion-content">
+      <div class="accordion-content-inner">
+        Standard delivery takes three to five working days.
+      </div>
+    </Accordion.Content>
+  </Accordion.Item>
+  <Accordion.Item class="accordion-item" value="collection">
+    <Accordion.Header class="accordion-header" as="h2">
+      <Accordion.Trigger class="accordion-trigger">
+        Collection
+        <ChevronDown class="indicator" size="14" aria-hidden="true" />
+      </Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Content class="accordion-content">
+      <div class="accordion-content-inner">
+        Quote collection reference OSPREY-742 when you arrive.
+      </div>
+    </Accordion.Content>
+  </Accordion.Item>
+</Accordion.Root>

@@ -4,16 +4,18 @@ import "./index.css";
 ---
 
 <div>
-  <div class="alert-dialog-actions">
+  <div
+    class="alert-dialog-actions button-group button-group--compact button-group--end"
+  >
     <AlertDialog.Trigger
       for="detached-delete-dialog"
-      class="alert-dialog-trigger"
+      class="alert-dialog-trigger button"
     >
       Delete from toolbar
     </AlertDialog.Trigger>
     <AlertDialog.Trigger
       for="detached-delete-dialog"
-      class="alert-dialog-trigger"
+      class="alert-dialog-trigger button"
     >
       Delete from menu
     </AlertDialog.Trigger>
@@ -28,11 +30,17 @@ import "./index.css";
         Everyone on the team will lose access to this saved view.
       </AlertDialog.Description>
 
-      <div class="alert-dialog-actions">
-        <AlertDialog.Cancel class="alert-dialog-button">
+      <div
+        class="alert-dialog-actions button-group button-group--compact button-group--end"
+      >
+        <AlertDialog.Cancel
+          class="alert-dialog-button button button--secondary"
+        >
           Cancel
         </AlertDialog.Cancel>
-        <AlertDialog.Action class="alert-dialog-button alert-dialog-action">
+        <AlertDialog.Action
+          class="alert-dialog-button alert-dialog-action button button--danger"
+        >
           Delete saved view
         </AlertDialog.Action>
       </div>

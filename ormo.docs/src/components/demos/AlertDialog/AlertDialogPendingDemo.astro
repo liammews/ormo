@@ -6,7 +6,7 @@ import "./pending.css";
 
 <div data-project-archive>
   <AlertDialog.Root>
-    <AlertDialog.Trigger class="alert-dialog-trigger">
+    <AlertDialog.Trigger class="alert-dialog-trigger button">
       Archive project
     </AlertDialog.Trigger>
 
@@ -18,12 +18,16 @@ import "./pending.css";
         Team members will no longer be able to make changes.
       </AlertDialog.Description>
 
-      <div class="alert-dialog-actions">
-        <AlertDialog.Cancel class="alert-dialog-button">
+      <div
+        class="alert-dialog-actions button-group button-group--compact button-group--end"
+      >
+        <AlertDialog.Cancel
+          class="alert-dialog-button button button--secondary"
+        >
           Cancel
         </AlertDialog.Cancel>
         <AlertDialog.Action
-          class="alert-dialog-button alert-dialog-primary"
+          class="alert-dialog-button alert-dialog-primary button"
           value="archive"
           data-archive-action
         >

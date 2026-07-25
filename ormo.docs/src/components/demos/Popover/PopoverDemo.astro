@@ -5,7 +5,7 @@ import "./index.css";
 
 <div class="popover-example">
   <Popover.Root>
-    <Popover.Trigger class="popover-trigger">Filters</Popover.Trigger>
+    <Popover.Trigger class="popover-trigger button">Filters</Popover.Trigger>
 
     <Popover.Content
       class="popover-content"
@@ -26,9 +26,14 @@ import "./index.css";
           name="keyword"
           autocomplete="off"
         />
-        <div class="popover-actions">
-          <Popover.Close class="popover-button">Cancel</Popover.Close>
-          <Popover.Close class="popover-button popover-primary" value="apply">
+        <div class="popover-actions button-group button-group--end">
+          <Popover.Close class="popover-button button button--secondary">
+            Cancel
+          </Popover.Close>
+          <Popover.Close
+            class="popover-button popover-primary button"
+            value="apply"
+          >
             Apply
           </Popover.Close>
         </div>

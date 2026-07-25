@@ -6,8 +6,12 @@ export interface CheckboxGroupSsrContext {
   defaultValue: ReadonlySet<string>;
   rootId: string;
   labelId: string;
-  /** Mutable: set true when CheckboxGroup.Label renders. */
-  hasLabel: boolean;
+  /** Mutable: populated as CheckboxGroup.Label parts render. */
+  labelIds: string[];
+  /** Mutable: populated as member Checkbox parts render. */
+  memberCount: number;
+  /** Mutable: populated as checked member Checkbox parts render. */
+  checkedMemberCount: number;
 }
 
 const groupStorage = new AsyncLocalStorage<CheckboxGroupSsrContext[]>();

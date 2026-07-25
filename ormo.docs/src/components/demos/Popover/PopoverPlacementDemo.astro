@@ -4,9 +4,9 @@ import "./index.css";
 ---
 
 <div class="popover-example">
-  <div class="popover-trigger-group">
+  <div class="popover-trigger-group button-group">
     <Popover.Root>
-      <Popover.Trigger class="popover-trigger">Top</Popover.Trigger>
+      <Popover.Trigger class="popover-trigger button">Top</Popover.Trigger>
       <Popover.Content
         class="popover-content"
         side="top"
@@ -17,14 +17,16 @@ import "./index.css";
         <Popover.Description class="popover-description">
           Anchored above the trigger.
         </Popover.Description>
-        <div class="popover-actions">
-          <Popover.Close class="popover-button">Close</Popover.Close>
+        <div class="popover-actions button-group button-group--end">
+          <Popover.Close class="popover-button button button--secondary">
+            Close
+          </Popover.Close>
         </div>
       </Popover.Content>
     </Popover.Root>
 
     <Popover.Root>
-      <Popover.Trigger class="popover-trigger">Right</Popover.Trigger>
+      <Popover.Trigger class="popover-trigger button">Right</Popover.Trigger>
       <Popover.Content
         class="popover-content"
         side="right"
@@ -35,8 +37,10 @@ import "./index.css";
         <Popover.Description class="popover-description">
           Anchored to the right of the trigger.
         </Popover.Description>
-        <div class="popover-actions">
-          <Popover.Close class="popover-button">Close</Popover.Close>
+        <div class="popover-actions button-group button-group--end">
+          <Popover.Close class="popover-button button button--secondary">
+            Close
+          </Popover.Close>
         </div>
       </Popover.Content>
     </Popover.Root>

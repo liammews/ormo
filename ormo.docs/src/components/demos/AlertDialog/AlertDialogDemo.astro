@@ -5,7 +5,7 @@ import "./index.css";
 
 <div data-project-deletion>
   <AlertDialog.Root>
-    <AlertDialog.Trigger class="alert-dialog-trigger">
+    <AlertDialog.Trigger class="alert-dialog-trigger button">
       Delete project
     </AlertDialog.Trigger>
 
@@ -18,12 +18,16 @@ import "./index.css";
         cannot be undone.
       </AlertDialog.Description>
 
-      <div class="alert-dialog-actions">
-        <AlertDialog.Cancel class="alert-dialog-button alert-dialog-cancel">
+      <div
+        class="alert-dialog-actions button-group button-group--compact button-group--end"
+      >
+        <AlertDialog.Cancel
+          class="alert-dialog-button alert-dialog-cancel button button--secondary"
+        >
           Cancel
         </AlertDialog.Cancel>
         <AlertDialog.Action
-          class="alert-dialog-button alert-dialog-action"
+          class="alert-dialog-button alert-dialog-action button button--danger"
           value="delete"
           data-delete-project
         >

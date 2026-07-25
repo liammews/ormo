@@ -5,24 +5,36 @@ import "./index.css";
 
 <div class="popover-example" data-programmatic-popover>
   <Popover.Root id="programmatic-popover">
-    <Popover.Trigger class="popover-trigger">Open with Trigger</Popover.Trigger>
+    <Popover.Trigger class="popover-trigger button">
+      Open with Trigger
+    </Popover.Trigger>
 
     <Popover.Content class="popover-content" sideOffset={8}>
       <Popover.Title class="popover-title">Programmatic control</Popover.Title>
       <Popover.Description class="popover-description">
         Root exposes show(), hide(), and toggle() after it connects.
       </Popover.Description>
-      <div class="popover-actions">
-        <Popover.Close class="popover-button">Close</Popover.Close>
+      <div class="popover-actions button-group button-group--end">
+        <Popover.Close class="popover-button button button--secondary">
+          Close
+        </Popover.Close>
       </div>
     </Popover.Content>
   </Popover.Root>
 
-  <div class="popover-trigger-group">
-    <button type="button" class="popover-trigger-secondary" data-show-popover>
+  <div class="popover-trigger-group button-group">
+    <button
+      type="button"
+      class="popover-trigger-secondary button button--secondary"
+      data-show-popover
+    >
       show()
     </button>
-    <button type="button" class="popover-trigger-secondary" data-hide-popover>
+    <button
+      type="button"
+      class="popover-trigger-secondary button button--secondary"
+      data-hide-popover
+    >
       hide()
     </button>
   </div>

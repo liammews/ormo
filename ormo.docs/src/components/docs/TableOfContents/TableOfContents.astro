@@ -18,6 +18,11 @@ const tocHeadings = headings.filter(
         On this page
       </p>
       <ul class="toc_list">
+        <li class="toc_item">
+          <a class="toc_link" href="#main-content">
+            [top]
+          </a>
+        </li>
         {tocHeadings.map((heading) => (
           <li
             class:list={["toc_item", heading.depth === 3 && "toc_item--nested"]}

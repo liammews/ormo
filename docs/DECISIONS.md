@@ -437,11 +437,17 @@ CheckboxGroup renders `<ormo-checkbox-group role="group">` with a
 `CheckboxGroup.Label` (`span`) linked through `aria-labelledby`. It is not a
 `<fieldset>` / `<legend>` pair.
 
-The group always loads a small custom-element runtime. It exposes `name`,
-`value` (`string[]`), `disabled`, aggregate `data-state` (`none` | `partial` |
-`all`), parent select-all via `<Checkbox parent />`, and optional group
-`required` with a mandatory `requiredMessage` implemented through
+The group always loads a small custom-element runtime. It exposes `form`,
+`name`, `value` (`string[]`), `disabled`, aggregate `data-state` (`none` |
+`partial` | `all`), parent select-all via `<Checkbox parent />`, and optional
+group `required` with a mandatory `requiredMessage` implemented through
 `setCustomValidity` on the first enabled member. It emits `ormo:value-change`.
+Authored member names remain independent; members without a name inherit live
+group name changes. Assigning `value` controls all members, including disabled
+members. Native form reset restores member defaults and reconciles aggregate,
+parent, and validity state without emitting a synthetic change event. Group
+validation preserves consumer custom errors and honors native `novalidate` and
+`formnovalidate` bypasses.
 
 When `Field.Root` contains a checkbox group, Field owns group-level description
 and error wiring (`aria-describedby` on the group). The group name stays with
@@ -449,17 +455,20 @@ and error wiring (`aria-describedby` on the group). The group name stays with
 
 ### Rationale
 
-`role="group"` matches Base UI’s grouping model and avoids fieldset/legend
-styling quirks while remaining a valid accessible grouping. Always-on runtime is
-justified by value observation, parent reconciliation, required validation, and
-Field integration. Native checkboxes inside the group still provide interaction;
-the custom element only coordinates.
+`role="group"` follows the APG checkbox grouping pattern and remains distinct
+from the native Fieldset primitive (GD-019): CheckboxGroup is selected when
+coordinated value state, parent reconciliation, or group validation is needed.
+Always-on runtime is justified by those behaviours and Field integration. Native
+checkboxes inside the group still provide interaction; the custom element only
+coordinates.
 
 ### Consequences
 
 - A group ships JavaScript; a lone Checkbox does not.
 - Nested parent-checkbox trees are out of scope for the first release.
 - Field’s “one control” warning does not apply when a checkbox group is present.
+- Initial aggregate state is rendered during SSR; native mixed parent state is
+  applied when the runtime connects because `indeterminate` is a DOM property.
 - Docs document APG keyboard behaviour (Space / Tab only — no arrow roving).
 
 ## GD-018: Breadcrumbs are a static trail with opt-in microdata
@@ -507,6 +516,42 @@ presentation or a second interaction pattern; shipping them would violate
 - Overflow behaviour is not documented as an Ormo-supported pattern.
 - Enabling `microdata` may insert a name wrapper span inside links unless
   authors pass `name`.
+
+## GD-019: Fieldset preserves native form grouping
+
+- **Date:** 2026-07-25
+- **Status:** Accepted
+
+### Decision
+
+Ormo Fieldset is a composable, zero-JavaScript pair: `Root` renders a native
+`<fieldset>` and `Legend` renders a native `<legend>`. Both forward their native
+HTML attributes and expose structural `data-ormo-fieldset-*` markers. Ormo does
+not recreate grouping, disabled cascading, form association, or validation in
+JavaScript.
+
+Fieldset and CheckboxGroup are complementary. Fieldset is the default for a
+semantic group of related controls. CheckboxGroup is the enhanced primitive for
+shared checkbox value control, aggregate state, parent select-all, and
+at-least-one validation.
+
+### Rationale
+
+HTML already provides durable grouping semantics, a caption relationship,
+native disabled cascading, form APIs, and established assistive-technology
+behaviour. A wrapper runtime would add complexity without expanding necessary
+behaviour. Keeping Fieldset separate also prevents CheckboxGroup’s enhanced
+state API from becoming the default cost for ordinary form grouping.
+
+### Consequences
+
+- Fieldset ships no client JavaScript or presentation.
+- Legend should be the first Root child; the browser’s first-legend exception
+  leaves controls in that legend enabled when the fieldset is disabled.
+- A fieldset’s `form` attribute associates the fieldset itself, not its
+  out-of-form descendants; those controls need their own `form` attributes.
+- Fieldset does not provide CheckboxGroup’s value, parent, aggregate, event, or
+  group-required APIs.
 
 ## Entry template
 

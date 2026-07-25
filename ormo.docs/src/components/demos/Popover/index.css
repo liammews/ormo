@@ -1,37 +1,3 @@
-.popover-trigger,
-.popover-button {
-  display: inline-flex;
-  min-width: 0;
-  min-height: 2.75rem;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-50);
-  border-radius: var(--radius-2);
-  padding: var(--space-50) var(--space-100);
-  font: var(--font-weight-medium) var(--font-size-2) / var(--line-height-base)
-    var(--font-family-sans);
-  text-align: center;
-}
-
-.popover-trigger {
-  border: 0;
-  background: var(--content-default);
-  color: var(--surface-base);
-}
-
-.popover-trigger-secondary,
-.popover-button {
-  border: 1px solid var(--border-default);
-  background: var(--surface-base);
-  color: var(--content-default);
-}
-
-.popover-trigger-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-75);
-}
-
 .popover-example {
   display: grid;
   gap: var(--space-100);
@@ -94,22 +60,9 @@
 }
 
 .popover-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: var(--space-75);
   margin-block-start: var(--space-125);
 }
 
-.popover-primary {
-  border-color: transparent;
-  background: var(--content-default);
-  color: var(--surface-base);
-}
-
-.popover-trigger:focus-visible,
-.popover-trigger-secondary:focus-visible,
-.popover-button:focus-visible,
 .popover-input:focus-visible,
 .popover-outside:focus-visible {
   outline: var(--focus-width) solid var(--focus-default);

@@ -767,8 +767,7 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       this.#disabledOverride ||
       this.#originalDisabled ||
       Boolean(group?.disabled);
-    const groupInvalid =
-      group !== undefined && this.#validated && !group.checkValidity();
+    const groupInvalid = group !== undefined && this.#validated && !group.valid;
     const invalid =
       this.#invalidOverride ||
       this.#originalAriaInvalid === "true" ||

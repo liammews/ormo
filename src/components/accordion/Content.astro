@@ -7,11 +7,11 @@ import type { AccordionContentProps } from "./types";
 
 type Props = AccordionContentProps;
 
-const { hiddenUntilFound = false, ...attributes } = Astro.props;
+const { hiddenUntilFound, ...attributes } = Astro.props;
 const accordion = getAccordionSsrContext();
 const item = getAccordionItemSsrContext();
 const open = item?.open ?? false;
-const untilFound = hiddenUntilFound || (accordion?.hiddenUntilFound ?? false);
+const untilFound = hiddenUntilFound ?? accordion?.hiddenUntilFound ?? true;
 ---
 
 <div
@@ -20,9 +20,13 @@ const untilFound = hiddenUntilFound || (accordion?.hiddenUntilFound ?? false);
   data-state={open ? "open" : "closed"}
   data-open={open ? "" : undefined}
   aria-hidden={open ? undefined : "true"}
-  inert={open ? undefined : true}
+  inert={open || untilFound ? undefined : true}
   hidden={open ? undefined : untilFound ? "until-found" : true}
-  data-hidden-until-found={untilFound ? "" : undefined}
+  data-hidden-until-found={hiddenUntilFound === undefined
+    ? undefined
+    : hiddenUntilFound
+      ? ""
+      : "false"}
 >
   <slot />
 </div>

@@ -4,16 +4,16 @@ import "./index.css";
 ---
 
 <div class="tooltip-example" data-tooltip-demo="detached">
-  <div class="tooltip-trigger-group">
+  <div class="tooltip-trigger-group button-group">
     <Tooltip.Trigger
-      class="tooltip-trigger"
+      class="tooltip-trigger button"
       for="save-tooltip"
       aria-label="Save"
     >
       Save
     </Tooltip.Trigger>
     <Tooltip.Trigger
-      class="tooltip-trigger tooltip-trigger-secondary"
+      class="tooltip-trigger tooltip-trigger-secondary button button--secondary"
       for="save-tooltip"
       aria-label="Save draft"
     >
@@ -22,7 +22,7 @@ import "./index.css";
   </div>
 
   <Tooltip.Root id="save-tooltip">
-    <Tooltip.Content class="tooltip-content" sideOffset={6}>
+    <Tooltip.Content class="tooltip-content" sideOffset={10}>
       Save document
     </Tooltip.Content>
   </Tooltip.Root>

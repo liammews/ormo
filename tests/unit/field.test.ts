@@ -235,6 +235,35 @@ describe("field", () => {
     expect(root.hasAttribute("data-filled")).toBe(true);
   });
 
+  it("handles checkbox group invalid events without recursive validation", async () => {
+    await import("../../src/runtime/checkbox-group");
+
+    const root = document.createElement("ormo-field") as OrmoFieldElement;
+    root.innerHTML = `
+      <ormo-checkbox-group
+        role="group"
+        aria-label="Protocols"
+        data-ormo-checkbox-group
+        data-name="protocols"
+        data-required
+        data-required-message="Select at least one protocol."
+      >
+        <label>
+          <input type="checkbox" data-ormo-checkbox value="http" name="protocols">
+          HTTP
+        </label>
+      </ormo-checkbox-group>
+      <div data-ormo-field-error hidden>Select at least one protocol.</div>
+    `;
+    document.body.append(root);
+
+    const group = root.querySelector("ormo-checkbox-group")!;
+
+    expect(() => group.checkValidity()).not.toThrow();
+    expect(group.valid).toBe(false);
+    expect(root.hasAttribute("data-invalid")).toBe(true);
+  });
+
   it("supports submit, blur, and change validation modes", async () => {
     const submitField = createField({ controlAttributes: "required" });
     const submitControl = getControl(submitField);

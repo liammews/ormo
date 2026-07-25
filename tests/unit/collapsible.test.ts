@@ -154,6 +154,35 @@ describe("collapsible state", () => {
     expect(element.style.getPropertyValue(heightProperty)).toBe("auto");
   });
 
+  it("makes until-found content searchable after its closing transition", async () => {
+    const element = document.createElement("div");
+    const { animation, finish, finished } = createAnimation();
+    const runAnimationFrame = mockAnimationFrame();
+
+    Object.defineProperty(element, "scrollHeight", {
+      configurable: true,
+      value: 120,
+    });
+    mockMotion(element, animation);
+    element.dataset.state = "open";
+
+    setCollapsibleState(element, false, {
+      animate: true,
+      heightProperty,
+      hiddenUntilFound: true,
+    });
+
+    expect(element.hidden).toBe(false);
+    expect(element.hasAttribute("inert")).toBe(true);
+
+    runAnimationFrame();
+    finish();
+    await flushAnimation(finished);
+
+    expect(element.getAttribute("hidden")).toBe("until-found");
+    expect(element.hasAttribute("inert")).toBe(false);
+  });
+
   it("cleans up a closing transition when it is rapidly reopened", () => {
     const element = document.createElement("div");
     const { animation } = createAnimation();

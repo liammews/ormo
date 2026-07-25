@@ -69,11 +69,13 @@ export type CheckboxGroupValueChangeEvent =
   CustomEvent<CheckboxGroupValueChangeDetail>;
 
 export interface OrmoCheckboxGroupElement extends HTMLElement {
+  readonly form: HTMLFormElement | null;
   name: string;
   value: string[];
   disabled: boolean;
   required: boolean;
   requiredMessage: string;
+  readonly valid: boolean;
   checkValidity(): boolean;
   reportValidity(): boolean;
 }

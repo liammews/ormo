@@ -160,6 +160,16 @@ interface TooltipDocumentState {
 
 const documentStates = new WeakMap<Document, TooltipDocumentState>();
 
+function hasOpenTooltip(document: Document): boolean {
+  for (const root of documentStates.get(document)?.roots ?? []) {
+    if (root.open) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function belongsToRoot(element: Element, root: HTMLElement): boolean {
   return element.closest(tagName) === root;
 }
@@ -484,7 +494,12 @@ export class OrmoTooltip extends HTMLElement {
     }
 
     this.#clearOpenTimer();
-    const delay = reason === "focus" || shouldSkipOpenDelay() ? 0 : this.delay;
+    const delay =
+      reason === "focus" ||
+      shouldSkipOpenDelay() ||
+      hasOpenTooltip(this.ownerDocument)
+        ? 0
+        : this.delay;
 
     if (delay === 0) {
       this.#show(reason);

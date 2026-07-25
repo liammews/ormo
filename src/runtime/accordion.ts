@@ -156,11 +156,15 @@ export class OrmoAccordion extends HTMLElement {
   }
 
   get hiddenUntilFound(): boolean {
-    return this.hasAttribute("data-hidden-until-found");
+    return this.getAttribute("data-hidden-until-found") !== "false";
   }
 
   set hiddenUntilFound(hiddenUntilFound: boolean) {
-    this.toggleAttribute("data-hidden-until-found", hiddenUntilFound);
+    if (hiddenUntilFound) {
+      this.removeAttribute("data-hidden-until-found");
+    } else {
+      this.setAttribute("data-hidden-until-found", "false");
+    }
   }
 
   get #type(): AccordionType {
@@ -286,6 +290,14 @@ export class OrmoAccordion extends HTMLElement {
     }
   }
 
+  #contentHiddenUntilFound(content: HTMLElement): boolean {
+    const override = content.getAttribute("data-hidden-until-found");
+
+    if (override === "false") return false;
+    if (override !== null) return true;
+    return this.hiddenUntilFound;
+  }
+
   #normalizeValue(value: unknown): AccordionValue {
     if (this.#type === "multiple") {
       const values = Array.isArray(value) ? value : [value];
@@ -346,9 +358,7 @@ export class OrmoAccordion extends HTMLElement {
             animate,
             fallbackFocus: trigger,
             heightProperty: contentHeightProperty,
-            hiddenUntilFound:
-              this.hiddenUntilFound ||
-              content.hasAttribute("data-hidden-until-found"),
+            hiddenUntilFound: this.#contentHiddenUntilFound(content),
             widthProperty: contentWidthProperty,
           });
         }

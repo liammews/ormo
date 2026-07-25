@@ -4,11 +4,14 @@ import "./index.css";
 ---
 
 <div class="popover-example">
-  <div class="popover-trigger-group">
-    <Popover.Trigger class="popover-trigger" for="account-popover">
+  <div class="popover-trigger-group button-group">
+    <Popover.Trigger class="popover-trigger button" for="account-popover">
       Open from toolbar
     </Popover.Trigger>
-    <Popover.Trigger class="popover-trigger-secondary" for="account-popover">
+    <Popover.Trigger
+      class="popover-trigger-secondary button button--secondary"
+      for="account-popover"
+    >
       Open from menu
     </Popover.Trigger>
   </div>
@@ -19,8 +22,10 @@ import "./index.css";
       <Popover.Description class="popover-description">
         Detached triggers share one Root and restore focus to the invoker.
       </Popover.Description>
-      <div class="popover-actions">
-        <Popover.Close class="popover-button">Close</Popover.Close>
+      <div class="popover-actions button-group button-group--end">
+        <Popover.Close class="popover-button button button--secondary">
+          Close
+        </Popover.Close>
       </div>
     </Popover.Content>
   </Popover.Root>

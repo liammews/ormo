@@ -1,0 +1,81 @@
+.fieldset-demo {
+  width: min(100%, 30rem);
+  color: var(--content-default);
+  font-family: var(--font-family-sans);
+}
+
+.fieldset {
+  min-inline-size: 0;
+  margin: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  padding: var(--space-100);
+  background: var(--surface-base);
+}
+
+.fieldset-legend {
+  padding-inline: var(--space-25);
+  color: var(--content-default);
+  font-size: var(--font-size-3);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-base);
+}
+
+.fieldset-hint {
+  margin: 0 0 var(--space-100);
+  color: var(--content-subtle);
+  font-size: var(--font-size-2);
+  line-height: var(--line-height-base);
+}
+
+.fieldset-options {
+  display: grid;
+  gap: var(--space-50);
+}
+
+.fieldset-option {
+  display: grid;
+  grid-template-columns: 1.25rem minmax(0, 1fr);
+  gap: var(--space-50);
+  align-items: start;
+  border-radius: var(--radius-2);
+  padding: var(--space-50);
+  cursor: pointer;
+}
+
+.fieldset-radio {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0.125rem 0 0;
+  accent-color: var(--focus-default);
+}
+
+.fieldset-radio:focus-visible {
+  outline: var(--focus-width) solid var(--focus-default);
+  outline-offset: var(--focus-offset);
+}
+
+.fieldset-option-content {
+  display: grid;
+  gap: var(--space-25);
+}
+
+.fieldset-option-title {
+  font-size: var(--font-size-3);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-base);
+}
+
+.fieldset-option-description {
+  color: var(--content-subtle);
+  font-size: var(--font-size-2);
+  line-height: var(--line-height-base);
+}
+
+.fieldset:disabled {
+  color: var(--content-disabled);
+}
+
+.fieldset:disabled .fieldset-option {
+  cursor: not-allowed;
+}

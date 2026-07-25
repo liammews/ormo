@@ -50,6 +50,10 @@
       "types": "./src/components/field/index.ts",
       "import": "./src/components/field/index.ts"
     },
+    "./fieldset": {
+      "types": "./src/components/fieldset/index.ts",
+      "import": "./src/components/fieldset/index.ts"
+    },
     "./input": {
       "types": "./src/components/input/index.ts",
       "import": "./src/components/input/index.ts"

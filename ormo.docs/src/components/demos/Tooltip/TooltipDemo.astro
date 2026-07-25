@@ -5,10 +5,13 @@ import "./index.css";
 
 <div class="tooltip-example" data-tooltip-demo="default">
   <Tooltip.Root>
-    <Tooltip.Trigger class="tooltip-trigger" aria-label="Bold">
+    <Tooltip.Trigger
+      class="tooltip-trigger button button--square button--secondary"
+      aria-label="Bold"
+    >
       B
     </Tooltip.Trigger>
-    <Tooltip.Content class="tooltip-content" sideOffset={6}>
+    <Tooltip.Content class="tooltip-content" sideOffset={10}>
       Bold
     </Tooltip.Content>
   </Tooltip.Root>

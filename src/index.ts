@@ -29,5 +29,6 @@ export type {
 } from "./components/checkbox/types";
 export * as CheckboxGroup from "./components/checkbox/group";
 export * as Field from "./components/field/index";
+export * as Fieldset from "./components/fieldset/index";
 export { Input } from "./components/input/index";
 export type { InputProps } from "./components/input/types";
