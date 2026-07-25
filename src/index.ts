@@ -11,6 +11,21 @@ export type {
   ButtonProps,
 } from "./components/button/types";
 export type { ButtonElement, ButtonState } from "./components/button/state";
+export { Checkbox, CheckboxIndicator } from "./components/checkbox/index";
+export type {
+  CheckboxGroupDataState,
+  CheckboxGroupLabelProps,
+  CheckboxGroupRootProps,
+  CheckboxGroupValueChangeDetail,
+  CheckboxGroupValueChangeEvent,
+  CheckboxIndeterminateProps,
+  CheckboxIndicatorProps,
+  CheckboxParentProps,
+  CheckboxProps,
+  CheckboxStandardProps,
+  OrmoCheckboxGroupElement,
+} from "./components/checkbox/types";
+export * as CheckboxGroup from "./components/checkbox/group";
 export * as Field from "./components/field/index";
 export { Input } from "./components/input/index";
 export type { InputProps } from "./components/input/types";

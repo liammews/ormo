@@ -1,0 +1,29 @@
+---
+import { Checkbox } from "@ormo/primitives/checkbox";
+import * as CheckboxGroup from "@ormo/primitives/checkbox/group";
+import "./index.css";
+---
+
+<CheckboxGroup.Root
+  class="checkbox-group"
+  name="protocols"
+  defaultValue={["https"]}
+>
+  <CheckboxGroup.Label class="checkbox-group-label">
+    Allowed protocols
+  </CheckboxGroup.Label>
+  <div class="checkbox-stack">
+    <label class="checkbox-field">
+      <Checkbox class="checkbox" value="http" />
+      HTTP
+    </label>
+    <label class="checkbox-field">
+      <Checkbox class="checkbox" value="https" />
+      HTTPS
+    </label>
+    <label class="checkbox-field">
+      <Checkbox class="checkbox" value="ssh" />
+      SSH
+    </label>
+  </div>
+</CheckboxGroup.Root>

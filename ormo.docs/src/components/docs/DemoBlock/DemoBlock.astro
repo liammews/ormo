@@ -59,7 +59,8 @@ const codeFiles: DemoCodeFile[] =
       : [];
 
 const showFileTabs = Boolean(files && files.length > 1);
-const defaultFile = codeFiles[0]?.filename;
+const primaryFile = codeFiles[0];
+const defaultFile = primaryFile?.filename;
 const codeId = `demo-code-${crypto.randomUUID()}`;
 ---
 
@@ -69,9 +70,9 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
   </div>
 
   {
-    codeFiles.length > 0 && (
+    primaryFile && (
       <div class="demoblock-code-container" data-demo-code-container>
-        {showFileTabs ? (
+        {showFileTabs && defaultFile ? (
           <Tabs.Root
             class="demoblock-code-tabs"
             defaultValue={defaultFile}
@@ -87,14 +88,8 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
 
             <div id={codeId} data-demo-code-panels>
               {codeFiles.map((file) => (
-                <Tabs.Panel
-                  class="demoblock-code-panel"
-                  value={file.filename}
-                >
-                  <div
-                    class="demoblock-code-content"
-                    data-demo-code-content
-                  >
+                <Tabs.Panel class="demoblock-code-panel" value={file.filename}>
+                  <div class="demoblock-code-content" data-demo-code-content>
                     <CodeBlock
                       code={file.code}
                       lang={file.lang ?? langFromFilename(file.filename)}
@@ -105,10 +100,14 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
             </div>
           </Tabs.Root>
         ) : (
-          <div id={codeId} class="demoblock-code-content" data-demo-code-content>
+          <div
+            id={codeId}
+            class="demoblock-code-content"
+            data-demo-code-content
+          >
             <CodeBlock
-              code={codeFiles[0].code}
-              lang={codeFiles[0].lang ?? langFromFilename(codeFiles[0].filename)}
+              code={primaryFile.code}
+              lang={primaryFile.lang ?? langFromFilename(primaryFile.filename)}
             />
           </div>
         )}

@@ -380,6 +380,97 @@ function scanAvatars(): Diagnostic[] {
   return diagnostics;
 }
 
+function scanCheckboxes(): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+
+  for (const checkbox of document.querySelectorAll<HTMLInputElement>(
+    "[data-ormo-checkbox]",
+  )) {
+    const hasName =
+      Boolean(checkbox.getAttribute("aria-label")?.trim()) ||
+      Boolean(
+        checkbox
+          .getAttribute("aria-labelledby")
+          ?.trim()
+          .split(/\s+/)
+          .some((id) =>
+            Boolean(
+              id &&
+              checkbox.ownerDocument.getElementById(id)?.textContent?.trim(),
+            ),
+          ),
+      ) ||
+      (checkbox.labels !== null &&
+        Array.from(checkbox.labels).some((label) =>
+          Boolean(label.textContent?.trim()),
+        ));
+
+    if (!hasName) {
+      diagnostics.push({
+        element: checkbox,
+        message: "Checkbox needs an accessible name.",
+      });
+    }
+
+    if (
+      checkbox.hasAttribute("data-ormo-checkbox-parent") &&
+      !checkbox.closest("ormo-checkbox-group")
+    ) {
+      diagnostics.push({
+        element: checkbox,
+        message: "Parent Checkbox must be inside CheckboxGroup.",
+      });
+    }
+  }
+
+  for (const indicator of document.querySelectorAll<HTMLElement>(
+    "[data-ormo-checkbox-indicator]",
+  )) {
+    const previous = indicator.previousElementSibling;
+    const next = indicator.nextElementSibling;
+    const adjacent =
+      (previous instanceof HTMLInputElement &&
+        previous.hasAttribute("data-ormo-checkbox") &&
+        previous) ||
+      (next instanceof HTMLInputElement &&
+        next.hasAttribute("data-ormo-checkbox") &&
+        next);
+
+    if (!adjacent) {
+      diagnostics.push({
+        element: indicator,
+        message: "CheckboxIndicator should be a sibling of Checkbox.",
+      });
+    }
+  }
+
+  for (const group of document.querySelectorAll<HTMLElement>(
+    "ormo-checkbox-group",
+  )) {
+    const labelledBy = group.getAttribute("aria-labelledby");
+    const hasLabel =
+      Boolean(group.getAttribute("aria-label")?.trim()) ||
+      (labelledBy !== null &&
+        labelledBy
+          .split(/\s+/)
+          .some((id) =>
+            Boolean(
+              id && group.ownerDocument.getElementById(id)?.textContent?.trim(),
+            ),
+          ));
+
+    if (!hasLabel) {
+      diagnostics.push({
+        element: group,
+        message:
+          "CheckboxGroup needs CheckboxGroup.Label, aria-label, or aria-labelledby.",
+      });
+    }
+  }
+
+  return diagnostics;
+}
+
 function scan(): Diagnostic[] {
   return [
     ...scanButtons(),
@@ -389,6 +480,7 @@ function scan(): Diagnostic[] {
     ...scanAccordions(),
     ...scanAvatars(),
     ...scanTabs(),
+    ...scanCheckboxes(),
   ];
 }
 
@@ -598,6 +690,14 @@ function identify(element: HTMLElement): string {
   if (element.hasAttribute("data-ormo-tabs-tab")) return "Tabs Tab";
   if (element.hasAttribute("data-ormo-tabs-panel")) return "Tabs Panel";
   if (element.localName === "ormo-tabs") return "Tabs";
+  if (element.hasAttribute("data-ormo-checkbox-parent")) {
+    return "Checkbox Parent";
+  }
+  if (element.hasAttribute("data-ormo-checkbox")) return "Checkbox";
+  if (element.hasAttribute("data-ormo-checkbox-indicator")) {
+    return "Checkbox Indicator";
+  }
+  if (element.localName === "ormo-checkbox-group") return "Checkbox Group";
   if (element.hasAttribute("data-ormo-button")) return "Button";
   return element.localName;
 }

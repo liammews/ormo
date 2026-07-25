@@ -23,7 +23,9 @@ test("wires the default field label, description, and validation", async ({
 
   await expect(field).toHaveAttribute("data-invalid", "");
   await expect(input).toHaveAttribute("aria-invalid", "true");
-  await expect(field.getByRole("alert")).toHaveText("Enter your email address.");
+  await expect(field.getByRole("alert")).toHaveText(
+    "Enter your email address.",
+  );
 });
 
 test("exposes the intentional error demo to assistive tech", async ({

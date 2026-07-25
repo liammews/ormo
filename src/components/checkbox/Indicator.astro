@@ -1,0 +1,15 @@
+---
+import "../../runtime/checkbox.css";
+import Runtime from "./Runtime.astro";
+import type { CheckboxIndicatorProps } from "./types";
+
+type Props = CheckboxIndicatorProps;
+
+const attributes: Props = Astro.props;
+---
+
+<span {...attributes} aria-hidden="true" data-ormo-checkbox-indicator>
+  <slot />
+</span>
+
+{import.meta.env.DEV && <Runtime />}

@@ -1,0 +1,19 @@
+---
+import { getCheckboxGroupSsrContext } from "../../internal/checkbox-group-ssr-context";
+import type { CheckboxGroupLabelProps } from "./types";
+
+type Props = CheckboxGroupLabelProps;
+
+const { id, ...attributes }: Props = Astro.props;
+const group = getCheckboxGroupSsrContext();
+
+if (group) {
+  group.hasLabel = true;
+}
+
+const labelId = id ?? group?.labelId;
+---
+
+<span {...attributes} id={labelId} data-ormo-checkbox-group-label>
+  <slot />
+</span>

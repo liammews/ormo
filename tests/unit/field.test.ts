@@ -191,6 +191,50 @@ describe("field", () => {
     expect(root.state.filled).toBe(true);
   });
 
+  it("owns a checkbox group for description and filled state", async () => {
+    await import("../../src/runtime/checkbox-group");
+
+    const root = document.createElement("ormo-field") as OrmoFieldElement;
+    root.innerHTML = `
+      <ormo-checkbox-group
+        role="group"
+        data-ormo-checkbox-group
+        data-name="protocols"
+        aria-labelledby="protocols-label"
+      >
+        <span id="protocols-label" data-ormo-checkbox-group-label>
+          Protocols
+        </span>
+        <label>
+          <input type="checkbox" data-ormo-checkbox value="http" name="protocols">
+          HTTP
+        </label>
+        <label>
+          <input type="checkbox" data-ormo-checkbox value="https" name="protocols">
+          HTTPS
+        </label>
+      </ormo-checkbox-group>
+      <div data-ormo-field-description>Choose allowed protocols.</div>
+      <div data-ormo-field-error hidden>Select at least one protocol.</div>
+    `;
+    document.body.append(root);
+
+    const group = root.querySelector("ormo-checkbox-group");
+    const description = root.querySelector("[data-ormo-field-description]");
+    const member = root.querySelector<HTMLInputElement>('input[value="http"]');
+
+    expect(group?.getAttribute("aria-describedby")).toContain(
+      description?.id ?? "",
+    );
+    expect(root.state.filled).toBe(false);
+
+    member!.checked = true;
+    member!.dispatchEvent(new Event("change", { bubbles: true }));
+
+    expect(root.state.filled).toBe(true);
+    expect(root.hasAttribute("data-filled")).toBe(true);
+  });
+
   it("supports submit, blur, and change validation modes", async () => {
     const submitField = createField({ controlAttributes: "required" });
     const submitControl = getControl(submitField);

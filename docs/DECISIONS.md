@@ -363,6 +363,78 @@ HTML has no native tabs widget. Screen reader and keyboard users expect the esta
 - Docs and tests assert arrow-key navigation, Home / End, and roving tabindex.
 - Accordion and Tabs remain intentionally different keyboard models; wrappers must not assume one policy for both.
 
+## GD-015: Checkbox is a native input
+
+- **Date:** 2026-07-25
+- **Status:** Accepted
+
+### Decision
+
+Ormo Checkbox renders a native `<input type="checkbox">`. It does not render a
+`button` with `role="checkbox"` or a visually hidden form input.
+
+A standalone checkbox ships no client JavaScript unless `indeterminate` is set.
+Checked, disabled, required, and invalid states are expressed through native
+attributes and CSS pseudo-classes (`:checked`, `:indeterminate`, `:disabled`,
+`:required`, `:invalid`). The primitive does not mirror those into `data-state`.
+
+`CheckboxIndicator` is an optional sibling (`aria-hidden` span) for consumer
+icons. Icons remain consumer-owned (GD-005). The indicator ships a single
+behaviour-critical `pointer-events: none` rule so overlays do not steal clicks.
+
+### Rationale
+
+Native checkboxes are labelable, participate in form submission and constraint
+validation, and expose every common state to CSS. The button-plus-hidden-input
+pattern exists for React-era styling limits and controlled-state channels; neither
+applies to Astro primitives that prefer the platform (guiding principles).
+
+### Consequences
+
+- Consumers style with pseudo-classes and `:has()`, not checkbox `data-state`.
+- `asChild`, `render`, `nativeButton`, `readOnly`, and `uncheckedValue` stay out
+  of the API; document native alternatives instead.
+- Indeterminate requires a small opt-in runtime because it is a DOM property with
+  no HTML attribute.
+- Field continues to own a single native control; checkbox groups use the
+  dedicated group primitive (GD-016).
+
+## GD-016: CheckboxGroup is a role=group custom element
+
+- **Date:** 2026-07-25
+- **Status:** Accepted
+
+### Decision
+
+CheckboxGroup renders `<ormo-checkbox-group role="group">` with a
+`CheckboxGroup.Label` (`span`) linked through `aria-labelledby`. It is not a
+`<fieldset>` / `<legend>` pair.
+
+The group always loads a small custom-element runtime. It exposes `name`,
+`value` (`string[]`), `disabled`, aggregate `data-state` (`none` | `partial` |
+`all`), parent select-all via `<Checkbox parent />`, and optional group
+`required` with a mandatory `requiredMessage` implemented through
+`setCustomValidity` on the first enabled member. It emits `ormo:value-change`.
+
+When `Field.Root` contains a checkbox group, Field owns group-level description
+and error wiring (`aria-describedby` on the group). The group name stays with
+`CheckboxGroup.Label`.
+
+### Rationale
+
+`role="group"` matches Base UI’s grouping model and avoids fieldset/legend
+styling quirks while remaining a valid accessible grouping. Always-on runtime is
+justified by value observation, parent reconciliation, required validation, and
+Field integration. Native checkboxes inside the group still provide interaction;
+the custom element only coordinates.
+
+### Consequences
+
+- A group ships JavaScript; a lone Checkbox does not.
+- Nested parent-checkbox trees are out of scope for the first release.
+- Field’s “one control” warning does not apply when a checkbox group is present.
+- Docs document APG keyboard behaviour (Space / Tab only — no arrow roving).
+
 ## Entry template
 
 ```md
