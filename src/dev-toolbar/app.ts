@@ -380,12 +380,79 @@ function scanAvatars(): Diagnostic[] {
   return diagnostics;
 }
 
+function scanTooltips(): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+
+  for (const trigger of document.querySelectorAll<HTMLElement>(
+    "[data-ormo-tooltip-trigger][data-ormo-tooltip-for]",
+  )) {
+    const target = trigger.dataset.ormoTooltipFor?.trim();
+    const root = target ? document.getElementById(target) : null;
+    if (!root || root.localName !== "ormo-tooltip") {
+      diagnostics.push({
+        element: trigger,
+        message: `Detached Tooltip Trigger does not match a Root id: ${target || "(empty)"}`,
+      });
+    }
+  }
+
+  for (const root of document.querySelectorAll<HTMLElement>("ormo-tooltip")) {
+    const owns = (element: Element): boolean =>
+      element.closest("ormo-tooltip") === root;
+    const contents = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-ormo-tooltip-content]"),
+    ).filter(owns);
+    const content = contents[0];
+
+    if (!content) {
+      diagnostics.push({
+        element: root,
+        message: "Tooltip needs one Content part.",
+      });
+      continue;
+    }
+
+    if (contents.length > 1) {
+      diagnostics.push({
+        element: root,
+        message: "Tooltip has more than one Content part.",
+      });
+    }
+
+    const focusables = Array.from(
+      content.querySelectorAll<HTMLElement>(interactiveSelector),
+    ).filter(owns);
+    if (focusables.length > 0) {
+      diagnostics.push({
+        element: content,
+        message:
+          "Tooltip Content must not contain focusable elements. Use Popover for interactive content.",
+      });
+    }
+
+    if (
+      root.getAttribute("data-positioning") === "floating" &&
+      !(globalThis as { __ormoTooltipFloatingPositioner?: unknown })
+        .__ormoTooltipFloatingPositioner
+    ) {
+      diagnostics.push({
+        element: root,
+        message:
+          'Tooltip positioning="floating" requires import "@ormo/primitives/tooltip/floating".',
+      });
+    }
+  }
+
+  return diagnostics;
+}
+
 function scan(): Diagnostic[] {
   return [
     ...scanButtons(),
     ...scanAlertDialogs(),
     ...scanDialogs(),
     ...scanPopovers(),
+    ...scanTooltips(),
     ...scanAccordions(),
     ...scanAvatars(),
     ...scanTabs(),

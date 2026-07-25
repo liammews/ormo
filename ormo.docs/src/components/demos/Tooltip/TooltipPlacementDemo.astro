@@ -1,0 +1,36 @@
+---
+import * as Tooltip from "@ormo/primitives/tooltip";
+import "./index.css";
+---
+
+<div class="tooltip-example" data-tooltip-demo="placement">
+  <div class="tooltip-trigger-group">
+    <Tooltip.Root>
+      <Tooltip.Trigger class="tooltip-trigger">Top</Tooltip.Trigger>
+      <Tooltip.Content class="tooltip-content" side="top" sideOffset={6}>
+        Top
+      </Tooltip.Content>
+    </Tooltip.Root>
+
+    <Tooltip.Root>
+      <Tooltip.Trigger class="tooltip-trigger">Right</Tooltip.Trigger>
+      <Tooltip.Content class="tooltip-content" side="right" sideOffset={6}>
+        Right
+      </Tooltip.Content>
+    </Tooltip.Root>
+
+    <Tooltip.Root>
+      <Tooltip.Trigger class="tooltip-trigger">Bottom</Tooltip.Trigger>
+      <Tooltip.Content class="tooltip-content" side="bottom" sideOffset={6}>
+        Bottom
+      </Tooltip.Content>
+    </Tooltip.Root>
+
+    <Tooltip.Root>
+      <Tooltip.Trigger class="tooltip-trigger">Left</Tooltip.Trigger>
+      <Tooltip.Content class="tooltip-content" side="left" sideOffset={6}>
+        Left
+      </Tooltip.Content>
+    </Tooltip.Root>
+  </div>
+</div>

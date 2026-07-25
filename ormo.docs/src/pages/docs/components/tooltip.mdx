@@ -1,0 +1,350 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Tooltip"
+description: "Brief non-interactive descriptions on hover and keyboard focus"
+---
+
+import TooltipDemo from "../../../components/demos/Tooltip/TooltipDemo.astro";
+import tooltipDemoCode from "../../../components/demos/Tooltip/TooltipDemo.astro?raw";
+import tooltipDemoCss from "../../../components/demos/Tooltip/index.css?raw";
+import TooltipPlacementDemo from "../../../components/demos/Tooltip/TooltipPlacementDemo.astro";
+import tooltipPlacementDemoCode from "../../../components/demos/Tooltip/TooltipPlacementDemo.astro?raw";
+import TooltipDelayDemo from "../../../components/demos/Tooltip/TooltipDelayDemo.astro";
+import tooltipDelayDemoCode from "../../../components/demos/Tooltip/TooltipDelayDemo.astro?raw";
+import TooltipDisabledDemo from "../../../components/demos/Tooltip/TooltipDisabledDemo.astro";
+import tooltipDisabledDemoCode from "../../../components/demos/Tooltip/TooltipDisabledDemo.astro?raw";
+import TooltipDetachedTriggerDemo from "../../../components/demos/Tooltip/TooltipDetachedTriggerDemo.astro";
+import tooltipDetachedTriggerDemoCode from "../../../components/demos/Tooltip/TooltipDetachedTriggerDemo.astro?raw";
+import TooltipToolbarDemo from "../../../components/demos/Tooltip/TooltipToolbarDemo.astro";
+import tooltipToolbarDemoCode from "../../../components/demos/Tooltip/TooltipToolbarDemo.astro?raw";
+import TooltipFloatingDemo from "../../../components/demos/Tooltip/TooltipFloatingDemo.astro";
+import tooltipFloatingDemoCode from "../../../components/demos/Tooltip/TooltipFloatingDemo.astro?raw";
+import TooltipProgrammaticDemo from "../../../components/demos/Tooltip/TooltipProgrammaticDemo.astro";
+import tooltipProgrammaticDemoCode from "../../../components/demos/Tooltip/TooltipProgrammaticDemo.astro?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+## Default
+
+Tooltip shows a brief non-interactive description when the user hovers or focuses a trigger. Focus stays on the trigger. Content is hoverable, dismissible with Escape, and persistent while interest remains — meeting WCAG 1.4.13.
+
+Use [Popover](/docs/components/popover) for click-triggered interactive panels. Do not put links or other focusable controls inside Tooltip Content.
+
+<DemoBlock
+  files={[
+    { filename: "Tooltip.astro", code: tooltipDemoCode },
+    { filename: "index.css", code: tooltipDemoCss },
+  ]}
+>
+  <TooltipDemo />
+</DemoBlock>
+
+## Anatomy
+
+Compose a trigger button and the tooltip content:
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Tooltip from "@ormo/primitives/tooltip";
+---
+
+<Tooltip.Root>
+  <Tooltip.Trigger aria-label="Bold">B</Tooltip.Trigger>
+  <Tooltip.Content side="top" sideOffset={6}>
+    Bold
+  </Tooltip.Content>
+</Tooltip.Root>`}
+/>
+
+Content renders a <code>div</code> with <code>role="tooltip"</code> and the Popover API (<code>popover="hint"</code> when supported, otherwise <code>manual</code>). While open, Ormo connects the trigger through <code>aria-describedby</code>. Default placement uses CSS Anchor Positioning.
+
+Trigger always renders a native <code>&lt;button&gt;</code>. Put icons and labels in its slot — do not nest another button inside Trigger.
+
+## Examples
+
+### Placement
+
+Set <code>side</code>, <code>align</code>, and <code>sideOffset</code> on Content. Defaults favour <code>side="top"</code>.
+
+<DemoBlock
+  files={[{ filename: "Tooltip.astro", code: tooltipPlacementDemoCode }]}
+>
+  <TooltipPlacementDemo />
+</DemoBlock>
+
+### Delay
+
+Pointer open waits for Root <code>delay</code> (default 700ms). Focus opens immediately. <code>closeDelay</code> keeps Content hoverable when the pointer crosses the gap from Trigger.
+
+<DemoBlock files={[{ filename: "Tooltip.astro", code: tooltipDelayDemoCode }]}>
+  <TooltipDelayDemo />
+</DemoBlock>
+
+### Toolbar skip-delay
+
+After a tooltip closes, the next one in the page opens without the usual delay for a short grace period. No Provider wrapper is required.
+
+<DemoBlock
+  files={[{ filename: "Tooltip.astro", code: tooltipToolbarDemoCode }]}
+>
+  <TooltipToolbarDemo />
+</DemoBlock>
+
+### Disabled
+
+Set <code>disabled</code> on Root (and typically on Trigger) to prevent opening.
+
+<DemoBlock
+  files={[{ filename: "Tooltip.astro", code: tooltipDisabledDemoCode }]}
+>
+  <TooltipDisabledDemo />
+</DemoBlock>
+
+### Detached triggers
+
+Add <code>for</code> with a Root <code>id</code> when Trigger is rendered elsewhere. Use the ID without a leading <code>#</code>. Triggers remain buttons — Tooltip does not bind to arbitrary existing controls.
+
+<DemoBlock
+  files={[{ filename: "Tooltip.astro", code: tooltipDetachedTriggerDemoCode }]}
+>
+  <TooltipDetachedTriggerDemo />
+</DemoBlock>
+
+### Programmatic control
+
+After Root connects, call <code>show()</code> or <code>hide()</code> on the <code>ormo-tooltip</code> element.
+
+<DemoBlock
+  files={[{ filename: "Tooltip.astro", code: tooltipProgrammaticDemoCode }]}
+>
+  <TooltipProgrammaticDemo />
+</DemoBlock>
+
+### Floating UI (opt-in)
+
+CSS Anchor Positioning is the default. For Floating UI placement, install <code>@floating-ui/dom</code>, import the floating entry from a client <code>&lt;script&gt;</code>, and set <code>positioning="floating"</code> on Root.
+
+<DemoBlock
+  files={[{ filename: "Tooltip.astro", code: tooltipFloatingDemoCode }]}
+>
+  <TooltipFloatingDemo />
+</DemoBlock>
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Tooltip from "@ormo/primitives/tooltip";
+---
+
+<Tooltip.Root positioning="floating">
+  <Tooltip.Trigger>Label</Tooltip.Trigger>
+  <Tooltip.Content side="bottom" sideOffset={8}>
+    ...
+  </Tooltip.Content>
+</Tooltip.Root>
+
+<script>
+  import "@ormo/primitives/tooltip/floating";
+</script>`}
+
+/>
+
+Without the floating import, <code>positioning="floating"</code> warns in development and keeps CSS Anchor Positioning until the floating entry is loaded.
+
+## API reference
+
+### Root
+
+Groups the parts and coordinates open state. It renders <code>&lt;ormo-tooltip&gt;</code> and accepts global HTML attributes.
+
+<PropsTable
+  id="tooltip-root-props"
+  caption="Tooltip Root properties"
+  rows={[
+    {
+      name: "delay",
+      type: "number",
+      defaultValue: "700",
+      description:
+        "Milliseconds to wait before opening on pointer interest. Focus opens immediately. Moving between tooltips within the page grace period skips this delay.",
+    },
+    {
+      name: "closeDelay",
+      type: "number",
+      defaultValue: "100",
+      description:
+        "Milliseconds to wait before closing after the pointer leaves Trigger and Content, so Content stays hoverable.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Prevents the tooltip from opening.",
+    },
+    {
+      name: "positioning",
+      type: '"css-anchor" | "floating"',
+      defaultValue: '"css-anchor"',
+      description:
+        'Placement engine. "floating" requires import "@ormo/primitives/tooltip/floating" and the optional @floating-ui/dom peer.',
+    },
+  ]}
+/>
+
+### Trigger
+
+Renders the native button that shows Tooltip on hover and focus. Slot content is for labels and icons, not nested buttons.
+
+<PropsTable
+  id="tooltip-trigger-props"
+  caption="Tooltip Trigger properties"
+  rows={[
+    {
+      name: "type",
+      type: '"button" | "submit" | "reset"',
+      defaultValue: '"button"',
+      description: "Sets the native button type.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Uses native semantics to prevent Tooltip from opening.",
+    },
+    {
+      name: "for",
+      type: "string",
+      description:
+        "Targets a Tooltip Root by id when Trigger is outside that Root. Omit the leading # character.",
+    },
+  ]}
+/>
+
+### Content
+
+Renders the tooltip. Ormo owns <code>role</code> and <code>popover</code>. Keep Content non-interactive.
+
+<PropsTable
+  id="tooltip-content-props"
+  caption="Tooltip Content properties"
+  rows={[
+    {
+      name: "side",
+      type: '"top" | "right" | "bottom" | "left"',
+      defaultValue: '"top"',
+      description: "Preferred side of the trigger for placement.",
+    },
+    {
+      name: "align",
+      type: '"start" | "center" | "end"',
+      defaultValue: '"center"',
+      description: "Alignment along the chosen side.",
+    },
+    {
+      name: "sideOffset",
+      type: "number",
+      defaultValue: "0",
+      description: "Distance in pixels from the trigger.",
+    },
+  ]}
+/>
+
+## Browser API and events
+
+The <code>ormo-tooltip</code> element exposes framework-independent control:
+
+<PropsTable
+  id="tooltip-browser-api"
+  caption="Tooltip browser element API"
+  nameHeader="Member"
+  rows={[
+    {
+      name: "delay",
+      type: "number",
+      description: "Gets or sets the pointer open delay in milliseconds.",
+    },
+    {
+      name: "closeDelay",
+      type: "number",
+      description: "Gets or sets the pointer close delay in milliseconds.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      description:
+        "Gets or sets whether the tooltip is prevented from opening.",
+    },
+    {
+      name: "open",
+      type: "boolean",
+      description: "Reads whether Content is open.",
+    },
+    {
+      name: "show()",
+      type: "() => void",
+      description: "Opens Content programmatically.",
+    },
+    {
+      name: "hide()",
+      type: "() => void",
+      description: "Closes Content programmatically.",
+    },
+  ]}
+/>
+
+Listen for <code>ormo:tooltip-open-change</code> on Root. It bubbles with <code>open</code> and <code>reason</code>. Reason is <code>pointer</code>, <code>focus</code>, <code>escape</code>, <code>trigger</code>, or <code>programmatic</code>.
+
+There is no Astro <code>open</code> prop. Open Tooltip with hover, focus, or <code>show()</code> after the custom element connects.
+
+## Accessibility
+
+Tooltip follows the APG tooltip pattern: <code>role="tooltip"</code> on Content and <code>aria-describedby</code> on the active Trigger while open. Focus never moves into Content.
+
+WCAG 1.4.13 requirements:
+
+- **Dismissible** — Escape closes without moving pointer or focus.
+- **Hoverable** — the pointer can move from Trigger onto Content without it disappearing (<code>closeDelay</code> supports the gap).
+- **Persistent** — Content stays until interest ends, Escape, or trigger activation. There is no auto-hide timer while interest remains.
+
+Do not put interactive content in Tooltip. Use [Popover](/docs/components/popover) for that. Tooltip does not implement a long-press/touch path in v1; keyboard users reach it through focus.
+
+Development builds and the optional Ormo toolbar report missing or multiple Content parts, focusable descendants in Content, invalid detached Triggers, and floating positioning without the floating import.
+
+## Development toolbar
+
+With the optional [Ormo development toolbar](/docs/dev-toolbar) enabled, Astro’s toolbar scans rendered Tooltips and flags common composition mistakes:
+
+- Detached Triggers with an empty or invalid Root target
+- Roots with no Content part or more than one Content part
+- Content that contains focusable elements
+- <code>positioning="floating"</code> without the floating entry import
+
+## Keyboard behaviour
+
+- Focusing Trigger opens Content immediately.
+- <kbd>Escape</kbd> closes Content without moving focus.
+- Activating Trigger (click / Enter / Space) closes Content if it was open.
+- Tab moves normally; Content is not in the tab order.
+
+## Styling
+
+Pass your own <code>class</code> values to each part. Public state hooks are <code>data-state="open|closed"</code>, <code>data-open</code>, Content <code>data-side</code> / <code>data-align</code> (requested placement), Floating UI <code>data-resolved-side</code> / <code>data-resolved-align</code>, and brief <code>data-starting-style</code> / <code>data-ending-style</code> transition attributes.
+
+CSS custom properties set by Ormo:
+
+- <code>--ormo-tooltip-side-offset</code> — from Content <code>sideOffset</code>
+- <code>--ormo-tooltip-anchor</code> — CSS Anchor name when using css-anchor
+  positioning
+- <code>--ormo-tooltip-trigger-width</code> /
+  <code>--ormo-tooltip-trigger-height</code> — measured from the trigger when
+  Content opens (cleared on close)
+
+Floating UI may also write <code>left</code> / <code>top</code> on Content. Attributes prefixed with <code>data-ormo-\*</code> are internal runtime selectors.
+
+## Runtime
+
+Tooltip loads one Astro-processed, deduplicated runtime. The browser owns top-layer rendering through the Popover API. Ormo connects parts, manages interest timing and WCAG 1.4.13 behaviour, coordinates exclusive open and the page-level skip-delay grace period, applies CSS Anchor hooks, and handles Astro client-router document swaps.
+
+The Floating UI entry is separate: importing <code>@ormo/primitives/tooltip/floating</code> registers that engine. Pages that never import it never download Floating UI.

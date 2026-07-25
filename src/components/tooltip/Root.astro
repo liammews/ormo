@@ -1,0 +1,29 @@
+---
+import type { TooltipRootProps } from "./types";
+
+type Props = TooltipRootProps;
+
+const {
+  delay = 700,
+  closeDelay = 100,
+  disabled = false,
+  positioning = "css-anchor",
+  ...attributes
+}: Props = Astro.props;
+---
+
+<ormo-tooltip
+  {...attributes}
+  data-delay={delay}
+  data-close-delay={closeDelay}
+  data-disabled={disabled || undefined}
+  data-positioning={positioning === "floating" ? "floating" : undefined}
+  data-ormo-tooltip-root
+  data-state="closed"
+>
+  <slot />
+</ormo-tooltip>
+
+<script>
+  import "../../runtime/tooltip";
+</script>
