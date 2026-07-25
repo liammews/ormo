@@ -29,7 +29,7 @@ import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
 Popover opens a non-modal panel anchored to a button for rich interactive content such as filters or short forms. The rest of the page stays interactive. There is no focus trap and no page scroll lock.
 
-Use [Dialog](/docs/components/dialog) when the task needs exclusive attention and an inert page. Use [Tooltip](/docs/components/tooltip) (or a future HoverCard) for hover or focus-triggered content — Popover is click-triggered only.
+Use [Dialog](/docs/components/dialog) when the task needs exclusive attention and an inert page. Popover is click-triggered only — hover and focus descriptions belong on [Tooltip](/docs/components/tooltip).
 
 <DemoBlock
   files={[
@@ -39,6 +39,17 @@ Use [Dialog](/docs/components/dialog) when the task needs exclusive attention an
 >
   <PopoverDemo />
 </DemoBlock>
+
+## When to use Popover vs Tooltip
+
+Decide from the **purpose of the trigger**, not from how the popup looks:
+
+- If the trigger’s purpose is **to open the popup itself** — for example an info icon whose only job is to show help — use **Popover**.
+- If the trigger’s purpose is **unrelated** to opening the popup — for example a Bold control that also needs a short label — use **[Tooltip](/docs/components/tooltip)**.
+
+Help that opens from an info icon is sometimes called an _infotip_. Prefer Popover for it: click open lets touch users and keyboard / screen-reader users reach the content deliberately, and Content can include richer help with a Close control. Tooltip is the wrong fit there because it stays non-interactive and is easy to miss on touch.
+
+Use Tooltip only for brief descriptions of a control that already has another primary action. Do not use Popover as a hover-triggered label substitute — that pattern belongs on Tooltip so WCAG 1.4.13 can be handled deliberately.
 
 ## Anatomy
 
@@ -338,7 +349,7 @@ Popover follows a non-modal dialog pattern: <code>role="dialog"</code> without <
 
 Focus moves into Content on open (autofocus, first tabbable, or Content). Focus returns to the invoker or <code>finalFocus</code> on close. Tab is not trapped — users can leave Content into the page.
 
-Do not use Popover as a Tooltip substitute. Hover and focus open with delay belong on [Tooltip](/docs/components/tooltip) (or a future HoverCard) so WCAG 1.4.13 can be handled deliberately.
+Do not use Popover as a hover-triggered label substitute. See [When to use Popover vs Tooltip](#when-to-use-popover-vs-tooltip). Hover and focus descriptions belong on [Tooltip](/docs/components/tooltip) so WCAG 1.4.13 can be handled deliberately.
 
 Development builds and the optional Ormo toolbar report missing or multiple Content parts, missing accessible names, missing Close controls, invalid final-focus selectors, detached Triggers with invalid targets, and floating positioning without the floating import.
 
