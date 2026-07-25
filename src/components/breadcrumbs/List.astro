@@ -24,7 +24,7 @@ if (import.meta.env.DEV) {
   const currentMatches = content.match(/aria-current=(["'])page\1/g) ?? [];
   if (currentMatches.length > 1) {
     console.warn(
-      "[Ormo Breadcrumbs] Multiple elements have aria-current=\"page\". Only one current page should be marked in a trail.",
+      '[Ormo Breadcrumbs] Multiple elements have aria-current="page". Only one current page should be marked in a trail.',
     );
   } else if (currentMatches.length === 0) {
     console.warn(
@@ -44,9 +44,7 @@ if (import.meta.env.DEV) {
   }
 
   const emptyLinks =
-    content.match(
-      /<a\b[^>]*data-ormo-breadcrumbs-link\b[^>]*>\s*<\/a>/g,
-    ) ?? [];
+    content.match(/<a\b[^>]*data-ormo-breadcrumbs-link\b[^>]*>\s*<\/a>/g) ?? [];
   if (emptyLinks.length > 0) {
     console.warn(
       "[Ormo Breadcrumbs] A Breadcrumbs.Link has no accessible name. Provide link text content.",

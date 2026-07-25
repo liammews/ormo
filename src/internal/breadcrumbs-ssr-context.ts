@@ -21,8 +21,7 @@ export async function renderWithBreadcrumbsRootContext(
 }
 
 export function getBreadcrumbsRootSsrContext():
-  | BreadcrumbsRootSsrContext
-  | undefined {
+  BreadcrumbsRootSsrContext | undefined {
   return rootStorage.getStore()?.at(-1);
 }
 
@@ -35,8 +34,7 @@ export async function renderWithBreadcrumbsListContext(
 }
 
 export function getBreadcrumbsListSsrContext():
-  | BreadcrumbsListSsrContext
-  | undefined {
+  BreadcrumbsListSsrContext | undefined {
   return listStorage.getStore()?.at(-1);
 }
 

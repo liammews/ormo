@@ -20,10 +20,7 @@ const tocHeadings = headings.filter(
       <ul class="toc_list">
         {tocHeadings.map((heading) => (
           <li
-            class:list={[
-              "toc_item",
-              heading.depth === 3 && "toc_item--nested",
-            ]}
+            class:list={["toc_item", heading.depth === 3 && "toc_item--nested"]}
           >
             <a class="toc_link" href={`#${heading.slug}`}>
               {heading.text}
@@ -51,8 +48,9 @@ const tocHeadings = headings.filter(
         const heading = document.getElementById(id);
         return heading ? { link, heading } : null;
       })
-      .filter((entry): entry is { link: HTMLAnchorElement; heading: HTMLElement } =>
-        entry !== null,
+      .filter(
+        (entry): entry is { link: HTMLAnchorElement; heading: HTMLElement } =>
+          entry !== null,
       );
 
     if (headings.length === 0) return;

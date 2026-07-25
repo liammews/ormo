@@ -18,6 +18,4 @@ const useMetaName = microdata && name !== undefined;
 >
   <slot />
 </span>
-{
-  useMetaName ? <meta itemprop="name" content={name} /> : null
-}
+{useMetaName ? <meta itemprop="name" content={name} /> : null}
