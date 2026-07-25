@@ -26,6 +26,14 @@
       "types": "./src/components/button/index.ts",
       "import": "./src/components/button/index.ts"
     },
+    "./checkbox": {
+      "types": "./src/components/checkbox/index.ts",
+      "import": "./src/components/checkbox/index.ts"
+    },
+    "./checkbox/group": {
+      "types": "./src/components/checkbox/group.ts",
+      "import": "./src/components/checkbox/group.ts"
+    },
     "./dialog": {
       "types": "./src/components/dialog/index.ts",
       "import": "./src/components/dialog/index.ts"

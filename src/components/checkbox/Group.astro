@@ -1,0 +1,69 @@
+---
+import {
+  createCheckboxGroupRootId,
+  normalizeDefaultValues,
+  renderWithCheckboxGroupContext,
+} from "../../internal/checkbox-group-ssr-context";
+import type { CheckboxGroupRootProps } from "./types";
+
+type Props = CheckboxGroupRootProps;
+
+const {
+  name,
+  defaultValue,
+  disabled = false,
+  required = false,
+  requiredMessage,
+  id,
+  "aria-labelledby": ariaLabelledBy,
+  "aria-label": ariaLabel,
+  ...attributes
+} = Astro.props as CheckboxGroupRootProps & {
+  required?: boolean;
+  requiredMessage?: string;
+  id?: string;
+  "aria-labelledby"?: string;
+  "aria-label"?: string;
+};
+
+const rootId = id ?? createCheckboxGroupRootId();
+const labelId = `${rootId}-label`;
+const serializedDefaultValue =
+  defaultValue === undefined ? undefined : JSON.stringify(defaultValue);
+
+const ssrContext = {
+  name,
+  disabled,
+  defaultValue: normalizeDefaultValues(defaultValue),
+  rootId,
+  labelId,
+  hasLabel: false,
+};
+
+const content = await renderWithCheckboxGroupContext(ssrContext, () =>
+  Astro.slots.render("default"),
+);
+
+const resolvedLabelledBy =
+  ariaLabelledBy ?? (ssrContext.hasLabel ? labelId : undefined);
+---
+
+<ormo-checkbox-group
+  {...attributes}
+  id={rootId}
+  role="group"
+  aria-labelledby={resolvedLabelledBy}
+  aria-label={ariaLabel}
+  data-ormo-checkbox-group
+  data-state="none"
+  data-disabled={disabled ? "" : undefined}
+  data-required={required ? "" : undefined}
+  data-name={name}
+  data-default-value={serializedDefaultValue}
+  data-required-message={required ? requiredMessage : undefined}
+  set:html={content}
+/>
+
+<script>
+  import "../../runtime/checkbox-group";
+</script>
