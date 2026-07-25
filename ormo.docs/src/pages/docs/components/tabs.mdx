@@ -6,6 +6,7 @@ description: "A set of layered panels with accessible tab controls"
 
 import TabsDemo from "../../../components/demos/Tabs/TabsDemo.astro";
 import tabsDemoCode from "../../../components/demos/Tabs/TabsDemo.astro?raw";
+import tabsDemoCss from "../../../components/demos/Tabs/index.css?raw";
 import TabsVerticalDemo from "../../../components/demos/Tabs/TabsVerticalDemo.astro";
 import tabsVerticalDemoCode from "../../../components/demos/Tabs/TabsVerticalDemo.astro?raw";
 import TabsActivateOnFocusDemo from "../../../components/demos/Tabs/TabsActivateOnFocusDemo.astro";
@@ -14,21 +15,23 @@ import TabsDisabledDemo from "../../../components/demos/Tabs/TabsDisabledDemo.as
 import tabsDisabledDemoCode from "../../../components/demos/Tabs/TabsDisabledDemo.astro?raw";
 import TabsControlledDemo from "../../../components/demos/Tabs/TabsControlledDemo.astro";
 import tabsControlledDemoCode from "../../../components/demos/Tabs/TabsControlledDemo.astro?raw";
+import tabsControlledDemoCss from "../../../components/demos/Tabs/controlled.css?raw";
 import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
-<DemoBlock code={tabsDemoCode}>
+<DemoBlock
+  files={[
+    { filename: "Tabs.astro", code: tabsDemoCode },
+    { filename: "index.css", code: tabsDemoCss },
+  ]}
+>
   <TabsDemo />
 </DemoBlock>
 
 ## Installation
 
-<CodeBlock
-  singleLine
-  lang="bash"
-  code={`npm install @ormo/primitives/tabs`}
-/>
+<CodeBlock singleLine lang="bash" code={`npm install @ormo/primitives/tabs`} />
 
 ## Anatomy
 
@@ -54,7 +57,7 @@ import * as Tabs from "@ormo/primitives/tabs";
 
 Set <code>orientation="vertical"</code> for a side tablist. Arrow keys follow the orientation.
 
-<DemoBlock code={tabsVerticalDemoCode}>
+<DemoBlock files={[{ filename: "Tabs.astro", code: tabsVerticalDemoCode }]}>
   <TabsVerticalDemo />
 </DemoBlock>
 
@@ -62,7 +65,9 @@ Set <code>orientation="vertical"</code> for a side tablist. Arrow keys follow th
 
 Set <code>activateOnFocus</code> when panels can appear instantly. Arrow keys then select the focused tab. Leave it off (the default) when activation should wait for Enter, Space, or a click.
 
-<DemoBlock code={tabsActivateOnFocusDemoCode}>
+<DemoBlock
+  files={[{ filename: "Tabs.astro", code: tabsActivateOnFocusDemoCode }]}
+>
   <TabsActivateOnFocusDemo />
 </DemoBlock>
 
@@ -70,7 +75,7 @@ Set <code>activateOnFocus</code> when panels can appear instantly. Arrow keys th
 
 Set <code>disabled</code> on a Tab to skip it for pointer and keyboard interaction. Set <code>disabled</code> on Root to disable the whole widget.
 
-<DemoBlock code={tabsDisabledDemoCode}>
+<DemoBlock files={[{ filename: "Tabs.astro", code: tabsDisabledDemoCode }]}>
   <TabsDisabledDemo />
 </DemoBlock>
 
@@ -78,7 +83,12 @@ Set <code>disabled</code> on a Tab to skip it for pointer and keyboard interacti
 
 After render, read and write <code>value</code> on the <code>ormo-tabs</code> element. Assigning <code>value</code> updates selection immediately.
 
-<DemoBlock code={tabsControlledDemoCode}>
+<DemoBlock
+  files={[
+    { filename: "Tabs.astro", code: tabsControlledDemoCode },
+    { filename: "controlled.css", code: tabsControlledDemoCss },
+  ]}
+>
   <TabsControlledDemo />
 </DemoBlock>
 
@@ -240,7 +250,7 @@ The <code>ormo-tabs</code> custom element exposes state for framework-free brows
 
 ## Events
 
-Listen for <code>ormo:value-change</code> on the root before the value changes. The event bubbles and crosses shadow boundaries. User-initiated changes can be canceled with <code>preventDefault()</code>. Automatic fallbacks (for example when the selected tab is removed or disabled) are not cancelable.
+Listen for <code>ormo:value-change</code> on the root before the value changes. The event bubbles and crosses shadow boundaries. User-initiated changes can be cancelled with <code>preventDefault()</code>. Automatic fallbacks (for example, when the selected tab is removed or disabled) are not cancellable.
 
 <CodeBlock
   lang="js"
@@ -280,6 +290,7 @@ import * as Tabs from "@ormo/primitives/tabs";
   // Select a tab from application code:
   // tabs.value = "projects";
 </script>`}
+
 />
 
 ## Accessibility
@@ -296,9 +307,22 @@ Prefer Tabs for in-page panel switching. For navigation between URLs, use links 
 
 In development, Ormo warns when the tablist is unnamed, when Tab and Panel values do not match, or when a Tab is outside List.
 
+## Development toolbar
+
+With the optional [Ormo development toolbar](/docs/dev-toolbar) enabled, Astro’s toolbar scans rendered Tabs and flags common composition mistakes:
+
+- Roots without a List
+- Lists without an accessible name
+- Tab or Panel parts with missing or duplicate values
+- Tabs outside a List
+- Tabs without an accessible name
+- Tab values without a matching Panel, and Panel values without a matching Tab
+
+Select an issue in the toolbar to jump to the element. These checks catch structural mistakes during development; they do not replace keyboard and screen-reader testing.
+
 ## Keyboard behaviour
 
-Tabs use a roving tabindex composite widget (unlike Accordion, which keeps triggers in the normal Tab sequence):
+Tabs use a roving tabindex composite widget (unlike [Accordion](/docs/components/accordion), which keeps triggers in the normal Tab sequence):
 
 <PropsTable
   id="tabs-keyboard"
@@ -320,8 +344,7 @@ Tabs use a roving tabindex composite widget (unlike Accordion, which keeps trigg
     {
       name: "Up / Down",
       type: "Focus",
-      description:
-        "Move focus between tabs when orientation is vertical.",
+      description: "Move focus between tabs when orientation is vertical.",
     },
     {
       name: "Home / End",
@@ -331,8 +354,7 @@ Tabs use a roving tabindex composite widget (unlike Accordion, which keeps trigg
     {
       name: "Enter / Space",
       type: "Activation",
-      description:
-        "Activate the focused tab when activateOnFocus is false.",
+      description: "Activate the focused tab when activateOnFocus is false.",
     },
   ]}
 />

@@ -1,9 +1,11 @@
 ---
 import { Button } from "@ormo/primitives/button";
-import "./ButtonDemo.css";
+import "./index.css";
+import "./disabled.css";
+import "./pending.css";
 ---
 
-<Button class="button-demo-control" pending disabled focusableWhenDisabled>
-  <span class="button-demo-spinner" aria-hidden="true"></span>
+<Button class="button" pending disabled focusableWhenDisabled>
+  <span class="button-spinner" aria-hidden="true"></span>
   Saving…
 </Button>

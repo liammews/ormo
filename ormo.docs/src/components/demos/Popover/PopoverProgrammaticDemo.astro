@@ -1,9 +1,9 @@
 ---
 import * as Popover from "@ormo/primitives/popover";
-import "./PopoverDemo.css";
+import "./index.css";
 ---
 
-<div class="popover-demo" data-popover-demo="programmatic">
+<div class="popover-example" data-programmatic-popover>
   <Popover.Root id="programmatic-popover">
     <Popover.Trigger class="popover-trigger">Open with Trigger</Popover.Trigger>
 
@@ -19,10 +19,10 @@ import "./PopoverDemo.css";
   </Popover.Root>
 
   <div class="popover-trigger-group">
-    <button type="button" class="popover-trigger-secondary" data-popover-show>
+    <button type="button" class="popover-trigger-secondary" data-show-popover>
       show()
     </button>
-    <button type="button" class="popover-trigger-secondary" data-popover-hide>
+    <button type="button" class="popover-trigger-secondary" data-hide-popover>
       hide()
     </button>
   </div>
@@ -30,13 +30,13 @@ import "./PopoverDemo.css";
 </div>
 
 <script>
-  for (const demo of document.querySelectorAll(
-    '[data-popover-demo="programmatic"]',
+  for (const controller of document.querySelectorAll(
+    "[data-programmatic-popover]",
   )) {
-    const root = demo.querySelector("ormo-popover");
-    const status = demo.querySelector("[data-popover-status]");
-    const show = demo.querySelector("[data-popover-show]");
-    const hide = demo.querySelector("[data-popover-hide]");
+    const root = controller.querySelector("ormo-popover");
+    const status = controller.querySelector("[data-popover-status]");
+    const show = controller.querySelector("[data-show-popover]");
+    const hide = controller.querySelector("[data-hide-popover]");
 
     root?.addEventListener("ormo:popover-open-change", (event) => {
       const detail = event.detail;

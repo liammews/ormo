@@ -1,20 +1,20 @@
 ---
 import { Input } from "@ormo/primitives/input";
-import "./InputErrorDemo.css";
+import "./index.css";
 ---
 
-<div class="input-demo">
-  <label class="input-demo-label" for="input-demo-email">Email address</label>
+<div class="input-field">
+  <label class="input-label" for="email">Email address</label>
   <Input
-    class="input-demo-input"
-    id="input-demo-email"
+    class="input"
+    id="email"
     name="email"
     type="email"
     autocomplete="email"
     placeholder="you@example.com"
-    aria-describedby="input-demo-email-hint"
+    aria-describedby="email-hint"
   />
-  <p class="input-demo-hint" id="input-demo-email-hint">
+  <p class="input-hint" id="email-hint">
     We’ll only use this to contact you about your account.
   </p>
 </div>

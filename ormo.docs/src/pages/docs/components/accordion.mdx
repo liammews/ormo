@@ -20,6 +20,10 @@ import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
+## Default
+
+By default, Accordion allows one item to be open at a time. Selecting another trigger closes the open item and reveals the selected panel.
+
 <DemoBlock
   files={[
     { filename: "AccordionDemo.astro", code: accordionDemoCode },
@@ -61,7 +65,7 @@ import * as Accordion from "@ormo/primitives/accordion";
 
 ### Default value
 
-Use <code>defaultValue</code> to select the item that is open when the Accordion initializes. To initialise with multiple items open, pass an array of item values.
+Use <code>defaultValue</code> to select the item that is open when the accordion initialises. To initialise with multiple items open, pass an array of item values.
 
 <DemoBlock
   files={[{ filename: "Accordion.astro", code: accordionInitialValueDemoCode }]}
@@ -81,7 +85,7 @@ Use <code>type="multiple"</code> to allow any number of accordion items to be op
 
 ### Require an open panel
 
-Set `collapsible={false}` on `Accordion.Root` when atleast one item must stay open at all times. Selecting the open item's trigger again does nothing; selecting another item moves the open state.
+Set `collapsible={false}` on `Accordion.Root` when at least one item must stay open at all times. Selecting the open item's trigger again does nothing; selecting another item moves the open state.
 
 <DemoBlock
   files={[{ filename: "Accordion.astro", code: accordionRequireOpenDemoCode }]}
@@ -89,9 +93,9 @@ Set `collapsible={false}` on `Accordion.Root` when atleast one item must stay op
   <AccordionRequireOpenDemo />
 </DemoBlock>
 
-### Item disabled
+### Disabled item
 
-Set <code>disabled</code> on an item to prevent interaction with that item while keeping the rest of the accordion items available. Add <code>disabled</code> to <code>Accordion.Root</code> to disable the entire group of accordion items.
+Set <code>disabled</code> on an item to prevent interaction with it while keeping the other accordion items available. Add <code>disabled</code> to <code>Accordion.Root</code> to disable the entire group.
 
 <DemoBlock
   files={[
@@ -106,7 +110,7 @@ Set <code>disabled</code> on an item to prevent interaction with that item while
 
 ### Root
 
-Groups all Accordion parts and coordinates their open, disabled, and browser-search state.
+Groups all accordion parts and coordinates their open, disabled, and browser-search state.
 
 <PropsTable
   id="accordion-root-props"
@@ -157,7 +161,7 @@ Groups all Accordion parts and coordinates their open, disabled, and browser-sea
       type: '"vertical" | "horizontal"',
       defaultValue: '"vertical"',
       description:
-        "Provides styling metadata through data-orientation. It does not change keyboard behavior and is deprecated as a behavioral API.",
+        "Provides styling metadata through data-orientation. It does not change keyboard behaviour and is deprecated as a behavioural API.",
     },
   ]}
 />
@@ -236,7 +240,7 @@ Renders the collapsible content panel.
       type: "boolean",
       defaultValue: "false",
       description:
-        "Makes this individual closed panel discoverable with 'Find in Page'. The root option applies the behavior to every panel.",
+        "Makes this individual closed panel discoverable with 'Find in Page'. The root option applies the behaviour to every panel.",
     },
   ]}
 />
@@ -281,14 +285,14 @@ The <code>ormo-accordion</code> custom element exposes state for framework-free 
       type: "boolean",
       defaultValue: "false",
       description:
-        "Gets or sets whether every closed items supports 'Find in Page'.",
+        "Gets or sets whether every closed item supports 'Find in Page'.",
     },
   ]}
 />
 
 ## Events
 
-Listen for <code>ormo:value-change</code> on the root before the value changes. The event bubbles and crosses shadow boundaries. Changes from user interaction can be canceled with <code>preventDefault()</code>. A change that reveals a browser 'Find in Page' match is not cancelable, because the browser must be able to reveal the matched content.
+Listen for <code>ormo:value-change</code> on the root before the value changes. The event bubbles and crosses shadow boundaries. Changes from user interaction can be cancelled with <code>preventDefault()</code>. A change that reveals a browser 'Find in Page' match is not cancellable, because the browser must be able to reveal the matched content.
 
 Listen for <code>ormo:open-change</code> after an individual item opens or closes. Its detail contains the item’s <code>value</code> and new <code>open</code> state.
 
@@ -305,7 +309,7 @@ ${String.fromCharCode(32, 32)}console.log(event.detail.value, event.detail.open)
 
 ## Controlling value after render
 
-Astro props configure the initial accordion item. After the page loads, read and write open state on the <code>ormo-accordion</code> element. Assigning <code>value</code> updates the items immediately. Listening for <code>ormo:value-change</code> and calling <code>preventDefault()</code> keeps the previous value, which is the controlled pattern for plain Astro scripts and islands.
+Astro props configure the accordion's initial open state. After the page loads, read and write the open state on the <code>ormo-accordion</code> element. Assigning <code>value</code> updates the items immediately. Listening for <code>ormo:value-change</code> and calling <code>preventDefault()</code> keeps the previous value, which is the controlled pattern for plain Astro scripts and islands.
 
 <CodeBlock
   lang="astro"
@@ -351,7 +355,7 @@ Select an issue in the toolbar to jump to the element. These checks catch struct
 
 Try the [Accordion toolbar demo](/docs/dev-toolbar/accordion-demo) for intentionally broken examples.
 
-## Keyboard behavior
+## Keyboard behaviour
 
 Every trigger is a native button in the normal Tab sequence. Use <kbd>Enter</kbd> or <kbd>Space</kbd> to toggle it.
 

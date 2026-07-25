@@ -1,9 +1,9 @@
 ---
 import * as AlertDialog from "@ormo/primitives/alert-dialog";
-import "./AlertDialogDemo.css";
+import "./index.css";
 ---
 
-<div class="alert-dialog-demo" data-alert-dialog-demo>
+<div data-project-deletion>
   <AlertDialog.Root>
     <AlertDialog.Trigger class="alert-dialog-trigger">
       Delete project
@@ -25,7 +25,7 @@ import "./AlertDialogDemo.css";
         <AlertDialog.Action
           class="alert-dialog-button alert-dialog-action"
           value="delete"
-          data-demo-delete
+          data-delete-project
         >
           Delete project
         </AlertDialog.Action>
@@ -33,15 +33,17 @@ import "./AlertDialogDemo.css";
     </AlertDialog.Content>
   </AlertDialog.Root>
 
-  <p class="alert-dialog-status" aria-live="polite" data-demo-status></p>
+  <p class="alert-dialog-status" aria-live="polite" data-project-status></p>
 </div>
 
 <script>
-  for (const demo of document.querySelectorAll<HTMLElement>(
-    "[data-alert-dialog-demo]",
+  for (const project of document.querySelectorAll<HTMLElement>(
+    "[data-project-deletion]",
   )) {
-    const action = demo.querySelector<HTMLButtonElement>("[data-demo-delete]");
-    const status = demo.querySelector<HTMLElement>("[data-demo-status]");
+    const action = project.querySelector<HTMLButtonElement>(
+      "[data-delete-project]",
+    );
+    const status = project.querySelector<HTMLElement>("[data-project-status]");
 
     action?.addEventListener("click", () => {
       if (status) status.textContent = "Project deleted.";

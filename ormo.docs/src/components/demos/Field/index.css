@@ -1,18 +1,18 @@
-.field-demo {
+.field {
   display: flex;
   width: min(100%, 24rem);
   flex-direction: column;
   gap: var(--space-50);
 }
 
-.field-demo-label {
+.field-label {
   color: var(--content-default);
   font-size: var(--font-size-2);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-base);
 }
 
-.field-demo-input {
+.field-input {
   display: block;
   width: 100%;
   min-width: 0;
@@ -28,52 +28,52 @@
   transition: border-color var(--duration-1) var(--ease-1);
 }
 
-.field-demo-input::placeholder {
+.field-input::placeholder {
   color: var(--content-subtle);
   opacity: 1;
 }
 
-.field-demo-input:hover:not(:disabled, :read-only) {
+.field-input:hover:not(:disabled, :read-only) {
   border-color: var(--content-subtle);
 }
 
-.field-demo-input:focus-visible {
+.field-input:focus-visible {
   border-color: var(--focus-default);
   outline: var(--focus-width) solid var(--focus-default);
   outline-offset: var(--focus-offset);
 }
 
-.field-demo[data-invalid] .field-demo-input {
+.field[data-invalid] .field-input {
   border-color: var(--surface-error);
 }
 
-.field-demo[data-invalid] .field-demo-input:focus-visible {
+.field[data-invalid] .field-input:focus-visible {
   outline-color: var(--surface-error);
 }
 
-.field-demo[data-disabled] .field-demo-input {
+.field[data-disabled] .field-input {
   border-color: var(--border-default);
   background: var(--surface-disabled);
   color: var(--content-disabled);
   cursor: not-allowed;
 }
 
-.field-demo-description,
-.field-demo-error {
+.field-description,
+.field-error {
   font-size: var(--font-size-2);
   line-height: var(--line-height-base);
 }
 
-.field-demo-description {
+.field-description {
   color: var(--content-subtle);
 }
 
-.field-demo-error {
+.field-error {
   color: var(--content-error);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .field-demo-input {
+  .field-input {
     transition: none;
   }
 }

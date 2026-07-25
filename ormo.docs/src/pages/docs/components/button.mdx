@@ -6,6 +6,9 @@ description: "A control for triggering actions"
 
 import ButtonDemo from "../../../components/demos/Button/ButtonDemo.astro";
 import buttonDemoCode from "../../../components/demos/Button/ButtonDemo.astro?raw";
+import buttonCss from "../../../components/demos/Button/index.css?raw";
+import buttonDisabledCss from "../../../components/demos/Button/disabled.css?raw";
+import buttonPendingCss from "../../../components/demos/Button/pending.css?raw";
 import ButtonNonNativeDemo from "../../../components/demos/Button/ButtonNonNativeDemo.astro";
 import buttonNonNativeDemoCode from "../../../components/demos/Button/ButtonNonNativeDemo.astro?raw";
 import ButtonDisabledDemo from "../../../components/demos/Button/ButtonDisabledDemo.astro";
@@ -22,9 +25,14 @@ import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
 ## Default
 
-Button renders a native <code>&lt;button type="button"&gt;</code>. Its text content provides the accessible name, and the native element supplies <kbd>Enter</kbd> and <kbd>Space</kbd> keyboard behavior. A default native Button ships no Button JavaScript in production.
+Button renders a native <code>&lt;button type="button"&gt;</code>. Its text content provides the accessible name, and the native element supplies <kbd>Enter</kbd> and <kbd>Space</kbd> keyboard behaviour. A default native Button ships no Button JavaScript in production.
 
-<DemoBlock code={buttonDemoCode}>
+<DemoBlock
+  files={[
+    { filename: "Button.astro", code: buttonDemoCode },
+    { filename: "index.css", code: buttonCss },
+  ]}
+>
   <ButtonDemo />
 </DemoBlock>
 
@@ -43,15 +51,17 @@ import { Button } from "@ormo/primitives/button";
 
 ### Rendering links as buttons
 
-The Button component should not be used as a link. `<button>` is for actions and always enforces button semantics. When a control looks like a button but navigates to another location, we recommend using a native <code>&lt;a href&gt;</code> and applying the same styles. This preserves the link semantics and browser behavior users expect.
+The Button component should not be used as a link. `<button>` is for actions and always enforces button semantics. When a control looks like a button but navigates to another location, we recommend using a native <code>&lt;a href&gt;</code> and applying the same styles. This preserves the link semantics and browser behaviour users expect.
 
 ## Examples
 
 ### Rendering a non-native button
 
-Prefer the default native button whenever possible. When another element is required, set <code>as</code> to <code>"div"</code> or <code>"span"</code>. Button then supplies the button role, keyboard interaction, focusability, and disabled behavior that the element does not provide itself. Non-native rendering is inferred from <code>as</code>; <code>nativeButton={false}</code> remains accepted for explicitness.
+Prefer the default native button whenever possible. When another element is required, set <code>as</code> to <code>"div"</code> or <code>"span"</code>. Button then supplies the button role, keyboard interaction, focusability, and disabled behaviour that the element does not provide itself. Non-native rendering is inferred from <code>as</code>; <code>nativeButton={false}</code> remains accepted for explicitness.
 
-<DemoBlock code={buttonNonNativeDemoCode}>
+<DemoBlock
+  files={[{ filename: "Button.astro", code: buttonNonNativeDemoCode }]}
+>
   <ButtonNonNativeDemo />
 </DemoBlock>
 
@@ -59,7 +69,12 @@ Prefer the default native button whenever possible. When another element is requ
 
 Set <code>disabled</code> when a button action is unavailable. The native attribute prevents pointer and keyboard activation, removes the button from the tab sequence, and exposes its disabled state to assistive technology. This path stays JavaScript-free for native buttons.
 
-<DemoBlock code={buttonDisabledDemoCode}>
+<DemoBlock
+  files={[
+    { filename: "Button.astro", code: buttonDisabledDemoCode },
+    { filename: "disabled.css", code: buttonDisabledCss },
+  ]}
+>
   <ButtonDisabledDemo />
 </DemoBlock>
 
@@ -69,7 +84,12 @@ Use <code>focusableWhenDisabled</code> when an action becomes temporarily unavai
 
 This mode requires the Button runtime: native <code>disabled</code> cannot keep a control focusable, so Ormo omits that attribute and enforces the disabled contract in JavaScript. Without JavaScript, a focusable disabled button remains activatable.
 
-<DemoBlock code={buttonFocusableDisabledDemoCode}>
+<DemoBlock
+  files={[
+    { filename: "Button.astro", code: buttonFocusableDisabledDemoCode },
+    { filename: "disabled.css", code: buttonDisabledCss },
+  ]}
+>
   <ButtonFocusableDisabledDemo />
 </DemoBlock>
 
@@ -77,7 +97,13 @@ This mode requires the Button runtime: native <code>disabled</code> cannot keep 
 
 Set <code>pending</code> to expose <code>data-pending</code> for a loading indicator and <code>aria-busy="true"</code> for the busy state. Pending does not disable the button by itself. Combine it explicitly with <code>disabled</code> (and <code>focusableWhenDisabled</code> when focus must stay) when an in-progress action must not be repeated.
 
-<DemoBlock code={buttonPendingDemoCode}>
+<DemoBlock
+  files={[
+    { filename: "Button.astro", code: buttonPendingDemoCode },
+    { filename: "disabled.css", code: buttonDisabledCss },
+    { filename: "pending.css", code: buttonPendingCss },
+  ]}
+>
   <ButtonPendingDemo />
 </DemoBlock>
 
@@ -85,7 +111,12 @@ Set <code>pending</code> to expose <code>data-pending</code> for a loading indic
 
 With <code>type="submit"</code>, <code>disabled</code>, and <code>focusableWhenDisabled</code>, Button blocks direct activation and implicit form submission (for example <kbd>Enter</kbd> in a text field) once the runtime is loaded.
 
-<DemoBlock code={buttonSubmitGuardDemoCode}>
+<DemoBlock
+  files={[
+    { filename: "Button.astro", code: buttonSubmitGuardDemoCode },
+    { filename: "disabled.css", code: buttonDisabledCss },
+  ]}
+>
   <ButtonSubmitGuardDemo />
 </DemoBlock>
 
@@ -108,7 +139,7 @@ import { Button } from "@ormo/primitives/button";
 
 For a client-enhanced form, keep pending state in the form or island that owns the request. While it is pending, prevent duplicate submission with <code>disabled</code> (and <code>focusableWhenDisabled</code> when focus retention matters), and use <code>pending</code> on Button for <code>data-pending</code> styling plus <code>aria-busy</code>. Restore the state when an in-page request completes.
 
-The optional <code>setButtonState</code> controller synchronizes these DOM states from a plain Astro script or any island framework. It persists <code>focusableWhenDisabled</code> on the element as <code>data-focusable-when-disabled</code>, so later <code>disabled</code> updates keep that mode without re-passing the flag. Importing the controller loads the interaction runtime:
+The optional <code>setButtonState</code> controller synchronises these DOM states from a plain Astro script or any island framework. It persists <code>focusableWhenDisabled</code> on the element as <code>data-focusable-when-disabled</code>, so later <code>disabled</code> updates keep that mode without re-passing the flag. Importing the controller loads the interaction runtime:
 
 <CodeBlock
   lang="ts"
@@ -198,7 +229,17 @@ Use Button for an action such as saving, submitting, opening, or deleting. Use a
 
 After activation, manage focus according to the action. For example, move focus into a dialog that opens, return it to the trigger when that dialog closes, and otherwise leave focus on the button unless the action creates a new context.
 
-## Keyboard behavior
+## Development toolbar
+
+With the optional [Ormo development toolbar](/docs/dev-toolbar) enabled, Astro’s toolbar scans rendered Buttons and flags:
+
+- Buttons without an accessible name
+- Buttons with a positive <code>tabindex</code>
+- Buttons containing a nested interactive element
+
+Select an issue in the toolbar to jump to the element. These checks catch clear accessibility mistakes during development; they do not replace keyboard and screen-reader testing.
+
+## Keyboard behaviour
 
 Native and non-native buttons activate with <kbd>Enter</kbd> or <kbd>Space</kbd>. They remain in the normal Tab sequence unless disabled. A disabled button remains in the sequence when <code>focusableWhenDisabled</code> is set.
 

@@ -6,6 +6,7 @@ description: "A non-modal panel anchored to a trigger for rich interactive conte
 
 import PopoverDemo from "../../../components/demos/Popover/PopoverDemo.astro";
 import popoverDemoCode from "../../../components/demos/Popover/PopoverDemo.astro?raw";
+import popoverDemoCss from "../../../components/demos/Popover/index.css?raw";
 import PopoverPlacementDemo from "../../../components/demos/Popover/PopoverPlacementDemo.astro";
 import popoverPlacementDemoCode from "../../../components/demos/Popover/PopoverPlacementDemo.astro?raw";
 import PopoverSlotTriggerDemo from "../../../components/demos/Popover/PopoverSlotTriggerDemo.astro";
@@ -28,9 +29,14 @@ import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
 Popover opens a non-modal panel anchored to a button for rich interactive content such as filters or short forms. The rest of the page stays interactive. There is no focus trap and no page scroll lock.
 
-Use Dialog when the task needs exclusive attention and an inert page. Use a future Tooltip or HoverCard for hover or focus-triggered content — Popover is click-triggered only.
+Use [Dialog](/docs/components/dialog) when the task needs exclusive attention and an inert page. Use a future Tooltip or HoverCard for hover or focus-triggered content — Popover is click-triggered only.
 
-<DemoBlock code={popoverDemoCode}>
+<DemoBlock
+  files={[
+    { filename: "Popover.astro", code: popoverDemoCode },
+    { filename: "index.css", code: popoverDemoCss },
+  ]}
+>
   <PopoverDemo />
 </DemoBlock>
 
@@ -62,7 +68,7 @@ import * as Popover from "@ormo/primitives/popover";
 
 Content renders a <code>div</code> with <code>role="dialog"</code> and <code>popover="auto"</code> by default (<code>popover="manual"</code> when Root sets <code>disablePointerDismissal</code>). Ormo generates IDs and connects Title and Description through <code>aria-labelledby</code> and <code>aria-describedby</code>. Opening uses the native Popover API. Default placement uses CSS Anchor Positioning.
 
-Trigger always renders a native <code>&lt;button&gt;</code>. Put icons and labels in its slot — do not nest another button (including Ormo Button) inside Trigger.
+Trigger always renders a native <code>&lt;button&gt;</code>. Put icons and labels in its slot — do not nest another button (including Ormo [Button](/docs/components/button)) inside Trigger.
 
 ## Examples
 
@@ -70,7 +76,9 @@ Trigger always renders a native <code>&lt;button&gt;</code>. Put icons and label
 
 Set <code>side</code>, <code>align</code>, and <code>sideOffset</code> on Content. These drive CSS Anchor Positioning and the public <code>data-side</code> / <code>data-align</code> attributes (requested placement). With Floating UI, resolved placement is exposed as <code>data-resolved-side</code> / <code>data-resolved-align</code> without mutating the requested attributes.
 
-<DemoBlock code={popoverPlacementDemoCode}>
+<DemoBlock
+  files={[{ filename: "Popover.astro", code: popoverPlacementDemoCode }]}
+>
   <PopoverPlacementDemo />
 </DemoBlock>
 
@@ -78,7 +86,9 @@ Set <code>side</code>, <code>align</code>, and <code>sideOffset</code> on Conten
 
 Style Trigger and place non-button content in the slot. Decorative icons need <code>aria-hidden="true"</code>.
 
-<DemoBlock code={popoverSlotTriggerDemoCode}>
+<DemoBlock
+  files={[{ filename: "Popover.astro", code: popoverSlotTriggerDemoCode }]}
+>
   <PopoverSlotTriggerDemo />
 </DemoBlock>
 
@@ -86,7 +96,9 @@ Style Trigger and place non-button content in the slot. Decorative icons need <c
 
 Add <code>for</code> with a Root <code>id</code> when Trigger is rendered elsewhere. Use the ID without a leading <code>#</code>.
 
-<DemoBlock code={popoverDetachedTriggerDemoCode}>
+<DemoBlock
+  files={[{ filename: "Popover.astro", code: popoverDetachedTriggerDemoCode }]}
+>
   <PopoverDetachedTriggerDemo />
 </DemoBlock>
 
@@ -94,7 +106,7 @@ Add <code>for</code> with a Root <code>id</code> when Trigger is rendered elsewh
 
 Because Popover is non-modal, keyboard users can Tab from Content into the rest of the page.
 
-<DemoBlock code={popoverFormDemoCode}>
+<DemoBlock files={[{ filename: "Popover.astro", code: popoverFormDemoCode }]}>
   <PopoverFormDemo />
 </DemoBlock>
 
@@ -102,7 +114,9 @@ Because Popover is non-modal, keyboard users can Tab from Content into the rest 
 
 Outside pointer presses close Popover by default (<code>popover="auto"</code>). Set <code>disablePointerDismissal</code> to use <code>popover="manual"</code> in both SSR HTML and the runtime. Escape still closes unless the application prevents it.
 
-<DemoBlock code={popoverPersistentDemoCode}>
+<DemoBlock
+  files={[{ filename: "Popover.astro", code: popoverPersistentDemoCode }]}
+>
   <PopoverPersistentDemo />
 </DemoBlock>
 
@@ -110,7 +124,9 @@ Outside pointer presses close Popover by default (<code>popover="auto"</code>). 
 
 After Root connects, call <code>show()</code>, <code>hide()</code>, or <code>toggle()</code> on the <code>ormo-popover</code> element.
 
-<DemoBlock code={popoverProgrammaticDemoCode}>
+<DemoBlock
+  files={[{ filename: "Popover.astro", code: popoverProgrammaticDemoCode }]}
+>
   <PopoverProgrammaticDemo />
 </DemoBlock>
 
@@ -118,7 +134,9 @@ After Root connects, call <code>show()</code>, <code>hide()</code>, or <code>tog
 
 CSS Anchor Positioning is the default. For Floating UI placement, install <code>@floating-ui/dom</code>, import the floating entry from a client <code>&lt;script&gt;</code> (so it never runs during Astro SSR), and set <code>positioning="floating"</code> on Root.
 
-<DemoBlock code={popoverFloatingDemoCode}>
+<DemoBlock
+  files={[{ filename: "Popover.astro", code: popoverFloatingDemoCode }]}
+>
   <PopoverFloatingDemo />
 </DemoBlock>
 
@@ -268,7 +286,7 @@ Provides a concise description and defaults to <code>p</code>. It may render as 
 
 ### Close
 
-Renders an Ormo Button that closes Content. It accepts Button's native-button props, including <code>value</code>, which becomes the open-change <code>returnValue</code>.
+Renders an Ormo [Button](/docs/components/button) that closes Content. It accepts Button's native-button props, including <code>value</code>, which becomes the open-change <code>returnValue</code>.
 
 ## Browser API and events
 
@@ -324,7 +342,20 @@ Do not use Popover as a Tooltip substitute. Hover and focus open with delay belo
 
 Development builds and the optional Ormo toolbar report missing or multiple Content parts, missing accessible names, missing Close controls, invalid final-focus selectors, detached Triggers with invalid targets, and floating positioning without the floating import.
 
-## Keyboard behavior
+## Development toolbar
+
+With the optional [Ormo development toolbar](/docs/dev-toolbar) enabled, Astro’s toolbar scans rendered Popovers and flags common composition mistakes:
+
+- Detached Triggers with an empty or invalid Root target
+- Roots with no Content part or more than one Content part
+- Content without a Title or another accessible name
+- Content without a visible Close control
+- <code>positioning="floating"</code> without the floating entry import
+- Invalid <code>finalFocus</code> CSS selectors, or selectors that do not match an available programmatically focusable element
+
+Select an issue in the toolbar to jump to the element. These checks catch structural mistakes during development; they do not replace keyboard and screen-reader testing.
+
+## Keyboard behaviour
 
 - <kbd>Enter</kbd> or <kbd>Space</kbd> on Trigger toggles Content.
 - <kbd>Tab</kbd> and <kbd>Shift</kbd> + <kbd>Tab</kbd> move through focusable
@@ -339,8 +370,11 @@ Pass your own <code>class</code> values to each part. Public state hooks are <co
 CSS custom properties set by Ormo:
 
 - <code>--ormo-popover-side-offset</code> — from Content <code>sideOffset</code>
-- <code>--ormo-popover-anchor</code> — CSS Anchor name when using css-anchor positioning
-- <code>--ormo-popover-trigger-width</code> / <code>--ormo-popover-trigger-height</code> — measured from the trigger when Content opens (cleared on close)
+- <code>--ormo-popover-anchor</code> — CSS Anchor name when using css-anchor
+  positioning
+- <code>--ormo-popover-trigger-width</code> /
+  <code>--ormo-popover-trigger-height</code> — measured from the trigger when
+  Content opens (cleared on close)
 
 Floating UI may also write <code>left</code> / <code>top</code> on Content. Attributes prefixed with <code>data-ormo-\*</code> are internal runtime selectors.
 

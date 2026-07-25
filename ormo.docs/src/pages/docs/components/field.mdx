@@ -1,11 +1,12 @@
 ---
 layout: ../../../layouts/MdxDocLayout.astro
 title: "Field"
-description: "Provides accessible labeling, descriptions, errors, and form state"
+description: "Provides accessible labelling, descriptions, errors, and form state"
 ---
 
 import FieldDemo from "../../../components/demos/Field/FieldDemo.astro";
 import fieldDemoCode from "../../../components/demos/Field/FieldDemo.astro?raw";
+import fieldDemoCss from "../../../components/demos/Field/index.css?raw";
 import FieldErrorDemo from "../../../components/demos/Field/FieldErrorDemo.astro";
 import fieldErrorDemoCode from "../../../components/demos/Field/FieldErrorDemo.astro?raw";
 import FieldDisabledDemo from "../../../components/demos/Field/FieldDisabledDemo.astro";
@@ -16,7 +17,12 @@ import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 ## Default
 
 <div data-field-demo>
-  <DemoBlock code={fieldDemoCode}>
+  <DemoBlock
+    files={[
+      { filename: "Field.astro", code: fieldDemoCode },
+      { filename: "index.css", code: fieldDemoCss },
+    ]}
+  >
     <FieldDemo />
   </DemoBlock>
 </div>
@@ -24,7 +30,7 @@ import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 ## Error
 
 <div data-field-error-demo>
-  <DemoBlock code={fieldErrorDemoCode}>
+  <DemoBlock files={[{ filename: "Field.astro", code: fieldErrorDemoCode }]}>
     <FieldErrorDemo />
   </DemoBlock>
 </div>
@@ -32,7 +38,7 @@ import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 ## Disabled
 
 <div data-field-disabled-demo>
-  <DemoBlock code={fieldDisabledDemoCode}>
+  <DemoBlock files={[{ filename: "Field.astro", code: fieldDisabledDemoCode }]}>
     <FieldDisabledDemo />
   </DemoBlock>
 </div>
@@ -43,7 +49,10 @@ Use explicit <code>for</code>, <code>id</code>, and <code>aria-describedby</code
 
 Field owns a single native <code>input</code>, <code>select</code>, or <code>textarea</code>. Put one control in each <code>Field.Root</code>. Radio and checkbox groups need a dedicated group primitive.
 
-<code>Field.Error</code> stays hidden in the server-rendered HTML unless <code>match={true}</code>. The runtime reveals matching errors, exposes them with <code>role="alert"</code>, and only adds visible errors to <code>aria-describedby</code>.
+<code>Field.Error</code> stays hidden in the server-rendered HTML unless
+<code>match={true}</code>. The runtime reveals matching errors, exposes them
+with <code>role="alert"</code>, and only adds visible errors to
+<code>aria-describedby</code>.
 
 ## Anatomy
 
@@ -60,7 +69,7 @@ import * as Field from "@ormo/primitives/field";
 </Field.Root>
 ```
 
-You can replace <code>Field.Control</code> with <code>Input</code> or another native control. Prefer Field for labeling, descriptions, errors, and validation state.
+You can replace <code>Field.Control</code> with [Input](/docs/components/input) or another native control. Prefer Field for labelling, descriptions, errors, and validation state.
 
 ## API reference
 
@@ -89,8 +98,7 @@ Groups the label, control, description, and errors while coordinating their rela
     {
       name: "name",
       type: "string",
-      description:
-        "Sets the name on the owned control for form submission.",
+      description: "Sets the name on the owned control for form submission.",
     },
     {
       name: "required",
@@ -166,7 +174,7 @@ Renders a native <code>&lt;label&gt;</code> and forwards its HTML attributes. Fi
 
 ### Control
 
-Renders a native <code>&lt;input&gt;</code> for use inside Field. Forward the usual input attributes, or swap in <code>Input</code> / another native control instead.
+Renders a native <code>&lt;input&gt;</code> for use inside Field. Forward the usual input attributes, or use [Input](/docs/components/input) or another native control instead.
 
 <PropsTable
   id="field-control-props"
@@ -283,7 +291,8 @@ The <code>ormo-field</code> custom element exposes live state and validation con
       name: "validationDebounceTime",
       type: "number",
       defaultValue: "0",
-      description: "Gets or sets the onChange validation debounce in milliseconds.",
+      description:
+        "Gets or sets the onChange validation debounce in milliseconds.",
     },
     {
       name: "validator",
@@ -360,3 +369,7 @@ Call <code>validate()</code> to validate immediately. Assign a sync or async <co
   }
 </script>
 ```
+
+## Development toolbar
+
+The [Ormo development toolbar](/docs/dev-toolbar) currently has no component-specific checks for Field. Supported Ormo primitives nested nearby or elsewhere on the page are still scanned. Continue to verify labels, descriptions, validation messages, and accessible state, and test the complete field with keyboard and screen-reader workflows.

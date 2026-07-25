@@ -1,23 +1,20 @@
 ---
 import * as Field from "@ormo/primitives/field";
-import "./FieldDemo.css";
+import "./index.css";
 ---
 
-<Field.Root class="field-demo" disabled name="email">
-  <Field.Label class="field-demo-label" for="field-disabled-demo-email">
+<Field.Root class="field" disabled name="email">
+  <Field.Label class="field-label" for="disabled-email">
     Email address
   </Field.Label>
   <Field.Control
-    class="field-demo-input"
-    id="field-disabled-demo-email"
+    class="field-input"
+    id="disabled-email"
     type="email"
     value="you@example.com"
-    aria-describedby="field-disabled-demo-description"
+    aria-describedby="disabled-email-description"
   />
-  <Field.Description
-    class="field-demo-description"
-    id="field-disabled-demo-description"
-  >
+  <Field.Description class="field-description" id="disabled-email-description">
     This field is currently unavailable.
   </Field.Description>
 </Field.Root>

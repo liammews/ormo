@@ -1,9 +1,9 @@
 ---
 import * as Tabs from "@ormo/primitives/tabs";
-import "./TabsDemo.css";
+import "./index.css";
 ---
 
-<Tabs.Root class="tabs" data-tabs-demo="disabled" defaultValue="overview">
+<Tabs.Root class="tabs" defaultValue="overview">
   <Tabs.List class="tabs-list" aria-label="Workspace">
     <Tabs.Tab class="tabs-tab" value="overview">Overview</Tabs.Tab>
     <Tabs.Tab class="tabs-tab" value="projects" disabled>Projects</Tabs.Tab>
@@ -13,7 +13,7 @@ import "./TabsDemo.css";
     Available workspace summary.
   </Tabs.Panel>
   <Tabs.Panel class="tabs-panel" value="projects">
-    Projects are disabled in this demo.
+    Projects are currently unavailable.
   </Tabs.Panel>
   <Tabs.Panel class="tabs-panel" value="billing">
     Invoices and payment methods.

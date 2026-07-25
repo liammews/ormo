@@ -1,14 +1,9 @@
 ---
 import * as Tabs from "@ormo/primitives/tabs";
-import "./TabsDemo.css";
+import "./index.css";
 ---
 
-<Tabs.Root
-  class="tabs"
-  data-tabs-demo="activate-on-focus"
-  defaultValue="overview"
-  activateOnFocus
->
+<Tabs.Root class="tabs" defaultValue="overview" activateOnFocus>
   <Tabs.List class="tabs-list" aria-label="Documentation">
     <Tabs.Tab class="tabs-tab" value="overview">Overview</Tabs.Tab>
     <Tabs.Tab class="tabs-tab" value="api">API</Tabs.Tab>

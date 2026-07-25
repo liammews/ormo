@@ -32,7 +32,7 @@
   gap: var(--space-75);
 }
 
-.popover-demo {
+.popover-example {
   display: grid;
   gap: var(--space-100);
 }
