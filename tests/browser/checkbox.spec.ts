@@ -2,9 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/docs/components/checkbox/", {
-    waitUntil: "domcontentloaded",
-  });
+  await page.goto("/docs/components/checkbox/");
 });
 
 test("toggles a standalone checkbox with Space", async ({ page }) => {

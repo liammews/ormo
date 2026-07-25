@@ -8,8 +8,6 @@ export interface CheckboxGroupSsrContext {
   labelId: string;
   /** Mutable: set true when CheckboxGroup.Label renders. */
   hasLabel: boolean;
-  /** Mutable: member values registered by Checkbox children. */
-  memberValues: string[];
 }
 
 const groupStorage = new AsyncLocalStorage<CheckboxGroupSsrContext[]>();

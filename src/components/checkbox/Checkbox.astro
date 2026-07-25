@@ -43,10 +43,6 @@ const resolvedChecked =
         ? true
         : undefined;
 
-if (group && !parent && stringValue !== undefined) {
-  group.memberValues.push(stringValue);
-}
-
 const needsRuntime = import.meta.env.DEV || Boolean(indeterminate);
 ---
 

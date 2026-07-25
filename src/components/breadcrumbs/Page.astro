@@ -1,0 +1,21 @@
+---
+import { getBreadcrumbsListSsrContext } from "../../internal/breadcrumbs-ssr-context";
+import type { BreadcrumbsPageProps } from "./types";
+
+type Props = BreadcrumbsPageProps;
+
+const { name, ...attributes }: Props = Astro.props;
+const list = getBreadcrumbsListSsrContext();
+const microdata = list?.microdata ?? false;
+const useMetaName = microdata && name !== undefined;
+---
+
+<span
+  {...attributes}
+  data-ormo-breadcrumbs-page
+  aria-current="page"
+  itemprop={microdata && !useMetaName ? "name" : undefined}
+>
+  <slot />
+</span>
+{useMetaName ? <meta itemprop="name" content={name} /> : null}

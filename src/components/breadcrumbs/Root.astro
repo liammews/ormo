@@ -1,0 +1,29 @@
+---
+import { renderWithBreadcrumbsRootContext } from "../../internal/breadcrumbs-ssr-context";
+import type { BreadcrumbsRootProps } from "./types";
+
+type Props = BreadcrumbsRootProps;
+
+const {
+  label = "Breadcrumb",
+  microdata = false,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledby,
+  ...attributes
+} = Astro.props;
+
+const resolvedAriaLabel = ariaLabelledby ? undefined : (ariaLabel ?? label);
+
+const content = await renderWithBreadcrumbsRootContext({ microdata }, () =>
+  Astro.slots.render("default"),
+);
+---
+
+<nav
+  {...attributes}
+  aria-label={resolvedAriaLabel}
+  aria-labelledby={ariaLabelledby}
+  data-ormo-breadcrumbs-root
+  data-microdata={microdata ? "" : undefined}
+  set:html={content}
+/>

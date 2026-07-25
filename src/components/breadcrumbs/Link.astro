@@ -1,0 +1,30 @@
+---
+import { getBreadcrumbsListSsrContext } from "../../internal/breadcrumbs-ssr-context";
+import type { BreadcrumbsLinkProps } from "./types";
+
+type Props = BreadcrumbsLinkProps;
+
+const { href, current = false, name, ...attributes }: Props = Astro.props;
+
+const list = getBreadcrumbsListSsrContext();
+const microdata = list?.microdata ?? false;
+const wrapName = microdata && name === undefined;
+const slotHtml = await Astro.slots.render("default");
+const content = wrapName
+  ? `<span itemprop="name">${slotHtml}</span>`
+  : slotHtml;
+---
+
+<a
+  {...attributes}
+  href={href}
+  data-ormo-breadcrumbs-link
+  aria-current={current ? "page" : undefined}
+  itemprop={microdata ? "item" : undefined}
+  set:html={content}
+/>
+{
+  microdata && name !== undefined ? (
+    <meta itemprop="name" content={name} />
+  ) : null
+}

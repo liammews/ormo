@@ -1,0 +1,16 @@
+---
+import type { BreadcrumbsSeparatorProps } from "./types";
+
+type Props = BreadcrumbsSeparatorProps;
+
+const { ...attributes } = Astro.props;
+---
+
+<li
+  {...attributes}
+  data-ormo-breadcrumbs-separator
+  role="presentation"
+  aria-hidden="true"
+>
+  <slot />
+</li>

@@ -28,7 +28,6 @@ describe("checkbox-group-ssr-context", () => {
       rootId: "group-1",
       labelId: "group-1-label",
       hasLabel: false,
-      memberValues: [] as string[],
     };
 
     const result = await renderWithCheckboxGroupContext(context, async () => {

@@ -1,0 +1,62 @@
+---
+import {
+  getBreadcrumbsRootSsrContext,
+  renderWithBreadcrumbsListContext,
+} from "../../internal/breadcrumbs-ssr-context";
+import type { BreadcrumbsListProps } from "./types";
+
+type Props = BreadcrumbsListProps;
+
+const { ...attributes } = Astro.props;
+const root = getBreadcrumbsRootSsrContext();
+const microdata = root?.microdata ?? false;
+
+const listContext = {
+  microdata,
+  nextPosition: 0,
+};
+
+const content = await renderWithBreadcrumbsListContext(listContext, () =>
+  Astro.slots.render("default"),
+);
+
+if (import.meta.env.DEV) {
+  const currentMatches = content.match(/aria-current=(["'])page\1/g) ?? [];
+  if (currentMatches.length > 1) {
+    console.warn(
+      '[Ormo Breadcrumbs] Multiple elements have aria-current="page". Only one current page should be marked in a trail.',
+    );
+  } else if (currentMatches.length === 0) {
+    console.warn(
+      "[Ormo Breadcrumbs] No current page found. Mark the current crumb with Breadcrumbs.Page or Breadcrumbs.Link current.",
+    );
+  }
+
+  if (microdata) {
+    const itemCount = (
+      content.match(/data-ormo-breadcrumbs-item(?:\s|>|$)/g) ?? []
+    ).length;
+    if (itemCount < 2) {
+      console.warn(
+        "[Ormo Breadcrumbs] Schema.org BreadcrumbList requires at least two ListItems for Google rich results eligibility.",
+      );
+    }
+  }
+
+  const emptyLinks =
+    content.match(/<a\b[^>]*data-ormo-breadcrumbs-link\b[^>]*>\s*<\/a>/g) ?? [];
+  if (emptyLinks.length > 0) {
+    console.warn(
+      "[Ormo Breadcrumbs] A Breadcrumbs.Link has no accessible name. Provide link text content.",
+    );
+  }
+}
+---
+
+<ol
+  {...attributes}
+  data-ormo-breadcrumbs-list
+  itemscope={microdata ? true : undefined}
+  itemtype={microdata ? "https://schema.org/BreadcrumbList" : undefined}
+  set:html={content}
+/>
