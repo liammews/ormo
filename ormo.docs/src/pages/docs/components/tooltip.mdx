@@ -29,8 +29,6 @@ import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
 Tooltip shows a brief non-interactive description when the user hovers or focuses a trigger. Focus stays on the trigger. Content is hoverable, dismissible with Escape, and persistent while interest remains — meeting WCAG 1.4.13.
 
-Use [Popover](/docs/components/popover) for click-triggered interactive panels. Do not put links or other focusable controls inside Tooltip Content.
-
 <DemoBlock
   files={[
     { filename: "Tooltip.astro", code: tooltipDemoCode },
@@ -39,6 +37,17 @@ Use [Popover](/docs/components/popover) for click-triggered interactive panels. 
 >
   <TooltipDemo />
 </DemoBlock>
+
+## When to use Tooltip vs Popover
+
+Decide from the **purpose of the trigger**, not from how the popup looks:
+
+- If the trigger’s purpose is **unrelated** to opening the popup — for example a Bold control that also needs a short label — use **Tooltip**.
+- If the trigger’s purpose is **to open the popup itself** — for example an info icon whose only job is to show help — use **[Popover](/docs/components/popover)**.
+
+That second case is sometimes called an _infotip_. Prefer Popover for it: Ormo Popover opens on click, so touch users and keyboard / screen-reader users can reach the content deliberately. Tooltip content must stay non-interactive and is easy to miss on touch devices.
+
+Use Popover when the panel needs links, forms, or other focusable controls. Do not put those inside Tooltip Content.
 
 ## Anatomy
 
@@ -308,7 +317,7 @@ WCAG 1.4.13 requirements:
 - **Hoverable** — the pointer can move from Trigger onto Content without it disappearing (<code>closeDelay</code> supports the gap).
 - **Persistent** — Content stays until interest ends, Escape, or trigger activation. There is no auto-hide timer while interest remains.
 
-Do not put interactive content in Tooltip. Use [Popover](/docs/components/popover) for that. Tooltip does not implement a long-press/touch path in v1; keyboard users reach it through focus.
+Do not put interactive content in Tooltip. Use [Popover](/docs/components/popover) for that — including info-icon help (_infotips_). See [When to use Tooltip vs Popover](#when-to-use-tooltip-vs-popover). Tooltip does not implement a long-press/touch path in v1; keyboard users reach it through focus.
 
 Development builds and the optional Ormo toolbar report missing or multiple Content parts, focusable descendants in Content, invalid detached Triggers, and floating positioning without the floating import.
 
