@@ -60,7 +60,6 @@ const codeFiles: DemoCodeFile[] =
 
 const showFileTabs = Boolean(files && files.length > 1);
 const primaryFile = codeFiles[0];
-const defaultFile = primaryFile?.filename;
 const codeId = `demo-code-${crypto.randomUUID()}`;
 ---
 
@@ -72,10 +71,10 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
   {
     primaryFile && (
       <div class="demoblock-code-container" data-demo-code-container>
-        {showFileTabs && defaultFile ? (
+        {showFileTabs ? (
           <Tabs.Root
             class="demoblock-code-tabs"
-            defaultValue={defaultFile}
+            defaultValue={primaryFile.filename}
             activateOnFocus
           >
             <Tabs.List class="demoblock-code-tabs-list" aria-label="Code files">
