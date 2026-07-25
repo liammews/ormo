@@ -1,0 +1,29 @@
+---
+import * as Tooltip from "@ormo/primitives/tooltip";
+import "./index.css";
+---
+
+<div class="tooltip-example" data-tooltip-demo="detached">
+  <div class="tooltip-trigger-group">
+    <Tooltip.Trigger
+      class="tooltip-trigger"
+      for="save-tooltip"
+      aria-label="Save"
+    >
+      Save
+    </Tooltip.Trigger>
+    <Tooltip.Trigger
+      class="tooltip-trigger tooltip-trigger-secondary"
+      for="save-tooltip"
+      aria-label="Save draft"
+    >
+      Draft
+    </Tooltip.Trigger>
+  </div>
+
+  <Tooltip.Root id="save-tooltip">
+    <Tooltip.Content class="tooltip-content" sideOffset={6}>
+      Save document
+    </Tooltip.Content>
+  </Tooltip.Root>
+</div>

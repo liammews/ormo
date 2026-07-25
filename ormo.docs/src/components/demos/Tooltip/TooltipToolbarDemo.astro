@@ -1,0 +1,35 @@
+---
+import * as Tooltip from "@ormo/primitives/tooltip";
+import "./index.css";
+---
+
+<div class="tooltip-example" data-tooltip-demo="toolbar">
+  <div class="tooltip-trigger-group" role="toolbar" aria-label="Text style">
+    <Tooltip.Root>
+      <Tooltip.Trigger class="tooltip-trigger" aria-label="Bold">
+        B
+      </Tooltip.Trigger>
+      <Tooltip.Content class="tooltip-content" sideOffset={6}>
+        Bold <kbd>⌘B</kbd>
+      </Tooltip.Content>
+    </Tooltip.Root>
+
+    <Tooltip.Root>
+      <Tooltip.Trigger class="tooltip-trigger" aria-label="Italic">
+        I
+      </Tooltip.Trigger>
+      <Tooltip.Content class="tooltip-content" sideOffset={6}>
+        Italic <kbd>⌘I</kbd>
+      </Tooltip.Content>
+    </Tooltip.Root>
+
+    <Tooltip.Root>
+      <Tooltip.Trigger class="tooltip-trigger" aria-label="Underline">
+        U
+      </Tooltip.Trigger>
+      <Tooltip.Content class="tooltip-content" sideOffset={6}>
+        Underline <kbd>⌘U</kbd>
+      </Tooltip.Content>
+    </Tooltip.Root>
+  </div>
+</div>

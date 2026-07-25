@@ -1,0 +1,13 @@
+---
+import * as Tooltip from "@ormo/primitives/tooltip";
+import "./index.css";
+---
+
+<div class="tooltip-example" data-tooltip-demo="delay">
+  <Tooltip.Root delay={1000} closeDelay={200}>
+    <Tooltip.Trigger class="tooltip-trigger">Slower tip</Tooltip.Trigger>
+    <Tooltip.Content class="tooltip-content" sideOffset={6}>
+      Opens after 1000ms on hover
+    </Tooltip.Content>
+  </Tooltip.Root>
+</div>

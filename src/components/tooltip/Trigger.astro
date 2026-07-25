@@ -1,0 +1,17 @@
+---
+import type { TooltipTriggerProps } from "./types";
+
+type Props = TooltipTriggerProps;
+
+const { type = "button", for: target, ...attributes }: Props = Astro.props;
+---
+
+<button
+  {...attributes}
+  type={type}
+  data-ormo-tooltip-for={target}
+  data-ormo-tooltip-trigger
+  data-state="closed"
+>
+  <slot />
+</button>

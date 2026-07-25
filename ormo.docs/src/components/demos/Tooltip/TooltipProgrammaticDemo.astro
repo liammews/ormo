@@ -1,0 +1,43 @@
+---
+import * as Tooltip from "@ormo/primitives/tooltip";
+import "./index.css";
+---
+
+<div class="tooltip-example" data-tooltip-demo="programmatic">
+  <Tooltip.Root id="programmatic-tooltip" delay={0}>
+    <Tooltip.Trigger class="tooltip-trigger">Target</Tooltip.Trigger>
+    <Tooltip.Content class="tooltip-content" sideOffset={6}>
+      Opened with show()
+    </Tooltip.Content>
+  </Tooltip.Root>
+
+  <div class="tooltip-trigger-group">
+    <button
+      class="tooltip-trigger tooltip-trigger-secondary"
+      type="button"
+      data-tooltip-show
+    >
+      Show
+    </button>
+    <button
+      class="tooltip-trigger tooltip-trigger-secondary"
+      type="button"
+      data-tooltip-hide
+    >
+      Hide
+    </button>
+  </div>
+</div>
+
+<script>
+  const root = document.getElementById("programmatic-tooltip");
+  const show = document.querySelector("[data-tooltip-show]");
+  const hide = document.querySelector("[data-tooltip-hide]");
+
+  show?.addEventListener("click", () => {
+    (root as (HTMLElement & { show?: () => void }) | null)?.show?.();
+  });
+  hide?.addEventListener("click", () => {
+    (root as (HTMLElement & { hide?: () => void }) | null)?.hide?.();
+  });
+</script>

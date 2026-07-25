@@ -1,0 +1,22 @@
+---
+import * as Tooltip from "@ormo/primitives/tooltip";
+import "./index.css";
+---
+
+<div class="tooltip-example" data-tooltip-demo="floating">
+  <Tooltip.Root positioning="floating">
+    <Tooltip.Trigger class="tooltip-trigger">Floating UI</Tooltip.Trigger>
+    <Tooltip.Content
+      class="tooltip-content"
+      side="bottom"
+      align="start"
+      sideOffset={8}
+    >
+      Opt in with the floating import and positioning="floating".
+    </Tooltip.Content>
+  </Tooltip.Root>
+</div>
+
+<script>
+  import "@ormo/primitives/tooltip/floating";
+</script>
