@@ -234,7 +234,7 @@ Renders the current page as <code>&lt;span aria-current="page"&gt;</code>.
       name: "name",
       type: "string",
       description:
-        "In microdata mode, emits a meta name sibling instead of putting itemprop=\"name\" on the span.",
+        'In microdata mode, emits a meta name sibling instead of putting itemprop="name" on the span.',
     },
     {
       name: "...span attributes",
@@ -278,14 +278,14 @@ No composite keyboard model. Links participate in the normal Tab sequence and ac
 
 Consumers own classes. Useful hooks:
 
-| Selector / attribute | Meaning |
-| --- | --- |
-| <code>[data-ormo-breadcrumbs-root]</code> | Root nav (internal; prefer your class) |
-| <code>[data-microdata]</code> | Microdata mode is on |
-| <code>[aria-current="page"]</code> | Current page crumb |
-| <code>[data-ormo-breadcrumbs-separator]</code> | Decorative separator item |
+| Selector / attribute                           | Meaning                                |
+| ---------------------------------------------- | -------------------------------------- |
+| <code>[data-ormo-breadcrumbs-root]</code>      | Root nav (internal; prefer your class) |
+| <code>[data-microdata]</code>                  | Microdata mode is on                   |
+| <code>[aria-current="page"]</code>             | Current page crumb                     |
+| <code>[data-ormo-breadcrumbs-separator]</code> | Decorative separator item              |
 
-Attributes prefixed with <code>data-ormo-*</code> are internal runtime/structure selectors, not a public styling API.
+Attributes prefixed with <code>data-ormo-\*</code> are internal runtime/structure selectors, not a public styling API.
 
 ## Runtime
 

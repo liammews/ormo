@@ -209,7 +209,9 @@
   font-weight: var(--font-weight-medium);
 }
 
-.prose > .demoblock, .prose > .code-block, .prose > .props-table {
+.prose > .demoblock,
+.prose > .code-block,
+.prose > .props-table {
   margin-block: var(--space-200);
 }
 

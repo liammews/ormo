@@ -12,9 +12,7 @@ const {
   ...attributes
 } = Astro.props;
 
-const resolvedAriaLabel = ariaLabelledby
-  ? undefined
-  : (ariaLabel ?? label);
+const resolvedAriaLabel = ariaLabelledby ? undefined : (ariaLabel ?? label);
 
 const content = await renderWithBreadcrumbsRootContext({ microdata }, () =>
   Astro.slots.render("default"),

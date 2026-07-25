@@ -17,7 +17,7 @@ describe("Breadcrumbs markup", () => {
   it("renders a labelled nav landmark with an ordered list", async () => {
     const html = await container.renderToString(DefaultTrail);
 
-    expect(html).toContain('data-ormo-breadcrumbs-root');
+    expect(html).toContain("data-ormo-breadcrumbs-root");
     expect(html).toContain('aria-label="Breadcrumb"');
     expect(html).toMatch(/<ol[^>]*data-ormo-breadcrumbs-list/);
     expect(html).toContain('href="/books"');
@@ -31,9 +31,7 @@ describe("Breadcrumbs markup", () => {
   it("hides separators from the accessibility tree", async () => {
     const html = await container.renderToString(DefaultTrail);
     const separatorMatches =
-      html.match(
-        /<li[^>]*data-ormo-breadcrumbs-separator[^>]*>/g,
-      ) ?? [];
+      html.match(/<li[^>]*data-ormo-breadcrumbs-separator[^>]*>/g) ?? [];
 
     expect(separatorMatches.length).toBe(2);
     for (const separator of separatorMatches) {
@@ -63,7 +61,7 @@ describe("Breadcrumbs markup", () => {
   it("annotates Schema.org microdata when enabled", async () => {
     const html = await container.renderToString(MicrodataTrail);
 
-    expect(html).toContain('data-microdata');
+    expect(html).toContain("data-microdata");
     expect(html).toContain('itemtype="https://schema.org/BreadcrumbList"');
     expect(html).toContain('itemtype="https://schema.org/ListItem"');
     expect(html).toContain('itemprop="itemListElement"');
