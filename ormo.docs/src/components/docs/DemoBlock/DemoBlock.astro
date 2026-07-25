@@ -147,11 +147,15 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
     const previousPosition = panel.style.position;
     const previousVisibility = panel.style.visibility;
     const previousPointerEvents = panel.style.pointerEvents;
+    const previousInlineSize = panel.style.inlineSize;
 
     panel.hidden = false;
     panel.style.position = "absolute";
     panel.style.visibility = "hidden";
     panel.style.pointerEvents = "none";
+    // Taking the panel out of flow makes it shrink-to-fit, which would measure
+    // the code at the wrong width, so pin it to the width it renders at.
+    panel.style.inlineSize = `${panel.parentElement?.clientWidth ?? 0}px`;
 
     const height = content.scrollHeight;
 
@@ -159,6 +163,7 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
     panel.style.position = previousPosition;
     panel.style.visibility = previousVisibility;
     panel.style.pointerEvents = previousPointerEvents;
+    panel.style.inlineSize = previousInlineSize;
 
     return height;
   }
@@ -171,8 +176,8 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
     const container = block.querySelector<HTMLElement>(
       "[data-demo-code-container]",
     );
-    const contents = block.querySelectorAll<HTMLElement>(
-      "[data-demo-code-content]",
+    const contents = Array.from(
+      block.querySelectorAll<HTMLElement>("[data-demo-code-content]"),
     );
     const toggle = block.querySelector<HTMLButtonElement>(
       "[data-demo-code-toggle]",
@@ -183,18 +188,51 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
 
     if (!container || contents.length === 0 || !toggle || !label) continue;
 
-    const rootFontSize = Number.parseFloat(
-      getComputedStyle(document.documentElement).fontSize,
-    );
-    const collapsedHeight = collapsedHeightInRem * rootFontSize;
-    const needsCollapse = Array.from(contents).some(
-      (content) => measureContentHeight(content) > collapsedHeight,
-    );
+    const tabsRoot = block.querySelector<HTMLElement>("[data-ormo-tabs-root]");
 
-    if (!needsCollapse) continue;
+    const activeContent = (value?: string): HTMLElement | null => {
+      if (contents.length === 1) return contents[0] ?? null;
 
-    container.dataset.collapsible = "";
-    toggle.hidden = false;
+      for (const content of contents) {
+        const panel = content.closest<HTMLElement>("[data-ormo-tabs-panel]");
+
+        if (!panel) continue;
+
+        const matches =
+          value === undefined
+            ? panel.dataset.state === "active"
+            : panel.dataset.value === value;
+
+        if (matches) return content;
+      }
+
+      return contents[0] ?? null;
+    };
+
+    // Each file is measured on its own so a short file never inherits the
+    // collapsed treatment from a long sibling tab.
+    const measure = (): void => {
+      const rootFontSize = Number.parseFloat(
+        getComputedStyle(document.documentElement).fontSize,
+      );
+      const collapsedHeight = collapsedHeightInRem * rootFontSize;
+
+      for (const content of contents) {
+        content.toggleAttribute(
+          "data-collapsible",
+          measureContentHeight(content) > collapsedHeight,
+        );
+      }
+    };
+
+    const syncToggle = (value?: string): void => {
+      const content = activeContent(value);
+
+      toggle.hidden = !content?.hasAttribute("data-collapsible");
+    };
+
+    measure();
+    syncToggle();
 
     toggle.addEventListener("click", () => {
       const expanded = toggle.getAttribute("aria-expanded") === "true";
@@ -203,6 +241,30 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
       toggle.setAttribute("aria-expanded", String(nextExpanded));
       container.toggleAttribute("data-expanded", nextExpanded);
       label.textContent = nextExpanded ? "Collapse code" : "Show all code";
+    });
+
+    // The event fires before the primitive applies the value, so sync
+    // optimistically from the detail and confirm once the DOM has caught up.
+    tabsRoot?.addEventListener("ormo:value-change", (event) => {
+      syncToggle((event as CustomEvent<{ value: string }>).detail.value);
+      requestAnimationFrame(() => syncToggle());
+    });
+
+    let lastWidth = container.clientWidth;
+
+    new ResizeObserver(() => {
+      const width = container.clientWidth;
+
+      if (width === lastWidth) return;
+
+      lastWidth = width;
+      measure();
+      syncToggle();
+    }).observe(container);
+
+    document.fonts.ready.then(() => {
+      measure();
+      syncToggle();
     });
   }
 </script>
@@ -253,7 +315,7 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
     font-family:
       var(--font-family-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
       Consolas, "Liberation Mono", "Courier New", monospace;
-    font-size: var(--font-size-2);
+    font-size: var(--font-size-1);
     font-weight: var(--font-weight-regular);
     line-height: 1.4;
     cursor: pointer;
@@ -288,14 +350,14 @@ const codeId = `demo-code-${crypto.randomUUID()}`;
     position: relative;
   }
 
-  .demoblock-code-container[data-collapsible]:not([data-expanded])
-    .demoblock-code-content {
+  .demoblock-code-container:not([data-expanded])
+    .demoblock-code-content[data-collapsible] {
     max-block-size: 14rem;
     overflow: hidden;
   }
 
-  .demoblock-code-container[data-collapsible]:not([data-expanded])
-    .demoblock-code-content::after {
+  .demoblock-code-container:not([data-expanded])
+    .demoblock-code-content[data-collapsible]::after {
     position: absolute;
     inset: auto 0 0;
     block-size: 3rem;
