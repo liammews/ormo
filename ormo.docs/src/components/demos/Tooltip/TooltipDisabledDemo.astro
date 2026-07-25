@@ -1,0 +1,13 @@
+---
+import * as Tooltip from "@ormo/primitives/tooltip";
+import "./index.css";
+---
+
+<div class="tooltip-example" data-tooltip-demo="disabled">
+  <Tooltip.Root disabled>
+    <Tooltip.Trigger class="tooltip-trigger" disabled>Disabled</Tooltip.Trigger>
+    <Tooltip.Content class="tooltip-content" sideOffset={6}>
+      You should not see this
+    </Tooltip.Content>
+  </Tooltip.Root>
+</div>

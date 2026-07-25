@@ -363,6 +363,33 @@ HTML has no native tabs widget. Screen reader and keyboard users expect the esta
 - Docs and tests assert arrow-key navigation, Home / End, and roving tabindex.
 - Accordion and Tabs remain intentionally different keyboard models; wrappers must not assume one policy for both.
 
+## GD-015: Tooltip is interest-triggered, top-layer, and non-interactive
+
+- **Date:** 2026-07-25
+- **Status:** Accepted
+
+### Decision
+
+Ormo Tooltip shows brief non-interactive descriptions on hover and keyboard focus.
+
+- Parts are `Root`, `Trigger`, and `Content` only. Trigger is a native button; detached triggers use `for` → Root `id` (same association model as Popover). External interest-target binding is out of scope for v1.
+- Content uses `role="tooltip"`. Triggers receive `aria-describedby` only while open. Focus never moves into Content. Focusable descendants are a development warning — interactive overlays belong on Popover or a future HoverCard.
+- Open/close timing uses Root `delay` (default 700ms for pointer; focus opens immediately) and `closeDelay` (default 100ms) so Content remains hoverable for WCAG 1.4.13. A page-level skip-delay grace period (~300ms) opens the next tooltip immediately after one closes. There is no Provider part.
+- Content uses the Popover API for top-layer rendering: `popover="hint"` when supported, otherwise `popover="manual"`. Interest timing, Escape dismiss, exclusive open, and hoverability are owned by the runtime. No dedicated long-press/touch path in v1.
+- Placement mirrors Popover: CSS Anchor Positioning by default; Floating UI is opt-in via `import "@ormo/primitives/tooltip/floating"` and `positioning="floating"`.
+- There is no Astro `open` prop. Post-render control uses the `ormo-tooltip` DOM API (`open`, `show()`, `hide()`, `ormo:tooltip-open-change`).
+
+### Rationale
+
+Native `title` fails WCAG 1.4.13. Interest Invokers are not yet cross-browser, so a dependable runtime is required while still using the Popover API for stacking. Separating Tooltip from Popover keeps click-triggered interactive content distinct from ephemeral descriptions and preserves the correct ARIA pattern.
+
+### Consequences
+
+- Tooltips describe Trigger buttons (including detached Triggers), not arbitrary existing controls.
+- Consumers must not place links or other tabstops inside Content.
+- Without CSS Anchor support, default placement falls back like Popover; Floating UI remains the opt-in escape hatch.
+- HoverCard remains a separate future primitive for richer hover content.
+
 ## Entry template
 
 ```md
