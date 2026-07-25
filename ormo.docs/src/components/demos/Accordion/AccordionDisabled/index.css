@@ -1,0 +1,4 @@
+.accordion-trigger:disabled {
+  color: var(--content-disabled);
+  cursor: not-allowed;
+}
