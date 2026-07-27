@@ -1,13 +1,27 @@
 ---
 layout: ../../../layouts/MdxDocLayout.astro
 title: "Button"
-description: "A control for triggering actions"
+description: "A button component with optional disabled focusability, pending state and non-native rendering."
 ---
 
 import ButtonDemo from "../../../components/demos/Button/ButtonDemo.astro";
 import buttonDemoCode from "../../../components/demos/Button/ButtonDemo.astro?raw";
 import buttonCss from "../../../components/demos/Button/index.css?raw";
+import ButtonDisabledDemo from "../../../components/demos/Button/ButtonDisabledDemo.astro";
+import buttonDisabledDemoCode from "../../../components/demos/Button/ButtonDisabledDemo.astro?raw";
+import buttonDisabledCss from "../../../components/demos/Button/disabled.css?raw";
+import ButtonFocusableDisabledDemo from "../../../components/demos/Button/ButtonFocusableDisabledDemo.astro";
+import buttonFocusableDisabledDemoCode from "../../../components/demos/Button/ButtonFocusableDisabledDemo.astro?raw";
+import ButtonSubmitGuardDemo from "../../../components/demos/Button/ButtonSubmitGuardDemo.astro";
+import buttonSubmitGuardDemoCode from "../../../components/demos/Button/ButtonSubmitGuardDemo.astro?raw";
+import ButtonPendingDemo from "../../../components/demos/Button/ButtonPendingDemo.astro";
+import buttonPendingDemoCode from "../../../components/demos/Button/ButtonPendingDemo.astro?raw";
+import buttonPendingCss from "../../../components/demos/Button/pending.css?raw";
+import ButtonNonNativeDemo from "../../../components/demos/Button/ButtonNonNativeDemo.astro";
+import buttonNonNativeDemoCode from "../../../components/demos/Button/ButtonNonNativeDemo.astro?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
 <DemoBlock
   files={[
@@ -17,3 +31,346 @@ import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 >
   <ButtonDemo />
 </DemoBlock>
+
+## Usage
+
+Use `Button` for actions, such as submitting a form, opening a dialog, or changing the current interface. Do not use it for navigation.
+
+When a link needs to appear as a button, render a native `<a href>` and apply matching button styles. This preserves link semantics and expected browser behaviour, including opening the destination in a new tab and copying its address.
+
+## Anatomy
+
+Import the component:
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import { Button } from "@ormo/primitives/button";
+---
+
+<Button class="button">Save changes</Button>`}
+/>
+
+## Examples
+
+### Disabled
+
+Set `disabled` to prevent focus and activation using native HTML button semantics. Use the public `data-disabled` hook to style the state consistently across native and non-native rendering.
+
+<DemoBlock
+  files={[
+    { filename: "Button.astro", code: buttonDisabledDemoCode },
+    { filename: "disabled.css", code: buttonDisabledCss },
+  ]}
+>
+  <ButtonDisabledDemo />
+</DemoBlock>
+
+### Focusable when disabled
+
+Add `focusableWhenDisabled` when keyboard and assistive-technology users need to reach a disabled control and discover why it is unavailable. After the runtime initialises, the button remains focusable but suppresses pointer, keyboard, programmatic click, and form-submit activation.
+
+If JavaScript is unavailable, the control remains a native disabled button and is not focusable. This fail-closed behaviour prevents a disabled action from becoming temporarily active while the runtime loads.
+
+<DemoBlock
+  files={[
+    { filename: "Button.astro", code: buttonFocusableDisabledDemoCode },
+    { filename: "disabled.css", code: buttonDisabledCss },
+  ]}
+>
+  <ButtonFocusableDisabledDemo />
+</DemoBlock>
+
+### Disabled submit button
+
+A focusable disabled button with `type="submit"` blocks direct activation and implicit form submission, such as pressing <kbd>Enter</kbd> in a text field. Without JavaScript it remains protected by the native `disabled` attribute.
+
+<DemoBlock
+  files={[
+    { filename: "Button.astro", code: buttonSubmitGuardDemoCode },
+    { filename: "index.css", code: buttonCss },
+    { filename: "disabled.css", code: buttonDisabledCss },
+  ]}
+>
+  <ButtonSubmitGuardDemo />
+</DemoBlock>
+
+### Pending
+
+Set `pending` to expose `aria-busy="true"` and the `data-pending` styling hook. Pending state does not disable the button or replace its content; combine it with `disabled` when repeated activation must be prevented, and provide the progress indicator and status label appropriate to the action.
+
+<DemoBlock
+  files={[
+    { filename: "Button.astro", code: buttonPendingDemoCode },
+    { filename: "disabled.css", code: buttonDisabledCss },
+    { filename: "pending.css", code: buttonPendingCss },
+  ]}
+>
+  <ButtonPendingDemo />
+</DemoBlock>
+
+### Non-native rendering
+
+Use `as="div"` or `as="span"` only when a native `<button>` cannot be used. The component adds `role="button"`, focusability, <kbd>Enter</kbd> and <kbd>Space</kbd> activation, and disabled interaction guards. Non-native buttons do not submit or reset forms and require JavaScript for keyboard activation, so prefer the native default whenever possible.
+
+<DemoBlock
+  files={[{ filename: "Button.astro", code: buttonNonNativeDemoCode }]}
+>
+  <ButtonNonNativeDemo />
+</DemoBlock>
+
+## API reference
+
+The component forwards the relevant native HTML attributes except where it owns an attribute’s semantics. Native rendering accepts button attributes; non-native rendering accepts div attributes and forces `role="button"`.
+
+### Button
+
+`Button` renders `<button>`, `<div>`, or `<span>` according to `as`. Rendering mode is inferred exclusively from `as`.
+
+<PropsTable
+  id="button-props"
+  caption="Button properties"
+  rows={[
+    {
+      name: "as",
+      type: '"button" | "div" | "span"',
+      defaultValue: '"button"',
+      description:
+        "Selects the rendered element. Prefer the native button unless surrounding markup makes it unavailable.",
+    },
+    {
+      name: "type",
+      type: '"button" | "submit" | "reset"',
+      defaultValue: '"button"',
+      description:
+        'Sets the native button type. It is unavailable with as="div" or as="span"; non-native buttons have no form submission or reset behaviour.',
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Prevents activation. Native rendering uses the HTML disabled attribute by default; non-native rendering uses ARIA state and runtime interaction guards.",
+    },
+    {
+      name: "focusableWhenDisabled",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Keeps a disabled button focusable after runtime initialisation while continuing to suppress activation. It has no disabling effect unless disabled is also true.",
+    },
+    {
+      name: "pending",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        'Sets aria-busy="true" and the data-pending styling hook. It does not disable the button or manage its content.',
+    },
+    {
+      name: "nativeButton",
+      type: "true | false",
+      description:
+        "Accepted for explicitness but does not select the rendering mode. Native rendering is inferred from as; prefer omitting this prop.",
+    },
+    {
+      name: "tabindex",
+      type: "number | string",
+      description:
+        'Controls focus order. A non-native button defaults to 0 and restores the authored value after disabled state changes. Avoid positive values. An authored tabindex="-1" still takes precedence over focusableWhenDisabled for native buttons.',
+    },
+    {
+      name: "aria-busy",
+      type: 'boolean | "true" | "false"',
+      description:
+        'Forwards an authored busy state while pending is false. The pending prop takes precedence and forces aria-busy="true".',
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered element.",
+    },
+  ]}
+/>
+
+`aria-disabled`, the non-native `role`, and the component’s managed `data-*` attributes cannot be overridden through component props. Use `disabled`, `focusableWhenDisabled`, `pending`, and `as` so rendered semantics and runtime behaviour stay synchronised.
+
+## JavaScript API
+
+The component does not render a custom element or emit button-specific events. Use the exported `setButtonState` function when state must change after server rendering.
+
+### setButtonState
+
+<CodeBlock
+  lang="ts"
+  code={`function setButtonState(
+  element: ButtonElement,
+  state: ButtonState,
+): void;
+
+type ButtonElement =
+| HTMLButtonElement
+| HTMLDivElement
+| HTMLSpanElement;
+
+interface ButtonState {
+disabled?: boolean;
+focusableWhenDisabled?: boolean;
+pending?: boolean;
+}`}
+/>
+
+<PropsTable
+  id="button-state"
+  caption="ButtonState properties"
+  rows={[
+    {
+      name: "disabled",
+      type: "boolean",
+      description:
+        "Synchronises native or ARIA disabled state, focusability, interaction guards, and the data-disabled styling hook.",
+    },
+    {
+      name: "focusableWhenDisabled",
+      type: "boolean",
+      description:
+        "Changes disabled focusability and is remembered across later disabled-only updates.",
+    },
+    {
+      name: "pending",
+      type: "boolean",
+      description:
+        "Synchronises aria-busy and the data-pending styling hook. Setting it to false removes aria-busy rather than restoring a previously authored value.",
+    },
+  ]}
+/>
+
+Only fields present in the partial state object are changed. The function initialises the button runtime for the element’s document, restores a non-native button’s previous `tabindex` when it is re-enabled, and throws `TypeError` when the element is not a rendered `Button`.
+
+<CodeBlock
+  lang="js"
+  code={`import { setButtonState } from "@ormo/primitives/button";
+
+const button = document.querySelector("[data-save-button]");
+
+if (button instanceof HTMLButtonElement) {
+setButtonState(button, {
+pending: true,
+disabled: true,
+focusableWhenDisabled: true,
+});
+
+await saveChanges();
+
+setButtonState(button, {
+pending: false,
+disabled: false,
+});
+}`}
+/>
+
+## Accessibility
+
+Native rendering follows built-in HTML button semantics and browser keyboard behaviour. Give every `Button` an accessible name through visible text, `aria-label`, or `aria-labelledby`. Do not place links, buttons, form controls, or other focusable interactive content inside it, and avoid positive `tabindex` values.
+
+Use non-native rendering only when native markup is genuinely unavailable. The component supplies button semantics and common keyboard behaviour, but it cannot provide native form submission, reset behaviour, or a complete no-JavaScript fallback for a `div` or `span`.
+
+<PropsTable
+  id="button-keyboard"
+  caption="Button keyboard behaviour"
+  nameHeader="Key"
+  nameElement="kbd"
+  rows={[
+    {
+      name: "Tab",
+      type: "Focus",
+      description:
+        "Moves focus forward using the document’s normal order. Disabled buttons are skipped unless focusableWhenDisabled is active after runtime initialisation. Authored negative tabindex values remain outside sequential focus order.",
+    },
+    {
+      name: "Shift + Tab",
+      type: "Focus",
+      description:
+        "Moves focus backward using the document’s normal order. Disabled buttons are skipped unless focusableWhenDisabled is active after runtime initialisation. Authored negative tabindex values remain outside sequential focus order.",
+    },
+    {
+      name: "Enter",
+      type: "Activation",
+      description:
+        "Uses native activation for a button element. An enabled non-native button synthesises one click when the key is pressed.",
+    },
+    {
+      name: "Space",
+      type: "Activation",
+      description:
+        "Uses native activation for a button element. A non-native button prevents page scrolling when the key is pressed and synthesises one click when it is released.",
+    },
+  ]}
+/>
+
+Disabled buttons suppress pointer, click, <kbd>Enter</kbd>, <kbd>Space</kbd>, and submit activation while leaving non-activation keyboard events available on focusable disabled controls. A consumer can cancel non-native keyboard activation with `event.preventDefault()`; stopping propagation alone does not cancel the button’s action. Moving focus away, disabling the button, or leaving the window cancels an unfinished <kbd>Space</kbd> press.
+
+## Styling
+
+The component ships no layout or brand styles. Pass `class` or `style` to the rendered element and use the public state hooks below. These hooks are outputs managed by the component; set state through component props or `setButtonState` rather than authoring the attributes directly.
+
+<PropsTable
+  id="button-styling"
+  caption="Button styling hooks"
+  nameHeader="Hook"
+  rows={[
+    {
+      name: "data-disabled",
+      type: "boolean attribute",
+      description:
+        "Present while disabled. Prefer it over :disabled because a focusable disabled native button is guarded with ARIA after runtime initialisation.",
+      details: [{ label: "Element", value: "Button", code: true }],
+    },
+    {
+      name: "data-pending",
+      type: "boolean attribute",
+      description: "Present while pending is true.",
+      details: [{ label: "Element", value: "Button", code: true }],
+    },
+    {
+      name: "data-focusable-when-disabled",
+      type: "boolean attribute",
+      description:
+        "Present while the focusableWhenDisabled option is true, including when the button is currently enabled.",
+      details: [{ label: "Element", value: "Button", code: true }],
+    },
+  ]}
+/>
+
+Attributes prefixed with `data-ormo-*`, together with `data-native-button`, are internal runtime selectors. Do not set, remove, or depend on them for styling. The component exposes no CSS custom properties.
+
+<CodeBlock
+  lang="css"
+  code={String.raw`.button[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.button-spinner {
+display: none;
+animation: button-spin 700ms linear infinite;
+}
+
+.button[data-pending] .button-spinner {
+display: inline-block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+.button-spinner {
+animation: none;
+}
+}`}
+/>
+
+## Runtime
+
+A standard native button, including ordinary disabled or server-rendered pending state, ships no button JavaScript in production. Non-native rendering and `focusableWhenDisabled` load one deduplicated runtime for keyboard activation, disabled interaction guards, form-submit protection, and post-navigation initialisation. Without JavaScript, native buttons retain browser behaviour, disabled native buttons remain safely disabled, and `focusableWhenDisabled` degrades to an ordinary non-focusable disabled button. Non-native buttons retain their static role, focus, and ARIA markup but lose synthesised keyboard activation and disabled interaction suppression.

@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/docs/components/dialog/");
+  await page.goto("/test-fixtures/browser/dialog/");
 });
 
 test("opens modally, contains focus, closes, and restores focus", async ({
@@ -121,6 +121,9 @@ test("has no automatically detectable accessibility violations", async ({
   expect(results.violations).toEqual([]);
 
   await page.getByRole("button", { name: "Edit profile" }).click();
+  await expect(
+    page.getByRole("dialog", { name: "Edit profile" }),
+  ).not.toHaveAttribute("data-starting-style");
   results = await new AxeBuilder({ page })
     .include("[data-dialog-demo]")
     .analyze();

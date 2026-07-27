@@ -1,0 +1,16 @@
+---
+import AvatarBrokenDemo from "../../../components/demos/Avatar/AvatarBrokenDemo.astro";
+import AvatarInteractiveDemo from "../../../components/demos/Avatar/AvatarInteractiveDemo.astro";
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+---
+
+<BrowserFixtureLayout title="Avatar">
+  <div data-avatar-demo="broken"><AvatarBrokenDemo /></div>
+  <div data-avatar-demo="interactive"><AvatarInteractiveDemo /></div>
+</BrowserFixtureLayout>
+
+<script>
+  document
+    .querySelector('[data-avatar-demo="broken"] ormo-avatar')
+    ?.setAttribute("id", "broken-avatar");
+</script>

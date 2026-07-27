@@ -1,4 +1,7 @@
-import { initializeButtonRuntime } from "../../runtime/button";
+import {
+  cancelButtonPress,
+  initializeButtonRuntime,
+} from "../../runtime/button";
 
 export type ButtonElement =
   HTMLButtonElement | HTMLDivElement | HTMLSpanElement;
@@ -9,7 +12,9 @@ export interface ButtonState {
   pending?: boolean;
 }
 
+const DISABLED_ATTR = "data-ormo-button-disabled";
 const FOCUSABLE_WHEN_DISABLED_ATTR = "data-focusable-when-disabled";
+const RESTORABLE_TABINDEX_ATTR = "data-ormo-button-tabindex";
 const previousTabIndex = new WeakMap<HTMLElement, string | null>();
 
 function assertButton(element: ButtonElement): void {
@@ -18,22 +23,33 @@ function assertButton(element: ButtonElement): void {
   }
 }
 
-function resolveFocusableTabIndex(
+function getRestorableTabIndex(
   element: HTMLElement,
-  previous: string | null | undefined,
-): number {
-  if (previous !== undefined && previous !== null) {
-    const parsed = Number(previous);
+): string | null | undefined {
+  if (previousTabIndex.has(element)) {
+    return previousTabIndex.get(element);
+  }
+
+  if (element.hasAttribute(RESTORABLE_TABINDEX_ATTR)) {
+    return element.getAttribute(RESTORABLE_TABINDEX_ATTR);
+  }
+
+  return undefined;
+}
+
+function applyFocusableTabIndex(
+  element: HTMLElement,
+  restorable: string | null | undefined,
+): void {
+  if (restorable !== undefined && restorable !== null) {
+    const parsed = Number(restorable);
     if (!Number.isNaN(parsed) && parsed >= 0) {
-      return parsed;
+      element.setAttribute("tabindex", restorable);
+      return;
     }
   }
 
-  if (element.tabIndex >= 0) {
-    return element.tabIndex;
-  }
-
-  return 0;
+  element.tabIndex = 0;
 }
 
 function setDisabled(
@@ -42,48 +58,63 @@ function setDisabled(
   focusableWhenDisabled: boolean,
 ): void {
   const isNativeButton = element.tagName === "BUTTON";
+  const wasDisabled = element.hasAttribute(DISABLED_ATTR);
 
+  if (disabled) {
+    cancelButtonPress(element);
+  }
+
+  if (isNativeButton && disabled) {
+    (element as HTMLButtonElement).disabled = true;
+  }
+
+  if (!isNativeButton && disabled && !wasDisabled) {
+    previousTabIndex.set(element, element.getAttribute("tabindex"));
+  }
+
+  element.toggleAttribute(DISABLED_ATTR, disabled);
   element.toggleAttribute("data-disabled", disabled);
   element.toggleAttribute(FOCUSABLE_WHEN_DISABLED_ATTR, focusableWhenDisabled);
 
   if (isNativeButton) {
     const nativeElement = element as HTMLButtonElement;
-    nativeElement.disabled = disabled && !focusableWhenDisabled;
 
     if (disabled && focusableWhenDisabled) {
       nativeElement.setAttribute("aria-disabled", "true");
+      nativeElement.disabled = false;
     } else {
       nativeElement.removeAttribute("aria-disabled");
+      nativeElement.disabled = disabled;
     }
     return;
   }
 
   if (disabled) {
     element.setAttribute("aria-disabled", "true");
-  } else {
-    element.removeAttribute("aria-disabled");
-  }
 
-  if (disabled) {
-    if (!previousTabIndex.has(element)) {
-      previousTabIndex.set(element, element.getAttribute("tabindex"));
+    if (focusableWhenDisabled) {
+      applyFocusableTabIndex(element, getRestorableTabIndex(element));
+    } else {
+      element.tabIndex = -1;
     }
-
-    element.tabIndex = focusableWhenDisabled
-      ? resolveFocusableTabIndex(element, previousTabIndex.get(element))
-      : -1;
     return;
   }
 
-  const previous = previousTabIndex.get(element);
+  element.removeAttribute("aria-disabled");
+
+  if (!wasDisabled) {
+    return;
+  }
+
+  const restorable = getRestorableTabIndex(element);
   previousTabIndex.delete(element);
 
-  if (previous === null) {
+  if (restorable === null) {
     element.removeAttribute("tabindex");
-  } else if (previous !== undefined) {
-    element.setAttribute("tabindex", previous);
+  } else if (restorable !== undefined) {
+    element.setAttribute("tabindex", restorable);
   } else if (element.tabIndex < 0) {
-    // A server-rendered disabled non-native Button has no client-side snapshot.
+    // Legacy server-rendered markup may not include a restorable snapshot.
     element.tabIndex = 0;
   }
 }
@@ -128,7 +159,7 @@ export function setButtonState(
 
   if (
     state.focusableWhenDisabled !== undefined &&
-    element.hasAttribute("data-disabled")
+    element.hasAttribute(DISABLED_ATTR)
   ) {
     setDisabled(element, true, focusableWhenDisabled);
   }

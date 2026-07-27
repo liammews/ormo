@@ -66,6 +66,14 @@
       "types": "./src/components/popover/floating.ts",
       "import": "./src/components/popover/floating.ts"
     },
+    "./select": {
+      "types": "./src/components/select/index.ts",
+      "import": "./src/components/select/index.ts"
+    },
+    "./select/floating": {
+      "types": "./src/components/select/floating.ts",
+      "import": "./src/components/select/floating.ts"
+    },
     "./tabs": {
       "types": "./src/components/tabs/index.ts",
       "import": "./src/components/tabs/index.ts"
@@ -94,6 +102,7 @@
     "test:watch": "vitest",
     "test:astro": "vitest run --config vitest.astro.config.ts",
     "test:browser": "pnpm docs:build && playwright test",
+    "test:browser:ci": "pnpm docs:build && playwright test --project=chromium",
     "validate:library": "pnpm format:check && pnpm lint && pnpm check && pnpm test",
     "validate:docs": "pnpm --dir ormo.docs validate",
     "validate": "pnpm validate:library && pnpm validate:docs",
@@ -119,7 +128,7 @@
     "@changesets/cli": "^2.31.1",
     "@eslint/js": "^10.0.1",
     "@floating-ui/dom": "^1.8.0",
-    "@playwright/test": "^1.61.1",
+    "@playwright/test": "^1.62.0",
     "@types/node": "^26.1.1",
     "astro": "^7.0.9",
     "eslint": "^10.7.0",

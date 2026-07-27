@@ -6,5 +6,6 @@ export type {
   ButtonAsButtonProps,
   ButtonAsNonNativeProps,
   ButtonProps,
+  ButtonType,
 } from "./types";
 export type { ButtonElement, ButtonState } from "./state";

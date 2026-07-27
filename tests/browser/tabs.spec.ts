@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/docs/components/tabs/");
+  await page.goto("/test-fixtures/browser/tabs/");
 });
 
 test("selects panels from tabs", async ({ page }) => {
@@ -81,7 +81,7 @@ test("supports controlled value assignment", async ({ page }) => {
 });
 
 test("reflects defaultValue selection in server HTML", async ({ page }) => {
-  await page.goto("/docs/components/tabs/");
+  await page.goto("/test-fixtures/browser/tabs/");
 
   const demo = page.locator('[data-tabs-demo="default"]');
   const overview = demo.getByRole("tab", { name: "Overview" });
@@ -121,7 +121,7 @@ test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 
   test("reflects defaultValue selection in server HTML", async ({ page }) => {
-    await page.goto("/docs/components/tabs/");
+    await page.goto("/test-fixtures/browser/tabs/");
 
     const demo = page.locator('[data-tabs-demo="default"]');
     const overview = demo.getByRole("tab", { name: "Overview" });

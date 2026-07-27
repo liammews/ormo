@@ -1,0 +1,14 @@
+---
+import * as Select from "../../../src/components/select/index";
+---
+
+<Select.Root native name="country" defaultValue="fr" class="country">
+  <Select.Item value="">Choose a country</Select.Item>
+  <Select.Group>
+    <Select.GroupLabel>Europe</Select.GroupLabel>
+    <Select.Item value="gb">United Kingdom</Select.Item>
+    <Select.Item value="fr">France</Select.Item>
+  </Select.Group>
+  <Select.Separator />
+  <Select.Item value="ca" disabled>Canada</Select.Item>
+</Select.Root>

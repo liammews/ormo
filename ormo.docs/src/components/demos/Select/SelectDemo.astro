@@ -1,0 +1,43 @@
+---
+import * as Select from "@ormo/primitives/select";
+import "./index.css";
+---
+
+<div class="select-field">
+  <label class="select-label" for="country-control">Country</label>
+
+  <Select.Root class="select" id="country" name="country" defaultValue="fr">
+    <div class="select-actions">
+      <Select.Trigger class="select-trigger">
+        <Select.Value class="select-value" placeholder="Choose a country" />
+        <Select.Icon class="select-icon">⌄</Select.Icon>
+      </Select.Trigger>
+
+      <Select.Clear class="select-clear" aria-label="Clear country">
+        <span aria-hidden="true">×</span>
+      </Select.Clear>
+    </div>
+
+    <Select.Content class="select-content" sideOffset={6}>
+      <Select.Group class="select-group">
+        <Select.GroupLabel class="select-group-label">
+          Europe
+        </Select.GroupLabel>
+        <Select.Item class="select-item" value="fr"> France </Select.Item>
+        <Select.Item class="select-item" value="gb">
+          United Kingdom
+        </Select.Item>
+      </Select.Group>
+
+      <Select.Group class="select-group">
+        <Select.GroupLabel class="select-group-label">
+          North America
+        </Select.GroupLabel>
+        <Select.Item class="select-item" value="ca">Canada</Select.Item>
+        <Select.Item class="select-item" value="us" disabled>
+          United States
+        </Select.Item>
+      </Select.Group>
+    </Select.Content>
+  </Select.Root>
+</div>

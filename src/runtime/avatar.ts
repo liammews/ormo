@@ -43,6 +43,8 @@ export class OrmoAvatar extends HTMLElement implements OrmoAvatarElement {
   #controller: AbortController | undefined;
   #observer: MutationObserver | undefined;
   #delayTimer: ReturnType<typeof setTimeout> | undefined;
+  #loadingStartedAt: number | undefined;
+  #trackedDelay: number | undefined;
   #status: ImageLoadingStatus | undefined;
   #delayPassed = true;
   #initialized = false;
@@ -83,7 +85,7 @@ export class OrmoAvatar extends HTMLElement implements OrmoAvatarElement {
     this.#controller = undefined;
     this.#observer?.disconnect();
     this.#observer = undefined;
-    this.#clearDelayTimer();
+    this.#resetDelayTracking();
   }
 
   #getImage(): HTMLImageElement | undefined {
@@ -138,10 +140,12 @@ export class OrmoAvatar extends HTMLElement implements OrmoAvatarElement {
     const nextStatus = image ? readImageStatus(image) : "error";
 
     if (nextStatus === "loading") {
+      if (this.#status !== "loading" || this.#loadingStartedAt === undefined) {
+        this.#loadingStartedAt = Date.now();
+      }
       this.#ensureDelayTracking();
     } else {
-      this.#clearDelayTimer();
-      this.#delayPassed = true;
+      this.#resetDelayTracking();
     }
 
     this.#setStatus(nextStatus, announce);
@@ -154,11 +158,22 @@ export class OrmoAvatar extends HTMLElement implements OrmoAvatarElement {
 
     if (delay === 0) {
       this.#clearDelayTimer();
+      this.#trackedDelay = delay;
       this.#delayPassed = true;
       return;
     }
 
-    if (this.#delayTimer !== undefined) {
+    if (this.#delayTimer !== undefined && this.#trackedDelay === delay) {
+      return;
+    }
+
+    this.#clearDelayTimer();
+    this.#trackedDelay = delay;
+
+    const elapsed = Date.now() - (this.#loadingStartedAt ?? Date.now());
+    const remaining = Math.max(0, delay - elapsed);
+    if (remaining === 0) {
+      this.#delayPassed = true;
       return;
     }
 
@@ -167,7 +182,7 @@ export class OrmoAvatar extends HTMLElement implements OrmoAvatarElement {
       this.#delayTimer = undefined;
       this.#delayPassed = true;
       this.#applyVisibility();
-    }, delay);
+    }, remaining);
   }
 
   #clearDelayTimer(): void {
@@ -175,6 +190,13 @@ export class OrmoAvatar extends HTMLElement implements OrmoAvatarElement {
       clearTimeout(this.#delayTimer);
       this.#delayTimer = undefined;
     }
+  }
+
+  #resetDelayTracking(): void {
+    this.#clearDelayTimer();
+    this.#loadingStartedAt = undefined;
+    this.#trackedDelay = undefined;
+    this.#delayPassed = true;
   }
 
   #setStatus(status: ImageLoadingStatus, announce: boolean): void {

@@ -1,0 +1,19 @@
+---
+import type { SelectTriggerProps } from "./types";
+
+type Props = SelectTriggerProps;
+
+const attributes: Props = Astro.props;
+---
+
+<button
+  {...attributes}
+  type="button"
+  role="combobox"
+  aria-haspopup="listbox"
+  aria-expanded="false"
+  data-ormo-select-trigger
+  data-state="closed"
+>
+  <slot />
+</button>

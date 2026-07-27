@@ -1,0 +1,12 @@
+---
+import SelectDemo from "../../../components/demos/Select/SelectDemo.astro";
+import SelectFormDemo from "../../../components/demos/Select/SelectFormDemo.astro";
+import SelectNativeDemo from "../../../components/demos/Select/SelectNativeDemo.astro";
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+---
+
+<BrowserFixtureLayout title="Select">
+  <div data-select-demo="default"><SelectDemo /></div>
+  <div data-select-demo="form"><SelectFormDemo /></div>
+  <div data-select-demo="native"><SelectNativeDemo /></div>
+</BrowserFixtureLayout>

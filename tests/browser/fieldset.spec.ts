@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/docs/components/fieldset/");
+  await page.goto("/test-fixtures/browser/fieldset/");
 });
 
 test("renders a native labelled group with native controls", async ({
@@ -56,7 +56,7 @@ test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 
   test("retains native grouping and checked state", async ({ page }) => {
-    await page.goto("/docs/components/fieldset/");
+    await page.goto("/test-fixtures/browser/fieldset/");
 
     const demo = page.locator("[data-fieldset-demo]");
     await expect(

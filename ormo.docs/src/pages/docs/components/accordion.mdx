@@ -171,6 +171,22 @@ Renders `<ormo-accordion>`, groups the parts, and coordinates open state, disabl
       description:
         "Deprecated. Exposes styling metadata through data-orientation but does not change keyboard behaviour.",
     },
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the identifier used as the prefix for generated trigger and content ids. A unique id is generated when omitted.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered custom element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered custom element.",
+    },
   ]}
 />
 
@@ -196,6 +212,16 @@ Renders `<div>` and groups one `Accordion.Header`, `Accordion.Trigger`, and `Acc
       description:
         "Disables this item while leaving the other accordion items interactive.",
     },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered item.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered item.",
+    },
   ]}
 />
 
@@ -213,6 +239,16 @@ Renders the selected heading element and contains an item’s trigger.
       defaultValue: '"h3"',
       description:
         "Selects the heading level that fits the surrounding page hierarchy.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered heading.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered heading.",
     },
   ]}
 />
@@ -232,6 +268,22 @@ Renders `<button>` and opens or closes its corresponding content panel.
       description:
         "Sets the native button type. The default prevents accidental form submission.",
     },
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the identifier referenced by the corresponding content panel. An id is generated when omitted.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered button.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered button.",
+    },
   ]}
 />
 
@@ -250,71 +302,41 @@ Renders `<div>` as the collapsible content panel.
       description:
         "Overrides the Root setting for this panel. Set to false to make its closed content undiscoverable with Find in page.",
     },
-  ]}
-/>
-
-## Browser API and events
-
-The `<ormo-accordion>` custom element exposes state for framework-independent browser scripts.
-
-<PropsTable
-  id="accordion-browser-api"
-  caption="Accordion browser element API"
-  nameHeader="Member"
-  rows={[
     {
-      name: "type",
-      type: '"single" | "multiple"',
-      defaultValue: '"single"',
+      name: "id",
+      type: "string",
       description:
-        "Gets or sets whether one or more items can be open. Changing type remaps the current value to the matching shape.",
+        "Sets the identifier referenced by the corresponding trigger. An id is generated when omitted.",
     },
     {
-      name: "value",
-      type: "string | string[] | null",
-      description:
-        "Gets or sets the open value. A single accordion uses a string or null; a multiple accordion uses an array.",
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered content panel.",
     },
     {
-      name: "collapsible",
-      type: "boolean",
-      defaultValue: "true",
-      description:
-        "Gets or sets whether the open item can be closed in a single accordion. It does not select an initial item and has no effect for multiple accordions.",
-    },
-    {
-      name: "disabled",
-      type: "boolean",
-      defaultValue: "false",
-      description: "Gets or sets whether every item is disabled.",
-    },
-    {
-      name: "hiddenUntilFound",
-      type: "boolean",
-      defaultValue: "true",
-      description:
-        "Gets or sets whether every closed item supports Find in page.",
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered content panel.",
     },
   ]}
 />
 
-`ormo:value-change` fires before a user-requested value change, bubbles across shadow boundaries, and can be cancelled with `preventDefault()`. A browser-search reveal also emits the event, but cannot be cancelled. Assigning `value` directly updates the items without emitting `ormo:value-change`.
+## JavaScript API
 
-`ormo:open-change` fires after each affected item opens or closes. It bubbles from `Accordion.Item`, cannot be cancelled, and includes the item’s `value` and new `open` state.
+`Accordion.Root` renders an `<ormo-accordion>` custom element for framework-independent client-side control. Its `type`, `collapsible`, `disabled`, and `hiddenUntilFound` properties get or set the corresponding Root configuration. Changing `type` remaps the current value to the matching shape.
+
+The `value` property gets or sets the open value. A single accordion uses `string | null`; a multiple accordion uses `string[]`.
+
+`ormo:value-change` fires after a user interaction or browser-search reveal updates the accordion. It bubbles across shadow boundaries, cannot be cancelled, and includes the updated `value` in `event.detail`. Assigning `value` directly updates the accordion without emitting the event.
 
 <CodeBlock
   lang="js"
   code={`accordion.addEventListener("ormo:value-change", (event) => {
   console.log(event.detail.value);
-  // event.preventDefault();
 });
 
-accordion.addEventListener("ormo:open-change", (event) => {
-console.log(event.detail.value, event.detail.open);
-});
-
-// Direct assignment does not emit ormo:value-change.
-accordion.value = "delivery";`}
+accordion.value = "delivery";
+accordion.disabled = true;`}
 />
 
 ## Accessibility

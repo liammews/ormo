@@ -39,13 +39,6 @@ function scanButtons(): Diagnostic[] {
   for (const button of document.querySelectorAll<HTMLElement>(
     "[data-ormo-button]",
   )) {
-    if (!hasAccessibleName(button)) {
-      diagnostics.push({
-        element: button,
-        message: "Button needs an accessible name.",
-      });
-    }
-
     if (button.tabIndex > 0) {
       diagnostics.push({
         element: button,

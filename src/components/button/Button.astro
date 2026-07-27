@@ -1,63 +1,129 @@
 ---
 import type { HTMLAttributes } from "astro/types";
-import type { ButtonProps } from "./types";
+import type { ButtonProps, ButtonType } from "./types";
 import Runtime from "./Runtime.astro";
 
 type Props = ButtonProps;
 
+type ManagedAttributes = {
+  nativeButton?: unknown;
+  focusableWhenDisabled?: unknown;
+  pending?: unknown;
+  "data-ormo-button"?: unknown;
+  "data-native-button"?: unknown;
+  "data-ormo-button-disabled"?: unknown;
+  "data-ormo-button-tabindex"?: unknown;
+  "data-disabled"?: unknown;
+  "data-pending"?: unknown;
+  "data-focusable-when-disabled"?: unknown;
+};
+
+function normalizeBoolean(value: unknown): boolean {
+  return value === true || value === "" || value === "true";
+}
+
+function normalizeButtonType(value: unknown): ButtonType {
+  return value === "submit" || value === "reset" ? value : "button";
+}
+
 const { as = "button", ...attributes }: Props = Astro.props;
 const isNonNative = as === "div" || as === "span";
-const buttonAttributes = attributes as HTMLAttributes<"button">;
+
+const buttonAttributes = attributes as HTMLAttributes<"button"> &
+  ManagedAttributes;
 const {
-  type = "button",
-  disabled = false,
-  nativeButton: _nativeButton,
-  focusableWhenDisabled = false,
-  pending = false,
+  type: authoredType,
+  disabled: authoredDisabled = false,
+  nativeButton: nativeButtonAttribute,
+  focusableWhenDisabled: authoredFocusableWhenDisabled = false,
+  pending: authoredPending = false,
+  "aria-disabled": ariaDisabledAttribute,
   "aria-busy": ariaBusy,
+  "data-ormo-button": ormoButtonAttribute,
+  "data-native-button": nativeMarkerAttribute,
+  "data-ormo-button-disabled": disabledMarkerAttribute,
+  "data-ormo-button-tabindex": tabIndexMarkerAttribute,
+  "data-disabled": disabledAttribute,
+  "data-pending": pendingAttribute,
+  "data-focusable-when-disabled": focusableAttribute,
   ...buttonRest
-} = buttonAttributes as HTMLAttributes<"button"> & {
-  nativeButton?: boolean;
-  focusableWhenDisabled?: boolean;
-  pending?: boolean;
-};
-void _nativeButton;
-const nonNativeAttributes = attributes as HTMLAttributes<"div"> & {
-  disabled?: boolean;
-  nativeButton?: boolean;
-  focusableWhenDisabled?: boolean;
-  pending?: boolean;
-};
+} = buttonAttributes;
+void [
+  nativeButtonAttribute,
+  ariaDisabledAttribute,
+  ormoButtonAttribute,
+  nativeMarkerAttribute,
+  disabledMarkerAttribute,
+  tabIndexMarkerAttribute,
+  disabledAttribute,
+  pendingAttribute,
+  focusableAttribute,
+];
+
+const disabled = normalizeBoolean(authoredDisabled);
+const focusableWhenDisabled = normalizeBoolean(authoredFocusableWhenDisabled);
+const pending = normalizeBoolean(authoredPending);
+const type = normalizeButtonType(authoredType);
+
+const nonNativeAttributes = attributes as HTMLAttributes<"div"> &
+  ManagedAttributes & { disabled?: unknown; type?: unknown };
 const {
-  disabled: nonNativeDisabled = false,
-  nativeButton: _nonNativeButton,
-  focusableWhenDisabled: nonNativeFocusableWhenDisabled = false,
-  pending: nonNativePending = false,
+  type: nonNativeTypeAttribute,
+  role: nonNativeRoleAttribute,
+  disabled: authoredNonNativeDisabled = false,
+  nativeButton: nonNativeButtonAttribute,
+  focusableWhenDisabled: authoredNonNativeFocusableWhenDisabled = false,
+  pending: authoredNonNativePending = false,
   tabindex,
+  "aria-disabled": nonNativeAriaDisabledAttribute,
   "aria-busy": nonNativeAriaBusy,
+  "data-ormo-button": nonNativeOrmoButtonAttribute,
+  "data-native-button": nonNativeMarkerAttribute,
+  "data-ormo-button-disabled": nonNativeDisabledMarkerAttribute,
+  "data-ormo-button-tabindex": nonNativeTabIndexMarkerAttribute,
+  "data-disabled": nonNativeDisabledAttribute,
+  "data-pending": nonNativePendingAttribute,
+  "data-focusable-when-disabled": nonNativeFocusableAttribute,
   ...nonNativeRest
 } = nonNativeAttributes;
-void _nonNativeButton;
+void [
+  nonNativeTypeAttribute,
+  nonNativeRoleAttribute,
+  nonNativeButtonAttribute,
+  nonNativeAriaDisabledAttribute,
+  nonNativeOrmoButtonAttribute,
+  nonNativeMarkerAttribute,
+  nonNativeDisabledMarkerAttribute,
+  nonNativeTabIndexMarkerAttribute,
+  nonNativeDisabledAttribute,
+  nonNativePendingAttribute,
+  nonNativeFocusableAttribute,
+];
 
-const authoredTabIndex =
-  tabindex === undefined || tabindex === "" ? undefined : Number(tabindex);
-const nonNativeTabIndex =
-  nonNativeDisabled && !nonNativeFocusableWhenDisabled
-    ? -1
-    : nonNativeDisabled &&
-        nonNativeFocusableWhenDisabled &&
-        (authoredTabIndex === undefined ||
-          Number.isNaN(authoredTabIndex) ||
-          authoredTabIndex < 0)
+const nonNativeDisabled = normalizeBoolean(authoredNonNativeDisabled);
+const nonNativeFocusableWhenDisabled = normalizeBoolean(
+  authoredNonNativeFocusableWhenDisabled,
+);
+const nonNativePending = normalizeBoolean(authoredNonNativePending);
+const enabledNonNativeTabIndex =
+  tabindex === undefined || tabindex === null ? "0" : String(tabindex);
+const parsedNonNativeTabIndex = Number(enabledNonNativeTabIndex);
+const nonNativeTabIndex = nonNativeDisabled
+  ? nonNativeFocusableWhenDisabled &&
+    !Number.isNaN(parsedNonNativeTabIndex) &&
+    parsedNonNativeTabIndex >= 0
+    ? enabledNonNativeTabIndex
+    : nonNativeFocusableWhenDisabled
       ? 0
-      : (tabindex ?? 0);
+      : -1
+  : enabledNonNativeTabIndex;
 
 const NonNativeTag = isNonNative ? as : "div";
 const needsRuntime =
   import.meta.env.DEV ||
   isNonNative ||
-  Boolean(focusableWhenDisabled) ||
-  Boolean(nonNativeFocusableWhenDisabled);
+  focusableWhenDisabled ||
+  nonNativeFocusableWhenDisabled;
 ---
 
 {
@@ -70,6 +136,8 @@ const needsRuntime =
       aria-busy={nonNativePending ? "true" : nonNativeAriaBusy}
       data-ormo-button
       data-native-button="false"
+      data-ormo-button-disabled={nonNativeDisabled ? "" : undefined}
+      data-ormo-button-tabindex={enabledNonNativeTabIndex}
       data-disabled={nonNativeDisabled ? "" : undefined}
       data-pending={nonNativePending ? "" : undefined}
       data-focusable-when-disabled={
@@ -82,11 +150,12 @@ const needsRuntime =
     <button
       {...buttonRest}
       type={type}
-      disabled={disabled && !focusableWhenDisabled}
+      disabled={disabled}
       aria-disabled={disabled && focusableWhenDisabled ? "true" : undefined}
       aria-busy={pending ? "true" : ariaBusy}
       data-ormo-button
       data-native-button="true"
+      data-ormo-button-disabled={disabled ? "" : undefined}
       data-disabled={disabled ? "" : undefined}
       data-pending={pending ? "" : undefined}
       data-focusable-when-disabled={focusableWhenDisabled ? "" : undefined}

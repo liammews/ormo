@@ -1,0 +1,33 @@
+html {
+  min-width: 20rem;
+}
+
+body {
+  min-height: max(100dvh, 90rem);
+  margin: 0;
+}
+
+main[data-browser-fixture] {
+  display: grid;
+  width: min(100%, 64rem);
+  min-height: max(100dvh, 90rem);
+  align-content: start;
+  gap: var(--space-300, 3rem);
+  padding: clamp(1rem, 4vw, 3rem);
+}
+
+.browser-fixture-stack {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-200, 2rem);
+}
+
+.dialog-description,
+.alert-dialog-description {
+  color: #5f5f5f !important;
+}
+
+.button--danger {
+  color: #fff !important;
+  background: #b42339 !important;
+}

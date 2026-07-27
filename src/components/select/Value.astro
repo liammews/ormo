@@ -1,0 +1,18 @@
+---
+import { getSelectSsrContext } from "../../internal/select-ssr-context";
+import type { SelectValueProps } from "./types";
+
+type Props = SelectValueProps;
+
+const { placeholder, ...attributes }: Props = Astro.props;
+const select = getSelectSsrContext();
+if (select && placeholder !== undefined) select.placeholder = placeholder;
+---
+
+<span
+  {...attributes}
+  data-ormo-select-value
+  data-placeholder={select?.defaultValue ? undefined : ""}
+>
+  {placeholder}
+</span>

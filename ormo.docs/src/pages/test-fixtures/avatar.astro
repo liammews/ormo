@@ -1,0 +1,59 @@
+---
+import * as Avatar from "@ormo/primitives/avatar";
+import { Button } from "@ormo/primitives/button";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex" />
+    <title>Avatar browser test fixture</title>
+  </head>
+  <body>
+    <main>
+      <Avatar.Root
+        id="broken-avatar"
+        class="avatar"
+        role="img"
+        aria-label="Ada Lovelace"
+      >
+        <Avatar.Image src="/missing-avatar.png" alt="" width="40" height="40" />
+        <Avatar.Fallback>AL</Avatar.Fallback>
+      </Avatar.Root>
+
+      <Button id="avatar-button" aria-label="View Ada Lovelace's profile">
+        <Avatar.Root class="avatar" aria-hidden="true">
+          <Avatar.Fallback>AL</Avatar.Fallback>
+        </Avatar.Root>
+      </Button>
+
+      <a
+        id="avatar-link"
+        href="#ada-lovelace"
+        aria-label="Ada Lovelace's profile"
+      >
+        <Avatar.Root class="avatar" aria-hidden="true">
+          <Avatar.Fallback>AL</Avatar.Fallback>
+        </Avatar.Root>
+      </a>
+    </main>
+  </body>
+</html>
+
+<style>
+  main {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .avatar {
+    display: inline-flex;
+    width: 2.5rem;
+    height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+  }
+</style>

@@ -1,0 +1,31 @@
+---
+import * as AlertDialog from "../../../src/components/alert-dialog/index";
+---
+
+<AlertDialog.Root id="delete-alert" class="alert-root">
+  <AlertDialog.Trigger id="delete-trigger" class="alert-trigger">
+    Delete project
+  </AlertDialog.Trigger>
+  <AlertDialog.Content
+    id="delete-content"
+    class="alert-content"
+    finalFocus="#after-delete"
+  >
+    <AlertDialog.Title as="h3" id="delete-title" class="alert-title">
+      Delete this project?
+    </AlertDialog.Title>
+    <AlertDialog.Description
+      as="div"
+      id="delete-description"
+      class="alert-description"
+    >
+      This cannot be undone.
+    </AlertDialog.Description>
+    <AlertDialog.Cancel class="alert-cancel" value="cancel">
+      Cancel
+    </AlertDialog.Cancel>
+    <AlertDialog.Action class="alert-action" value="delete">
+      Delete project
+    </AlertDialog.Action>
+  </AlertDialog.Content>
+</AlertDialog.Root>

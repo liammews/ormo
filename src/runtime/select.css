@@ -1,0 +1,84 @@
+/* Behaviour-critical enhancement and placement. Consumer classes retain
+   precedence because every selector is wrapped in :where(). */
+
+:where(ormo-select:not([data-enhanced]) [data-ormo-select-trigger]),
+:where(ormo-select:not([data-enhanced]) [data-ormo-select-clear]) {
+  display: none !important;
+}
+
+:where(ormo-select[data-enhanced] [data-ormo-select-control]) {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  border: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+}
+
+:where([data-ormo-select-content]) {
+  margin: 0;
+  border: none;
+  padding: 0;
+  overflow: auto;
+  color: inherit;
+  background: transparent;
+  inset: auto;
+  position: fixed;
+  position-anchor: var(--ormo-select-anchor);
+}
+
+@supports (anchor-name: --ormo-select) {
+  :where([data-ormo-select-content][data-side="bottom"][data-align="start"]) {
+    position-area: bottom span-right;
+    margin-block-start: var(--ormo-select-side-offset, 0px);
+  }
+
+  :where([data-ormo-select-content][data-side="bottom"][data-align="center"]) {
+    position-area: bottom center;
+    margin-block-start: var(--ormo-select-side-offset, 0px);
+  }
+
+  :where([data-ormo-select-content][data-side="bottom"][data-align="end"]) {
+    position-area: bottom span-left;
+    margin-block-start: var(--ormo-select-side-offset, 0px);
+  }
+
+  :where([data-ormo-select-content][data-side="top"][data-align="start"]) {
+    position-area: top span-right;
+    margin-block-end: var(--ormo-select-side-offset, 0px);
+  }
+
+  :where([data-ormo-select-content][data-side="top"][data-align="center"]) {
+    position-area: top center;
+    margin-block-end: var(--ormo-select-side-offset, 0px);
+  }
+
+  :where([data-ormo-select-content][data-side="top"][data-align="end"]) {
+    position-area: top span-left;
+    margin-block-end: var(--ormo-select-side-offset, 0px);
+  }
+
+  :where([data-ormo-select-content]) {
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+  }
+}
+
+:where([data-ormo-select-content][data-ormo-select-positioning="floating"]) {
+  inset: auto;
+  top: 0;
+  left: 0;
+  right: auto;
+  bottom: auto;
+  margin: 0;
+  position: fixed;
+  position-anchor: --ormo-select-none;
+  position-area: none;
+  position-try-fallbacks: none;
+}

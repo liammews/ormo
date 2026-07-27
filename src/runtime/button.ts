@@ -1,7 +1,12 @@
 const nonNativeButtonSelector =
   '[data-ormo-button][data-native-button="false"]';
-const disabledButtonSelector = '[data-ormo-button][aria-disabled="true"]';
-const pressedWithSpace = new WeakSet<HTMLElement>();
+const disabledButtonSelector = "[data-ormo-button][data-ormo-button-disabled]";
+const focusableDisabledNativeSelector =
+  'button[data-ormo-button][data-native-button="true"]' +
+  "[data-ormo-button-disabled][data-focusable-when-disabled]";
+const activeSpaceButtons = new WeakMap<Document, HTMLElement>();
+const pendingSpaceKeyDowns = new WeakMap<Document, KeyboardEvent>();
+const afterPropagationCallbacks = new WeakMap<Event, () => void>();
 const initializedDocuments = new WeakSet<Document>();
 
 function closestButton(
@@ -30,7 +35,7 @@ function preventDisabledInteraction(event: Event): void {
     }
 
     if (event.key === " ") {
-      pressedWithSpace.delete(button);
+      cancelButtonPress(button);
     }
   }
 
@@ -54,7 +59,23 @@ function preventDisabledSubmit(event: Event): void {
   }
 }
 
-function handleKeyDown(event: KeyboardEvent): void {
+function completeAfterPropagation(event: Event): void {
+  const callback = afterPropagationCallbacks.get(event);
+  if (!callback) {
+    return;
+  }
+
+  afterPropagationCallbacks.delete(event);
+  callback();
+}
+
+/** Decides activation after consumers have handled the keyboard event. */
+function afterPropagation(event: Event, callback: () => void): void {
+  afterPropagationCallbacks.set(event, callback);
+  setTimeout(() => completeAfterPropagation(event), 0);
+}
+
+function handleKeyDownCapture(event: KeyboardEvent): void {
   const button = closestButton(event, nonNativeButtonSelector);
 
   if (
@@ -65,74 +86,97 @@ function handleKeyDown(event: KeyboardEvent): void {
     return;
   }
 
-  if (event.defaultPrevented) {
-    return;
+  const targetDocument = button.ownerDocument;
+
+  if (event.key === " " && !event.repeat) {
+    activeSpaceButtons.delete(targetDocument);
+    pendingSpaceKeyDowns.set(targetDocument, event);
   }
 
-  if (button.getAttribute("aria-disabled") === "true") {
-    event.preventDefault();
-    return;
-  }
+  afterPropagation(event, () => {
+    if (pendingSpaceKeyDowns.get(targetDocument) === event) {
+      pendingSpaceKeyDowns.delete(targetDocument);
+    }
+    if (
+      event.defaultPrevented ||
+      button.hasAttribute("data-ormo-button-disabled")
+    ) {
+      return;
+    }
 
-  if (event.key === "Enter") {
-    event.preventDefault();
-    button.click();
-  } else {
-    event.preventDefault();
-    pressedWithSpace.add(button);
-  }
+    if (event.key === "Enter") {
+      button.click();
+    } else {
+      event.preventDefault();
+      if (!event.repeat) {
+        activeSpaceButtons.set(targetDocument, button);
+      }
+    }
+  });
 }
 
-function handleKeyUp(event: KeyboardEvent): void {
+function handleKeyUpCapture(event: KeyboardEvent): void {
+  if (event.key !== " ") {
+    return;
+  }
+
   const button = closestButton(event, nonNativeButtonSelector);
+  const targetDocument =
+    button?.ownerDocument ??
+    (event.currentTarget instanceof Document ? event.currentTarget : document);
+  const pendingKeyDown = pendingSpaceKeyDowns.get(targetDocument);
+  if (pendingKeyDown) {
+    completeAfterPropagation(pendingKeyDown);
+  }
 
-  if (!button || event.target !== button || event.key !== " ") {
+  const pressedButton = activeSpaceButtons.get(targetDocument);
+  activeSpaceButtons.delete(targetDocument);
+
+  if (!button || event.target !== button || pressedButton !== button) {
     return;
   }
 
-  const hadMatchingKeyDown = pressedWithSpace.delete(button);
+  afterPropagation(event, () => {
+    if (
+      event.defaultPrevented ||
+      button.hasAttribute("data-ormo-button-disabled")
+    ) {
+      return;
+    }
 
-  if (
-    event.defaultPrevented ||
-    button.getAttribute("aria-disabled") === "true" ||
-    !hadMatchingKeyDown
-  ) {
-    return;
-  }
-
-  button.click();
+    button.click();
+  });
 }
 
 function clearSpacePress(event: FocusEvent): void {
   const button = closestButton(event, nonNativeButtonSelector);
 
   if (button) {
-    pressedWithSpace.delete(button);
+    cancelButtonPress(button);
   }
 }
 
-function hasAccessibleName(button: HTMLElement): boolean {
-  if (button.getAttribute("aria-label")?.trim()) {
-    return true;
+export function cancelButtonPress(button: HTMLElement): void {
+  const targetDocument = button.ownerDocument;
+  const pendingKeyDown = pendingSpaceKeyDowns.get(targetDocument);
+
+  if (pendingKeyDown?.target === button) {
+    pendingSpaceKeyDowns.delete(targetDocument);
+    afterPropagationCallbacks.delete(pendingKeyDown);
   }
 
-  const labelledBy = button
-    .getAttribute("aria-labelledby")
-    ?.trim()
-    .split(/\s+/);
-  if (
-    labelledBy?.some((id) =>
-      button.ownerDocument.getElementById(id)?.textContent?.trim(),
-    )
-  ) {
-    return true;
+  if (activeSpaceButtons.get(targetDocument) === button) {
+    activeSpaceButtons.delete(targetDocument);
   }
+}
 
-  return Boolean(
-    button.textContent?.trim() ||
-    button.getAttribute("title")?.trim() ||
-    button.querySelector('img[alt]:not([alt=""]), input[value], svg title'),
-  );
+function upgradeFocusableDisabledNativeButtons(root: ParentNode): void {
+  for (const button of root.querySelectorAll<HTMLButtonElement>(
+    focusableDisabledNativeSelector,
+  )) {
+    button.setAttribute("aria-disabled", "true");
+    button.disabled = false;
+  }
 }
 
 export function validateButtons(root: ParentNode = document): void {
@@ -143,13 +187,6 @@ export function validateButtons(root: ParentNode = document): void {
   for (const button of root.querySelectorAll<HTMLElement>(
     "[data-ormo-button]",
   )) {
-    if (!hasAccessibleName(button)) {
-      console.warn(
-        "[Ormo Button] Add visible text, aria-label, or aria-labelledby so the button has an accessible name.",
-        button,
-      );
-    }
-
     if (button.tabIndex > 0) {
       console.warn(
         "[Ormo Button] Avoid positive tabindex values because they create an unexpected keyboard focus order.",
@@ -181,29 +218,57 @@ export function validateButtons(root: ParentNode = document): void {
 }
 
 export function initializeButtonRuntime(targetDocument: Document): void {
-  if (initializedDocuments.has(targetDocument)) {
-    return;
+  if (!initializedDocuments.has(targetDocument)) {
+    initializedDocuments.add(targetDocument);
+    targetDocument.addEventListener("click", preventDisabledInteraction, true);
+    targetDocument.addEventListener(
+      "pointerdown",
+      preventDisabledInteraction,
+      true,
+    );
+    targetDocument.addEventListener(
+      "keydown",
+      preventDisabledInteraction,
+      true,
+    );
+    targetDocument.addEventListener("keyup", preventDisabledInteraction, true);
+    targetDocument.addEventListener("submit", preventDisabledSubmit, true);
+    targetDocument.addEventListener("keydown", handleKeyDownCapture, true);
+    targetDocument.addEventListener("keyup", handleKeyUpCapture, true);
+    targetDocument.addEventListener("focusout", clearSpacePress, true);
+    targetDocument.defaultView?.addEventListener(
+      "keydown",
+      completeAfterPropagation,
+    );
+    targetDocument.defaultView?.addEventListener(
+      "keyup",
+      completeAfterPropagation,
+    );
+    targetDocument.defaultView?.addEventListener("blur", () => {
+      const pendingKeyDown = pendingSpaceKeyDowns.get(targetDocument);
+      if (pendingKeyDown) {
+        afterPropagationCallbacks.delete(pendingKeyDown);
+        pendingSpaceKeyDowns.delete(targetDocument);
+      }
+      activeSpaceButtons.delete(targetDocument);
+    });
+
+    if (import.meta.env.DEV) {
+      targetDocument.addEventListener("astro:page-load", () => {
+        upgradeFocusableDisabledNativeButtons(targetDocument);
+        validateButtons(targetDocument);
+      });
+    } else {
+      targetDocument.addEventListener("astro:page-load", () =>
+        upgradeFocusableDisabledNativeButtons(targetDocument),
+      );
+    }
   }
 
-  initializedDocuments.add(targetDocument);
-  targetDocument.addEventListener("click", preventDisabledInteraction, true);
-  targetDocument.addEventListener(
-    "pointerdown",
-    preventDisabledInteraction,
-    true,
-  );
-  targetDocument.addEventListener("keydown", preventDisabledInteraction, true);
-  targetDocument.addEventListener("keyup", preventDisabledInteraction, true);
-  targetDocument.addEventListener("submit", preventDisabledSubmit, true);
-  targetDocument.addEventListener("keydown", handleKeyDown);
-  targetDocument.addEventListener("keyup", handleKeyUp);
-  targetDocument.addEventListener("focusout", clearSpacePress);
+  upgradeFocusableDisabledNativeButtons(targetDocument);
 
   if (import.meta.env.DEV) {
     validateButtons(targetDocument);
-    targetDocument.addEventListener("astro:page-load", () =>
-      validateButtons(targetDocument),
-    );
   }
 }
 

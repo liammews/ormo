@@ -1,10 +1,20 @@
 ---
+type Status = "alpha" | "beta" | "production" | "dev";
+
 interface Props {
   href: string;
   current?: boolean;
+  status?: Status | undefined;
 }
 
-const { href, current = false } = Astro.props;
+const statusLabels: Record<Status, string> = {
+  alpha: "Alpha",
+  beta: "Beta",
+  production: "Production",
+  dev: "Dev",
+};
+
+const { href, current = false, status } = Astro.props;
 ---
 
 <li class="sidebar-menu-item">
@@ -13,13 +23,26 @@ const { href, current = false } = Astro.props;
     aria-current={current ? "page" : undefined}
     class="sidebar-menu-item_inner"
   >
-    <slot />
+    <span class="sidebar-menu-item_label"><slot /></span>
+    {
+      status ? (
+        <span
+          class="sidebar-menu-item_status"
+          data-status={status}
+          title={`${statusLabels[status]} status`}
+        >
+          <span class="visually-hidden">{statusLabels[status]} status</span>
+        </span>
+      ) : null
+    }
   </a>
 </li>
 
 <style>
   .sidebar-menu-item_inner {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: var(--space-50);
     background: var(--surface-canvas);
     font-size: var(--font-size-2);
     color: var(--content-subtle);
@@ -36,6 +59,35 @@ const { href, current = false } = Astro.props;
       background: var(--surface-invert);
       color: var(--content-invert);
       font-weight: var(--font-weight-medium);
+    }
+  }
+
+  .sidebar-menu-item_label {
+    min-width: 0;
+  }
+
+  .sidebar-menu-item_status {
+    flex: 0 0 auto;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-inline-start: auto;
+    border-radius: 50%;
+    background: currentColor;
+
+    &[data-status="beta"] {
+      color: var(--color-blue-11);
+    }
+
+    &[data-status="production"] {
+      color: var(--color-green-11);
+    }
+
+    &[data-status="alpha"] {
+      color: var(--color-amber-11);
+    }
+
+    &[data-status="dev"] {
+      color: var(--color-red-11);
     }
   }
 </style>

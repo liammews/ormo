@@ -1,0 +1,37 @@
+---
+import AccordionDemo from "../../../components/demos/Accordion/AccordionDefault/AccordionDemo.astro";
+import AccordionDisabledDemo from "../../../components/demos/Accordion/AccordionDisabled/AccordionDisabledDemo.astro";
+import AccordionInitialValueDemo from "../../../components/demos/Accordion/AccordionInitial/AccordionInitialValueDemo.astro";
+import AccordionMultipleDemo from "../../../components/demos/Accordion/AccordionMultiple/AccordionMultipleDemo.astro";
+import AccordionRequireOpenDemo from "../../../components/demos/Accordion/AccordionRequireOpen/AccordionRequireOpenDemo.astro";
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+---
+
+<BrowserFixtureLayout title="Accordion">
+  <div class="browser-fixture-stack">
+    <div data-accordion-demo="default"><AccordionDemo /></div>
+    <div data-accordion-demo="initial"><AccordionInitialValueDemo /></div>
+    <div data-accordion-demo="multiple"><AccordionMultipleDemo /></div>
+    <div data-accordion-demo="require-open"><AccordionRequireOpenDemo /></div>
+    <div data-accordion-demo="disabled"><AccordionDisabledDemo /></div>
+  </div>
+</BrowserFixtureLayout>
+
+<script>
+  for (const fixture of document.querySelectorAll<HTMLElement>(
+    "[data-accordion-demo]",
+  )) {
+    const accordion = fixture.querySelector<HTMLElement & { value: unknown }>(
+      "ormo-accordion",
+    );
+    if (!accordion) continue;
+
+    Object.defineProperty(fixture, "value", {
+      configurable: true,
+      get: () => accordion.value,
+      set: (value) => {
+        accordion.value = value;
+      },
+    });
+  }
+</script>

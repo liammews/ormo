@@ -1,13 +1,22 @@
 ---
 layout: ../../../layouts/MdxDocLayout.astro
 title: "Alert Dialog"
-description: "A modal dialog that interrupts a workflow with an important message"
+description: "A modal confirmation dialog for important, irreversible, or destructive actions."
 ---
 
 import AlertDialogDemo from "../../../components/demos/AlertDialog/AlertDialogDemo.astro";
 import alertDialogDemoCode from "../../../components/demos/AlertDialog/AlertDialogDemo.astro?raw";
 import alertDialogDemoCss from "../../../components/demos/AlertDialog/index.css?raw";
+import AlertDialogDetachedTriggerDemo from "../../../components/demos/AlertDialog/AlertDialogDetachedTriggerDemo.astro";
+import alertDialogDetachedTriggerDemoCode from "../../../components/demos/AlertDialog/AlertDialogDetachedTriggerDemo.astro?raw";
+import AlertDialogInitialFocusDemo from "../../../components/demos/AlertDialog/AlertDialogInitialFocusDemo.astro";
+import alertDialogInitialFocusDemoCode from "../../../components/demos/AlertDialog/AlertDialogInitialFocusDemo.astro?raw";
+import AlertDialogPendingDemo from "../../../components/demos/AlertDialog/AlertDialogPendingDemo.astro";
+import alertDialogPendingDemoCode from "../../../components/demos/AlertDialog/AlertDialogPendingDemo.astro?raw";
+import alertDialogPendingDemoCss from "../../../components/demos/AlertDialog/pending.css?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
 <DemoBlock
   files={[
@@ -17,3 +26,557 @@ import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 >
   <AlertDialogDemo />
 </DemoBlock>
+
+## Usage
+
+Use an alert dialog when a decision interrupts the user’s workflow and requires an explicit response, particularly before an irreversible or destructive action. Use [Dialog](/docs/components/dialog) for a general modal task or supporting content that does not require an urgent decision.
+
+## Anatomy
+
+Import the component and assemble its parts. Include a title, a concise description of the consequences, and at least one action that closes the alert dialog.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as AlertDialog from "@ormo/primitives/alert-dialog";
+---
+
+<AlertDialog.Root>
+  <AlertDialog.Trigger>Trigger label</AlertDialog.Trigger>
+
+  <AlertDialog.Content>
+    <AlertDialog.Title>Dialog title</AlertDialog.Title>
+    <AlertDialog.Description>
+      Dialog description
+    </AlertDialog.Description>
+
+    <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+    <AlertDialog.Action value="action">
+      Action label
+    </AlertDialog.Action>
+
+  </AlertDialog.Content>
+</AlertDialog.Root>`}
+/>
+
+## Examples
+
+### Initial focus
+
+The alert dialog focuses `AlertDialog.Cancel` by default so the least destructive response is immediately available. Add `autofocus` to another focusable element when a different initial target is more appropriate. Only one element within `AlertDialog.Content` should have `autofocus`.
+
+<DemoBlock
+  files={[
+    {
+      filename: "AlertDialog.astro",
+      code: alertDialogInitialFocusDemoCode,
+    },
+  ]}
+>
+  <AlertDialogInitialFocusDemo />
+</DemoBlock>
+
+### Pending action
+
+Calling `event.preventDefault()` from an `AlertDialog.Action` click handler keeps the alert dialog open. This allows an asynchronous operation to finish before calling `close()` on the root. Pending state alone does not prevent the action from closing the alert dialog.
+
+Keep the action focusable while pending when its state or accessible description explains why interaction is temporarily unavailable. Announce the result outside the closed alert dialog with a persistent live region.
+
+<DemoBlock
+  files={[
+    { filename: "AlertDialog.astro", code: alertDialogPendingDemoCode },
+    { filename: "pending.css", code: alertDialogPendingDemoCss },
+  ]}
+>
+  <AlertDialogPendingDemo />
+</DemoBlock>
+
+### Detached triggers
+
+Set `for` to the `id` of an `AlertDialog.Root` when a trigger must be rendered outside that root. Multiple detached triggers can open the same alert dialog; focus returns to the trigger that opened it.
+
+<DemoBlock
+  files={[
+    {
+      filename: "AlertDialog.astro",
+      code: alertDialogDetachedTriggerDemoCode,
+    },
+  ]}
+>
+  <AlertDialogDetachedTriggerDemo />
+</DemoBlock>
+
+## API reference
+
+All parts forward the relevant native HTML attributes unless noted otherwise.
+
+### Root
+
+Renders `<ormo-alert-dialog>`, groups the alert-dialog parts, and coordinates modal state, focus, ARIA relationships, and triggers.
+
+<PropsTable
+  id="alert-dialog-root-props"
+  caption="Alert Dialog Root properties"
+  rows={[
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Identifies the root for detached triggers and prefixes generated content, title, and description ids. A unique id is generated when omitted.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered custom element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered custom element.",
+    },
+  ]}
+/>
+
+### Trigger
+
+Renders `<button>` and opens the corresponding alert dialog.
+
+<PropsTable
+  id="alert-dialog-trigger-props"
+  caption="Alert Dialog Trigger properties"
+  rows={[
+    {
+      name: "for",
+      type: "string",
+      description:
+        "Targets an AlertDialog.Root id when the trigger is rendered outside that root. Omit it for a descendant trigger.",
+    },
+    {
+      name: "type",
+      type: '"button" | "submit" | "reset"',
+      defaultValue: '"button"',
+      description:
+        "Sets the native button type. Keep the default so opening the alert dialog does not submit or reset a surrounding form.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Prevents the native trigger from being focused or activated.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered button.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered button.",
+    },
+  ]}
+/>
+
+The trigger renders `aria-haspopup="dialog"`. After runtime initialisation, `aria-controls` references `AlertDialog.Content`.
+
+### Content
+
+Renders `<dialog role="alertdialog" aria-modal="true">` as the native modal container. The `open`, `role`, modal state, and internal state attributes are managed by the component.
+
+<PropsTable
+  id="alert-dialog-content-props"
+  caption="Alert Dialog Content properties"
+  rows={[
+    {
+      name: "finalFocus",
+      type: "string",
+      description:
+        "Sets a CSS selector for the element that receives focus after the alert dialog closes. The target must be programmatically focusable.",
+    },
+    {
+      name: "tabindex",
+      type: "number | string",
+      defaultValue: "-1",
+      description:
+        "Keeps Content programmatically focusable as the fallback initial-focus target. Avoid placing Content in the normal Tab sequence.",
+    },
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the identifier referenced by triggers. An id is generated when omitted.",
+    },
+    {
+      name: "aria-label",
+      type: "string",
+      description:
+        "Provides an accessible name without AlertDialog.Title. Prefer a visible Title where possible.",
+    },
+    {
+      name: "aria-labelledby",
+      type: "string",
+      description:
+        "References an authored accessible name and takes precedence over the relationship generated from AlertDialog.Title.",
+    },
+    {
+      name: "aria-describedby",
+      type: "string",
+      description:
+        "References authored explanatory content and takes precedence over the relationship generated from AlertDialog.Description.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered dialog element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered dialog element.",
+    },
+  ]}
+/>
+
+When `finalFocus` is omitted, focus returns to the trigger that opened the alert dialog. The `finalFocus` property on `AlertDialog.Root` takes precedence over the selector prop when it references a connected, focusable element.
+
+### Title
+
+Renders the selected heading element and provides the alert dialog’s visible accessible name.
+
+<PropsTable
+  id="alert-dialog-title-props"
+  caption="Alert Dialog Title properties"
+  rows={[
+    {
+      name: "as",
+      type: '"h1" | "h2" | "h3" | "h4" | "h5" | "h6"',
+      defaultValue: '"h2"',
+      description:
+        "Selects the heading level that fits the surrounding page hierarchy.",
+    },
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the identifier used by Content aria-labelledby. An id is generated when omitted.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered heading.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered heading.",
+    },
+  ]}
+/>
+
+### Description
+
+Renders `<p>` or `<div>` and describes the decision, its consequences, or the information needed to choose safely.
+
+<PropsTable
+  id="alert-dialog-description-props"
+  caption="Alert Dialog Description properties"
+  rows={[
+    {
+      name: "as",
+      type: '"p" | "div"',
+      defaultValue: '"p"',
+      description:
+        "Selects a div when the description must contain content that is not valid inside a paragraph.",
+    },
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the identifier used by Content aria-describedby. An id is generated when omitted.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered description.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered description.",
+    },
+  ]}
+/>
+
+### Cancel
+
+Renders a native [Button](/docs/components/button) that closes the alert dialog with a `cancel` reason. It is the default initial-focus target when no eligible element has `autofocus`.
+
+<PropsTable
+  id="alert-dialog-cancel-props"
+  caption="Alert Dialog Cancel properties"
+  rows={[
+    {
+      name: "value",
+      type: "string",
+      defaultValue: '""',
+      description:
+        "Sets Content returnValue and the open-change event returnValue when Cancel closes the alert dialog.",
+    },
+    {
+      name: "type",
+      type: '"button" | "submit" | "reset"',
+      defaultValue: '"button"',
+      description: "Sets the native button type.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Disables the button.",
+    },
+    {
+      name: "focusableWhenDisabled",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Keeps the disabled button in the Tab sequence after runtime initialisation.",
+    },
+    {
+      name: "pending",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Exposes Button pending state through aria-busy and data-pending.",
+    },
+    {
+      name: "autofocus",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Makes Cancel the explicit initial-focus target. Cancel already receives focus by default when available.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered button.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered button.",
+    },
+  ]}
+/>
+
+### Action
+
+Renders a native [Button](/docs/components/button) that confirms the decision and closes the alert dialog with an `action` reason.
+
+<PropsTable
+  id="alert-dialog-action-props"
+  caption="Alert Dialog Action properties"
+  rows={[
+    {
+      name: "value",
+      type: "string",
+      defaultValue: '""',
+      description:
+        "Sets Content returnValue and the open-change event returnValue when Action closes the alert dialog.",
+    },
+    {
+      name: "type",
+      type: '"button" | "submit" | "reset"',
+      defaultValue: '"button"',
+      description:
+        "Sets the native button type. A submit action waits for native constraint validation and an uncancelled submit event before closing.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Disables the button.",
+    },
+    {
+      name: "focusableWhenDisabled",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Keeps the disabled button in the Tab sequence after runtime initialisation.",
+    },
+    {
+      name: "pending",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Exposes Button pending state through aria-busy and data-pending. It does not keep the alert dialog open by itself.",
+    },
+    {
+      name: "autofocus",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Makes Action the initial-focus target when it is programmatically focusable.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered button.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered button.",
+    },
+  ]}
+/>
+
+Prevent the Action click’s default behaviour to keep the alert dialog open. A submit action also remains open when native constraint validation blocks submission or a submit listener calls `event.preventDefault()`.
+
+## JavaScript API
+
+`AlertDialog.Root` renders an `<ormo-alert-dialog>` custom element for framework-independent client-side control.
+
+<PropsTable
+  id="alert-dialog-browser-api"
+  caption="Alert Dialog browser element API"
+  nameHeader="Member"
+  rows={[
+    {
+      name: "open",
+      type: "boolean",
+      description: "Reads whether Content is currently open.",
+      details: [{ label: "Access", value: "Read only" }],
+    },
+    {
+      name: "finalFocus",
+      type: "HTMLElement | null",
+      defaultValue: "null",
+      description:
+        "Gets or sets an explicit focus-restoration destination. A connected, focusable element takes precedence over Content finalFocus.",
+    },
+    {
+      name: "showModal()",
+      type: "() => void",
+      description:
+        "Opens Content as a native modal alert dialog. Focus returns to the element that was active when the method was called unless finalFocus overrides it.",
+    },
+    {
+      name: "close(returnValue?)",
+      type: "(returnValue?: string) => void",
+      description:
+        "Closes Content programmatically and optionally sets its native returnValue.",
+    },
+  ]}
+/>
+
+`ormo:alert-dialog-open-change` fires after the alert dialog opens or closes. It bubbles across shadow boundaries, cannot be cancelled, and includes `open`, `reason`, and `returnValue` in `event.detail`.
+
+The opening reason is `trigger` or `programmatic`. The closing reason is `action`, `cancel`, `escape`, or `programmatic`. `returnValue` is empty when the alert dialog opens and otherwise reflects the value passed by the close control or `close()` method.
+
+<CodeBlock
+  lang="js"
+  code={`const alertDialog = document.querySelector("ormo-alert-dialog");
+
+alertDialog?.addEventListener("ormo:alert-dialog-open-change", (event) => {
+console.log(event.detail.open);
+console.log(event.detail.reason);
+console.log(event.detail.returnValue);
+});
+
+alertDialog?.showModal();
+alertDialog?.close("complete");`}
+/>
+
+## Accessibility
+
+The component follows the [WAI-ARIA Alert Dialog pattern](https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/) on a native modal `<dialog>`. `AlertDialog.Title` supplies the accessible name and `AlertDialog.Description` supplies the accessible description. Include both unless equivalent authored ARIA relationships provide the same information.
+
+Keep the description concise enough to be understood when the alert dialog opens. State the consequence of each choice and use specific action labels such as “Delete project” rather than “Yes”. Include `AlertDialog.Cancel` for destructive decisions unless cancelling is genuinely unavailable.
+
+On open, focus moves to the first eligible element with `autofocus`, then `AlertDialog.Cancel`, then the first tabbable element, and finally `AlertDialog.Content`. Focus remains inside while open. On close, focus returns to an explicit `finalFocus` target or the trigger that opened the alert dialog.
+
+<PropsTable
+  id="alert-dialog-keyboard"
+  caption="Alert Dialog keyboard behaviour"
+  nameHeader="Key"
+  nameElement="kbd"
+  rows={[
+    {
+      name: "Tab",
+      type: "Focus",
+      description:
+        "Moves focus forwards through tabbable controls and wraps from the last control to the first.",
+    },
+    {
+      name: "Shift + Tab",
+      type: "Focus",
+      description:
+        "Moves focus backwards through tabbable controls and wraps from the first control to the last.",
+    },
+    {
+      name: "Escape",
+      type: "Dismissal",
+      description:
+        "Closes the alert dialog with an escape reason and restores focus.",
+    },
+    {
+      name: "Enter",
+      type: "Activation",
+      description:
+        "Uses the focused control’s native keyboard behaviour. An enabled Cancel or Action closes the alert dialog.",
+    },
+    {
+      name: "Space",
+      type: "Activation",
+      description:
+        "Uses the focused control’s native keyboard behaviour. An enabled Cancel or Action closes the alert dialog.",
+    },
+  ]}
+/>
+
+Pointer presses on the backdrop do not close the alert dialog. The user must make an explicit choice or press <kbd>Escape</kbd>.
+
+## Styling
+
+The component ships no layout or brand styles. Pass `class` values to its parts, style the native `::backdrop` pseudo-element through `AlertDialog.Content`, and use the public state hooks below. Attributes prefixed with `data-ormo-*` are internal runtime selectors, not styling APIs.
+
+<PropsTable
+  id="alert-dialog-styling"
+  caption="Alert Dialog styling hooks"
+  nameHeader="Hook"
+  rows={[
+    {
+      name: "data-state",
+      type: '"open" | "closed"',
+      description: "Explicit modal state for CSS selectors.",
+      details: [{ label: "Element", value: "Root, Trigger, Content" }],
+    },
+    {
+      name: "data-open",
+      type: "boolean attribute",
+      description: "Present while the alert dialog is open.",
+      details: [{ label: "Element", value: "Root, Trigger, Content" }],
+    },
+    {
+      name: "data-starting-style",
+      type: "boolean attribute",
+      description:
+        "Present from immediately before Content opens until the next animation frame.",
+      details: [{ label: "Element", value: "Content" }],
+    },
+    {
+      name: "data-ending-style",
+      type: "boolean attribute",
+      description:
+        "Present after Content closes until its finite CSS transitions and animations finish.",
+      details: [{ label: "Element", value: "Content" }],
+    },
+  ]}
+/>
+
+Use `data-starting-style` and `data-ending-style` for optional enter and exit motion. Respect `prefers-reduced-motion`, and include discrete `display` and `overlay` transitions when the closed native dialog must remain visually present for an exit transition. The component exposes no CSS custom properties.
+
+## Runtime
+
+`AlertDialog.Root` loads one deduplicated runtime that opens Content with the native modal API, generates ARIA relationships, manages focus and scroll locking, coordinates triggers and transitions, and handles Astro navigation. The server renders a closed `<dialog>` with its semantic parts; without JavaScript, the alert dialog remains closed and its trigger cannot open it.

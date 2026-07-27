@@ -1,0 +1,367 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Select"
+description: "A customisable single-value picker with a native form control and fallback."
+---
+
+import SelectDemo from "../../../components/demos/Select/SelectDemo.astro";
+import selectDemoCode from "../../../components/demos/Select/SelectDemo.astro?raw";
+import selectDemoCss from "../../../components/demos/Select/index.css?raw";
+import SelectFormDemo from "../../../components/demos/Select/SelectFormDemo.astro";
+import selectFormDemoCode from "../../../components/demos/Select/SelectFormDemo.astro?raw";
+import SelectNativeDemo from "../../../components/demos/Select/SelectNativeDemo.astro";
+import selectNativeDemoCode from "../../../components/demos/Select/SelectNativeDemo.astro?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+<DemoBlock
+  files={[
+    { filename: "SelectDemo.astro", code: selectDemoCode },
+    { filename: "index.css", code: selectDemoCss },
+  ]}
+>
+  <SelectDemo />
+</DemoBlock>
+
+## Anatomy
+
+Import the parts and provide a trigger, value display, content and items. `Select.Clear`, groups and separators are optional.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Select from "@ormo/primitives/select";
+---
+
+<label for="country-control">Country</label>
+<Select.Root id="country" name="country">
+  <Select.Trigger>
+    <Select.Value placeholder="Choose a country" />
+    <Select.Icon>⌄</Select.Icon>
+  </Select.Trigger>
+  <Select.Clear aria-label="Clear country">×</Select.Clear>
+  <Select.Content>
+    <Select.Group>
+      <Select.GroupLabel>Europe</Select.GroupLabel>
+      <Select.Item value="fr">France</Select.Item>
+      <Select.Item value="gb">United Kingdom</Select.Item>
+    </Select.Group>
+  </Select.Content>
+</Select.Root>`}
+/>
+
+For a custom select with `id="country"`, Ormo gives its native control the id `country-control`. Point a visible label at that control; Ormo transfers the accessible name and redirects label focus to the enhanced trigger.
+
+## Examples
+
+### Native picker
+
+Set `native` to render an operating-system select without loading the Select runtime. `Select.Item`, `Select.Group`, `Select.GroupLabel`, and `Select.Separator` become their native HTML equivalents.
+
+<DemoBlock
+  files={[{ filename: "SelectNativeDemo.astro", code: selectNativeDemoCode }]}
+>
+  <SelectNativeDemo />
+</DemoBlock>
+
+### Forms and validation
+
+The custom interface keeps a real `<select>` as its source of truth. Native submission, reset and required validation therefore continue to work.
+
+<DemoBlock
+  files={[{ filename: "SelectFormDemo.astro", code: selectFormDemoCode }]}
+>
+  <SelectFormDemo />
+</DemoBlock>
+
+### Rich item content
+
+Items may contain non-interactive presentation. Pass `textValue` when the visible text cannot be reliably inferred; Ormo uses it for typeahead, the trigger value and the native fallback.
+
+```astro
+<Select.Item value="gb" textValue="United Kingdom">
+  <Flag code="gb" aria-hidden="true" />
+  <span>United Kingdom</span>
+</Select.Item>
+```
+
+Do not put buttons, links or other interactive controls inside an item.
+
+## API reference
+
+All parts forward the relevant native attributes unless noted otherwise.
+
+### Root
+
+Custom mode renders `<ormo-select>` and an underlying `<select>`. Native mode renders only `<select>`.
+
+<PropsTable
+  id="select-root-props"
+  caption="Select.Root properties"
+  rows={[
+    {
+      name: "native",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Uses the operating-system picker and omits component JavaScript.",
+    },
+    {
+      name: "defaultValue",
+      type: "string",
+      defaultValue: '""',
+      description: "Selects the initial item.",
+    },
+    {
+      name: "name",
+      type: "string",
+      description: "Names the submitted form value.",
+    },
+    {
+      name: "form",
+      type: "string",
+      description: "Associates the native control with a form by id.",
+    },
+    {
+      name: "required",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Applies native required validation.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Disables the control and every interaction.",
+    },
+    {
+      name: "autocomplete",
+      type: "string",
+      description: "Supplies the native autofill hint.",
+    },
+    {
+      name: "positioning",
+      type: '"css-anchor" | "floating"',
+      defaultValue: '"css-anchor"',
+      description:
+        "Chooses custom-content positioning. Floating requires the optional entry point.",
+    },
+  ]}
+/>
+
+### Trigger
+
+Renders `<button type="button" role="combobox">`. It owns focus, expanded state and active-option relationships. Give it an accessible name directly or label the underlying native control.
+
+### Value
+
+Renders `<span>` and displays the selected item’s text. `placeholder` supplies the empty display and the native empty-value fallback option.
+
+### Icon
+
+Renders an `aria-hidden` `<span>` for a decorative picker affordance.
+
+### Clear
+
+Renders `<button type="button">`, clears the value to `""`, and is disabled while the select is empty or disabled. Provide visible text or an accessible name. It is available only in custom mode.
+
+### Content
+
+Renders a popover `<div role="listbox">`.
+
+<PropsTable
+  id="select-content-props"
+  caption="Select.Content properties"
+  rows={[
+    {
+      name: "side",
+      type: '"top" | "right" | "bottom" | "left"',
+      defaultValue: '"bottom"',
+      description: "Sets the preferred side of the trigger for the popup.",
+    },
+    {
+      name: "align",
+      type: '"start" | "center" | "end"',
+      defaultValue: '"start"',
+      description: "Aligns the popup relative to the trigger.",
+    },
+    {
+      name: "sideOffset",
+      type: "number",
+      defaultValue: "0",
+      description: "Sets the distance in pixels between the trigger and popup.",
+    },
+  ]}
+/>
+
+### Item
+
+Renders `<div role="option">` in custom mode and `<option>` in native mode.
+
+<PropsTable
+  id="select-item-props"
+  caption="Select.Item properties"
+  rows={[
+    {
+      name: "value",
+      type: "string",
+      description: "Required. Sets the native form and public selection value.",
+    },
+    {
+      name: "textValue",
+      type: "string",
+      defaultValue: "inferred",
+      description:
+        "Sets the plain text used by typeahead and the fallback option.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Prevents highlighting and selection.",
+    },
+  ]}
+/>
+
+### Group and GroupLabel
+
+`Group` renders an accessible option group and requires a `GroupLabel`. Custom groups after the first receive an automatic separator; native mode renders `<optgroup>` with the label text.
+
+### Separator
+
+Renders a non-selectable horizontal separator in custom mode and `<hr>` in native mode. It is skipped by keyboard navigation and typeahead.
+
+## Browser API and events
+
+Custom `Select.Root` exposes `value`, `disabled`, and read-only `open` properties plus `show()`, `hide()`, and `toggle(force?)`. Direct `value` assignment updates immediately without native or custom change events.
+
+User changes first dispatch cancellable `ormo:select-before-value-change`, with `value`, `previousValue`, and `reason`. When allowed, Ormo updates the native control, dispatches native `input` and `change`, then dispatches `ormo:select-value-change`. `ormo:select-open-change` reports popup changes and their reason.
+
+To use Floating UI positioning:
+
+```astro
+---
+import "@ormo/primitives/select/floating";
+---
+
+<Select.Root positioning="floating">…</Select.Root>
+```
+
+## Accessibility
+
+Custom mode follows the WAI-ARIA select-only combobox pattern. DOM focus remains on the trigger while `aria-activedescendant` identifies the highlighted option. Groups have accessible names, disabled options are skipped, and the popup is not part of the page’s Tab sequence.
+
+<PropsTable
+  id="select-keyboard"
+  caption="Select keyboard interactions"
+  nameHeader="Key"
+  nameElement="kbd"
+  rows={[
+    {
+      name: "Enter or Space",
+      type: "Activation",
+      description:
+        "Opens the picker; while open, selects the highlighted item.",
+    },
+    {
+      name: "ArrowDown / ArrowUp",
+      type: "Navigation",
+      description: "Opens the picker or moves through enabled items.",
+    },
+    {
+      name: "Home / End",
+      type: "Navigation",
+      description: "Moves to the first or last enabled item while open.",
+    },
+    {
+      name: "Printable characters",
+      type: "Typeahead",
+      description: "Uses case-insensitive prefix typeahead.",
+    },
+    {
+      name: "Escape",
+      type: "Dismissal",
+      description: "Closes without committing the highlighted item.",
+    },
+    {
+      name: "Tab",
+      type: "Focus",
+      description: "Closes and continues normal page navigation.",
+    },
+  ]}
+/>
+
+Authors must provide an accessible name, meaningful item text and a visible focus style. When validation can fail, connect concise correction text to `Select.Trigger` with `aria-describedby`; the native control continues to provide validity and submission behaviour. Use a Combobox instead when users need to filter a large collection.
+
+## Styling
+
+Select ships only behaviour-critical enhancement and positioning CSS. Style every part with `class` and the public hooks below. Attributes prefixed with `data-ormo-select-*` identify internal parts and are not stable styling APIs.
+
+<PropsTable
+  id="select-styling"
+  caption="Select styling hooks"
+  nameHeader="Hook"
+  rows={[
+    {
+      name: 'data-state="open" | "closed"',
+      type: "state attribute",
+      description: "Reflects whether the custom popup is open.",
+      details: [{ label: "Element", value: "Root, Trigger, Content" }],
+    },
+    {
+      name: "data-open",
+      type: "boolean attribute",
+      description: "Marks an open Select root.",
+      details: [{ label: "Element", value: "Root" }],
+    },
+    {
+      name: "data-placeholder",
+      type: "boolean attribute",
+      description: "Marks the trigger and value while no item is selected.",
+      details: [{ label: "Element", value: "Trigger, Value" }],
+    },
+    {
+      name: "data-selected",
+      type: "boolean attribute",
+      description: "Marks the selected item.",
+      details: [{ label: "Element", value: "Item" }],
+    },
+    {
+      name: "data-highlighted",
+      type: "boolean attribute",
+      description: "Marks the active item while the popup is open.",
+      details: [{ label: "Element", value: "Item" }],
+    },
+    {
+      name: "data-disabled",
+      type: "boolean attribute",
+      description: "Marks a disabled Select part.",
+      details: [
+        { label: "Element", value: "Root, Trigger, Content, Item, Clear" },
+      ],
+    },
+    {
+      name: "data-automatic",
+      type: "boolean attribute",
+      description: "Marks a separator inserted before a later group.",
+      details: [{ label: "Element", value: "Separator" }],
+    },
+    {
+      name: "--ormo-select-trigger-width",
+      type: "<length>",
+      description: "Exposes the trigger width to the popup.",
+      details: [{ label: "Element", value: "Content" }],
+    },
+    {
+      name: "--ormo-select-trigger-height",
+      type: "<length>",
+      description: "Exposes the trigger height to the popup.",
+      details: [{ label: "Element", value: "Content" }],
+    },
+  ]}
+/>
+
+## Runtime
+
+Custom mode initially shows the server-rendered native select. After the runtime has successfully prepared the custom interface it adds `data-enhanced`, visually hides the native control and reveals the custom trigger. If JavaScript does not load, the native picker remains usable. Native mode ships no Select JavaScript.

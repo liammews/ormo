@@ -72,7 +72,7 @@ export class OrmoAccordion extends HTMLElement {
       : this.#readDefaultValue();
 
     this.#prepareParts();
-    this.#applyValue(initialValue, false, false);
+    this.#applyValue(initialValue, false);
     this.#initialized = true;
     this.#controller?.abort();
     this.#controller = new AbortController();
@@ -88,7 +88,7 @@ export class OrmoAccordion extends HTMLElement {
     this.#observer = new MutationObserver(() => {
       const value = this.value;
       this.#prepareParts();
-      this.#applyValue(value, false, false);
+      this.#applyValue(value, false);
       this.#observeContentSizes();
     });
     this.#observer.observe(this, { childList: true, subtree: true });
@@ -112,7 +112,7 @@ export class OrmoAccordion extends HTMLElement {
 
     const value = this.value;
     this.#prepareParts();
-    this.#applyValue(value, false, false);
+    this.#applyValue(value, false);
   }
 
   get type(): AccordionType {
@@ -317,11 +317,7 @@ export class OrmoAccordion extends HTMLElement {
     return typeof value === "string" ? value : null;
   }
 
-  #applyValue(
-    value: AccordionValue,
-    animate = this.#initialized,
-    notify = this.#initialized,
-  ): void {
+  #applyValue(value: AccordionValue, animate = this.#initialized): void {
     const normalizedValue = this.#normalizeValue(value);
     const selectedValues = new Set(
       Array.isArray(normalizedValue)
@@ -362,37 +358,25 @@ export class OrmoAccordion extends HTMLElement {
             widthProperty: contentWidthProperty,
           });
         }
-
-        if (notify && stateChanged) {
-          item.dispatchEvent(
-            new CustomEvent("ormo:open-change", {
-              bubbles: true,
-              composed: true,
-              detail: { open, value: itemValue },
-            }),
-          );
-        }
       },
     );
   }
 
-  #requestValue(value: AccordionValue, cancelable = true): void {
+  #requestValue(value: AccordionValue): void {
     const normalizedValue = this.#normalizeValue(value);
 
     if (valuesEqual(this.value, normalizedValue)) {
       return;
     }
 
-    const event = new CustomEvent("ormo:value-change", {
-      bubbles: true,
-      cancelable,
-      composed: true,
-      detail: { value: normalizedValue },
-    });
-
-    if (this.dispatchEvent(event)) {
-      this.#applyValue(normalizedValue);
-    }
+    this.#applyValue(normalizedValue);
+    this.dispatchEvent(
+      new CustomEvent("ormo:value-change", {
+        bubbles: true,
+        composed: true,
+        detail: { value: normalizedValue },
+      }),
+    );
   }
 
   #handleClick = (event: MouseEvent): void => {
@@ -455,9 +439,9 @@ export class OrmoAccordion extends HTMLElement {
     if (!part || part.item.dataset.state === "open") return;
 
     if (this.#type === "multiple") {
-      this.#requestValue([...(this.value as string[]), part.value], false);
+      this.#requestValue([...(this.value as string[]), part.value]);
     } else {
-      this.#requestValue(part.value, false);
+      this.#requestValue(part.value);
     }
   };
 }

@@ -1,0 +1,52 @@
+---
+import {
+  getSelectSsrContext,
+  renderWithSelectGroupContext,
+} from "../../internal/select-ssr-context";
+import type { SelectGroupProps } from "./types";
+
+type Props = SelectGroupProps;
+
+const { id, ...attributes }: Props = Astro.props;
+const select = getSelectSsrContext();
+const index = select?.groupCount ?? 0;
+if (select) select.groupCount += 1;
+const resolvedId =
+  id ?? `${select?.rootId ?? "ormo-select"}-group-${index + 1}`;
+const group = {
+  id: resolvedId,
+  labelId: `${resolvedId}-label`,
+  label: undefined,
+};
+const content = await renderWithSelectGroupContext(group, () =>
+  Astro.slots.render("default"),
+);
+for (const item of select?.items ?? []) {
+  if (item.groupId === group.id) item.groupLabel = group.label;
+}
+---
+
+{
+  select?.native ? (
+    <optgroup label={group.label ?? ""} set:html={content} />
+  ) : (
+    <>
+      {index > 0 && (
+        <div
+          role="separator"
+          aria-orientation="horizontal"
+          data-ormo-select-separator
+          data-automatic
+        />
+      )}
+      <div
+        {...attributes}
+        id={resolvedId}
+        role="group"
+        aria-labelledby={group.labelId}
+        data-ormo-select-group
+        set:html={content}
+      />
+    </>
+  )
+}

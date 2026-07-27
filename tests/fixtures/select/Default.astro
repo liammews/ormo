@@ -1,0 +1,24 @@
+---
+import * as Select from "../../../src/components/select/index";
+---
+
+<label for="country-control">Country</label>
+<Select.Root id="country" name="country" defaultValue="fr" required>
+  <Select.Trigger>
+    <Select.Value placeholder="Choose a country" />
+    <Select.Icon>⌄</Select.Icon>
+  </Select.Trigger>
+  <Select.Clear aria-label="Clear country">×</Select.Clear>
+  <Select.Content sideOffset={4}>
+    <Select.Group id="europe">
+      <Select.GroupLabel>Europe</Select.GroupLabel>
+      <Select.Item value="gb">United Kingdom</Select.Item>
+      <Select.Item value="fr">France</Select.Item>
+    </Select.Group>
+    <Select.Group id="north-america">
+      <Select.GroupLabel>North America</Select.GroupLabel>
+      <Select.Item value="ca">Canada</Select.Item>
+      <Select.Item value="us" disabled>United States</Select.Item>
+    </Select.Group>
+  </Select.Content>
+</Select.Root>

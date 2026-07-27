@@ -1,0 +1,11 @@
+---
+import type { SelectIconProps } from "./types";
+
+type Props = SelectIconProps;
+
+const attributes: Props = Astro.props;
+---
+
+<span {...attributes} aria-hidden="true" data-ormo-select-icon>
+  <slot />
+</span>

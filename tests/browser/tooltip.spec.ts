@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/docs/components/tooltip/");
+  await page.goto("/test-fixtures/browser/tooltip/");
 });
 
 test("opens on focus, exposes aria-describedby, and dismisses with Escape", async ({

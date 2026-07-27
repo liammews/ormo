@@ -1,0 +1,22 @@
+---
+import ButtonFocusableDisabledDemo from "../../../components/demos/Button/ButtonFocusableDisabledDemo.astro";
+import ButtonNonNativeDemo from "../../../components/demos/Button/ButtonNonNativeDemo.astro";
+import ButtonPendingDemo from "../../../components/demos/Button/ButtonPendingDemo.astro";
+import ButtonSubmitGuardDemo from "../../../components/demos/Button/ButtonSubmitGuardDemo.astro";
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+---
+
+<BrowserFixtureLayout title="Button">
+  <div data-button-demo="focusable-disabled">
+    <ButtonFocusableDisabledDemo />
+  </div>
+  <div data-button-demo="submit-guard">
+    <ButtonSubmitGuardDemo />
+  </div>
+  <div data-button-demo="non-native">
+    <ButtonNonNativeDemo />
+  </div>
+  <div data-button-demo="pending">
+    <ButtonPendingDemo />
+  </div>
+</BrowserFixtureLayout>

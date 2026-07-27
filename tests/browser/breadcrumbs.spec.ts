@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/docs/components/breadcrumbs/");
+  await page.goto("/test-fixtures/browser/breadcrumbs/");
 });
 
 test("exposes a labelled breadcrumb landmark with the current page", async ({
@@ -22,10 +22,22 @@ test("exposes a labelled breadcrumb landmark with the current page", async ({
 
 test("keeps separators out of the accessibility tree", async ({ page }) => {
   const demo = page.locator('[data-breadcrumbs-demo="default"]');
+  const nav = demo.getByRole("navigation", { name: "Breadcrumb" });
   const separators = demo.locator("[data-ormo-breadcrumbs-separator]");
 
   await expect(separators.first()).toHaveAttribute("aria-hidden", "true");
   await expect(separators.first()).toHaveAttribute("role", "presentation");
+  await expect(nav).toMatchAriaSnapshot(`
+    - navigation "Breadcrumb":
+      - list:
+        - listitem:
+          - link "Books":
+            - /url: /books
+        - listitem:
+          - link "Science Fiction":
+            - /url: /books/sciencefiction
+        - listitem: Award Winners
+  `);
 });
 
 test("annotates microdata when enabled", async ({ page }) => {
@@ -47,13 +59,7 @@ test("annotates microdata when enabled", async ({ page }) => {
 });
 
 test("has no accessibility violations in demos", async ({ page }) => {
-  for (const demo of [
-    "default",
-    "current-link",
-    "css-separators",
-    "microdata",
-    "labelled-by",
-  ]) {
+  for (const demo of ["default", "current-link", "microdata", "labelled-by"]) {
     const results = await new AxeBuilder({ page })
       .include(`[data-breadcrumbs-demo="${demo}"]`)
       .analyze();
@@ -65,7 +71,7 @@ test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 
   test("still renders the trail and microdata from SSR", async ({ page }) => {
-    await page.goto("/docs/components/breadcrumbs/");
+    await page.goto("/test-fixtures/browser/breadcrumbs/");
 
     const demo = page.locator('[data-breadcrumbs-demo="default"]');
     const nav = demo.getByRole("navigation", { name: "Breadcrumb" });

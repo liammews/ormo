@@ -1,0 +1,141 @@
+---
+import {
+  createSelectRootId,
+  renderWithSelectContext,
+} from "../../internal/select-ssr-context";
+import type { SelectRootProps } from "./types";
+
+type Props = SelectRootProps;
+
+const {
+  native = false,
+  id,
+  name,
+  form,
+  defaultValue = "",
+  disabled = false,
+  required = false,
+  autocomplete,
+  positioning = "css-anchor",
+  ...attributes
+} = Astro.props as SelectRootProps & {
+  positioning?: "css-anchor" | "floating";
+};
+
+const rootId = native ? id : (id ?? createSelectRootId());
+const context = {
+  native,
+  rootId: rootId ?? createSelectRootId(),
+  defaultValue,
+  items: [],
+  groupCount: 0,
+} as Parameters<typeof renderWithSelectContext>[0];
+
+const content = await renderWithSelectContext(context, () =>
+  Astro.slots.render("default"),
+);
+
+type FallbackSegment =
+  | { type: "item"; item: (typeof context.items)[number] }
+  | {
+      type: "group";
+      id: string;
+      label: string;
+      items: typeof context.items;
+    };
+
+const fallbackSegments: FallbackSegment[] = [];
+const seenGroups = new Set<string>();
+for (const item of context.items) {
+  if (!item.groupId) {
+    fallbackSegments.push({ type: "item", item });
+    continue;
+  }
+  if (seenGroups.has(item.groupId)) continue;
+  seenGroups.add(item.groupId);
+  fallbackSegments.push({
+    type: "group",
+    id: item.groupId,
+    label: item.groupLabel ?? "",
+    items: context.items.filter(
+      (candidate) => candidate.groupId === item.groupId,
+    ),
+  });
+}
+
+const hasEmptyItem = context.items.some((item) => item.value === "");
+---
+
+{
+  native ? (
+    <select
+      {...attributes}
+      id={rootId}
+      name={name}
+      form={form}
+      disabled={disabled || undefined}
+      required={required || undefined}
+      autocomplete={autocomplete}
+      data-ormo-select-native
+      set:html={content}
+    />
+  ) : (
+    <ormo-select
+      {...attributes}
+      id={rootId}
+      data-ormo-select-root
+      data-default-value={defaultValue}
+      data-disabled={disabled ? "" : undefined}
+      data-required={required ? "" : undefined}
+      data-positioning={positioning === "floating" ? "floating" : undefined}
+      data-state="closed"
+    >
+      <select
+        id={`${rootId}-control`}
+        name={name}
+        form={form}
+        disabled={disabled || undefined}
+        required={required || undefined}
+        autocomplete={autocomplete}
+        data-ormo-select-control
+        aria-hidden="false"
+      >
+        {context.placeholder && !hasEmptyItem && (
+          <option
+            value=""
+            selected={defaultValue === ""}
+            data-ormo-select-placeholder
+          >
+            {context.placeholder}
+          </option>
+        )}
+        {fallbackSegments.map((segment) =>
+          segment.type === "item" ? (
+            <option
+              value={segment.item.value}
+              disabled={segment.item.disabled || undefined}
+              selected={segment.item.value === defaultValue}
+            >
+              {segment.item.textValue}
+            </option>
+          ) : (
+            <optgroup label={segment.label}>
+              {segment.items.map((item) => (
+                <option
+                  value={item.value}
+                  disabled={item.disabled || undefined}
+                  selected={item.value === defaultValue}
+                >
+                  {item.textValue}
+                </option>
+              ))}
+            </optgroup>
+          ),
+        )}
+      </select>
+      <Fragment set:html={content} />
+    </ormo-select>
+  )
+}
+
+{!native && <script>import "../../runtime/select";</script>}

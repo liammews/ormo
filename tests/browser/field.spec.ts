@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/docs/components/field/");
+  await page.goto("/test-fixtures/browser/field/");
 });
 
 test("wires the default field label, description, and validation", async ({
@@ -11,7 +11,7 @@ test("wires the default field label, description, and validation", async ({
   const demo = page.locator("[data-field-demo]");
   const field = demo.locator("ormo-field").first();
   const input = demo.getByRole("textbox", { name: "Email address" });
-  const description = demo.locator("#field-default-demo-description");
+  const description = demo.locator("[data-ormo-field-description]");
 
   await expect(field).toHaveAttribute("name", "email");
   await expect(input).toHaveAttribute("required", "");

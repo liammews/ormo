@@ -17,6 +17,7 @@ interface SidebarSection {
   items: Array<{
     label: string;
     href: string;
+    status?: "alpha" | "beta" | "production" | "dev";
   }>;
 }
 
@@ -38,19 +39,56 @@ const sidebarSections: SidebarSection[] = [
   {
     title: "Components",
     items: [
-      { label: "Accordion", href: "/docs/components/accordion" },
-      { label: "Alert Dialog", href: "/docs/components/alert-dialog" },
-      { label: "Avatar", href: "/docs/components/avatar" },
-      { label: "Breadcrumbs", href: "/docs/components/breadcrumbs" },
-      { label: "Button", href: "/docs/components/button" },
-      { label: "Checkbox", href: "/docs/components/checkbox" },
-      { label: "Dialog", href: "/docs/components/dialog" },
-      { label: "Field", href: "/docs/components/field" },
-      { label: "Fieldset", href: "/docs/components/fieldset" },
-      { label: "Input", href: "/docs/components/input" },
-      { label: "Popover", href: "/docs/components/popover" },
-      { label: "Tabs", href: "/docs/components/tabs" },
-      { label: "Tooltip", href: "/docs/components/tooltip" },
+      {
+        label: "Accordion",
+        href: "/docs/components/accordion",
+        status: "beta",
+      },
+      {
+        label: "Alert Dialog",
+        href: "/docs/components/alert-dialog",
+        status: "beta",
+      },
+      {
+        label: "Avatar",
+        href: "/docs/components/avatar",
+        status: "beta",
+      },
+      {
+        label: "Breadcrumbs",
+        href: "/docs/components/breadcrumbs",
+        status: "beta",
+      },
+      {
+        label: "Button",
+        href: "/docs/components/button",
+        status: "beta",
+      },
+      {
+        label: "Checkbox",
+        href: "/docs/components/checkbox",
+        status: "dev",
+      },
+      { label: "Dialog", href: "/docs/components/dialog", status: "dev" },
+      { label: "Field", href: "/docs/components/field", status: "dev" },
+      {
+        label: "Fieldset",
+        href: "/docs/components/fieldset",
+        status: "dev",
+      },
+      { label: "Input", href: "/docs/components/input", status: "dev" },
+      {
+        label: "Popover",
+        href: "/docs/components/popover",
+        status: "dev",
+      },
+      { label: "Select", href: "/docs/components/select", status: "dev" },
+      { label: "Tabs", href: "/docs/components/tabs", status: "dev" },
+      {
+        label: "Tooltip",
+        href: "/docs/components/tooltip",
+        status: "dev",
+      },
     ],
   },
 ];
@@ -102,6 +140,7 @@ const currentPath = normalizePath(Astro.url.pathname);
                 <SidebarMenuItem
                   href={item.href}
                   current={currentPath === normalizePath(item.href)}
+                  status={item.status}
                 >
                   {item.label}
                 </SidebarMenuItem>

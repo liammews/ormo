@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/docs/components/alert-dialog/");
+  await page.goto("/test-fixtures/browser/alert-dialog/");
 });
 
 test("opens modally, contains focus, closes with Escape, and restores focus", async ({
@@ -80,6 +80,9 @@ test("has no automatically detectable accessibility violations", async ({
   expect(results.violations).toEqual([]);
 
   await page.getByRole("button", { name: "Delete project" }).first().click();
+  await expect(
+    page.getByRole("alertdialog", { name: "Delete this project?" }),
+  ).not.toHaveAttribute("data-starting-style");
   results = await new AxeBuilder({ page })
     .include("[data-alert-dialog-demo]")
     .analyze();
@@ -257,6 +260,183 @@ test("supports a nested alert dialog while keeping its parent open", async ({
   await expect(
     parent.getByRole("button", { name: "Open nested fixture" }),
   ).toBeFocused();
+});
+
+test("remains modal when closed and reopened in the same task", async ({
+  page,
+}) => {
+  await page.evaluate(() => {
+    const fixture = document.createElement("div");
+    fixture.innerHTML = `
+      <ormo-alert-dialog id="reopen-alert">
+        <button type="button" data-ormo-alert-dialog-trigger>Open reopen fixture</button>
+        <dialog data-ormo-alert-dialog-content>
+          <h2 data-ormo-alert-dialog-title>Reopen fixture</h2>
+          <p data-ormo-alert-dialog-description>Check modal state.</p>
+          <button type="button" data-ormo-alert-dialog-cancel>Cancel reopen fixture</button>
+        </dialog>
+      </ormo-alert-dialog>
+    `;
+    document.body.append(fixture);
+  });
+
+  await page.getByRole("button", { name: "Open reopen fixture" }).click();
+  await page.evaluate(() => {
+    const root = document.querySelector<
+      HTMLElement & { close(): void; showModal(): void }
+    >("#reopen-alert");
+    root?.close();
+    root?.showModal();
+  });
+
+  const root = page.locator("#reopen-alert");
+  const dialog = page.getByRole("alertdialog", { name: "Reopen fixture" });
+  await page.waitForTimeout(50);
+
+  await expect(dialog).toBeVisible();
+  await expect(root).toHaveAttribute("data-state", "open");
+  await expect(root).toHaveAttribute("data-open", "");
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-ormo-scroll-locked",
+    "",
+  );
+  expect(await dialog.evaluate((element) => element.matches(":modal"))).toBe(
+    true,
+  );
+});
+
+test("normalizes an open dialog when Root is moved", async ({ page }) => {
+  await page.evaluate(() => {
+    const fixture = document.createElement("div");
+    fixture.innerHTML = `
+      <ormo-alert-dialog id="moved-alert">
+        <button type="button" data-ormo-alert-dialog-trigger>Open moved fixture</button>
+        <dialog data-ormo-alert-dialog-content>
+          <h2 data-ormo-alert-dialog-title>Moved fixture</h2>
+          <p data-ormo-alert-dialog-description>Check reconnect state.</p>
+          <button type="button" data-ormo-alert-dialog-cancel>Cancel moved fixture</button>
+        </dialog>
+      </ormo-alert-dialog>
+    `;
+    document.body.append(fixture);
+  });
+
+  await page.getByRole("button", { name: "Open moved fixture" }).click();
+  await page.evaluate(() => {
+    const root = document.querySelector("#moved-alert");
+    root?.remove();
+    if (root) document.body.append(root);
+  });
+
+  const root = page.locator("#moved-alert");
+  const dialog = root.locator("dialog");
+  await expect(dialog).toBeHidden();
+  await expect(root).toHaveAttribute("data-state", "closed");
+  await expect(root).not.toHaveAttribute("data-open", "");
+  await expect(page.locator("html")).not.toHaveAttribute(
+    "data-ormo-scroll-locked",
+    "",
+  );
+  expect(await dialog.evaluate((element) => element.matches(":modal"))).toBe(
+    false,
+  );
+});
+
+test("submit Action waits for validation and uncancelled submission", async ({
+  page,
+}) => {
+  await page.evaluate(() => {
+    const fixture = document.createElement("div");
+    fixture.innerHTML = `
+      <ormo-alert-dialog id="submit-alert">
+        <button type="button" data-ormo-alert-dialog-trigger>Open submit fixture</button>
+        <dialog data-ormo-alert-dialog-content>
+          <h2 data-ormo-alert-dialog-title>Submit fixture</h2>
+          <p data-ormo-alert-dialog-description>Check form submission.</p>
+          <form action="/test-submit" target="submit-target" data-submit-form>
+            <input aria-label="Confirmation" required>
+            <button type="button" data-ormo-alert-dialog-cancel>Cancel submit fixture</button>
+            <button type="submit" value="save" data-ormo-alert-dialog-action>Save fixture</button>
+          </form>
+        </dialog>
+      </ormo-alert-dialog>
+      <iframe name="submit-target" hidden></iframe>
+    `;
+    const root = fixture.querySelector("ormo-alert-dialog");
+    const form = fixture.querySelector<HTMLFormElement>("[data-submit-form]");
+    root?.addEventListener("ormo:alert-dialog-open-change", (event) => {
+      const detail = (event as CustomEvent<{ open: boolean; reason: string }>)
+        .detail;
+      if (!detail.open) root.dataset.closeReason = detail.reason;
+    });
+    form?.addEventListener("submit", (event) => {
+      form.dataset.submitObserved = "true";
+      if (form.dataset.prevent === "true") event.preventDefault();
+      form.dataset.submitPrevented = String(event.defaultPrevented);
+    });
+    document.body.append(fixture);
+  });
+
+  const trigger = page.getByRole("button", { name: "Open submit fixture" });
+  const dialog = page.getByRole("alertdialog", { name: "Submit fixture" });
+  const input = dialog.getByRole("textbox", { name: "Confirmation" });
+  const action = dialog.getByRole("button", { name: "Save fixture" });
+
+  await trigger.click();
+  await action.click();
+  await expect(dialog).toBeVisible();
+
+  await input.fill("confirmed");
+  await dialog.locator("form").evaluate((form) => {
+    form.dataset.prevent = "true";
+  });
+  await action.click();
+  expect(
+    await page.locator("#submit-alert").evaluate((root) => {
+      const content = root.querySelector("dialog");
+      const form = root.querySelector("form");
+      return {
+        open: content?.open,
+        submitObserved: form?.dataset.submitObserved,
+        submitPrevented: form?.dataset.submitPrevented,
+        closeReason: root.dataset.closeReason,
+      };
+    }),
+  ).toEqual({
+    open: true,
+    submitObserved: "true",
+    submitPrevented: "true",
+    closeReason: undefined,
+  });
+
+  await dialog.locator("form").evaluate((form) => {
+    form.dataset.prevent = "false";
+  });
+  await action.click();
+  await expect(dialog).toBeHidden();
+  const root = page.locator("#submit-alert");
+  await expect(root).toHaveAttribute("data-close-reason", "action");
+
+  await root.evaluate((element) => {
+    delete element.dataset.closeReason;
+    const form = element.querySelector("form");
+    if (!form) return;
+    form.method = "dialog";
+    form.removeAttribute("action");
+    form.removeAttribute("target");
+    form.dataset.prevent = "true";
+  });
+  await trigger.click();
+  await action.click();
+  await expect(dialog).toBeVisible();
+  await expect(root).not.toHaveAttribute("data-close-reason", "action");
+
+  await dialog.locator("form").evaluate((form) => {
+    form.dataset.prevent = "false";
+  });
+  await action.click();
+  await expect(dialog).toBeHidden();
+  await expect(root).toHaveAttribute("data-close-reason", "action");
 });
 
 test("supports multiple detached triggers and restores focus to the invoker", async ({

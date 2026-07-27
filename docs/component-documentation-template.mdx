@@ -12,6 +12,23 @@ ormo.docs/src/pages/docs/components/<component-name>.mdx
 Replace every generic Component name, path, value, and description. Delete this
 comment and every optional section or example that does not apply. Keep examples
 valid, accessible, and aligned with the implemented public API.
+
+Editorial rules:
+
+- Use British English throughout, including headings, prose, table content, and
+  code comments.
+- Use the lowercase generic noun in prose: "the accordion", "a button", or
+  "the dialog".
+- When referring to an exported component or part, use its exact identifier in
+  backticks: `Accordion.Root`, `Button`, or `Dialog.Content`. For example, write
+  "Add `aria-label` to `Button`", not "Add aria-label to Button".
+- Do not use a bare capitalised component name within a sentence. Capitalisation
+  remains appropriate in page titles, headings, captions, imports, filenames,
+  and component syntax.
+- Mark every physical keyboard key with `<kbd>` in prose. Keyboard tables must
+  use `nameElement="kbd"` and one row per key or key combination.
+- Use a plain level-three heading for each named JavaScript API member, such as
+  `### setValue`. Do not wrap the heading text in backticks or `<code>`.
 -->
 
 import ComponentDemo from "../../../components/demos/Component/ComponentDemo.astro";
@@ -68,6 +85,8 @@ Explain when to use the option, what it changes, and any interaction with other 
 
 All parts forward the relevant native HTML attributes unless noted otherwise.
 
+Document every component-specific property. Include `class` and `style` for each rendered part, plus native attributes that materially affect the primitive’s behaviour or accessibility. Examples include authored `id` values used in generated relationships, image `alt` text, and native attributes that alter state. Do not reproduce the rendered element’s complete native attribute API.
+
 ### Root
 
 State the native element or custom element rendered by `Component.Root`, then summarise its responsibility in one sentence.
@@ -89,6 +108,16 @@ State the native element or custom element rendered by `Component.Root`, then su
       description: "Explain how this value identifies or configures the part.",
       details: [{ label: "Required", value: "Yes" }],
     },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered element.",
+    },
   ]}
 />
 
@@ -106,14 +135,24 @@ State the native element rendered by `Component.Part` and its semantic purpose.
       defaultValue: "false",
       description: "Explain the exact disabled behaviour and its scope.",
     },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered element.",
+    },
   ]}
 />
 
 <!-- Optional: include only when the primitive exposes post-render DOM control. -->
 
-## Browser API and events
+## JavaScript API
 
-The `<ormo-component>` custom element exposes state for framework-independent browser scripts.
+The `<ormo-component>` custom element exposes the minimal state needed for framework-independent client-side control.
 
 <PropsTable
   id="component-browser-api"
@@ -128,13 +167,12 @@ The `<ormo-component>` custom element exposes state for framework-independent br
   ]}
 />
 
-Describe when each event fires, whether it bubbles or crosses shadow boundaries, whether it can be cancelled, and the shape of its `detail`. Distinguish user-requested changes from direct property assignment.
+Describe when each event fires, whether it bubbles or crosses shadow boundaries, whether it can be cancelled, and the shape of its `detail`. Distinguish user-requested changes from direct property assignment. Avoid exposing derived, part-level events without a concrete integration use case.
 
 <CodeBlock
   lang="js"
   code={`component.addEventListener("ormo:value-change", (event) => {
   console.log(event.detail.value);
-  // event.preventDefault();
 });
 
 component.value = "value";`}
@@ -148,15 +186,25 @@ State the native semantics or established WAI-ARIA pattern followed by the compo
   id="component-keyboard"
   caption="Component keyboard behaviour"
   nameHeader="Key"
+  nameElement="kbd"
   rows={[
     {
-      name: "Tab / Shift + Tab",
+      name: "Tab",
       type: "Focus",
-      description:
-        "Describe how focus enters, leaves, or moves through the component.",
+      description: "Describe how focus moves forwards through the component.",
     },
     {
-      name: "Enter / Space",
+      name: "Shift + Tab",
+      type: "Focus",
+      description: "Describe how focus moves backwards through the component.",
+    },
+    {
+      name: "Enter",
+      type: "Activation",
+      description: "Describe the action performed by the focused control.",
+    },
+    {
+      name: "Space",
       type: "Activation",
       description: "Describe the action performed by the focused control.",
     },

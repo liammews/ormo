@@ -1,0 +1,16 @@
+---
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+import PopoverDemo from "../../../components/demos/Popover/PopoverDemo.astro";
+import PopoverDetachedTriggerDemo from "../../../components/demos/Popover/PopoverDetachedTriggerDemo.astro";
+import PopoverFloatingDemo from "../../../components/demos/Popover/PopoverFloatingDemo.astro";
+import PopoverFormDemo from "../../../components/demos/Popover/PopoverFormDemo.astro";
+import PopoverPersistentDemo from "../../../components/demos/Popover/PopoverPersistentDemo.astro";
+---
+
+<BrowserFixtureLayout title="Popover">
+  <div data-popover-demo="default"><PopoverDemo /></div>
+  <div data-popover-demo="form"><PopoverFormDemo /></div>
+  <div data-popover-demo="persistent"><PopoverPersistentDemo /></div>
+  <div data-popover-demo="detached"><PopoverDetachedTriggerDemo /></div>
+  <div data-popover-demo="floating"><PopoverFloatingDemo /></div>
+</BrowserFixtureLayout>

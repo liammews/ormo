@@ -1,0 +1,22 @@
+---
+import { getSelectSsrContext } from "../../internal/select-ssr-context";
+import type { SelectSeparatorProps } from "./types";
+
+type Props = SelectSeparatorProps;
+
+const attributes: Props = Astro.props;
+const select = getSelectSsrContext();
+---
+
+{
+  select?.native ? (
+    <hr {...attributes} data-ormo-select-separator />
+  ) : (
+    <div
+      {...attributes}
+      role="separator"
+      aria-orientation="horizontal"
+      data-ormo-select-separator
+    />
+  )
+}

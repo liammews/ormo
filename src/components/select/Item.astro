@@ -1,0 +1,59 @@
+---
+import {
+  getSelectGroupSsrContext,
+  getSelectSsrContext,
+  htmlToText,
+} from "../../internal/select-ssr-context";
+import type { SelectItemProps } from "./types";
+
+type Props = SelectItemProps;
+
+const {
+  value,
+  textValue,
+  disabled = false,
+  ...attributes
+}: Props = Astro.props;
+const select = getSelectSsrContext();
+const group = getSelectGroupSsrContext();
+const content = await Astro.slots.render("default");
+const resolvedTextValue = textValue?.trim() || htmlToText(content);
+const selected = select?.defaultValue === value;
+
+if (select && !select.native) {
+  select.items.push({
+    value,
+    textValue: resolvedTextValue,
+    disabled,
+    groupId: group?.id,
+    groupLabel: group?.label,
+  });
+}
+---
+
+{
+  select?.native ? (
+    <option
+      {...attributes}
+      value={value}
+      disabled={disabled || undefined}
+      selected={selected || undefined}
+      data-ormo-select-item
+      set:html={content}
+    />
+  ) : (
+    <div
+      {...attributes}
+      role="option"
+      aria-selected={selected ? "true" : "false"}
+      aria-disabled={disabled ? "true" : undefined}
+      data-ormo-select-item
+      data-value={value}
+      data-text-value={resolvedTextValue}
+      data-selected={selected ? "" : undefined}
+      data-disabled={disabled ? "" : undefined}
+      tabindex="-1"
+      set:html={content}
+    />
+  )
+}

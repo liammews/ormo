@@ -6,11 +6,11 @@ type Props = AvatarFallbackProps;
 
 const { delay, ...attributes }: Props = Astro.props;
 const context = getAvatarSsrContext();
-const hideForSsr = context?.hasImageSource === true;
 const delayMs =
   typeof delay === "number" && Number.isFinite(delay) && delay > 0
     ? Math.floor(delay)
     : undefined;
+const hideForSsr = context?.hasImageSource === true && delayMs !== undefined;
 ---
 
 <span

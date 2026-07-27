@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/docs/components/popover/");
+  await page.goto("/test-fixtures/browser/popover/");
 });
 
 test("opens, focuses content, closes, and restores focus without trapping Tab", async ({
@@ -138,29 +138,39 @@ test("exposes trigger size CSS variables while open", async ({ page }) => {
   await trigger.click();
   await expect(content).toBeVisible();
 
-  const metrics = await content.evaluate((el) => {
-    const styles = getComputedStyle(el);
-    return {
-      width: styles.getPropertyValue("--ormo-popover-trigger-width").trim(),
-      height: styles.getPropertyValue("--ormo-popover-trigger-height").trim(),
-    };
-  });
-
-  expect(metrics.width).toMatch(/^\d+(\.\d+)?px$/);
-  expect(metrics.height).toMatch(/^\d+(\.\d+)?px$/);
+  await expect
+    .poll(() =>
+      content.evaluate((el) =>
+        getComputedStyle(el)
+          .getPropertyValue("--ormo-popover-trigger-width")
+          .trim(),
+      ),
+    )
+    .toMatch(/^\d+(\.\d+)?px$/);
+  await expect
+    .poll(() =>
+      content.evaluate((el) =>
+        getComputedStyle(el)
+          .getPropertyValue("--ormo-popover-trigger-height")
+          .trim(),
+      ),
+    )
+    .toMatch(/^\d+(\.\d+)?px$/);
 
   await page.keyboard.press("Escape");
   await expect(content).toBeHidden();
 
-  const closedMetrics = await content.evaluate((el) => {
-    const style = (el as HTMLElement).style;
-    return {
-      width: style.getPropertyValue("--ormo-popover-trigger-width"),
-      height: style.getPropertyValue("--ormo-popover-trigger-height"),
-    };
-  });
-  expect(closedMetrics.width).toBe("");
-  expect(closedMetrics.height).toBe("");
+  await expect
+    .poll(() =>
+      content.evaluate((el) => {
+        const style = (el as HTMLElement).style;
+        return {
+          width: style.getPropertyValue("--ormo-popover-trigger-width"),
+          height: style.getPropertyValue("--ormo-popover-trigger-height"),
+        };
+      }),
+    )
+    .toEqual({ width: "", height: "" });
 });
 
 test("has no critical accessibility violations on the docs page", async ({

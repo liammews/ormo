@@ -188,6 +188,38 @@ describe("avatar", () => {
     expect(fallback.hidden).toBe(false);
   });
 
+  it("uses an increased delay from the start of the current load", async () => {
+    vi.useFakeTimers();
+    const root = createAvatar({ complete: false, delay: 600 });
+    const fallback = getFallback(root);
+
+    vi.advanceTimersByTime(100);
+    fallback.dataset.delay = "1000";
+    await flushMicrotasks();
+
+    vi.advanceTimersByTime(899);
+    expect(fallback.hidden).toBe(true);
+
+    vi.advanceTimersByTime(1);
+    expect(fallback.hidden).toBe(false);
+  });
+
+  it("uses a decreased delay from the start of the current load", async () => {
+    vi.useFakeTimers();
+    const root = createAvatar({ complete: false, delay: 600 });
+    const fallback = getFallback(root);
+
+    vi.advanceTimersByTime(100);
+    fallback.dataset.delay = "200";
+    await flushMicrotasks();
+
+    vi.advanceTimersByTime(99);
+    expect(fallback.hidden).toBe(true);
+
+    vi.advanceTimersByTime(1);
+    expect(fallback.hidden).toBe(false);
+  });
+
   it("does not show a delayed fallback after the image has loaded", () => {
     vi.useFakeTimers();
     const root = createAvatar({ complete: false, delay: 600 });

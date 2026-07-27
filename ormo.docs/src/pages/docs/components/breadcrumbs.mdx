@@ -1,13 +1,22 @@
 ---
 layout: ../../../layouts/MdxDocLayout.astro
 title: "Breadcrumbs"
-description: "A hierarchical trail that shows the current page’s location in a site"
+description: "A hierarchical navigation trail that shows the current page’s location in a site."
 ---
 
 import BreadcrumbsDemo from "../../../components/demos/Breadcrumbs/BreadcrumbsDefault/BreadcrumbsDemo.astro";
 import breadcrumbsDemoCode from "../../../components/demos/Breadcrumbs/BreadcrumbsDefault/BreadcrumbsDemo.astro?raw";
 import breadcrumbsCss from "../../../components/demos/Breadcrumbs/index.css?raw";
+import BreadcrumbsCurrentLinkDemo from "../../../components/demos/Breadcrumbs/BreadcrumbsCurrentLink/BreadcrumbsCurrentLinkDemo.astro";
+import breadcrumbsCurrentLinkDemoCode from "../../../components/demos/Breadcrumbs/BreadcrumbsCurrentLink/BreadcrumbsCurrentLinkDemo.astro?raw";
+import BreadcrumbsLabelledByDemo from "../../../components/demos/Breadcrumbs/BreadcrumbsLabelledBy/BreadcrumbsLabelledByDemo.astro";
+import breadcrumbsLabelledByDemoCode from "../../../components/demos/Breadcrumbs/BreadcrumbsLabelledBy/BreadcrumbsLabelledByDemo.astro?raw";
+import breadcrumbsLabelledByDemoCss from "../../../components/demos/Breadcrumbs/BreadcrumbsLabelledBy/labelled-by.css?raw";
+import BreadcrumbsMicrodataDemo from "../../../components/demos/Breadcrumbs/BreadcrumbsMicrodata/BreadcrumbsMicrodataDemo.astro";
+import breadcrumbsMicrodataDemoCode from "../../../components/demos/Breadcrumbs/BreadcrumbsMicrodata/BreadcrumbsMicrodataDemo.astro?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
 <DemoBlock
   files={[
@@ -17,3 +26,311 @@ import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 >
   <BreadcrumbsDemo />
 </DemoBlock>
+
+## Usage
+
+Use breadcrumbs to show a page’s position within a hierarchical site structure and provide links to its ancestors. Place the current page last and mark it with `Breadcrumbs.Page`, or use `Breadcrumbs.Link current` when the current page should remain a link.
+
+Do not use breadcrumbs to represent browsing history, a linear progress indicator, or the site’s primary navigation. Omit the trail when it would contain only the current page.
+
+Use `Breadcrumbs.Separator` for visual punctuation between items. It keeps the separator out of the accessibility tree while preserving valid ordered-list markup.
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Breadcrumbs from "@ormo/primitives/breadcrumbs";
+---
+
+<Breadcrumbs.Root>
+  <Breadcrumbs.List>
+    <Breadcrumbs.Item>
+      <Breadcrumbs.Link href="/parent-page">Parent page</Breadcrumbs.Link>
+    </Breadcrumbs.Item>
+    <Breadcrumbs.Separator>/</Breadcrumbs.Separator>
+    <Breadcrumbs.Item>
+      <Breadcrumbs.Page>Current page</Breadcrumbs.Page>
+    </Breadcrumbs.Item>
+  </Breadcrumbs.List>
+</Breadcrumbs.Root>`}
+/>
+
+## Examples
+
+### Current page link
+
+Use `Breadcrumbs.Link current` when the current page should remain available as a link. The link receives `aria-current="page"` and otherwise keeps native anchor behaviour.
+
+<DemoBlock
+  files={[
+    {
+      filename: "Breadcrumbs.astro",
+      code: breadcrumbsCurrentLinkDemoCode,
+    },
+  ]}
+>
+  <BreadcrumbsCurrentLinkDemo />
+</DemoBlock>
+
+### Visible landmark label
+
+`Breadcrumbs.Root` uses the accessible label “Breadcrumb” by default. When a visible heading describes the trail, connect it with `aria-labelledby`. This replaces the default label with the referenced text.
+
+<DemoBlock
+  files={[
+    {
+      filename: "Breadcrumbs.astro",
+      code: breadcrumbsLabelledByDemoCode,
+    },
+    {
+      filename: "labelled-by.css",
+      code: breadcrumbsLabelledByDemoCss,
+    },
+  ]}
+>
+  <BreadcrumbsLabelledByDemo />
+</DemoBlock>
+
+### Structured data
+
+Set `microdata` on `Breadcrumbs.Root` to annotate the trail as a Schema.org `BreadcrumbList`. Each `Breadcrumbs.Item` becomes a `ListItem` with a sequential position, while links and the current page provide item names.
+
+<DemoBlock
+  files={[
+    {
+      filename: "Breadcrumbs.astro",
+      code: breadcrumbsMicrodataDemoCode,
+    },
+  ]}
+>
+  <BreadcrumbsMicrodataDemo />
+</DemoBlock>
+
+## API reference
+
+All parts forward the relevant native HTML attributes unless noted otherwise.
+
+### Root
+
+`Breadcrumbs.Root` renders `<nav>`, provides the navigation landmark’s accessible name, and enables structured data for its list.
+
+<PropsTable
+  id="breadcrumbs-root-props"
+  caption="Breadcrumbs Root properties"
+  rows={[
+    {
+      name: "label",
+      type: "string",
+      defaultValue: '"Breadcrumb"',
+      description:
+        "Provides the navigation landmark’s accessible name when aria-label and aria-labelledby are absent.",
+    },
+    {
+      name: "microdata",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Annotates the trail with Schema.org BreadcrumbList and ListItem microdata during server rendering.",
+    },
+    {
+      name: "aria-label",
+      type: "string",
+      description:
+        "Provides an authored accessible name instead of label. It is ignored when aria-labelledby is present.",
+    },
+    {
+      name: "aria-labelledby",
+      type: "string",
+      description:
+        "References the id of visible text that names the navigation landmark. It takes precedence over aria-label and label.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered navigation element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered navigation element.",
+    },
+  ]}
+/>
+
+### List
+
+`Breadcrumbs.List` renders `<ol>` and contains the ordered sequence of items and separators.
+
+<PropsTable
+  id="breadcrumbs-list-props"
+  caption="Breadcrumbs List properties"
+  rows={[
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered ordered list.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered ordered list.",
+    },
+  ]}
+/>
+
+### Item
+
+`Breadcrumbs.Item` renders `<li>` and contains one `Breadcrumbs.Link` or `Breadcrumbs.Page`.
+
+<PropsTable
+  id="breadcrumbs-item-props"
+  caption="Breadcrumbs Item properties"
+  rows={[
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered list item.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered list item.",
+    },
+  ]}
+/>
+
+### Link
+
+`Breadcrumbs.Link` renders `<a>` and navigates to an ancestor page, or optionally represents a linked current page.
+
+<PropsTable
+  id="breadcrumbs-link-props"
+  caption="Breadcrumbs Link properties"
+  rows={[
+    {
+      name: "href",
+      type: "string",
+      description: "Sets the link destination.",
+      details: [{ label: "Required", value: "Yes" }],
+    },
+    {
+      name: "current",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        'Marks the link as the current page with aria-current="page". Prefer Breadcrumbs.Page when the current page does not need to be a link.',
+    },
+    {
+      name: "name",
+      type: "string",
+      description:
+        "Provides an explicit Schema.org item name when microdata is enabled. When omitted, the rendered link content supplies the name.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered link.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered link.",
+    },
+  ]}
+/>
+
+### Page
+
+`Breadcrumbs.Page` renders `<span aria-current="page">` for the current page when it does not need to be a link.
+
+<PropsTable
+  id="breadcrumbs-page-props"
+  caption="Breadcrumbs Page properties"
+  rows={[
+    {
+      name: "name",
+      type: "string",
+      description:
+        "Provides an explicit Schema.org item name when microdata is enabled. When omitted, the rendered page content supplies the name.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered current-page element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered current-page element.",
+    },
+  ]}
+/>
+
+### Separator
+
+`Breadcrumbs.Separator` renders `<li role="presentation" aria-hidden="true">` for visual punctuation between breadcrumb items. Its role and hidden state are managed by the component and cannot be overridden.
+
+<PropsTable
+  id="breadcrumbs-separator-props"
+  caption="Breadcrumbs Separator properties"
+  rows={[
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered separator.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered separator.",
+    },
+  ]}
+/>
+
+## Accessibility
+
+The breadcrumbs follow the WAI-ARIA breadcrumb pattern using native HTML: `Breadcrumbs.Root` creates a named navigation landmark, `Breadcrumbs.List` communicates the trail’s order, and the current crumb exposes `aria-current="page"`.
+
+Include exactly one current crumb in each trail. Use `Breadcrumbs.Page` by default so the current location is not needlessly linked, or `Breadcrumbs.Link current` when retaining the link serves a concrete navigation need. When a page contains more than one breadcrumb landmark, give each `Breadcrumbs.Root` a distinct accessible name.
+
+Render visual punctuation with `Breadcrumbs.Separator`. Do not generate textual separators with CSS `content`, because browsers can expose generated text to assistive technology.
+
+<PropsTable
+  id="breadcrumbs-keyboard"
+  caption="Breadcrumbs keyboard behaviour"
+  nameHeader="Key"
+  nameElement="kbd"
+  rows={[
+    {
+      name: "Tab",
+      type: "Focus",
+      description:
+        "Moves focus forwards through breadcrumb links using the document’s normal focus order. The non-link current page and separators are skipped.",
+    },
+    {
+      name: "Shift + Tab",
+      type: "Focus",
+      description:
+        "Moves focus backwards through breadcrumb links using the document’s normal focus order.",
+    },
+    {
+      name: "Enter",
+      type: "Activation",
+      description:
+        "Follows the focused breadcrumb link using native browser behaviour.",
+    },
+  ]}
+/>
+
+## Styling
+
+The breadcrumb primitives ship no layout or brand styles. Pass `class` or `style` to each part to control layout, typography, colour and separator presentation. Style the current crumb with `[aria-current="page"]`; attributes prefixed with `data-ormo-*` are internal markers rather than public styling APIs.
+
+Use flex wrapping or another reflow-safe layout for long trails. Avoid fixed heights and truncation that remove the current page or make ancestor links unavailable at narrow viewport widths or increased text size.
+
+## Runtime
+
+The breadcrumb component ships no client-side JavaScript. The navigation landmark, current-page state, separators, and optional structured data are rendered entirely on the server and remain available when JavaScript is disabled.

@@ -21,9 +21,16 @@ interface Props {
   caption: string;
   rows: PropsTableRow[];
   nameHeader?: string;
+  nameElement?: "code" | "kbd";
 }
 
-const { id, caption, rows, nameHeader = "Prop" }: Props = Astro.props;
+const {
+  id,
+  caption,
+  rows,
+  nameHeader = "Prop",
+  nameElement = "code",
+}: Props = Astro.props;
 const preparedRows = rows.map((row, index) => ({
   ...row,
   expandable: row.description !== undefined || (row.details?.length ?? 0) > 0,
@@ -61,7 +68,11 @@ const preparedRows = rows.map((row, index) => ({
                 data-expanded={row.defaultOpen ? "" : undefined}
               >
                 <th id={row.nameId} scope="row">
-                  <code>{row.name}</code>
+                  {nameElement === "kbd" ? (
+                    <kbd>{row.name}</kbd>
+                  ) : (
+                    <code>{row.name}</code>
+                  )}
                 </th>
                 <td>
                   <code class="props-table_type">{row.type}</code>
@@ -106,7 +117,11 @@ const preparedRows = rows.map((row, index) => ({
                       <div>
                         <dt>Name</dt>
                         <dd>
-                          <code>{row.name}</code>
+                          {nameElement === "kbd" ? (
+                            <kbd>{row.name}</kbd>
+                          ) : (
+                            <code>{row.name}</code>
+                          )}
                         </dd>
                       </div>
                       {row.description !== undefined && (

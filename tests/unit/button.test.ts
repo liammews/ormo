@@ -8,11 +8,13 @@ function createButton(options: { disabled?: boolean } = {}): HTMLDivElement {
   button.setAttribute("data-ormo-button", "");
   button.setAttribute("data-native-button", "false");
   button.setAttribute("role", "button");
+  button.setAttribute("data-ormo-button-tabindex", "0");
   button.tabIndex = options.disabled ? -1 : 0;
 
   if (options.disabled) {
     button.setAttribute("aria-disabled", "true");
     button.setAttribute("data-disabled", "");
+    button.setAttribute("data-ormo-button-disabled", "");
   }
 
   document.body.append(button);
@@ -40,7 +42,7 @@ describe("non-native button", () => {
     const handleClick = vi.fn();
     button.addEventListener("click", handleClick);
 
-    expect(pressKey(button, "keydown", "Enter")).toBe(false);
+    expect(pressKey(button, "keydown", "Enter")).toBe(true);
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
@@ -127,6 +129,62 @@ describe("non-native button", () => {
     expect(handleClick).not.toHaveBeenCalled();
   });
 
+  it("activates when consumers stop propagation without canceling", async () => {
+    const button = createButton();
+    const parent = button.parentElement!;
+    const handleClick = vi.fn();
+    button.addEventListener("keydown", (event) => event.stopPropagation());
+    button.addEventListener("keyup", (event) => event.stopPropagation());
+    parent.addEventListener("keydown", (event) => event.stopPropagation());
+    parent.addEventListener("keyup", (event) => event.stopPropagation());
+    button.addEventListener("click", handleClick);
+
+    pressKey(button, "keydown", "Enter");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    pressKey(button, "keydown", " ");
+    pressKey(button, "keyup", " ");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(handleClick).toHaveBeenCalledTimes(2);
+  });
+
+  it("honors cancellation from an ancestor after the target", () => {
+    const button = createButton();
+    const handleClick = vi.fn();
+    document.body.addEventListener(
+      "keydown",
+      (event) => event.preventDefault(),
+      { once: true },
+    );
+    button.addEventListener("click", handleClick);
+
+    pressKey(button, "keydown", "Enter");
+
+    expect(handleClick).not.toHaveBeenCalled();
+  });
+
+  it("uses the internal disabled marker rather than authored ARIA or styling", async () => {
+    const button = createButton();
+    const handleClick = vi.fn();
+    button.addEventListener("click", handleClick);
+    button.setAttribute("aria-disabled", "true");
+    button.setAttribute("data-disabled", "");
+
+    button.click();
+    pressKey(button, "keydown", "Enter");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(handleClick).toHaveBeenCalledTimes(2);
+
+    button.setAttribute("data-ormo-button-disabled", "");
+    button.removeAttribute("aria-disabled");
+    button.click();
+    pressKey(button, "keydown", "Enter");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(handleClick).toHaveBeenCalledTimes(2);
+  });
+
   it("suppresses pointer, keyboard, and programmatic clicks when disabled", () => {
     const button = createButton({ disabled: true });
     const handleClick = vi.fn();
@@ -160,34 +218,6 @@ describe("non-native button", () => {
 });
 
 describe("development diagnostics", () => {
-  it("warns about a missing accessible name", () => {
-    const button = createButton();
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-
-    validateButtons(button.parentNode ?? document);
-
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining("accessible name"),
-      button,
-    );
-  });
-
-  it("accepts text and referenced labels as accessible names", () => {
-    const textButton = createButton();
-    textButton.textContent = "Save";
-    const labelledButton = createButton();
-    const label = document.createElement("span");
-    label.id = "button-label";
-    label.textContent = "Delete";
-    labelledButton.setAttribute("aria-labelledby", label.id);
-    document.body.append(label);
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-
-    validateButtons();
-
-    expect(warn).not.toHaveBeenCalled();
-  });
-
   it("warns about positive tabindex and nested controls", () => {
     const button = createButton();
     button.textContent = "More";
@@ -231,6 +261,7 @@ describe("button state controller", () => {
 
     expect(button.disabled).toBe(true);
     expect(button.hasAttribute("data-disabled")).toBe(true);
+    expect(button.hasAttribute("data-ormo-button-disabled")).toBe(true);
     expect(button.hasAttribute("data-pending")).toBe(true);
     expect(button.getAttribute("aria-busy")).toBe("true");
     expect(button.hasAttribute("aria-disabled")).toBe(false);
@@ -239,6 +270,7 @@ describe("button state controller", () => {
 
     expect(button.disabled).toBe(false);
     expect(button.hasAttribute("data-disabled")).toBe(false);
+    expect(button.hasAttribute("data-ormo-button-disabled")).toBe(false);
     expect(button.hasAttribute("data-pending")).toBe(false);
     expect(button.hasAttribute("aria-busy")).toBe(false);
   });
@@ -330,7 +362,57 @@ describe("button state controller", () => {
     expect(button.tabIndex).toBe(0);
   });
 
-  it("blocks submit events from an aria-disabled submitter", () => {
+  it("preserves SSR tabindex state across redundant disabled updates", () => {
+    const button = createButton({ disabled: true });
+    button.setAttribute("data-ormo-button-tabindex", "3");
+
+    setButtonState(button, { disabled: true });
+    setButtonState(button, { disabled: false });
+
+    expect(button.getAttribute("tabindex")).toBe("3");
+  });
+
+  it("restores a negative tabindex after temporary disabled focusability", () => {
+    const button = createButton();
+    button.tabIndex = -1;
+
+    setButtonState(button, {
+      disabled: true,
+      focusableWhenDisabled: true,
+    });
+    expect(button.tabIndex).toBe(0);
+
+    setButtonState(button, { disabled: false });
+    expect(button.tabIndex).toBe(-1);
+
+    setButtonState(button, { disabled: false });
+    expect(button.tabIndex).toBe(-1);
+  });
+
+  it("restores the lexical form of an authored tabindex", () => {
+    const button = createButton();
+    button.setAttribute("tabindex", "02");
+
+    setButtonState(button, { disabled: true });
+    setButtonState(button, { disabled: false });
+
+    expect(button.getAttribute("tabindex")).toBe("02");
+  });
+
+  it("cancels an active Space press when disabled", () => {
+    const button = createButton();
+    const handleClick = vi.fn();
+    button.addEventListener("click", handleClick);
+
+    pressKey(button, "keydown", " ");
+    setButtonState(button, { disabled: true });
+    setButtonState(button, { disabled: false });
+    pressKey(button, "keyup", " ");
+
+    expect(handleClick).not.toHaveBeenCalled();
+  });
+
+  it("blocks submit events from an internally disabled submitter", () => {
     const form = document.createElement("form");
     const button = document.createElement("button");
     button.type = "submit";

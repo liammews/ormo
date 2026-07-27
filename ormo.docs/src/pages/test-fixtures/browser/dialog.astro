@@ -1,0 +1,12 @@
+---
+import DialogDemo from "../../../components/demos/Dialog/DialogDemo.astro";
+import DialogDetachedTriggerDemo from "../../../components/demos/Dialog/DialogDetachedTriggerDemo.astro";
+import DialogPersistentDemo from "../../../components/demos/Dialog/DialogPersistentDemo.astro";
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+---
+
+<BrowserFixtureLayout title="Dialog">
+  <div data-dialog-demo><DialogDemo /></div>
+  <div data-dialog-persistent-demo><DialogPersistentDemo /></div>
+  <div data-dialog-detached-demo><DialogDetachedTriggerDemo /></div>
+</BrowserFixtureLayout>

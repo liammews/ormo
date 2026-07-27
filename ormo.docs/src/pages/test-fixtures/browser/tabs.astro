@@ -1,0 +1,16 @@
+---
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+import TabsActivateOnFocusDemo from "../../../components/demos/Tabs/TabsActivateOnFocusDemo.astro";
+import TabsControlledDemo from "../../../components/demos/Tabs/TabsControlledDemo.astro";
+import TabsDemo from "../../../components/demos/Tabs/TabsDemo.astro";
+import TabsDisabledDemo from "../../../components/demos/Tabs/TabsDisabledDemo.astro";
+import TabsVerticalDemo from "../../../components/demos/Tabs/TabsVerticalDemo.astro";
+---
+
+<BrowserFixtureLayout title="Tabs">
+  <div data-tabs-demo="default"><TabsDemo /></div>
+  <div data-tabs-demo="vertical"><TabsVerticalDemo /></div>
+  <div data-tabs-demo="activate-on-focus"><TabsActivateOnFocusDemo /></div>
+  <div data-tabs-demo="disabled"><TabsDisabledDemo /></div>
+  <div data-tabs-demo="controlled"><TabsControlledDemo /></div>
+</BrowserFixtureLayout>

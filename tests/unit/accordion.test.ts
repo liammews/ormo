@@ -255,12 +255,24 @@ describe("accordion", () => {
     expect(root.value).toEqual(["second"]);
   });
 
-  it("allows value changes to be canceled", () => {
+  it("emits a non-cancelable value change after user state updates", () => {
     const root = createAccordion(["first"]);
-    const listener = vi.fn((event: Event) => event.preventDefault());
+    const valuesAtDispatch: AccordionValue[] = [];
+    const listener = vi.fn((event: Event) => {
+      event.preventDefault();
+      valuesAtDispatch.push(root.value);
+    });
     root.addEventListener("ormo:value-change", listener);
 
     getTriggers(root)[0]?.click();
+
+    expect(listener).toHaveBeenCalledOnce();
+    expect(listener.mock.calls[0]?.[0].cancelable).toBe(false);
+    expect(listener.mock.calls[0]?.[0].defaultPrevented).toBe(false);
+    expect(valuesAtDispatch).toEqual(["first"]);
+    expect(root.value).toBe("first");
+
+    root.value = null;
 
     expect(listener).toHaveBeenCalledOnce();
     expect(root.value).toBeNull();
@@ -287,9 +299,13 @@ describe("accordion", () => {
     expect(getItems(root)[1]?.hasAttribute("data-disabled")).toBe(true);
   });
 
-  it("does not let a canceled value event block a browser search match", () => {
+  it("emits a value change after a browser search match updates state", () => {
     const root = createAccordion(["first", "second"]);
-    const listener = vi.fn((event: Event) => event.preventDefault());
+    const valuesAtDispatch: AccordionValue[] = [];
+    const listener = vi.fn((event: Event) => {
+      event.preventDefault();
+      valuesAtDispatch.push(root.value);
+    });
     const content = root.querySelector<HTMLElement>(
       '[data-ormo-accordion-item][data-value="second"] [data-ormo-accordion-content]',
     );
@@ -303,30 +319,11 @@ describe("accordion", () => {
     expect(listener).toHaveBeenCalledOnce();
     expect(listener.mock.calls[0]?.[0].cancelable).toBe(false);
     expect(listener.mock.calls[0]?.[0].defaultPrevented).toBe(false);
+    expect(valuesAtDispatch).toEqual(["second"]);
     expect(root.value).toBe("second");
     expect(content?.hasAttribute("hidden")).toBe(false);
     expect(content?.hasAttribute("aria-hidden")).toBe(false);
     expect(content?.hasAttribute("inert")).toBe(false);
-  });
-
-  it("emits an item-level event after open state changes", () => {
-    const root = createAccordion(["first"]);
-    const changes: Array<{ open: boolean; value: string }> = [];
-
-    root.addEventListener("ormo:open-change", (event) => {
-      changes.push(
-        (
-          event as CustomEvent<{
-            open: boolean;
-            value: string;
-          }>
-        ).detail,
-      );
-    });
-
-    getTriggers(root)[0]?.click();
-
-    expect(changes).toEqual([{ open: true, value: "first" }]);
   });
 
   it("initializes items inserted after connection", async () => {

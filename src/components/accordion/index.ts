@@ -13,8 +13,6 @@ export type {
   AccordionContentProps,
   AccordionHeaderProps,
   AccordionItemProps,
-  AccordionOpenChangeDetail,
-  AccordionOpenChangeEvent,
   AccordionOrientation,
   AccordionRootProps,
   AccordionTriggerProps,

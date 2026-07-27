@@ -1,0 +1,18 @@
+---
+import AlertDialogDemo from "../../../components/demos/AlertDialog/AlertDialogDemo.astro";
+import AlertDialogDetachedTriggerDemo from "../../../components/demos/AlertDialog/AlertDialogDetachedTriggerDemo.astro";
+import AlertDialogInitialFocusDemo from "../../../components/demos/AlertDialog/AlertDialogInitialFocusDemo.astro";
+import AlertDialogPendingDemo from "../../../components/demos/AlertDialog/AlertDialogPendingDemo.astro";
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+---
+
+<BrowserFixtureLayout title="Alert dialog">
+  <div class="browser-fixture-stack" data-alert-dialog-demo>
+    <AlertDialogDemo />
+    <AlertDialogInitialFocusDemo />
+    <AlertDialogPendingDemo />
+  </div>
+  <div data-alert-dialog-detached-demo>
+    <AlertDialogDetachedTriggerDemo />
+  </div>
+</BrowserFixtureLayout>

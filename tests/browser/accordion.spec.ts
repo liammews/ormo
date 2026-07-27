@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/docs/components/accordion/");
+  await page.goto("/test-fixtures/browser/accordion/");
 });
 
 test("opens and closes panels from triggers", async ({ page }) => {
@@ -105,27 +105,32 @@ test("disables an individual item while leaving others interactive", async ({
   await expect(shipping).toHaveAttribute("aria-expanded", "false");
 });
 
-test("supports cancelable value changes from the browser element", async ({
+test("emits a non-cancelable value change after updating state", async ({
   page,
 }) => {
-  const root = page.locator('[data-accordion-demo="default"]');
+  const root = page.locator("ormo-accordion").first();
   const about = root.getByRole("button", { name: "What is Ormo?" });
 
   await root.evaluate((element) => {
     element.addEventListener("ormo:value-change", (event) => {
       event.preventDefault();
+      const valueEvent = event as CustomEvent<{ value: unknown }>;
+      const accordion = element as HTMLElement & { value: unknown };
+
+      element.dataset.observedDetail = String(valueEvent.detail.value);
+      element.dataset.observedValue = String(accordion.value);
+      element.dataset.observedCancelable = String(event.cancelable);
+      element.dataset.observedPrevented = String(event.defaultPrevented);
     });
   });
 
   await about.click();
-  await expect(about).toHaveAttribute("aria-expanded", "false");
-  await expect
-    .poll(() =>
-      root.evaluate(
-        (element) => (element as HTMLElement & { value: unknown }).value,
-      ),
-    )
-    .toBeNull();
+
+  await expect(about).toHaveAttribute("aria-expanded", "true");
+  await expect(root).toHaveAttribute("data-observed-detail", "about");
+  await expect(root).toHaveAttribute("data-observed-value", "about");
+  await expect(root).toHaveAttribute("data-observed-cancelable", "false");
+  await expect(root).toHaveAttribute("data-observed-prevented", "false");
 });
 
 test("has no automatically detectable accessibility violations", async ({
@@ -149,7 +154,7 @@ test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 
   test("reflects defaultValue open state in server HTML", async ({ page }) => {
-    await page.goto("/docs/components/accordion/");
+    await page.goto("/test-fixtures/browser/accordion/");
 
     const demo = page.locator('[data-accordion-demo="initial"]');
     const aboutTrigger = demo.getByRole("button", { name: "What is Ormo?" });

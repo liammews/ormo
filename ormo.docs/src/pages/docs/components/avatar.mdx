@@ -1,13 +1,27 @@
 ---
 layout: ../../../layouts/MdxDocLayout.astro
 title: "Avatar"
-description: "A profile image with a fallback for initials or icons"
+description: "An image representing a person, with a fallback for initials or an icon."
 ---
 
 import AvatarDemo from "../../../components/demos/Avatar/AvatarDemo.astro";
 import avatarDemoCode from "../../../components/demos/Avatar/AvatarDemo.astro?raw";
 import avatarDemoCss from "../../../components/demos/Avatar/index.css?raw";
+import AvatarDelayedFallbackDemo from "../../../components/demos/Avatar/AvatarDelayedFallbackDemo.astro";
+import avatarDelayedFallbackDemoCode from "../../../components/demos/Avatar/AvatarDelayedFallbackDemo.astro?raw";
+import AvatarBrokenDemo from "../../../components/demos/Avatar/AvatarBrokenDemo.astro";
+import avatarBrokenDemoCode from "../../../components/demos/Avatar/AvatarBrokenDemo.astro?raw";
+import AvatarFallbackOnlyDemo from "../../../components/demos/Avatar/AvatarFallbackOnlyDemo.astro";
+import avatarFallbackOnlyDemoCode from "../../../components/demos/Avatar/AvatarFallbackOnlyDemo.astro?raw";
+import AvatarIconFallbackDemo from "../../../components/demos/Avatar/AvatarIconFallbackDemo.astro";
+import avatarIconFallbackDemoCode from "../../../components/demos/Avatar/AvatarIconFallbackDemo.astro?raw";
+import AvatarDecorativeDemo from "../../../components/demos/Avatar/AvatarDecorativeDemo.astro";
+import avatarDecorativeDemoCode from "../../../components/demos/Avatar/AvatarDecorativeDemo.astro?raw";
+import AvatarInteractiveDemo from "../../../components/demos/Avatar/AvatarInteractiveDemo.astro";
+import avatarInteractiveDemoCode from "../../../components/demos/Avatar/AvatarInteractiveDemo.astro?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
 <DemoBlock
   files={[
@@ -17,3 +31,283 @@ import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 >
   <AvatarDemo />
 </DemoBlock>
+
+## Usage
+
+Use an avatar to represent a person, account, or identity when a portrait may need to transition to initials or an icon while loading or after an error. Use a native `<img>` without the avatar component when loading coordination and fallback content are unnecessary.
+
+Choose one accessible-naming strategy and keep it consistent across every loading state:
+
+- When fallback initials or an icon replace the portrait, add `role="img"` and `aria-label` to `Avatar.Root`, then use `alt=""` on `Avatar.Image`. The root exposes one stable name while the visible content changes.
+- When `Avatar.Image` supplies meaningful `alt`, ensure `Avatar.Fallback` exposes an equivalent identity rather than ambiguous initials alone.
+- When adjacent text or a parent control already supplies the identity, add `aria-hidden="true"` to `Avatar.Root` and use `alt=""` on `Avatar.Image`.
+
+## Anatomy
+
+Import the component and assemble its image and fallback. This example gives the root a stable accessible name because initials replace the portrait while it loads or after an error.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Avatar from "@ormo/primitives/avatar";
+---
+
+<Avatar.Root role="img" aria-label="Person name">
+  <Avatar.Image
+    src="/avatars/person-name.jpg"
+    alt=""
+    width="40"
+    height="40"
+  />
+  <Avatar.Fallback>PN</Avatar.Fallback>
+</Avatar.Root>`}
+/>
+
+## Examples
+
+### Delayed fallback
+
+Set `delay` to avoid briefly showing a fallback when an image is likely to load quickly. The delay starts when the image begins loading and is measured in milliseconds. A failed image shows the fallback immediately, even if the delay has not elapsed.
+
+<DemoBlock
+  files={[{ filename: "Avatar.astro", code: avatarDelayedFallbackDemoCode }]}
+>
+  <AvatarDelayedFallbackDemo />
+</DemoBlock>
+
+### Failed image
+
+When the image fails to load, `Avatar.Image` is hidden and `Avatar.Fallback` is displayed. Add `aria-label` to `Avatar.Root` so the same label is exposed across image states.
+
+<DemoBlock files={[{ filename: "Avatar.astro", code: avatarBrokenDemoCode }]}>
+  <AvatarBrokenDemo />
+</DemoBlock>
+
+### Fallback only
+
+Omit `Avatar.Image` when no image source is available. Add `aria-label` to `Avatar.Root` when initials are a visual replacement for a person’s image.
+
+<DemoBlock
+  files={[{ filename: "Avatar.astro", code: avatarFallbackOnlyDemoCode }]}
+>
+  <AvatarFallbackOnlyDemo />
+</DemoBlock>
+
+### Icon fallback
+
+`Avatar.Fallback` accepts arbitrary content. Add `aria-hidden="true"` to a decorative fallback icon and add `aria-label` to `Avatar.Root`.
+
+<DemoBlock
+  files={[{ filename: "Avatar.astro", code: avatarIconFallbackDemoCode }]}
+>
+  <AvatarIconFallbackDemo />
+</DemoBlock>
+
+### Decorative avatar
+
+When adjacent text already identifies the person, add `aria-hidden="true"` to `Avatar.Root` and use an empty image `alt`. The attribute also prevents fallback initials from repeating the visible name.
+
+<DemoBlock
+  files={[{ filename: "Avatar.astro", code: avatarDecorativeDemoCode }]}
+>
+  <AvatarDecorativeDemo />
+</DemoBlock>
+
+### Interactive avatar
+
+`Avatar.Root` is not interactive by itself. Place it inside a native link or button, add `aria-label` to that control, and add `aria-hidden="true"` to `Avatar.Root` so it does not duplicate the control’s label.
+
+<DemoBlock
+  files={[{ filename: "Avatar.astro", code: avatarInteractiveDemoCode }]}
+>
+  <AvatarInteractiveDemo />
+</DemoBlock>
+
+## API reference
+
+All parts forward the relevant native HTML attributes unless noted otherwise.
+
+### Root
+
+`Avatar.Root` renders `<ormo-avatar>`, groups `Avatar.Image` and `Avatar.Fallback`, and coordinates image loading state and part visibility. It has no component-specific properties.
+
+<PropsTable
+  id="avatar-root-props"
+  caption="Avatar Root properties"
+  rows={[
+    {
+      name: "role",
+      type: "string",
+      description:
+        'Use role="img" when Root represents an identity and supplies the stable accessible name for its image and fallback states.',
+    },
+    {
+      name: "aria-label",
+      type: "string",
+      description:
+        'Names an informative Root. Pair it with role="img" and use alt="" on Image to avoid exposing the identity twice.',
+    },
+    {
+      name: "aria-hidden",
+      type: 'boolean | "true" | "false"',
+      defaultValue: "false",
+      description:
+        "Hides Root and every descendant from assistive technology. Use true when adjacent text or a parent control already provides the identity; never use it on a focusable Root.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered custom element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered custom element.",
+    },
+  ]}
+/>
+
+### Image
+
+`Avatar.Image` renders `<img>` and is shown only after its `src` or `srcset` loads successfully. Its required `alt` accepts either a meaningful text alternative or an empty string. Untyped markup without `alt` produces a development warning.
+
+<PropsTable
+  id="avatar-image-props"
+  caption="Avatar Image properties"
+  rows={[
+    {
+      name: "src",
+      type: "string",
+      description:
+        "Sets the image source. When both src and srcset are absent or empty, the loading status is error and the fallback is displayed.",
+    },
+    {
+      name: "srcset",
+      type: "string",
+      description:
+        "Provides responsive image candidates and counts as an image source when src is absent.",
+    },
+    {
+      name: "alt",
+      type: "string",
+      description:
+        'Provides the native text alternative. Use a meaningful value when the image identifies the person, or alt="" when aria-label or surrounding text already identifies them.',
+      details: [{ label: "Required", value: "Yes" }],
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered image.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered image.",
+    },
+  ]}
+/>
+
+### Fallback
+
+`Avatar.Fallback` renders `<span>` and is shown while the image is loading or after it fails. It is also shown when `Avatar.Image` is omitted or has no source.
+
+<PropsTable
+  id="avatar-fallback-props"
+  caption="Avatar.Fallback properties"
+  rows={[
+    {
+      name: "delay",
+      type: "number",
+      defaultValue: "0",
+      description:
+        "Waits this many milliseconds before showing the fallback while an image loads. Finite positive values are rounded down. The delay does not postpone a fallback after an image error or when no source is available.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered fallback.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered fallback.",
+    },
+  ]}
+/>
+
+## JavaScript API
+
+`Avatar.Root` renders an `<ormo-avatar>` custom element that exposes its current image state for framework-independent integrations.
+
+<PropsTable
+  id="avatar-browser-api"
+  caption="Avatar browser element API"
+  nameHeader="Member"
+  rows={[
+    {
+      name: "imageLoadingStatus",
+      type: '"loading" | "loaded" | "error"',
+      description:
+        "Returns the current image loading status. This property is read-only.",
+    },
+  ]}
+/>
+
+`ormo:avatar-loading-status-change` fires when the status changes after the custom element has initialised. It bubbles, does not cross shadow boundaries, cannot be cancelled, and provides `{ status }` in `event.detail`. The initial status does not emit an event; read `imageLoadingStatus` when initial state is required.
+
+<CodeBlock
+  lang="js"
+  code={`const avatar = document.querySelector("ormo-avatar");
+
+console.log(avatar.imageLoadingStatus);
+
+avatar.addEventListener(
+"ormo:avatar-loading-status-change",
+console.log.bind(console),
+);`}
+/>
+
+## Accessibility
+
+`Avatar.Image` uses native `<img>` semantics and requires `alt`. When the root owns the accessible identity, add `role="img"` and `aria-label` to `Avatar.Root` and use `alt=""` so the image and fallback do not create duplicate names. This keeps the same identity available while the visible part changes.
+
+Alternatively, give `Avatar.Image` meaningful `alt` when the native image should expose the identity. In that model, `Avatar.Fallback` must communicate the same person or account when the image is unavailable; initials alone are only sufficient when they identify the person unambiguously in context.
+
+When adjacent text identifies the person or a parent control has an accessible name, add `aria-hidden="true"` to `Avatar.Root` and use `alt=""` on `Avatar.Image`. For a fallback-only or icon avatar that represents a person, use the root-owned naming strategy and add `aria-hidden="true"` to any decorative fallback SVG.
+
+`Avatar.Root` does not participate in keyboard navigation. If the avatar triggers an action or navigation, place `Avatar.Root` inside a native button or link and add `aria-label` and focus styling to that control.
+
+## Styling
+
+The Avatar primitives ship no layout or brand styles. Pass `class` values to `Avatar.Root`, `Avatar.Image`, and `Avatar.Fallback` to set dimensions, cropping, colours, and typography. Use the public state hooks below; attributes prefixed with `data-ormo-*` are internal runtime selectors, not styling APIs.
+
+<PropsTable
+  id="avatar-styling"
+  caption="Avatar styling hooks"
+  nameHeader="Hook"
+  rows={[
+    {
+      name: "data-status",
+      type: '"loading" | "loaded" | "error"',
+      description: "The current image loading status.",
+      details: [{ label: "Element", value: "Avatar.Root", code: true }],
+    },
+    {
+      name: "hidden",
+      type: "boolean attribute",
+      description:
+        "Present on a part while the runtime has hidden it. The runtime manages this attribute; use it as a selector rather than setting it directly.",
+      details: [
+        {
+          label: "Element",
+          value: "Avatar.Image, Avatar.Fallback",
+          code: true,
+        },
+      ],
+    },
+  ]}
+/>
+
+## Runtime
+
+`Avatar.Root` loads one deduplicated runtime that observes image sources, loading results, fallback delays, and inserted or removed parts. Initial loading or error state is rendered on the server. Without JavaScript, an immediate server-rendered fallback remains visible, but the image cannot transition to loaded and a delayed fallback remains hidden.

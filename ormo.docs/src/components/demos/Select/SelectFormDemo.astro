@@ -1,0 +1,64 @@
+---
+import * as Select from "@ormo/primitives/select";
+import "./index.css";
+---
+
+<form class="select-form" data-select-form>
+  <div class="select-field">
+    <label class="select-label" for="delivery-control"> Delivery window </label>
+    <Select.Root class="select" id="delivery" name="delivery" required>
+      <div class="select-actions">
+        <Select.Trigger
+          class="select-trigger"
+          aria-describedby="delivery-error"
+        >
+          <Select.Value
+            class="select-value"
+            placeholder="Choose a delivery window"
+          />
+          <Select.Icon class="select-icon">⌄</Select.Icon>
+        </Select.Trigger>
+        <Select.Clear class="select-clear" aria-label="Clear delivery window">
+          <span aria-hidden="true">×</span>
+        </Select.Clear>
+      </div>
+      <Select.Content class="select-content" sideOffset={6}>
+        <Select.Item class="select-item" value="morning"> Morning </Select.Item>
+        <Select.Item class="select-item" value="afternoon">
+          Afternoon
+        </Select.Item>
+        <Select.Separator class="select-separator" />
+        <Select.Item class="select-item" value="evening"> Evening </Select.Item>
+      </Select.Content>
+    </Select.Root>
+    <p class="select-error" id="delivery-error" data-select-error hidden>
+      Choose a delivery window.
+    </p>
+  </div>
+
+  <button class="button" type="submit">Continue</button>
+  <output class="select-result" data-select-result></output>
+</form>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>("[data-select-form]");
+  const result = document.querySelector<HTMLOutputElement>(
+    "[data-select-result]",
+  );
+  const control = form?.querySelector<HTMLSelectElement>(
+    "[data-ormo-select-control]",
+  );
+  const error = form?.querySelector<HTMLElement>("[data-select-error]");
+  control?.addEventListener("invalid", () => {
+    if (error) error.hidden = false;
+  });
+  control?.addEventListener("input", () => {
+    if (error && control.validity.valid) error.hidden = true;
+  });
+  form?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (result) {
+      result.value = `Selected: ${new FormData(form).get("delivery")}`;
+    }
+  });
+</script>

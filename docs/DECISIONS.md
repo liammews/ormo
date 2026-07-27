@@ -553,6 +553,42 @@ state API from becoming the default cost for ordinary form grouping.
 - Fieldset does not provide CheckboxGroup’s value, parent, aggregate, event, or
   group-required APIs.
 
+## GD-020: Accordion exposes a minimal post-render JavaScript API
+
+- **Date:** 2026-07-26
+- **Status:** Accepted
+
+### Decision
+
+`Accordion.Root` exposes `value`, `type`, `collapsible`, `disabled`, and
+`hiddenUntilFound` as properties on its `<ormo-accordion>` custom element.
+These properties provide framework-independent post-render control without
+exposing internal part selectors or state attributes as an imperative API.
+
+User interaction and browser-search reveals emit one bubbling, composed,
+non-cancelable `ormo:value-change` event after Accordion has applied its value,
+DOM state, and ARIA state. The event contains the updated `value` in its detail.
+Direct property assignment updates state without emitting the event. Accordion
+does not expose a derived item-level `ormo:open-change` event.
+
+### Rationale
+
+Astro components do not retain a client-side component instance, so a small DOM
+API is the equivalent of framework component values and callbacks. A writable
+value and one post-change event cover programmatic control and observation while
+following native event expectations. Item open state is already represented by
+the aggregate value and public styling attributes, so a second event would add
+ordering and compatibility obligations without enabling essential control.
+
+### Consequences
+
+- Event listeners observe the already-updated Accordion state.
+- Calling `preventDefault()` cannot veto a requested change.
+- Consumers configure supported runtime behavior through element properties
+  rather than internal `data-*` transport attributes.
+- Additional lifecycle or pre-change events require a demonstrated integration
+  need and public API review.
+
 ## Entry template
 
 ```md

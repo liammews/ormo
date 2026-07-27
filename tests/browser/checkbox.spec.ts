@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/docs/components/checkbox/");
+  await page.goto("/test-fixtures/browser/checkbox/");
 });
 
 test("toggles a standalone checkbox with Space", async ({ page }) => {

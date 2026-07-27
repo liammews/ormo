@@ -1,0 +1,11 @@
+---
+import * as Avatar from "../../../src/components/avatar/index";
+---
+
+<Avatar.Root id="outer-avatar">
+  <Avatar.Image src="/outer.png" alt="Outer" />
+  <Avatar.Root id="inner-avatar">
+    <Avatar.Fallback>IN</Avatar.Fallback>
+  </Avatar.Root>
+  <Avatar.Fallback>OUT</Avatar.Fallback>
+</Avatar.Root>

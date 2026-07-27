@@ -132,6 +132,40 @@ describe("alert dialog", () => {
     expect(content.open).toBe(true);
   });
 
+  it("waits for an uncancelled submit Action before closing", async () => {
+    const { root, trigger, content, action } = createAlertDialog();
+    const form = document.createElement("form");
+    action.type = "submit";
+    content.append(form);
+    form.append(action);
+    trigger.click();
+
+    form.addEventListener("submit", (event) => event.preventDefault(), {
+      once: true,
+    });
+    form.dispatchEvent(
+      new SubmitEvent("submit", {
+        bubbles: true,
+        cancelable: true,
+        submitter: action,
+      }),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(content.open).toBe(true);
+
+    form.dispatchEvent(
+      new SubmitEvent("submit", {
+        bubbles: true,
+        cancelable: true,
+        submitter: action,
+      }),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(root.open).toBe(false);
+    expect(content.returnValue).toBe("delete");
+  });
+
   it("reports Escape when the native cancel action closes the dialog", () => {
     const { root, trigger, content } = createAlertDialog();
     const listener = vi.fn();
@@ -254,6 +288,36 @@ describe("alert dialog", () => {
     expect(content.getAttribute("aria-describedby")).toBe(
       "authored-description",
     );
+  });
+
+  it("updates generated relationships when part ids change", async () => {
+    const { content, title, description } = createAlertDialog();
+
+    title.id = "updated-alert-title";
+    description.id = "updated-alert-description";
+
+    await vi.waitFor(() => {
+      expect(content.getAttribute("aria-labelledby")).toBe(
+        "updated-alert-title",
+      );
+      expect(content.getAttribute("aria-describedby")).toBe(
+        "updated-alert-description",
+      );
+    });
+  });
+
+  it("reconciles an authored aria-label added and removed at runtime", async () => {
+    const { content, title } = createAlertDialog();
+
+    content.setAttribute("aria-label", "Authored alert name");
+    await vi.waitFor(() => {
+      expect(content.hasAttribute("aria-labelledby")).toBe(false);
+    });
+
+    content.removeAttribute("aria-label");
+    await vi.waitFor(() => {
+      expect(content.getAttribute("aria-labelledby")).toBe(title.id);
+    });
   });
 
   it("removes generated relationships when their parts are removed", async () => {
@@ -484,17 +548,55 @@ describe("alert dialog", () => {
     });
   });
 
-  it("releases the scroll lock if open Content is removed", async () => {
-    const { trigger, content } = createAlertDialog();
+  it("normalizes state and focus if open Content is removed", async () => {
+    const { root, trigger, content } = createAlertDialog();
+    const listener = vi.fn();
+    root.addEventListener("ormo:alert-dialog-open-change", listener);
     trigger.click();
 
     content.remove();
 
     await vi.waitFor(() => {
+      expect(root.open).toBe(false);
+      expect(root.dataset.state).toBe("closed");
+      expect(root.hasAttribute("data-open")).toBe(false);
+      expect(trigger.dataset.state).toBeUndefined();
+      expect(trigger.hasAttribute("aria-controls")).toBe(false);
+      expect(document.activeElement).toBe(trigger);
       expect(
         document.documentElement.hasAttribute("data-ormo-scroll-locked"),
       ).toBe(false);
       expect(document.documentElement.style.overflow).toBe("");
     });
+
+    const event = listener.mock.calls.at(-1)?.[0] as AlertDialogOpenChangeEvent;
+    expect(event.detail).toEqual({
+      open: false,
+      reason: "programmatic",
+      returnValue: "",
+    });
+  });
+
+  it("closes and clears transition state when disconnected", () => {
+    const { root, trigger, content } = createAlertDialog();
+    trigger.click();
+
+    expect(content.open).toBe(true);
+    expect(content.hasAttribute("data-starting-style")).toBe(true);
+
+    root.remove();
+
+    expect(content.open).toBe(false);
+    expect(content.hasAttribute("data-starting-style")).toBe(false);
+    expect(content.hasAttribute("data-ending-style")).toBe(false);
+    expect(root.dataset.state).toBe("closed");
+    expect(root.hasAttribute("data-open")).toBe(false);
+    expect(
+      document.documentElement.hasAttribute("data-ormo-scroll-locked"),
+    ).toBe(false);
+
+    document.body.append(root);
+    expect(content.open).toBe(false);
+    expect(root.dataset.state).toBe("closed");
   });
 });

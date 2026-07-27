@@ -1,0 +1,20 @@
+---
+import * as Avatar from "../../../src/components/avatar/index";
+---
+
+<Avatar.Root
+  id="profile-avatar"
+  class="avatar"
+  role="img"
+  aria-label="Ada Lovelace"
+  data-status="authored"
+>
+  <Avatar.Image
+    src="/ada.png"
+    srcset="/ada.png 1x, /ada-2x.png 2x"
+    alt=""
+    width="40"
+    height="40"
+  />
+  <Avatar.Fallback class="fallback">AL</Avatar.Fallback>
+</Avatar.Root>

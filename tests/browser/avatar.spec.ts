@@ -2,13 +2,11 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/docs/components/avatar/");
+  await page.goto("/test-fixtures/browser/avatar/");
 });
 
 test("shows fallback when the image fails to load", async ({ page }) => {
-  const broken = page.locator("ormo-avatar", {
-    has: page.locator('img[src*="example.invalid"]'),
-  });
+  const broken = page.locator("#broken-avatar");
 
   await expect(broken).toHaveAttribute("data-status", "error");
   await expect(broken.locator("[data-ormo-avatar-fallback]")).toBeVisible();
