@@ -49,6 +49,7 @@ const { href, current = false, status } = Astro.props;
     padding: var(--space-50) var(--space-75);
     width: 100%;
     transition: background var(--duration-1) var(--ease-1);
+    border-radius: var(--radius-2);
 
     &:hover {
       background: var(--surface-elevated);
@@ -56,9 +57,8 @@ const { href, current = false, status } = Astro.props;
     }
 
     &[aria-current] {
-      background: var(--surface-invert);
-      color: var(--content-invert);
-      font-weight: var(--font-weight-medium);
+      background: var(--surface-active);
+      color: var(--content-default);
     }
   }
 
@@ -68,8 +68,8 @@ const { href, current = false, status } = Astro.props;
 
   .sidebar-menu-item_status {
     flex: 0 0 auto;
-    width: 0.5rem;
-    height: 0.5rem;
+    width: 0.375rem;
+    height: 0.375rem;
     margin-inline-start: auto;
     border-radius: 50%;
     background: currentColor;

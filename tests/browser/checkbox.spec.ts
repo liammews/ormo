@@ -10,11 +10,36 @@ test("toggles a standalone checkbox with Space", async ({ page }) => {
   const checkbox = demo.getByRole("checkbox", {
     name: "Accept the terms and conditions",
   });
+  const indicator = demo.locator("[data-ormo-checkbox-indicator]");
 
   await checkbox.focus();
   await expect(checkbox).not.toBeChecked();
+  await expect(indicator).toHaveCSS("opacity", "0");
   await page.keyboard.press("Space");
   await expect(checkbox).toBeChecked();
+  await expect(indicator).toHaveCSS("opacity", "1");
+});
+
+test("uses the custom indicator composition outside the native demo", async ({
+  page,
+}) => {
+  for (const selector of [
+    "[data-checkbox-demo]",
+    "[data-checkbox-indeterminate-demo]",
+    "[data-checkbox-group-demo]",
+    "[data-checkbox-parent-demo]",
+    "[data-checkbox-field-demo]",
+    "[data-checkbox-disabled-demo]",
+  ]) {
+    const demo = page.locator(selector);
+    const checkboxes = demo.getByRole("checkbox");
+    const indicators = demo.locator("[data-ormo-checkbox-indicator]");
+
+    await expect(indicators).toHaveCount(await checkboxes.count());
+    for (const checkbox of await checkboxes.all()) {
+      await expect(checkbox).toHaveClass(/\bcheckbox-custom\b/);
+    }
+  }
 });
 
 test("wires group name, default value, and aggregate state", async ({
@@ -27,6 +52,57 @@ test("wires group name, default value, and aggregate state", async ({
   await expect(group).toHaveAttribute("data-state", "partial");
   await expect(https).toBeChecked();
   await expect(https).toHaveAttribute("name", "protocols");
+
+  const submittedValues = await group.evaluate((element) => {
+    const form = document.createElement("form");
+    element.before(form);
+    form.append(element);
+    return new FormData(form).getAll("protocols");
+  });
+  expect(submittedValues).toEqual(["https"]);
+});
+
+test("identifies member, parent, and programmatic value changes", async ({
+  page,
+}) => {
+  const group = page.locator("[data-checkbox-group-demo] ormo-checkbox-group");
+  const http = page
+    .locator("[data-checkbox-group-demo]")
+    .getByRole("checkbox", { name: "HTTP", exact: true });
+
+  await group.evaluate((element) => {
+    element.addEventListener("ormo:value-change", (event) => {
+      element.setAttribute(
+        "data-observed-reason",
+        (event as CustomEvent<{ reason: string }>).detail.reason,
+      );
+    });
+  });
+
+  await http.check();
+  await expect(group).toHaveAttribute("data-observed-reason", "member");
+
+  await group.evaluate((element) => {
+    (element as HTMLElement & { value: string[] }).value = ["ssh"];
+  });
+  await expect(group).toHaveAttribute("data-observed-reason", "programmatic");
+
+  const parentGroup = page.locator(
+    "[data-checkbox-parent-demo] ormo-checkbox-group",
+  );
+  await parentGroup.evaluate((element) => {
+    element.addEventListener("ormo:value-change", (event) => {
+      element.setAttribute(
+        "data-observed-reason",
+        (event as CustomEvent<{ reason: string }>).detail.reason,
+      );
+    });
+  });
+  await page
+    .locator("[data-checkbox-parent-demo]")
+    .getByRole("checkbox", { name: "Select all" })
+    .click();
+  await expect(parentGroup).toHaveAttribute("data-observed-reason", "parent");
 });
 
 test("parent select-all checks and clears members", async ({ page }) => {
@@ -237,7 +313,9 @@ test("tracks a form owner established after the group connects", async ({
     .toBe(true);
 });
 
-test("applies indeterminate after load", async ({ page }) => {
+test("applies indeterminate once and follows native interaction", async ({
+  page,
+}) => {
   const demo = page.locator("[data-checkbox-indeterminate-demo]");
   const checkbox = demo.getByRole("checkbox", { name: "Some selected" });
 
@@ -246,6 +324,50 @@ test("applies indeterminate after load", async ({ page }) => {
       checkbox.evaluate((node) => (node as HTMLInputElement).indeterminate),
     )
     .toBe(true);
+
+  await expect(checkbox).not.toHaveAttribute(
+    "data-ormo-checkbox-initial-indeterminate",
+  );
+  await checkbox.click();
+  await expect(checkbox).toBeChecked();
+  await expect
+    .poll(async () =>
+      checkbox.evaluate((node) => (node as HTMLInputElement).indeterminate),
+    )
+    .toBe(false);
+
+  await page.evaluate(() => {
+    document.dispatchEvent(new Event("astro:page-load"));
+  });
+  await expect
+    .poll(async () =>
+      checkbox.evaluate((node) => (node as HTMLInputElement).indeterminate),
+    )
+    .toBe(false);
+});
+
+test("runs Field validation once for a group value change", async ({
+  page,
+}) => {
+  const demo = page.locator("[data-checkbox-field-demo]");
+  const field = demo.locator("ormo-field");
+  const http = demo.getByRole("checkbox", { name: "HTTP", exact: true });
+
+  await field.evaluate((element) => {
+    const root = element as HTMLElement & {
+      validationMode: "onChange";
+      validator: () => null;
+    };
+    root.validationMode = "onChange";
+    root.validator = () => {
+      const count = Number(root.dataset.validationCalls ?? "0");
+      root.dataset.validationCalls = String(count + 1);
+      return null;
+    };
+  });
+
+  await http.check();
+  await expect(field).toHaveAttribute("data-validation-calls", "1");
 });
 
 test("reports a required Field group without recursive validation", async ({
@@ -268,7 +390,7 @@ test("has no automatically detectable accessibility violations", async ({
 }) => {
   for (const selector of [
     "[data-checkbox-demo]",
-    "[data-checkbox-indicator-demo]",
+    "[data-checkbox-native-demo]",
     "[data-checkbox-indeterminate-demo]",
     "[data-checkbox-group-demo]",
     "[data-checkbox-parent-demo]",
@@ -278,4 +400,35 @@ test("has no automatically detectable accessibility violations", async ({
     const results = await new AxeBuilder({ page }).include(selector).analyze();
     expect(results.violations, selector).toEqual([]);
   }
+});
+
+test.describe("without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("retains native checkbox and form behaviour", async ({ page }) => {
+    const standalone = page
+      .locator("[data-checkbox-demo]")
+      .getByRole("checkbox", { name: "Accept the terms and conditions" });
+    await standalone.focus();
+    await page.keyboard.press("Space");
+    await expect(standalone).toBeChecked();
+
+    const group = page.locator(
+      "[data-checkbox-group-demo] ormo-checkbox-group",
+    );
+    await expect(group).toHaveAttribute("data-state", "partial");
+    await expect(
+      page
+        .locator("[data-checkbox-group-demo]")
+        .getByRole("checkbox", { name: "HTTPS" }),
+    ).toBeChecked();
+
+    const submittedValues = await group.evaluate((element) => {
+      const form = document.createElement("form");
+      element.before(form);
+      form.append(element);
+      return new FormData(form).getAll("protocols");
+    });
+    expect(submittedValues).toEqual(["https"]);
+  });
 });

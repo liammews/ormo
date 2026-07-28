@@ -1,0 +1,25 @@
+---
+import { Radio, RadioIndicator } from "@ormo/primitives/radio";
+import * as RadioGroup from "@ormo/primitives/radio/group";
+import "./index.css";
+---
+
+<RadioGroup.Root class="radio-group" name="plan" defaultValue="pro" disabled>
+  <RadioGroup.Label class="radio-group-label">Plan</RadioGroup.Label>
+  <div class="radio-stack">
+    <label class="radio-field">
+      <Radio class="radio-custom" value="starter" />
+      <RadioIndicator class="radio-indicator">
+        <span class="radio-dot"></span>
+      </RadioIndicator>
+      Starter
+    </label>
+    <label class="radio-field">
+      <Radio class="radio-custom" value="pro" />
+      <RadioIndicator class="radio-indicator">
+        <span class="radio-dot"></span>
+      </RadioIndicator>
+      Pro
+    </label>
+  </div>
+</RadioGroup.Root>

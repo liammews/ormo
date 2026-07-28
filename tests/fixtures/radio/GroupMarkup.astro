@@ -1,0 +1,17 @@
+---
+import { Radio } from "../../../src/components/radio";
+import * as RadioGroup from "../../../src/components/radio/group";
+---
+
+<RadioGroup.Root
+  id="delivery-options"
+  name="delivery"
+  defaultValue="express"
+  required
+>
+  <RadioGroup.Label id="delivery-label">Delivery method</RadioGroup.Label>
+  <RadioGroup.Label>Choose one option</RadioGroup.Label>
+  <label><Radio value="standard" /> Standard</label>
+  <label><Radio name="custom-delivery" value="custom" /> Custom</label>
+  <label><Radio value="express" /> Express</label>
+</RadioGroup.Root>

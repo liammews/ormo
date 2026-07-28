@@ -17,14 +17,13 @@ const {
   indeterminate?: boolean;
   parent?: boolean;
   name?: string;
-  value?: string | number | string[];
+  value?: string | number;
   checked?: boolean | string;
   disabled?: boolean;
 };
 
 const group = getCheckboxGroupSsrContext();
-const stringValue =
-  value === undefined || Array.isArray(value) ? undefined : String(value);
+const stringValue = value === undefined ? undefined : String(value);
 
 const resolvedName = parent ? undefined : (name ?? group?.name);
 const itemDisabled = Boolean(disabled);
@@ -67,7 +66,7 @@ const needsRuntime = import.meta.env.DEV || Boolean(indeterminate);
   data-ormo-checkbox-parent={parent ? "" : undefined}
   data-item-disabled={itemDisabled ? "" : undefined}
   data-item-name-authored={name != null ? "" : undefined}
-  data-indeterminate={indeterminate ? "" : undefined}
+  data-ormo-checkbox-initial-indeterminate={indeterminate ? "" : undefined}
   data-disabled={resolvedDisabled ? "" : undefined}
 />
 {needsRuntime && <Runtime />}

@@ -442,6 +442,9 @@ The group always loads a small custom-element runtime. It exposes `form`,
 `partial` | `all`), parent select-all via `<Checkbox parent />`, and optional
 group `required` with a mandatory `requiredMessage` implemented through
 `setCustomValidity` on the first enabled member. It emits `ormo:value-change`.
+The event identifies member, parent, and programmatic changes through
+`event.detail.reason`; assigning `value` emits the event only when the selected
+values change.
 Authored member names remain independent; members without a name inherit live
 group name changes. Assigning `value` controls all members, including disabled
 members. Native form reset restores member defaults and reconciles aggregate,
@@ -469,6 +472,9 @@ coordinates.
 - Field’s “one control” warning does not apply when a checkbox group is present.
 - Initial aggregate state is rendered during SSR; native mixed parent state is
   applied when the runtime connects because `indeterminate` is a DOM property.
+- A standalone initial indeterminate marker is consumed when the runtime applies
+  the DOM property, so later Astro page-load events do not restore state cleared
+  by native interaction.
 - Docs document APG keyboard behaviour (Space / Tab only — no arrow roving).
 
 ## GD-018: Breadcrumbs are a static trail with opt-in microdata
@@ -588,6 +594,53 @@ ordering and compatibility obligations without enabling essential control.
   rather than internal `data-*` transport attributes.
 - Additional lifecycle or pre-change events require a demonstrated integration
   need and public API review.
+
+## GD-021: RadioGroup extends native radio grouping without replacing it
+
+- **Date:** 2026-07-28
+- **Status:** Accepted
+
+### Decision
+
+`Radio` renders a native `<input type="radio">`, and `RadioIndicator` is an
+optional `aria-hidden` sibling for custom presentation. A standalone radio
+ships no production JavaScript.
+
+`RadioGroup.Root` renders `<ormo-radio-group role="radiogroup">` around native
+members. It coordinates inherited `name`, `disabled`, and `required` state,
+server-rendered `defaultValue`, accessible labels, Field ownership, and a
+framework-independent DOM API. Its `value` is `string | null`; member changes
+and property assignments emit one reasoned `ormo:value-change` event after the
+value changes.
+
+RadioGroup does not implement roving tabindex, arrow-key handling, orientation,
+looping, custom validation messages, or a controlled Astro value prop.
+
+### Rationale
+
+Same-name native radios already provide mutual exclusion, one Tab stop,
+arrow-key selection, required validation, reset, submission, and assistive
+technology semantics. Recreating that behaviour would obscure the platform and
+add JavaScript without expanding a necessary interaction. The group runtime is
+justified only for live inheritance, DOM control, generated label maintenance,
+group events, and Field integration.
+
+Fieldset remains the zero-JavaScript default when a set of radios needs only a
+native caption and semantic boundary.
+
+### Consequences
+
+- A standalone Radio and RadioIndicator composition has no production
+  JavaScript; RadioGroup does.
+- Group members must resolve to one shared, non-empty name for native
+  single-selection and keyboard behaviour. Development diagnostics report
+  missing or inconsistent names and duplicate values.
+- `required` uses native radio-group validity and does not add a custom message
+  API.
+- Without JavaScript, server-rendered member state, selection, keyboard
+  behaviour, validation, reset, and submission remain functional.
+- Field recognises CheckboxGroup and RadioGroup through one group ownership
+  path and validates once per authoritative group value event.
 
 ## Entry template
 

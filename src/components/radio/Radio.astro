@@ -1,0 +1,53 @@
+---
+import { getRadioGroupSsrContext } from "../../internal/radio-group-ssr-context";
+import Runtime from "./Runtime.astro";
+import type { RadioProps } from "./types";
+
+type Props = RadioProps;
+
+const {
+  name,
+  value,
+  checked,
+  disabled = false,
+  required = false,
+  ...attributes
+} = Astro.props as RadioProps & {
+  name?: string;
+  value?: string | number;
+  checked?: boolean | string;
+  disabled?: boolean;
+  required?: boolean;
+};
+
+const group = getRadioGroupSsrContext();
+const stringValue = value === undefined ? undefined : String(value);
+const resolvedName = name ?? group?.name;
+const itemDisabled = Boolean(disabled);
+const resolvedDisabled = itemDisabled || Boolean(group?.disabled);
+const itemRequired = Boolean(required);
+const resolvedRequired = itemRequired || Boolean(group?.required);
+const fromDefault =
+  checked === undefined &&
+  stringValue !== undefined &&
+  group?.defaultValue === stringValue;
+const resolvedChecked = checked !== undefined ? checked : fromDefault;
+const isResolvedChecked =
+  resolvedChecked !== undefined && resolvedChecked !== false;
+---
+
+<input
+  {...attributes}
+  type="radio"
+  name={resolvedName}
+  value={value}
+  checked={isResolvedChecked || undefined}
+  disabled={resolvedDisabled || undefined}
+  required={resolvedRequired || undefined}
+  data-ormo-radio
+  data-item-disabled={itemDisabled ? "" : undefined}
+  data-item-required-authored={itemRequired ? "" : undefined}
+  data-item-name-authored={name != null ? "" : undefined}
+  data-disabled={resolvedDisabled ? "" : undefined}
+/>
+{import.meta.env.DEV && <Runtime />}

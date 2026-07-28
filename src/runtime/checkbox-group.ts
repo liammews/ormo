@@ -1,5 +1,6 @@
 import type {
   CheckboxGroupDataState,
+  CheckboxGroupValueChangeReason,
   OrmoCheckboxGroupElement,
 } from "../components/checkbox/types";
 import { initializeCheckboxRuntime, validateCheckboxes } from "./checkbox";
@@ -297,7 +298,7 @@ export class OrmoCheckboxGroup
       previous.length !== current.length ||
       previous.some((value, index) => value !== current[index])
     ) {
-      this.#emitValueChange();
+      this.#emitValueChange("programmatic");
     }
   }
 
@@ -605,7 +606,7 @@ export class OrmoCheckboxGroup
     target.setCustomValidity(message);
   }
 
-  #emitValueChange(): void {
+  #emitValueChange(reason: CheckboxGroupValueChangeReason): void {
     if (this.#suppressEvents || !this.isConnected) {
       return;
     }
@@ -614,7 +615,7 @@ export class OrmoCheckboxGroup
       new CustomEvent("ormo:value-change", {
         bubbles: true,
         composed: true,
-        detail: { value: this.value },
+        detail: { value: this.value, reason },
       }),
     );
   }
@@ -698,7 +699,7 @@ export class OrmoCheckboxGroup
         previous.length !== current.length ||
         previous.some((value, index) => value !== current[index])
       ) {
-        this.#emitValueChange();
+        this.#emitValueChange("parent");
       }
       return;
     }
@@ -709,7 +710,7 @@ export class OrmoCheckboxGroup
 
     this.#reconcile();
     this.#applyRequiredValidity();
-    this.#emitValueChange();
+    this.#emitValueChange("member");
   };
 }
 

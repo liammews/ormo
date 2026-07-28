@@ -1,0 +1,34 @@
+---
+import { Radio, RadioIndicator } from "@ormo/primitives/radio";
+import * as RadioGroup from "@ormo/primitives/radio/group";
+import "./index.css";
+---
+
+<RadioGroup.Root class="radio-group" name="notifications" defaultValue="email">
+  <RadioGroup.Label class="radio-group-label">
+    Notification preference
+  </RadioGroup.Label>
+  <div class="radio-stack">
+    <label class="radio-field">
+      <Radio class="radio-custom" value="email" />
+      <RadioIndicator class="radio-indicator">
+        <span class="radio-dot"></span>
+      </RadioIndicator>
+      Email
+    </label>
+    <label class="radio-field">
+      <Radio class="radio-custom" value="sms" />
+      <RadioIndicator class="radio-indicator">
+        <span class="radio-dot"></span>
+      </RadioIndicator>
+      Text message
+    </label>
+    <label class="radio-field">
+      <Radio class="radio-custom" value="none" />
+      <RadioIndicator class="radio-indicator">
+        <span class="radio-dot"></span>
+      </RadioIndicator>
+      Do not notify me
+    </label>
+  </div>
+</RadioGroup.Root>

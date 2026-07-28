@@ -5,6 +5,7 @@ export type {
   CheckboxGroupDataState,
   CheckboxGroupLabelProps,
   CheckboxGroupRootProps,
+  CheckboxGroupValueChangeReason,
   CheckboxGroupValueChangeDetail,
   CheckboxGroupValueChangeEvent,
   OrmoCheckboxGroupElement,

@@ -1,14 +1,20 @@
 ---
-import { Checkbox } from "@ormo/primitives/checkbox";
+import { Checkbox, CheckboxIndicator } from "@ormo/primitives/checkbox";
 import "./index.css";
 ---
 
-<label class="checkbox-field">
+<label class="checkbox-custom-field">
   <Checkbox
-    class="checkbox"
+    class="checkbox-custom"
     name="partial"
     indeterminate
     aria-label="Some selected"
   />
+  <CheckboxIndicator class="checkbox-indicator">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+      <path class="checkbox-checkmark" d="M3 8.5 6.5 12 13 4"></path>
+      <path class="checkbox-mixedmark" d="M3 8h10"></path>
+    </svg>
+  </CheckboxIndicator>
   Some options are selected
 </label>

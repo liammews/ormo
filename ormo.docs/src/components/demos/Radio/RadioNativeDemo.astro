@@ -1,0 +1,16 @@
+---
+import { Radio } from "@ormo/primitives/radio";
+import "./index.css";
+---
+
+<fieldset class="radio-native-group">
+  <legend class="radio-group-label">Billing cycle</legend>
+  <label class="radio-native-field">
+    <Radio class="radio-native" name="billing" value="monthly" checked />
+    Monthly
+  </label>
+  <label class="radio-native-field">
+    <Radio class="radio-native" name="billing" value="yearly" />
+    Yearly
+  </label>
+</fieldset>

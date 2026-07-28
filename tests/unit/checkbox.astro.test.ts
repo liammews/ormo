@@ -1,6 +1,7 @@
 import { experimental_AstroContainer } from "astro/container";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, expectTypeOf, it } from "vitest";
 
+import type { CheckboxStandardProps } from "../../src/components/checkbox/types";
 import GroupMarkup from "../fixtures/checkbox/GroupMarkup.astro";
 
 describe("Checkbox markup", () => {
@@ -35,5 +36,11 @@ describe("Checkbox markup", () => {
     expect(inputs[1]).toContain("data-item-name-authored");
     expect(inputs[2]).toContain('name="transport"');
     expect(inputs[2]).toContain("checked");
+  });
+
+  it("accepts only scalar checkbox values", () => {
+    expectTypeOf<CheckboxStandardProps["value"]>().toEqualTypeOf<
+      string | number | undefined
+    >();
   });
 });

@@ -1,0 +1,15 @@
+---
+import "../../runtime/radio.css";
+import Runtime from "./Runtime.astro";
+import type { RadioIndicatorProps } from "./types";
+
+type Props = RadioIndicatorProps;
+
+const attributes: Props = Astro.props;
+---
+
+<span {...attributes} aria-hidden="true" data-ormo-radio-indicator>
+  <slot />
+</span>
+
+{import.meta.env.DEV && <Runtime />}

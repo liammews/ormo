@@ -2,6 +2,8 @@ import "./checkbox.css";
 
 const checkboxSelector = "[data-ormo-checkbox]";
 const indicatorSelector = "[data-ormo-checkbox-indicator]";
+const initialIndeterminateAttribute =
+  "data-ormo-checkbox-initial-indeterminate";
 const initializedDocuments = new WeakSet<Document>();
 
 function isCheckbox(element: Element): element is HTMLInputElement {
@@ -12,14 +14,25 @@ function isCheckbox(element: Element): element is HTMLInputElement {
   );
 }
 
+function previousRenderedSibling(element: Element): Element | null {
+  let sibling = element.previousElementSibling;
+
+  while (sibling?.tagName === "SCRIPT") {
+    sibling = sibling.previousElementSibling;
+  }
+
+  return sibling;
+}
+
 function applyIndeterminate(root: ParentNode = document): void {
   for (const element of root.querySelectorAll(checkboxSelector)) {
     if (!isCheckbox(element)) {
       continue;
     }
 
-    if (element.hasAttribute("data-indeterminate")) {
+    if (element.hasAttribute(initialIndeterminateAttribute)) {
       element.indeterminate = true;
+      element.removeAttribute(initialIndeterminateAttribute);
     }
   }
 }
@@ -83,10 +96,7 @@ export function validateCheckboxes(root: ParentNode = document): void {
       );
     }
 
-    if (
-      element.hasAttribute("data-indeterminate") &&
-      element.hasAttribute("checked")
-    ) {
+    if (element.indeterminate && element.hasAttribute("checked")) {
       console.warn(
         "[Ormo Checkbox] Do not combine indeterminate with checked.",
         element,
@@ -135,16 +145,13 @@ export function validateCheckboxes(root: ParentNode = document): void {
   }
 
   for (const indicator of root.querySelectorAll(indicatorSelector)) {
-    const previous = indicator.previousElementSibling;
-    const next = indicator.nextElementSibling;
+    const previous = previousRenderedSibling(indicator);
     const adjacentCheckbox =
-      (previous && isCheckbox(previous) && previous) ||
-      (next && isCheckbox(next) && next) ||
-      undefined;
+      previous && isCheckbox(previous) ? previous : undefined;
 
     if (!adjacentCheckbox) {
       console.warn(
-        "[Ormo CheckboxIndicator] Place CheckboxIndicator as a sibling of Checkbox so :checked + selectors work.",
+        "[Ormo CheckboxIndicator] Place CheckboxIndicator after Checkbox under the same parent so :checked ~ selectors work.",
         indicator,
       );
     }

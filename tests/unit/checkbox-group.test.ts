@@ -120,17 +120,36 @@ describe("checkbox-group", () => {
   it("emits ormo:value-change when a member toggles", () => {
     const root = createGroup({ name: "protocols", defaultValue: ["https"] });
     const members = getMembers(root);
-    let detail: string[] | undefined;
+    let detail: CheckboxGroupValueChangeEvent["detail"] | undefined;
 
     root.addEventListener("ormo:value-change", (event) => {
-      detail = (event as CheckboxGroupValueChangeEvent).detail.value;
+      detail = (event as CheckboxGroupValueChangeEvent).detail;
     });
 
     members[0]!.checked = true;
     members[0]!.dispatchEvent(new Event("change", { bubbles: true }));
 
-    expect(detail).toEqual(["http", "https"]);
+    expect(detail).toEqual({
+      value: ["http", "https"],
+      reason: "member",
+    });
     expect(root.dataset.state).toBe("partial");
+  });
+
+  it("identifies parent and programmatic value changes", () => {
+    const root = createGroup({ name: "protocols", withParent: true });
+    const reasons: CheckboxGroupValueChangeEvent["detail"]["reason"][] = [];
+
+    root.addEventListener("ormo:value-change", (event) => {
+      reasons.push((event as CheckboxGroupValueChangeEvent).detail.reason);
+    });
+
+    const parent = getParent(root);
+    parent.checked = true;
+    parent.dispatchEvent(new Event("change", { bubbles: true }));
+    root.value = ["http"];
+
+    expect(reasons).toEqual(["parent", "programmatic"]);
   });
 
   it("reconciles a parent checkbox across none, partial, and all", () => {

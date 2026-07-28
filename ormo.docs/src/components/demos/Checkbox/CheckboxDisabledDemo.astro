@@ -1,5 +1,5 @@
 ---
-import { Checkbox } from "@ormo/primitives/checkbox";
+import { Checkbox, CheckboxIndicator } from "@ormo/primitives/checkbox";
 import * as CheckboxGroup from "@ormo/primitives/checkbox/group";
 import "./index.css";
 ---
@@ -14,12 +14,34 @@ import "./index.css";
     Features
   </CheckboxGroup.Label>
   <div class="checkbox-stack">
-    <label class="checkbox-field">
-      <Checkbox class="checkbox" value="beta" />
+    <label class="checkbox-custom-field">
+      <Checkbox class="checkbox-custom" value="beta" />
+      <CheckboxIndicator class="checkbox-indicator">
+        <svg
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path class="checkbox-checkmark" d="M3 8.5 6.5 12 13 4"></path>
+          <path class="checkbox-mixedmark" d="M3 8h10"></path>
+        </svg>
+      </CheckboxIndicator>
       Beta access
     </label>
-    <label class="checkbox-field">
-      <Checkbox class="checkbox" value="analytics" />
+    <label class="checkbox-custom-field">
+      <Checkbox class="checkbox-custom" value="analytics" />
+      <CheckboxIndicator class="checkbox-indicator">
+        <svg
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path class="checkbox-checkmark" d="M3 8.5 6.5 12 13 4"></path>
+          <path class="checkbox-mixedmark" d="M3 8h10"></path>
+        </svg>
+      </CheckboxIndicator>
       Usage analytics
     </label>
   </div>

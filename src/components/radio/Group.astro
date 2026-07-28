@@ -1,0 +1,66 @@
+---
+import {
+  createRadioGroupRootId,
+  renderWithRadioGroupContext,
+} from "../../internal/radio-group-ssr-context";
+import type { RadioGroupRootProps } from "./types";
+
+type Props = RadioGroupRootProps;
+
+const {
+  name,
+  defaultValue,
+  disabled = false,
+  required = false,
+  id,
+  "aria-labelledby": ariaLabelledBy,
+  "aria-label": ariaLabel,
+  ...attributes
+} = Astro.props as RadioGroupRootProps & {
+  id?: string;
+  "aria-labelledby"?: string;
+  "aria-label"?: string;
+};
+
+const rootId = id ?? createRadioGroupRootId();
+const labelId = `${rootId}-label`;
+const ssrContext = {
+  name,
+  disabled,
+  required,
+  defaultValue,
+  rootId,
+  labelId,
+  labelIds: [],
+};
+
+const content = await renderWithRadioGroupContext(ssrContext, () =>
+  Astro.slots.render("default"),
+);
+
+const generatedLabelledBy =
+  ariaLabelledBy === undefined && !ariaLabel && ssrContext.labelIds.length > 0
+    ? ssrContext.labelIds.join(" ")
+    : undefined;
+const resolvedLabelledBy = ariaLabelledBy ?? generatedLabelledBy;
+---
+
+<ormo-radio-group
+  {...attributes}
+  id={rootId}
+  role="radiogroup"
+  aria-labelledby={resolvedLabelledBy}
+  aria-label={ariaLabel}
+  aria-required={required ? "true" : undefined}
+  data-ormo-radio-group
+  data-disabled={disabled ? "" : undefined}
+  data-required={required ? "" : undefined}
+  data-name={name}
+  data-default-value={defaultValue}
+  data-managed-labelledby={generatedLabelledBy}
+  set:html={content}
+/>
+
+<script>
+  import "../../runtime/radio-group";
+</script>

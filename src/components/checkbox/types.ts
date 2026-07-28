@@ -2,18 +2,20 @@ import type { HTMLAttributes } from "astro/types";
 
 type CheckboxInputAttributes = Omit<
   HTMLAttributes<"input">,
-  "type" | "checked" | "indeterminate" | "parent"
+  "type" | "checked" | "indeterminate" | "parent" | "value"
 >;
 
 export interface CheckboxStandardProps extends CheckboxInputAttributes {
   indeterminate?: false;
   parent?: false;
   checked?: boolean | string;
+  value?: string | number;
 }
 
 export interface CheckboxIndeterminateProps extends CheckboxInputAttributes {
   indeterminate: true;
   parent?: false;
+  value?: string | number;
   /** Indeterminate checkboxes must not also be marked checked. */
   checked?: never;
 }
@@ -60,9 +62,12 @@ export type CheckboxGroupRootProps =
 export type CheckboxGroupLabelProps = HTMLAttributes<"span">;
 
 export type CheckboxGroupDataState = "none" | "partial" | "all";
+export type CheckboxGroupValueChangeReason =
+  "member" | "parent" | "programmatic";
 
 export interface CheckboxGroupValueChangeDetail {
   value: string[];
+  reason: CheckboxGroupValueChangeReason;
 }
 
 export type CheckboxGroupValueChangeEvent =

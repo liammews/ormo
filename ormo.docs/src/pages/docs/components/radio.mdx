@@ -1,0 +1,485 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Radio"
+description: "A customisable native radio with coordinated groups and DOM value control."
+---
+
+import RadioDemo from "../../../components/demos/Radio/RadioDemo.astro";
+import radioDemoCode from "../../../components/demos/Radio/RadioDemo.astro?raw";
+import radioCss from "../../../components/demos/Radio/index.css?raw";
+import RadioDisabledDemo from "../../../components/demos/Radio/RadioDisabledDemo.astro";
+import radioDisabledDemoCode from "../../../components/demos/Radio/RadioDisabledDemo.astro?raw";
+import RadioFieldDemo from "../../../components/demos/Radio/RadioFieldDemo.astro";
+import radioFieldDemoCode from "../../../components/demos/Radio/RadioFieldDemo.astro?raw";
+import RadioNativeDemo from "../../../components/demos/Radio/RadioNativeDemo.astro";
+import radioNativeDemoCode from "../../../components/demos/Radio/RadioNativeDemo.astro?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+<DemoBlock
+  files={[
+    { filename: "Radio.astro", code: radioDemoCode },
+    { filename: "index.css", code: radioCss },
+  ]}
+>
+  <RadioDemo />
+</DemoBlock>
+
+## Anatomy
+
+Compose `Radio` with `RadioIndicator` for a custom appearance. Place the indicator after the radio under the same label, and give every member a unique value:
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import { Radio, RadioIndicator } from "@ormo/primitives/radio";
+import * as RadioGroup from "@ormo/primitives/radio/group";
+---
+
+<RadioGroup.Root name="delivery" defaultValue="standard">
+  <RadioGroup.Label>Delivery speed</RadioGroup.Label>
+
+<label>
+  <Radio class="radio" value="standard" />
+  <RadioIndicator class="radio-indicator">
+    <span class="radio-dot"></span>
+  </RadioIndicator>
+  Standard
+</label>
+
+  <label>
+    <Radio class="radio" value="express" />
+    <RadioIndicator class="radio-indicator">
+      <span class="radio-dot"></span>
+    </RadioIndicator>
+    Express
+  </label>
+</RadioGroup.Root>`}
+/>
+
+`RadioGroup.Root` supplies the shared name that gives native radios their single-selection and keyboard behaviour. `RadioIndicator` is hidden from assistive technology and does not intercept pointer input.
+
+Use [Fieldset](/docs/components/fieldset) instead when radios only need native semantic grouping. `RadioGroup.Root` is the enhanced option for live group properties, value events, DOM control, or [Field](/docs/components/field) integration.
+
+## Examples
+
+### Native radio group
+
+Omit `RadioIndicator` and leave the input’s native appearance intact when the operating-system radio is preferred. A native `fieldset` and `legend` provide the group relationship without loading the RadioGroup runtime.
+
+<DemoBlock
+  files={[
+    { filename: "Radio.astro", code: radioNativeDemoCode },
+    { filename: "index.css", code: radioCss },
+  ]}
+>
+  <RadioNativeDemo />
+</DemoBlock>
+
+### Required group
+
+Set `required` on `RadioGroup.Root` when one option must be selected. Ormo applies native `required` state to the members, so form submission, `checkValidity()`, `reportValidity()`, `novalidate`, and `formnovalidate` retain browser behaviour.
+
+Wrap the group in `Field.Root` to connect descriptions and visible errors to the group. Use `RadioGroup.Label`, rather than `Field.Label`, for its accessible name.
+
+<DemoBlock
+  files={[
+    { filename: "Radio.astro", code: radioFieldDemoCode },
+    { filename: "index.css", code: radioCss },
+  ]}
+>
+  <RadioFieldDemo />
+</DemoBlock>
+
+### Disabled group
+
+Set `disabled` on `RadioGroup.Root` to disable every member. A radio that was independently disabled remains disabled if the group is enabled later.
+
+<DemoBlock
+  files={[
+    { filename: "Radio.astro", code: radioDisabledDemoCode },
+    { filename: "index.css", code: radioCss },
+  ]}
+>
+  <RadioDisabledDemo />
+</DemoBlock>
+
+## API reference
+
+All parts forward the relevant native HTML attributes unless noted otherwise.
+
+### Radio
+
+Renders a native `<input type="radio">`. Native input properties, methods, events, form behaviour, checked state, focus, and keyboard interaction remain available.
+
+<PropsTable
+  id="radio-props"
+  caption="Radio properties"
+  rows={[
+    {
+      name: "value",
+      type: "string | number",
+      defaultValue: '"on"',
+      description:
+        "Sets the scalar value submitted while this radio is selected. Every member of RadioGroup.Root should have a unique, non-empty value.",
+    },
+    {
+      name: "checked",
+      type: "boolean | string",
+      defaultValue: "false",
+      description:
+        "Sets the initially selected radio through the native checked attribute. Do not combine checked with RadioGroup.Root defaultValue.",
+    },
+    {
+      name: "name",
+      type: "string",
+      description:
+        "Sets the native group and submitted field name. A radio inside RadioGroup.Root inherits the root name when this is omitted.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Prevents focus, selection, validation, and form submission. Authored disabled state is preserved across live group changes.",
+    },
+    {
+      name: "required",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Requires one same-name radio to be selected. RadioGroup.Root required applies this state to every member.",
+    },
+    {
+      name: "form",
+      type: "string",
+      description:
+        "Associates the radio with a form by id when it is not a descendant of that form.",
+    },
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the identifier used by a sibling label’s for attribute and other authored relationships.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered input.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered input.",
+    },
+  ]}
+/>
+
+### RadioIndicator
+
+Renders `<span aria-hidden="true">` for a consumer-provided selected-state graphic. Place it after `Radio` under the same parent so a general-sibling selector can respond to native state.
+
+<PropsTable
+  id="radio-indicator-props"
+  caption="Radio Indicator properties"
+  rows={[
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered indicator.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered indicator.",
+    },
+  ]}
+/>
+
+### RadioGroup.Root
+
+Renders `<ormo-radio-group role="radiogroup">`, supplies a shared accessible group boundary, and coordinates member names, selected value, disabled state, required state, labels, and the browser API.
+
+<PropsTable
+  id="radio-group-root-props"
+  caption="Radio Group Root properties"
+  rows={[
+    {
+      name: "name",
+      type: "string",
+      description:
+        "Provides the live name inherited by members without an authored name. Use one non-empty shared name so native exclusivity and keyboard behaviour remain available.",
+    },
+    {
+      name: "defaultValue",
+      type: "string",
+      description:
+        "Selects the matching member during server rendering. Do not combine it with checked on a member.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Disables every member while preserving independently authored disabled state.",
+    },
+    {
+      name: "required",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Uses native radio-group validation to require one enabled same-name member to be selected.",
+    },
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the identifier used as the prefix for generated group label ids. A unique id is generated when omitted.",
+    },
+    {
+      name: "aria-label",
+      type: "string",
+      description:
+        "Provides the group’s accessible name when no visible RadioGroup.Label is appropriate.",
+    },
+    {
+      name: "aria-labelledby",
+      type: "string",
+      description:
+        "References an authored group label. It takes precedence over the relationship generated from RadioGroup.Label.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered custom element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered custom element.",
+    },
+  ]}
+/>
+
+### RadioGroup.Label
+
+Renders `<span>` and provides the visible accessible name for its nearest `RadioGroup.Root`. Ormo generates an `id` and adds it to the group’s `aria-labelledby` value when needed. Multiple labels are supported.
+
+<PropsTable
+  id="radio-group-label-props"
+  caption="Radio Group Label properties"
+  rows={[
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the identifier referenced by RadioGroup.Root. A group-scoped id is generated when omitted.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered label span.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered label span.",
+    },
+  ]}
+/>
+
+## JavaScript API
+
+`RadioGroup.Root` renders an `<ormo-radio-group>` custom element for framework-independent post-render control.
+
+<PropsTable
+  id="radio-group-browser-api"
+  caption="Radio Group browser element API"
+  nameHeader="Member"
+  rows={[
+    {
+      name: "form",
+      type: "HTMLFormElement | null",
+      description: "Gets the native form associated with the first member.",
+      details: [{ label: "Writable", value: "No" }],
+    },
+    {
+      name: "name",
+      type: "string",
+      description:
+        "Gets or sets the name inherited by members without an authored name.",
+    },
+    {
+      name: "value",
+      type: "string | null",
+      description:
+        "Gets the selected member value. Assignment selects the first matching member; null or an unmatched value clears the group.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      description: "Gets or sets the disabled state of the entire group.",
+    },
+    {
+      name: "required",
+      type: "boolean",
+      description: "Gets or sets native required state for the group.",
+    },
+    {
+      name: "valid",
+      type: "boolean",
+      description:
+        "Gets current member validity without dispatching invalid events.",
+      details: [{ label: "Writable", value: "No" }],
+    },
+    {
+      name: "checkValidity()",
+      type: "() => boolean",
+      description:
+        "Checks native member validity, dispatches invalid events, and returns whether the group is valid.",
+    },
+    {
+      name: "reportValidity()",
+      type: "() => boolean",
+      description:
+        "Reports the first invalid member through the browser’s native validation interface.",
+    },
+  ]}
+/>
+
+`ormo:value-change` fires after a member selection or `value` property assignment changes the selected value. It bubbles across shadow boundaries, cannot be cancelled, and exposes the updated `value` and a `reason` of `"member"` or `"programmatic"` in `event.detail`. Assigning the current value does not emit an event, and property assignment does not synthesise native `input` or `change` events.
+
+<CodeBlock
+  lang="js"
+  code={`const group = document.querySelector("ormo-radio-group");
+
+group.addEventListener("ormo:value-change", (event) => {
+console.log(event.detail.value);
+console.log(event.detail.reason);
+});
+
+group.value = "express";
+group.disabled = true;`}
+/>
+
+## Accessibility
+
+`Radio` uses native radio semantics, checked and disabled exposure, focus, keyboard interaction, validation, and form participation. Every member needs an accessible name that includes its visible label. Prefer a wrapping `<label>` or a sibling `<label for="…">`.
+
+`RadioGroup.Root` follows the [WAI-ARIA Radio Group pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/). It uses `role="radiogroup"` and an accessible name supplied by `RadioGroup.Label`, `aria-label`, or `aria-labelledby`. The members must share one non-empty name for the browser’s native single-selection, focus, and arrow-key behaviour.
+
+When no radio is selected, <kbd>Tab</kbd> generally focuses the first enabled member. When a value is selected, the checked member is the group’s Tab stop. Exact initial focus direction can follow browser and platform conventions.
+
+<PropsTable
+  id="radio-keyboard"
+  caption="Radio keyboard behaviour"
+  nameHeader="Key"
+  nameElement="kbd"
+  rows={[
+    {
+      name: "Tab",
+      type: "Focus",
+      description:
+        "Moves focus into the group at its native Tab stop, or out to the next focusable control.",
+    },
+    {
+      name: "Shift + Tab",
+      type: "Focus",
+      description:
+        "Moves focus backwards into or out of the group using native browser order.",
+    },
+    {
+      name: "Arrow Right",
+      type: "Selection",
+      description: "Moves to and selects the next enabled member.",
+    },
+    {
+      name: "Arrow Down",
+      type: "Selection",
+      description: "Moves to and selects the next enabled member.",
+    },
+    {
+      name: "Arrow Left",
+      type: "Selection",
+      description: "Moves to and selects the previous enabled member.",
+    },
+    {
+      name: "Arrow Up",
+      type: "Selection",
+      description: "Moves to and selects the previous enabled member.",
+    },
+    {
+      name: "Space",
+      type: "Selection",
+      description: "Selects the focused member.",
+    },
+  ]}
+/>
+
+## Styling
+
+Radio ships no layout or brand styles. The recommended custom composition uses `appearance: none` on the native input and places `RadioIndicator` over it. Use native pseudo-classes for state and a general-sibling selector (`~`) for the indicator. Leave native appearance intact when the operating-system radio is preferred.
+
+`RadioIndicator` includes only a low-specificity `pointer-events: none` rule so a decorative overlay cannot steal input. Attributes prefixed with `data-ormo-*` are internal runtime selectors, not styling APIs.
+
+<PropsTable
+  id="radio-styling"
+  caption="Radio styling hooks"
+  nameHeader="Hook"
+  rows={[
+    {
+      name: ":checked",
+      type: "CSS pseudo-class",
+      description: "Matches the selected native Radio.",
+      details: [{ label: "Element", value: "Radio" }],
+    },
+    {
+      name: ":disabled",
+      type: "CSS pseudo-class",
+      description: "Matches a natively disabled Radio.",
+      details: [{ label: "Element", value: "Radio" }],
+    },
+    {
+      name: ":required / :valid / :invalid",
+      type: "CSS pseudo-classes",
+      description: "Expose native radio-group constraint state.",
+      details: [{ label: "Element", value: "Radio" }],
+    },
+    {
+      name: "data-disabled",
+      type: "boolean attribute",
+      description: "Present when the entire group is disabled.",
+      details: [{ label: "Element", value: "RadioGroup.Root" }],
+    },
+    {
+      name: "data-required",
+      type: "boolean attribute",
+      description: "Present when native group validation is required.",
+      details: [{ label: "Element", value: "RadioGroup.Root" }],
+    },
+  ]}
+/>
+
+<CodeBlock
+  lang="css"
+  code={`.radio {
+  appearance: none;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+.radio ~ .radio-indicator {
+opacity: 0;
+}
+
+.radio:checked ~ .radio-indicator {
+opacity: 1;
+}`}
+/>
+
+## Runtime
+
+A standalone `Radio` renders only a native input and ships no production JavaScript. `RadioIndicator` adds one behaviour-critical CSS rule but no production JavaScript. `RadioGroup.Root` loads a small custom-element runtime for live names, disabled and required inheritance, generated label maintenance, group value events, and the browser API.
+
+Server rendering already applies member names, the default value, disabled and required state, and accessible label relationships. Without JavaScript, same-name members retain native single selection, focus, arrow-key interaction, validation, form reset, and submission; only live group property changes, generated-label updates, group events, and the custom-element API are unavailable.

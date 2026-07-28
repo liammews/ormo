@@ -235,6 +235,47 @@ describe("field", () => {
     expect(root.hasAttribute("data-filled")).toBe(true);
   });
 
+  it("validates once for each checkbox group value change", async () => {
+    await import("../../src/runtime/checkbox-group");
+
+    const root = document.createElement("ormo-field") as OrmoFieldElement;
+    root.dataset.validationMode = "onChange";
+    root.innerHTML = `
+      <ormo-checkbox-group
+        role="group"
+        data-ormo-checkbox-group
+        data-name="protocols"
+        aria-label="Protocols"
+      >
+        <label>
+          <input type="checkbox" data-ormo-checkbox value="http" name="protocols">
+          HTTP
+        </label>
+        <label>
+          <input type="checkbox" data-ormo-checkbox value="https" name="protocols">
+          HTTPS
+        </label>
+      </ormo-checkbox-group>
+    `;
+    document.body.append(root);
+
+    const validator = vi.fn(() => null);
+    root.validator = validator;
+    const group = root.querySelector("ormo-checkbox-group")!;
+    const member = group.querySelector<HTMLInputElement>(
+      'input[value="http"]',
+    )!;
+
+    member.checked = true;
+    member.dispatchEvent(new Event("change", { bubbles: true }));
+
+    expect(validator).toHaveBeenCalledOnce();
+
+    group.value = ["https"];
+
+    expect(validator).toHaveBeenCalledTimes(2);
+  });
+
   it("handles checkbox group invalid events without recursive validation", async () => {
     await import("../../src/runtime/checkbox-group");
 
@@ -258,6 +299,127 @@ describe("field", () => {
     document.body.append(root);
 
     const group = root.querySelector("ormo-checkbox-group")!;
+
+    expect(() => group.checkValidity()).not.toThrow();
+    expect(group.valid).toBe(false);
+    expect(root.hasAttribute("data-invalid")).toBe(true);
+  });
+
+  it("owns a radio group for description and selected state", async () => {
+    await import("../../src/runtime/radio-group");
+
+    const root = document.createElement("ormo-field") as OrmoFieldElement;
+    root.innerHTML = `
+      <ormo-radio-group
+        role="radiogroup"
+        data-ormo-radio-group
+        data-name="delivery"
+        aria-labelledby="delivery-label"
+      >
+        <span id="delivery-label" data-ormo-radio-group-label>
+          Delivery
+        </span>
+        <label>
+          <input type="radio" data-ormo-radio value="standard" name="delivery">
+          Standard
+        </label>
+        <label>
+          <input type="radio" data-ormo-radio value="express" name="delivery">
+          Express
+        </label>
+      </ormo-radio-group>
+      <div data-ormo-field-description>Choose a delivery speed.</div>
+      <div data-ormo-field-error hidden>Choose one delivery method.</div>
+    `;
+    document.body.append(root);
+
+    const group = root.querySelector("ormo-radio-group")!;
+    const description = root.querySelector("[data-ormo-field-description]");
+    const member = group.querySelector<HTMLInputElement>(
+      'input[value="express"]',
+    )!;
+
+    expect(group.getAttribute("aria-describedby")).toContain(
+      description?.id ?? "",
+    );
+    expect(root.state.filled).toBe(false);
+
+    member.checked = true;
+    member.dispatchEvent(new Event("change", { bubbles: true }));
+
+    expect(root.state.filled).toBe(true);
+    expect(root.hasAttribute("data-filled")).toBe(true);
+  });
+
+  it("validates once for each radio group value change", async () => {
+    await import("../../src/runtime/radio-group");
+
+    const root = document.createElement("ormo-field") as OrmoFieldElement;
+    root.dataset.validationMode = "onChange";
+    root.innerHTML = `
+      <ormo-radio-group
+        role="radiogroup"
+        data-ormo-radio-group
+        data-name="delivery"
+        aria-label="Delivery"
+      >
+        <label>
+          <input type="radio" data-ormo-radio value="standard" name="delivery">
+          Standard
+        </label>
+        <label>
+          <input type="radio" data-ormo-radio value="express" name="delivery">
+          Express
+        </label>
+      </ormo-radio-group>
+    `;
+    document.body.append(root);
+
+    const validator = vi.fn(() => null);
+    root.validator = validator;
+    const group = root.querySelector("ormo-radio-group")!;
+    const member = group.querySelector<HTMLInputElement>(
+      'input[value="express"]',
+    )!;
+
+    member.checked = true;
+    member.dispatchEvent(new Event("change", { bubbles: true }));
+
+    expect(validator).toHaveBeenCalledOnce();
+    expect(validator).toHaveBeenLastCalledWith("express", expect.anything());
+
+    group.value = "standard";
+
+    expect(validator).toHaveBeenCalledTimes(2);
+    expect(validator).toHaveBeenLastCalledWith("standard", expect.anything());
+  });
+
+  it("uses native radio-group validity without recursive validation", async () => {
+    await import("../../src/runtime/radio-group");
+
+    const root = document.createElement("ormo-field") as OrmoFieldElement;
+    root.innerHTML = `
+      <ormo-radio-group
+        role="radiogroup"
+        aria-label="Delivery"
+        data-ormo-radio-group
+        data-name="delivery"
+        data-required
+      >
+        <label>
+          <input type="radio" data-ormo-radio value="standard" name="delivery">
+          Standard
+        </label>
+        <label>
+          <input type="radio" data-ormo-radio value="express" name="delivery">
+          Express
+        </label>
+      </ormo-radio-group>
+      <div data-ormo-field-error hidden>Choose one delivery method.</div>
+    `;
+    document.body.append(root);
+
+    const group = root.querySelector("ormo-radio-group")!;
 
     expect(() => group.checkValidity()).not.toThrow();
     expect(group.valid).toBe(false);

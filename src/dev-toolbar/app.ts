@@ -33,6 +33,37 @@ function hasAccessibleName(element: HTMLElement): boolean {
   );
 }
 
+function hasInputAccessibleName(input: HTMLInputElement): boolean {
+  return (
+    Boolean(input.getAttribute("aria-label")?.trim()) ||
+    Boolean(
+      input
+        .getAttribute("aria-labelledby")
+        ?.trim()
+        .split(/\s+/)
+        .some((id) =>
+          Boolean(
+            id && input.ownerDocument.getElementById(id)?.textContent?.trim(),
+          ),
+        ),
+    ) ||
+    (input.labels !== null &&
+      Array.from(input.labels).some((label) =>
+        Boolean(label.textContent?.trim()),
+      ))
+  );
+}
+
+function previousRenderedSibling(element: Element): Element | null {
+  let sibling = element.previousElementSibling;
+
+  while (sibling?.tagName === "SCRIPT") {
+    sibling = sibling.previousElementSibling;
+  }
+
+  return sibling;
+}
+
 function scanButtons(): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
 
@@ -445,26 +476,7 @@ function scanCheckboxes(): Diagnostic[] {
   for (const checkbox of document.querySelectorAll<HTMLInputElement>(
     "[data-ormo-checkbox]",
   )) {
-    const hasName =
-      Boolean(checkbox.getAttribute("aria-label")?.trim()) ||
-      Boolean(
-        checkbox
-          .getAttribute("aria-labelledby")
-          ?.trim()
-          .split(/\s+/)
-          .some((id) =>
-            Boolean(
-              id &&
-              checkbox.ownerDocument.getElementById(id)?.textContent?.trim(),
-            ),
-          ),
-      ) ||
-      (checkbox.labels !== null &&
-        Array.from(checkbox.labels).some((label) =>
-          Boolean(label.textContent?.trim()),
-        ));
-
-    if (!hasName) {
+    if (!hasInputAccessibleName(checkbox)) {
       diagnostics.push({
         element: checkbox,
         message: "Checkbox needs an accessible name.",
@@ -485,15 +497,12 @@ function scanCheckboxes(): Diagnostic[] {
   for (const indicator of document.querySelectorAll<HTMLElement>(
     "[data-ormo-checkbox-indicator]",
   )) {
-    const previous = indicator.previousElementSibling;
-    const next = indicator.nextElementSibling;
+    const previous = previousRenderedSibling(indicator);
     const adjacent =
       (previous instanceof HTMLInputElement &&
         previous.hasAttribute("data-ormo-checkbox") &&
         previous) ||
-      (next instanceof HTMLInputElement &&
-        next.hasAttribute("data-ormo-checkbox") &&
-        next);
+      undefined;
 
     if (!adjacent) {
       diagnostics.push({
@@ -530,6 +539,76 @@ function scanCheckboxes(): Diagnostic[] {
   return diagnostics;
 }
 
+function scanRadios(): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+
+  for (const radio of document.querySelectorAll<HTMLInputElement>(
+    "[data-ormo-radio]",
+  )) {
+    if (!hasInputAccessibleName(radio)) {
+      diagnostics.push({
+        element: radio,
+        message: "Radio needs an accessible name.",
+      });
+    }
+  }
+
+  for (const indicator of document.querySelectorAll<HTMLElement>(
+    "[data-ormo-radio-indicator]",
+  )) {
+    const previous = previousRenderedSibling(indicator);
+    const adjacent =
+      (previous instanceof HTMLInputElement &&
+        previous.hasAttribute("data-ormo-radio") &&
+        previous) ||
+      undefined;
+
+    if (!adjacent) {
+      diagnostics.push({
+        element: indicator,
+        message: "RadioIndicator should follow Radio under the same parent.",
+      });
+    }
+  }
+
+  for (const group of document.querySelectorAll<HTMLElement>(
+    "ormo-radio-group",
+  )) {
+    const labelledBy = group.getAttribute("aria-labelledby");
+    const hasLabel =
+      Boolean(group.getAttribute("aria-label")?.trim()) ||
+      (labelledBy !== null &&
+        labelledBy
+          .split(/\s+/)
+          .some((id) =>
+            Boolean(
+              id && group.ownerDocument.getElementById(id)?.textContent?.trim(),
+            ),
+          ));
+
+    if (!hasLabel) {
+      diagnostics.push({
+        element: group,
+        message:
+          "RadioGroup needs RadioGroup.Label, aria-label, or aria-labelledby.",
+      });
+    }
+
+    const members = Array.from(
+      group.querySelectorAll<HTMLInputElement>("[data-ormo-radio]"),
+    ).filter((radio) => radio.closest("ormo-radio-group") === group);
+    const names = new Set(members.map((member) => member.name));
+    if (members.length > 0 && (names.size !== 1 || names.has(""))) {
+      diagnostics.push({
+        element: group,
+        message: "RadioGroup members need one shared, non-empty name.",
+      });
+    }
+  }
+
+  return diagnostics;
+}
+
 function scan(): Diagnostic[] {
   return [
     ...scanButtons(),
@@ -541,6 +620,7 @@ function scan(): Diagnostic[] {
     ...scanAvatars(),
     ...scanTabs(),
     ...scanCheckboxes(),
+    ...scanRadios(),
   ];
 }
 
@@ -758,6 +838,11 @@ function identify(element: HTMLElement): string {
     return "Checkbox Indicator";
   }
   if (element.localName === "ormo-checkbox-group") return "Checkbox Group";
+  if (element.hasAttribute("data-ormo-radio")) return "Radio";
+  if (element.hasAttribute("data-ormo-radio-indicator")) {
+    return "Radio Indicator";
+  }
+  if (element.localName === "ormo-radio-group") return "Radio Group";
   if (element.hasAttribute("data-ormo-button")) return "Button";
   return element.localName;
 }

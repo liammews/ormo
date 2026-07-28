@@ -3,6 +3,18 @@ export * as AlertDialog from "./components/alert-dialog/index";
 export * as Avatar from "./components/avatar/index";
 export * as Dialog from "./components/dialog/index";
 export * as Popover from "./components/popover/index";
+export { Radio, RadioIndicator } from "./components/radio/index";
+export type {
+  OrmoRadioGroupElement,
+  RadioGroupLabelProps,
+  RadioGroupRootProps,
+  RadioGroupValueChangeDetail,
+  RadioGroupValueChangeEvent,
+  RadioGroupValueChangeReason,
+  RadioIndicatorProps,
+  RadioProps,
+} from "./components/radio/types";
+export * as RadioGroup from "./components/radio/group";
 export * as Select from "./components/select/index";
 export * as Tabs from "./components/tabs/index";
 export * as Tooltip from "./components/tooltip/index";
@@ -20,6 +32,7 @@ export type {
   CheckboxGroupDataState,
   CheckboxGroupLabelProps,
   CheckboxGroupRootProps,
+  CheckboxGroupValueChangeReason,
   CheckboxGroupValueChangeDetail,
   CheckboxGroupValueChangeEvent,
   CheckboxIndeterminateProps,

@@ -15,9 +15,11 @@
 
   --surface-canvas: var(--color-gray-2);
   --surface-elevated: var(--color-gray-3);
+    --surface-active: var(--color-gray-4);
   --surface-base: var(--color-gray-1);
   --surface-invert: var(--color-gray-12);
   --surface-disabled: var(--color-gray-3);
+  --surface-brand: var(--color-brand-8);
   --surface-overlay: ;
   --surface-info: var(--color-blue-10);
   --surface-info-tint: var(--color-blue-2);
@@ -28,7 +30,7 @@
   --surface-warning: var(--color-amber-10);
   --surface-warning-tint: var(--color-amber-2);
 
-  --border-default: var(--color-gray-4);
+  --border-default: var(--color-gray-5);
   --border-hover: var(--color-gray-5);
   --border-active: var(--color-gray-6);
   --border-brand: var(--color-brand-9);

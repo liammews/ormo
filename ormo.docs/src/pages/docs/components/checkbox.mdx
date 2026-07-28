@@ -1,13 +1,27 @@
 ---
 layout: ../../../layouts/MdxDocLayout.astro
 title: "Checkbox"
-description: "A native checkbox and accessible checkbox group"
+description: "A customisable native checkbox with coordinated groups and parent selection."
 ---
 
 import CheckboxDemo from "../../../components/demos/Checkbox/CheckboxDemo.astro";
 import checkboxDemoCode from "../../../components/demos/Checkbox/CheckboxDemo.astro?raw";
 import checkboxCss from "../../../components/demos/Checkbox/index.css?raw";
+import CheckboxDisabledDemo from "../../../components/demos/Checkbox/CheckboxDisabledDemo.astro";
+import checkboxDisabledDemoCode from "../../../components/demos/Checkbox/CheckboxDisabledDemo.astro?raw";
+import CheckboxFieldDemo from "../../../components/demos/Checkbox/CheckboxFieldDemo.astro";
+import checkboxFieldDemoCode from "../../../components/demos/Checkbox/CheckboxFieldDemo.astro?raw";
+import CheckboxGroupDemo from "../../../components/demos/Checkbox/CheckboxGroupDemo.astro";
+import checkboxGroupDemoCode from "../../../components/demos/Checkbox/CheckboxGroupDemo.astro?raw";
+import CheckboxIndeterminateDemo from "../../../components/demos/Checkbox/CheckboxIndeterminateDemo.astro";
+import checkboxIndeterminateDemoCode from "../../../components/demos/Checkbox/CheckboxIndeterminateDemo.astro?raw";
+import CheckboxNativeDemo from "../../../components/demos/Checkbox/CheckboxNativeDemo.astro";
+import checkboxNativeDemoCode from "../../../components/demos/Checkbox/CheckboxNativeDemo.astro?raw";
+import CheckboxParentDemo from "../../../components/demos/Checkbox/CheckboxParentDemo.astro";
+import checkboxParentDemoCode from "../../../components/demos/Checkbox/CheckboxParentDemo.astro?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
 <DemoBlock
   files={[
@@ -17,3 +31,520 @@ import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 >
   <CheckboxDemo />
 </DemoBlock>
+
+## Anatomy
+
+Compose `Checkbox` with `CheckboxIndicator` for a custom appearance. Place the indicator after the checkbox inside a native label so the input retains its native semantics, interaction, and form behaviour:
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import { Checkbox, CheckboxIndicator } from "@ormo/primitives/checkbox";
+---
+
+<label>
+  <Checkbox class="checkbox" name="terms" />
+  <CheckboxIndicator class="checkbox-indicator">
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M3 8.5 6.5 12 13 4" />
+    </svg>
+  </CheckboxIndicator>
+  Accept the terms and conditions
+</label>`}
+/>
+
+`CheckboxIndicator` is hidden from assistive technology and does not intercept pointer input. Use the native input’s `:checked` and `:indeterminate` pseudo-classes with a general-sibling selector (`~`) to control its presentation. The general-sibling selector remains reliable when development tooling inserts non-rendering elements between the parts.
+
+Import the group separately when checkboxes need shared value state, parent selection, or at-least-one validation:
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import { Checkbox } from "@ormo/primitives/checkbox";
+import * as CheckboxGroup from "@ormo/primitives/checkbox/group";
+---
+
+<CheckboxGroup.Root name="protocols" defaultValue={["https"]}>
+  <CheckboxGroup.Label>Allowed protocols</CheckboxGroup.Label>
+  <label><Checkbox value="http" /> HTTP</label>
+  <label><Checkbox value="https" /> HTTPS</label>
+</CheckboxGroup.Root>`}
+/>
+
+Use [Fieldset](/docs/components/fieldset) instead when controls only need native semantic grouping. `CheckboxGroup.Root` is the enhanced option for coordinated behaviour.
+
+## Examples
+
+### Native checkbox
+
+Omit `CheckboxIndicator` and do not remove the input’s native appearance when the operating-system checkbox is preferred. This is the smallest rendering path and ships no component CSS or JavaScript for a binary checkbox.
+
+<DemoBlock
+  files={[
+    { filename: "Checkbox.astro", code: checkboxNativeDemoCode },
+    { filename: "index.css", code: checkboxCss },
+  ]}
+>
+  <CheckboxNativeDemo />
+</DemoBlock>
+
+### Indeterminate
+
+Set `indeterminate` for an initially mixed checkbox. Mixed state is a DOM property, so Ormo applies it with a small client runtime. Native activation then clears the mixed state and toggles the checkbox normally.
+
+An indeterminate checkbox cannot also receive the `checked` prop. Change its state after rendering through the native `checked` and `indeterminate` properties.
+
+<DemoBlock
+  files={[{ filename: "Checkbox.astro", code: checkboxIndeterminateDemoCode }]}
+>
+  <CheckboxIndeterminateDemo />
+</DemoBlock>
+
+### Checkbox group
+
+`CheckboxGroup.Root` gives member checkboxes a shared name, applies `defaultValue` during server rendering, and exposes the current selected values through its browser API. An explicitly authored member `name` takes precedence over the group name.
+
+<DemoBlock
+  files={[{ filename: "Checkbox.astro", code: checkboxGroupDemoCode }]}
+>
+  <CheckboxGroupDemo />
+</DemoBlock>
+
+### Parent checkbox
+
+Add `parent` to one checkbox inside a group to control all enabled members. The parent becomes indeterminate when some, but not all, members are checked. It does not submit a name or value.
+
+Disabled members retain their state when the parent is activated. Nested parent-checkbox trees are not supported.
+
+<DemoBlock
+  files={[{ filename: "Checkbox.astro", code: checkboxParentDemoCode }]}
+>
+  <CheckboxParentDemo />
+</DemoBlock>
+
+### Required group
+
+Set `required` and provide `requiredMessage` when at least one enabled group member must be checked. The group uses native custom validity on an enabled member, so form submission, `checkValidity()`, `reportValidity()`, `novalidate`, and `formnovalidate` retain their browser behaviour.
+
+Wrap the group in [Field](/docs/components/field) to connect descriptions and visible error messages to the group.
+
+<DemoBlock
+  files={[{ filename: "Checkbox.astro", code: checkboxFieldDemoCode }]}
+>
+  <CheckboxFieldDemo />
+</DemoBlock>
+
+### Disabled group
+
+Set `disabled` on `CheckboxGroup.Root` to disable its parent and members. A member that was independently disabled remains disabled if the group is enabled later.
+
+<DemoBlock
+  files={[{ filename: "Checkbox.astro", code: checkboxDisabledDemoCode }]}
+>
+  <CheckboxDisabledDemo />
+</DemoBlock>
+
+## API reference
+
+All parts forward the relevant native HTML attributes unless noted otherwise.
+
+### Checkbox
+
+Renders a native `<input type="checkbox">`. Native input properties, methods, events, form behaviour, and CSS pseudo-classes remain available.
+
+<PropsTable
+  id="checkbox-props"
+  caption="Checkbox properties"
+  rows={[
+    {
+      name: "checked",
+      type: "boolean | string",
+      defaultValue: "false",
+      description:
+        "Sets the initially checked state through the native checked attribute. It is unavailable for parent and indeterminate checkboxes.",
+    },
+    {
+      name: "indeterminate",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Sets an initial mixed state through the native indeterminate DOM property. It cannot be combined with checked.",
+    },
+    {
+      name: "parent",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Makes the checkbox reflect and control the enabled members of its nearest CheckboxGroup.Root. Parent checked state is derived, and name, value, and checked are unavailable.",
+    },
+    {
+      name: "name",
+      type: "string",
+      description:
+        "Sets the submitted field name. A checkbox inside CheckboxGroup.Root inherits the group name when this is omitted.",
+    },
+    {
+      name: "value",
+      type: "string | number",
+      defaultValue: '"on"',
+      description:
+        "Sets the scalar value submitted while the checkbox is checked. Group default values and browser values use its string representation.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Prevents focus, activation, validation, and form submission through the native disabled state.",
+    },
+    {
+      name: "required",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Requires this individual checkbox to be checked before its form can be submitted. Use CheckboxGroup.Root required for at-least-one group validation.",
+    },
+    {
+      name: "form",
+      type: "string",
+      description:
+        "Associates the checkbox with a form by id when it is not a descendant of that form.",
+    },
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the identifier used by a sibling label’s for attribute and other authored relationships.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered input.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered input.",
+    },
+  ]}
+/>
+
+### CheckboxIndicator
+
+Renders `<span aria-hidden="true">` for a consumer-provided check mark or mixed-state graphic. Place it after `Checkbox` under the same parent so a general-sibling selector can respond to native state.
+
+<PropsTable
+  id="checkbox-indicator-props"
+  caption="Checkbox Indicator properties"
+  rows={[
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered indicator.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered indicator.",
+    },
+  ]}
+/>
+
+### CheckboxGroup.Root
+
+Renders `<ormo-checkbox-group role="group">`, provides an accessible group boundary, and coordinates member names, selected values, disabled state, aggregate state, parent selection, and optional validation.
+
+<PropsTable
+  id="checkbox-group-root-props"
+  caption="Checkbox Group Root properties"
+  rows={[
+    {
+      name: "name",
+      type: "string",
+      description:
+        "Provides the live name inherited by members that do not have an explicitly authored name.",
+    },
+    {
+      name: "defaultValue",
+      type: "string[]",
+      description:
+        "Checks matching member values during server rendering. An explicitly authored checked prop takes precedence for that member.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Disables the parent and all members while preserving each member’s independently authored disabled state.",
+    },
+    {
+      name: "required",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Requires at least one enabled member to be checked. When true, requiredMessage is required.",
+    },
+    {
+      name: "requiredMessage",
+      type: "string",
+      description:
+        "Provides the custom validity message used when a required group has no checked enabled member.",
+      details: [{ label: "Required", value: "When required is true" }],
+    },
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the identifier used as the prefix for generated group label ids. A unique id is generated when omitted.",
+    },
+    {
+      name: "aria-label",
+      type: "string",
+      description:
+        "Provides the group’s accessible name when no visible CheckboxGroup.Label is appropriate.",
+    },
+    {
+      name: "aria-labelledby",
+      type: "string",
+      description:
+        "References an authored group label. It takes precedence over the relationship generated from CheckboxGroup.Label.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered custom element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered custom element.",
+    },
+  ]}
+/>
+
+### CheckboxGroup.Label
+
+Renders `<span>` and provides the visible accessible name for its nearest `CheckboxGroup.Root`. Ormo generates an `id` and adds it to the group’s `aria-labelledby` value when needed. Multiple labels are supported.
+
+<PropsTable
+  id="checkbox-group-label-props"
+  caption="Checkbox Group Label properties"
+  rows={[
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the identifier referenced by CheckboxGroup.Root. A group-scoped id is generated when omitted.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered label span.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered label span.",
+    },
+  ]}
+/>
+
+## JavaScript API
+
+`CheckboxGroup.Root` renders an `<ormo-checkbox-group>` custom element for framework-independent client-side control.
+
+<PropsTable
+  id="checkbox-group-browser-api"
+  caption="Checkbox Group browser element API"
+  nameHeader="Member"
+  rows={[
+    {
+      name: "form",
+      type: "HTMLFormElement | null",
+      description: "Gets the native form associated with the group members.",
+      details: [{ label: "Writable", value: "No" }],
+    },
+    {
+      name: "name",
+      type: "string",
+      description:
+        "Gets or sets the name inherited by members without an authored name.",
+    },
+    {
+      name: "value",
+      type: "string[]",
+      description:
+        "Gets checked member values in DOM order or checks members matching an assigned array. Assignment includes disabled members.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      description: "Gets or sets the disabled state of the entire group.",
+    },
+    {
+      name: "required",
+      type: "boolean",
+      description: "Gets or sets at-least-one group validation.",
+    },
+    {
+      name: "requiredMessage",
+      type: "string",
+      description: "Gets or sets the group’s custom validity message.",
+    },
+    {
+      name: "valid",
+      type: "boolean",
+      description:
+        "Gets current member validity without dispatching invalid events.",
+      details: [{ label: "Writable", value: "No" }],
+    },
+    {
+      name: "checkValidity()",
+      type: "() => boolean",
+      description:
+        "Applies group validity, checks every member, and returns whether all members are valid.",
+    },
+    {
+      name: "reportValidity()",
+      type: "() => boolean",
+      description:
+        "Reports the first invalid member through the browser’s native validation interface.",
+    },
+  ]}
+/>
+
+`ormo:value-change` fires after a member, parent, or `value` property assignment changes the selected values. It bubbles across shadow boundaries, cannot be cancelled, and exposes the updated `value` and a `reason` of `"member"`, `"parent"`, or `"programmatic"` in `event.detail`. Assigning the current value does not emit an event.
+
+<CodeBlock
+  lang="js"
+  code={`const group = document.querySelector("ormo-checkbox-group");
+
+group.addEventListener("ormo:value-change", (event) => {
+console.log(event.detail.value);
+console.log(event.detail.reason);
+});
+
+group.value = ["http", "https"];
+group.disabled = true;`}
+/>
+
+## Accessibility
+
+`Checkbox` uses native checkbox semantics, focus, keyboard behaviour, form participation, and mixed-state exposure. Every checkbox needs an accessible name. Prefer a wrapping `<label>` or a sibling `<label for="…">`; use `aria-label` or `aria-labelledby` when visible label text is unavailable.
+
+`CheckboxGroup.Root` follows the [WAI-ARIA Checkbox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/). It uses `role="group"` and an accessible name supplied by `CheckboxGroup.Label`, `aria-label`, or `aria-labelledby`. Each member still needs its own label.
+
+The group does not use arrow-key navigation. Native checkboxes remain separate controls in the document Tab order.
+
+<PropsTable
+  id="checkbox-keyboard"
+  caption="Checkbox keyboard behaviour"
+  nameHeader="Key"
+  nameElement="kbd"
+  rows={[
+    {
+      name: "Tab",
+      type: "Focus",
+      description:
+        "Moves focus forwards to each available checkbox in document order.",
+    },
+    {
+      name: "Shift + Tab",
+      type: "Focus",
+      description:
+        "Moves focus backwards to each available checkbox in document order.",
+    },
+    {
+      name: "Space",
+      type: "Activation",
+      description:
+        "Checks or unchecks the focused checkbox. On a parent checkbox, updates every enabled group member.",
+    },
+  ]}
+/>
+
+## Styling
+
+Checkbox ships no layout or brand styles. The recommended custom composition uses `appearance: none` on the input and places `CheckboxIndicator` over it. Style the input’s real state with `:checked`, `:indeterminate`, `:disabled`, `:required`, `:valid`, and `:invalid`. Leave its native appearance intact when the operating-system checkbox is preferred.
+
+`CheckboxIndicator` includes only a low-specificity `pointer-events: none` rule so a decorative overlay cannot steal input from the native checkbox. Attributes prefixed with `data-ormo-*` are internal runtime selectors, not styling APIs.
+
+<PropsTable
+  id="checkbox-styling"
+  caption="Checkbox styling hooks"
+  nameHeader="Hook"
+  rows={[
+    {
+      name: ":checked",
+      type: "CSS pseudo-class",
+      description: "Matches a checked native Checkbox.",
+      details: [{ label: "Element", value: "Checkbox" }],
+    },
+    {
+      name: ":indeterminate",
+      type: "CSS pseudo-class",
+      description:
+        "Matches a mixed Checkbox, including a partially selected parent.",
+      details: [{ label: "Element", value: "Checkbox" }],
+    },
+    {
+      name: ":disabled",
+      type: "CSS pseudo-class",
+      description: "Matches a natively disabled Checkbox.",
+      details: [{ label: "Element", value: "Checkbox" }],
+    },
+    {
+      name: ":required / :valid / :invalid",
+      type: "CSS pseudo-classes",
+      description: "Expose native individual-checkbox constraint state.",
+      details: [{ label: "Element", value: "Checkbox" }],
+    },
+    {
+      name: "data-state",
+      type: '"none" | "partial" | "all"',
+      description:
+        "Exposes aggregate member state. Disabled members are included in the calculation.",
+      details: [{ label: "Element", value: "CheckboxGroup.Root" }],
+    },
+    {
+      name: "data-disabled",
+      type: "boolean attribute",
+      description: "Present when the entire group is disabled.",
+      details: [{ label: "Element", value: "CheckboxGroup.Root" }],
+    },
+    {
+      name: "data-required",
+      type: "boolean attribute",
+      description: "Present when at-least-one validation is enabled.",
+      details: [{ label: "Element", value: "CheckboxGroup.Root" }],
+    },
+  ]}
+/>
+
+<CodeBlock
+  lang="css"
+  code={`.checkbox {
+  appearance: none;
+  border: 2px solid currentColor;
+}
+
+.checkbox:checked,
+.checkbox:indeterminate {
+background: currentColor;
+}
+
+.checkbox ~ .checkbox-indicator {
+opacity: 0;
+}
+
+.checkbox:checked ~ .checkbox-indicator,
+.checkbox:indeterminate ~ .checkbox-indicator {
+opacity: 1;
+}`}
+/>
+
+## Runtime
+
+A binary standalone `Checkbox` renders only a native input and ships no client JavaScript. `CheckboxIndicator` adds one behaviour-critical CSS rule but no production JavaScript. Setting `indeterminate` loads a small runtime that applies the initial DOM property once.
+
+`CheckboxGroup.Root` always loads its custom-element runtime for live names, selected values, aggregate and parent state, disabled cascading, validation, form reset, and the browser API. Server rendering already applies member names, default values, accessible label relationships, disabled state, and initial aggregate state. Without JavaScript, individual members retain native focus, activation, submission, and validation; parent selection, live aggregate state, group validation, and the group browser API are unavailable.

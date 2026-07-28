@@ -1,0 +1,39 @@
+---
+import { Radio, RadioIndicator } from "@ormo/primitives/radio";
+import * as RadioGroup from "@ormo/primitives/radio/group";
+import * as Field from "@ormo/primitives/field";
+import "./index.css";
+---
+
+<form>
+  <Field.Root class="radio-group" name="delivery">
+    <RadioGroup.Root name="delivery" required>
+      <RadioGroup.Label class="radio-group-label">
+        Delivery speed
+      </RadioGroup.Label>
+      <div class="radio-stack">
+        <label class="radio-field">
+          <Radio class="radio-custom" value="standard" />
+          <RadioIndicator class="radio-indicator">
+            <span class="radio-dot"></span>
+          </RadioIndicator>
+          Standard — 3 to 5 days
+        </label>
+        <label class="radio-field">
+          <Radio class="radio-custom" value="express" />
+          <RadioIndicator class="radio-indicator">
+            <span class="radio-dot"></span>
+          </RadioIndicator>
+          Express — next working day
+        </label>
+      </div>
+    </RadioGroup.Root>
+    <Field.Description class="radio-hint">
+      Delivery times begin when the order is dispatched.
+    </Field.Description>
+    <Field.Error class="radio-error" match="valueMissing">
+      Choose a delivery speed.
+    </Field.Error>
+  </Field.Root>
+  <button type="submit" style="margin-block-start: 0.75rem">Continue</button>
+</form>

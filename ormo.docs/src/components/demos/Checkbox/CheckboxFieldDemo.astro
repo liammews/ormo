@@ -1,5 +1,5 @@
 ---
-import { Checkbox } from "@ormo/primitives/checkbox";
+import { Checkbox, CheckboxIndicator } from "@ormo/primitives/checkbox";
 import * as CheckboxGroup from "@ormo/primitives/checkbox/group";
 import * as Field from "@ormo/primitives/field";
 import "./index.css";
@@ -16,16 +16,49 @@ import "./index.css";
         Allowed protocols
       </CheckboxGroup.Label>
       <div class="checkbox-stack">
-        <label class="checkbox-field">
-          <Checkbox class="checkbox" value="http" />
+        <label class="checkbox-custom-field">
+          <Checkbox class="checkbox-custom" value="http" />
+          <CheckboxIndicator class="checkbox-indicator">
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path class="checkbox-checkmark" d="M3 8.5 6.5 12 13 4"></path>
+              <path class="checkbox-mixedmark" d="M3 8h10"></path>
+            </svg>
+          </CheckboxIndicator>
           HTTP
         </label>
-        <label class="checkbox-field">
-          <Checkbox class="checkbox" value="https" />
+        <label class="checkbox-custom-field">
+          <Checkbox class="checkbox-custom" value="https" />
+          <CheckboxIndicator class="checkbox-indicator">
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path class="checkbox-checkmark" d="M3 8.5 6.5 12 13 4"></path>
+              <path class="checkbox-mixedmark" d="M3 8h10"></path>
+            </svg>
+          </CheckboxIndicator>
           HTTPS
         </label>
-        <label class="checkbox-field">
-          <Checkbox class="checkbox" value="ssh" />
+        <label class="checkbox-custom-field">
+          <Checkbox class="checkbox-custom" value="ssh" />
+          <CheckboxIndicator class="checkbox-indicator">
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path class="checkbox-checkmark" d="M3 8.5 6.5 12 13 4"></path>
+              <path class="checkbox-mixedmark" d="M3 8h10"></path>
+            </svg>
+          </CheckboxIndicator>
           SSH
         </label>
       </div>

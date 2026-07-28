@@ -1,0 +1,25 @@
+---
+import { getRadioGroupSsrContext } from "../../internal/radio-group-ssr-context";
+import type { RadioGroupLabelProps } from "./types";
+
+type Props = RadioGroupLabelProps;
+
+const { id, ...attributes }: Props = Astro.props;
+const group = getRadioGroupSsrContext();
+
+const labelId =
+  id ??
+  (group
+    ? group.labelIds.length === 0
+      ? group.labelId
+      : `${group.labelId}-${group.labelIds.length + 1}`
+    : undefined);
+
+if (group && labelId) {
+  group.labelIds.push(labelId);
+}
+---
+
+<span {...attributes} id={labelId} data-ormo-radio-group-label>
+  <slot />
+</span>
