@@ -63,3 +63,12 @@ export function htmlToText(html: string): string {
     .replace(/\s+/gu, " ")
     .trim();
 }
+
+export function selectItemHtmlToText(html: string): string {
+  return htmlToText(
+    html.replace(
+      /<span\b[^>]*data-ormo-select-item-indicator[^>]*>[\s\S]*?<\/span>/gi,
+      " ",
+    ),
+  );
+}

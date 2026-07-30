@@ -1,6 +1,7 @@
 ---
 import * as Select from "@ormo/primitives/select";
 import "./index.css";
+import { Check, ChevronDown, X } from "@lucide/astro";
 ---
 
 <div class="select-field">
@@ -10,11 +11,11 @@ import "./index.css";
     <div class="select-actions">
       <Select.Trigger class="select-trigger">
         <Select.Value class="select-value" placeholder="Choose a country" />
-        <Select.Icon class="select-icon">⌄</Select.Icon>
+        <Select.Icon class="select-icon"><ChevronDown size={14} /></Select.Icon>
       </Select.Trigger>
 
       <Select.Clear class="select-clear" aria-label="Clear country">
-        <span aria-hidden="true">×</span>
+        <span aria-hidden="true"><X size={12} /></span>
       </Select.Clear>
     </div>
 
@@ -23,9 +24,17 @@ import "./index.css";
         <Select.GroupLabel class="select-group-label">
           Europe
         </Select.GroupLabel>
-        <Select.Item class="select-item" value="fr"> France </Select.Item>
+        <Select.Item class="select-item" value="fr">
+          <span>France</span>
+          <Select.ItemIndicator class="select-item-indicator">
+            <Check size={14} />
+          </Select.ItemIndicator>
+        </Select.Item>
         <Select.Item class="select-item" value="gb">
-          United Kingdom
+          <span>United Kingdom</span>
+          <Select.ItemIndicator class="select-item-indicator">
+            <Check size={14} />
+          </Select.ItemIndicator>
         </Select.Item>
       </Select.Group>
 
@@ -33,9 +42,17 @@ import "./index.css";
         <Select.GroupLabel class="select-group-label">
           North America
         </Select.GroupLabel>
-        <Select.Item class="select-item" value="ca">Canada</Select.Item>
+        <Select.Item class="select-item" value="ca">
+          <span>Canada</span>
+          <Select.ItemIndicator class="select-item-indicator">
+            <Check size={14} />
+          </Select.ItemIndicator>
+        </Select.Item>
         <Select.Item class="select-item" value="us" disabled>
-          United States
+          <span>United States</span>
+          <Select.ItemIndicator class="select-item-indicator">
+            <Check size={14} />
+          </Select.ItemIndicator>
         </Select.Item>
       </Select.Group>
     </Select.Content>

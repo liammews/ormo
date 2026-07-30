@@ -234,7 +234,7 @@
     {
       "id": "select",
       "label": "Select",
-      "status": "dev",
+      "status": "beta",
       "runtimeModel": "conditional-native",
       "parts": [
         "Clear",
@@ -243,6 +243,7 @@
         "GroupLabel",
         "Icon",
         "Item",
+        "ItemIndicator",
         "Root",
         "Separator",
         "Trigger",

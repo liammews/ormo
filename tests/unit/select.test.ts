@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type {
   OrmoSelectElement,
   SelectBeforeValueChangeEvent,
+  SelectOpenChangeEvent,
   SelectValueChangeEvent,
 } from "../../src/components/select/types";
 import "../../src/runtime/select";
@@ -18,7 +19,7 @@ function createSelect(): OrmoSelectElement {
       </optgroup>
       <option value="us" disabled>United States</option>
     </select>
-    <button type="button" role="combobox" data-ormo-select-trigger>
+    <button type="button" role="combobox" aria-label="Country" data-ormo-select-trigger>
       <span data-ormo-select-value>Choose a country</span>
     </button>
     <button type="button" aria-label="Clear country" data-ormo-select-clear>
@@ -125,6 +126,54 @@ describe("Select", () => {
     expect(after).not.toHaveBeenCalled();
   });
 
+  it("closes when the already-selected item is activated", () => {
+    const root = createSelect();
+    root.value = "fr";
+    root.show();
+
+    items(root)
+      .find((item) => item.dataset.value === "fr")
+      ?.click();
+
+    expect(root.open).toBe(false);
+    expect(document.activeElement).toBe(trigger(root));
+  });
+
+  it("measures the trigger before showing the popup", () => {
+    const root = createSelect();
+    const button = trigger(root);
+    const content = root.querySelector<HTMLElement>(
+      "[data-ormo-select-content]",
+    )!;
+    vi.spyOn(button, "getBoundingClientRect").mockReturnValue({
+      bottom: 40,
+      height: 32,
+      left: 8,
+      right: 168,
+      top: 8,
+      width: 160,
+      x: 8,
+      y: 8,
+      toJSON: () => undefined,
+    });
+    const showPopover = vi.fn(() => {
+      expect(
+        content.style.getPropertyValue("--ormo-select-trigger-width"),
+      ).toBe("160px");
+    });
+    Object.defineProperty(content, "showPopover", {
+      configurable: true,
+      value: showPopover,
+    });
+
+    root.show();
+
+    expect(showPopover).toHaveBeenCalledOnce();
+    expect(content.style.getPropertyValue("--ormo-select-trigger-height")).toBe(
+      "32px",
+    );
+  });
+
   it("emits native and Ormo events after a user selection", () => {
     const root = createSelect();
     const control = root.querySelector<HTMLSelectElement>(
@@ -172,6 +221,75 @@ describe("Select", () => {
 
     expect(root.value).toBe("fr");
     expect(root.open).toBe(false);
+  });
+
+  it("reflects disabled state and blocks opening until re-enabled", () => {
+    const root = createSelect();
+    const control = root.querySelector<HTMLSelectElement>(
+      "[data-ormo-select-control]",
+    )!;
+    const button = trigger(root);
+
+    root.disabled = true;
+    root.show();
+
+    expect(root.disabled).toBe(true);
+    expect(control.disabled).toBe(true);
+    expect(button.disabled).toBe(true);
+    expect(root.open).toBe(false);
+
+    root.disabled = false;
+    root.show();
+
+    expect(control.disabled).toBe(false);
+    expect(button.disabled).toBe(false);
+    expect(root.open).toBe(true);
+  });
+
+  it("exposes programmatic value and open APIs with documented events", () => {
+    const root = createSelect();
+    const valueChange = vi.fn();
+    const openChange = vi.fn();
+    root.addEventListener("ormo:select-value-change", valueChange);
+    root.addEventListener("ormo:select-open-change", openChange);
+
+    root.value = "fr";
+    root.show();
+    root.toggle(false);
+
+    expect(root.value).toBe("fr");
+    expect(valueChange).toHaveBeenCalledOnce();
+    expect(
+      (valueChange.mock.calls[0]?.[0] as SelectValueChangeEvent).detail,
+    ).toMatchObject({
+      value: "fr",
+      previousValue: "",
+      reason: "programmatic",
+    });
+    expect(
+      openChange.mock.calls.map(
+        ([event]) => (event as SelectOpenChangeEvent).detail,
+      ),
+    ).toEqual([
+      { open: true, reason: "programmatic" },
+      { open: false, reason: "programmatic" },
+    ]);
+  });
+
+  it("restores the default value after form reset", async () => {
+    const root = createSelect();
+    const form = document.createElement("form");
+    form.append(root);
+    document.body.append(form);
+    root.value = "fr";
+
+    form.reset();
+    await new Promise<void>((resolve) => queueMicrotask(resolve));
+
+    expect(root.value).toBe("");
+    expect(root.querySelector("[data-ormo-select-value]")?.textContent).toBe(
+      "Choose a country",
+    );
   });
 
   it("synchronizes dynamically inserted items with the native control", async () => {

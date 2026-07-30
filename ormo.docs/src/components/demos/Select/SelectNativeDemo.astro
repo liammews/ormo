@@ -1,24 +1,30 @@
 ---
 import * as Select from "@ormo/primitives/select";
 import "./index.css";
+import { ChevronDown } from "@lucide/astro";
 ---
 
 <div class="select-field">
   <label class="select-label" for="native-country">Country</label>
-  <Select.Root
-    native
-    class="select-native"
-    id="native-country"
-    name="native-country"
-    defaultValue="fr"
-  >
-    <Select.Item value="">Choose a country</Select.Item>
-    <Select.Group>
-      <Select.GroupLabel>Europe</Select.GroupLabel>
-      <Select.Item value="fr">France</Select.Item>
-      <Select.Item value="gb">United Kingdom</Select.Item>
-    </Select.Group>
-    <Select.Separator />
-    <Select.Item value="ca">Canada</Select.Item>
-  </Select.Root>
+  <div class="select-native-wrapper">
+    <Select.Root
+      native
+      class="select-native"
+      id="native-country"
+      name="native-country"
+      defaultValue="fr"
+    >
+      <Select.Item value="">Choose a country</Select.Item>
+      <Select.Group>
+        <Select.GroupLabel>Europe</Select.GroupLabel>
+        <Select.Item value="fr">France</Select.Item>
+        <Select.Item value="gb">United Kingdom</Select.Item>
+      </Select.Group>
+      <Select.Separator />
+      <Select.Item value="ca">Canada</Select.Item>
+    </Select.Root>
+    <span class="select-native-icon" aria-hidden="true">
+      <ChevronDown size={14} />
+    </span>
+  </div>
 </div>

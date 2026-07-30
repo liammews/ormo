@@ -32,6 +32,7 @@ Import the parts and provide a trigger, value display, content and items. `Selec
   lang="astro"
   code={`---
 import * as Select from "@ormo/primitives/select";
+import { Check } from "@lucide/astro";
 ---
 
 <label for="country-control">Country</label>
@@ -44,8 +45,18 @@ import * as Select from "@ormo/primitives/select";
   <Select.Content>
     <Select.Group>
       <Select.GroupLabel>Europe</Select.GroupLabel>
-      <Select.Item value="fr">France</Select.Item>
-      <Select.Item value="gb">United Kingdom</Select.Item>
+      <Select.Item value="fr">
+        France
+        <Select.ItemIndicator>
+          <Check aria-hidden="true" />
+        </Select.ItemIndicator>
+      </Select.Item>
+      <Select.Item value="gb">
+        United Kingdom
+        <Select.ItemIndicator>
+          <Check aria-hidden="true" />
+        </Select.ItemIndicator>
+      </Select.Item>
     </Select.Group>
   </Select.Content>
 </Select.Root>`}
@@ -224,6 +235,10 @@ Renders `<div role="option">` in custom mode and `<option>` in native mode.
   ]}
 />
 
+### ItemIndicator
+
+Renders an `aria-hidden` `<span>` in custom mode and renders nothing in native mode. Place a real icon inside it to mark the selected item. Ormo keeps the indicator hidden while its parent item is not selected, and indicator content is excluded from inferred item text.
+
 ### Group and GroupLabel
 
 `Group` renders an accessible option group and requires a `GroupLabel`. Custom groups after the first receive an automatic separator; native mode renders `<optgroup>` with the label text.
@@ -234,7 +249,7 @@ Renders a non-selectable horizontal separator in custom mode and `<hr>` in nativ
 
 ## Browser API and events
 
-Custom `Select.Root` exposes `value`, `disabled`, and read-only `open` properties plus `show()`, `hide()`, and `toggle(force?)`. Direct `value` assignment updates immediately without native or custom change events.
+Custom `Select.Root` exposes `value`, `disabled`, and read-only `open` properties plus `show()`, `hide()`, and `toggle(force?)`. Direct `value` assignment updates immediately and dispatches `ormo:select-value-change` with a `"programmatic"` reason, but does not synthesize native `input` or `change` events.
 
 User changes first dispatch cancellable `ormo:select-before-value-change`, with `value`, `previousValue`, and `reason`. When allowed, Ormo updates the native control, dispatches native `input` and `change`, then dispatches `ormo:select-value-change`. `ormo:select-open-change` reports popup changes and their reason.
 
@@ -332,6 +347,13 @@ Select ships only behaviour-critical enhancement and positioning CSS. Style ever
       type: "boolean attribute",
       description: "Marks the active item while the popup is open.",
       details: [{ label: "Element", value: "Item" }],
+    },
+    {
+      name: "visibility",
+      type: "behaviour style",
+      description:
+        "Select.ItemIndicator is hidden while its parent item is not selected.",
+      details: [{ label: "Element", value: "ItemIndicator" }],
     },
     {
       name: "data-disabled",

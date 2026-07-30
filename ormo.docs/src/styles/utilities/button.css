@@ -38,6 +38,12 @@
   padding-inline: var(--space-50);
 }
 
+.button--small {
+  min-height: 2rem;
+  padding-inline: var(--space-75);
+  font-size: var(--font-size-1);
+}
+
 .button:hover:not(:disabled, [data-disabled]) {
   background: var(--content-subtle);
 }

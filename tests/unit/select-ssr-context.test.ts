@@ -6,6 +6,7 @@ import {
   htmlToText,
   renderWithSelectContext,
   renderWithSelectGroupContext,
+  selectItemHtmlToText,
   type SelectSsrContext,
 } from "../../src/internal/select-ssr-context";
 
@@ -29,6 +30,14 @@ describe("select SSR context", () => {
     expect(htmlToText("  Alpha\n <strong> Beta </strong>  Gamma ")).toBe(
       "Alpha Beta Gamma",
     );
+  });
+
+  it("excludes ItemIndicator markup from inferred item text", () => {
+    expect(
+      selectItemHtmlToText(
+        'France <span class="indicator" aria-hidden="true" data-ormo-select-item-indicator><svg><path></path></svg></span>',
+      ),
+    ).toBe("France");
   });
 
   it("isolates nested select and group contexts across concurrent renders", async () => {

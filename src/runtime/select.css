@@ -20,6 +20,14 @@
   white-space: nowrap !important;
 }
 
+/* ItemIndicator is semantic presentation for the selected option. Keep its
+   space stable while hiding it from unselected items. */
+:where(
+  [data-ormo-select-item]:not([data-selected]) [data-ormo-select-item-indicator]
+) {
+  visibility: hidden;
+}
+
 :where([data-ormo-select-content]) {
   margin: 0;
   border: none;

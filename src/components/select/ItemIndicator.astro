@@ -1,0 +1,17 @@
+---
+import { getSelectSsrContext } from "../../internal/select-ssr-context";
+import type { SelectItemIndicatorProps } from "./types";
+
+type Props = SelectItemIndicatorProps;
+
+const attributes: Props = Astro.props;
+const select = getSelectSsrContext();
+---
+
+{
+  !select?.native && (
+    <span {...attributes} aria-hidden="true" data-ormo-select-item-indicator>
+      <slot />
+    </span>
+  )
+}

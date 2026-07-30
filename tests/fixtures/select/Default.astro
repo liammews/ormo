@@ -13,7 +13,12 @@ import * as Select from "../../../src/components/select/index";
     <Select.Group id="europe">
       <Select.GroupLabel>Europe</Select.GroupLabel>
       <Select.Item value="gb">United Kingdom</Select.Item>
-      <Select.Item value="fr">France</Select.Item>
+      <Select.Item value="fr">
+        France
+        <Select.ItemIndicator>
+          <svg aria-hidden="true"><path d="M1 1"></path></svg>
+        </Select.ItemIndicator>
+      </Select.Item>
       <Select.Item value="entity">
         Caf&eacute; &#169; &#x1F680; &NotEqualTilde;
       </Select.Item>

@@ -1,6 +1,7 @@
 ---
 import * as Select from "@ormo/primitives/select";
 import "./index.css";
+import { Check, ChevronDown, X } from "@lucide/astro";
 ---
 
 <form class="select-form" data-select-form>
@@ -16,19 +17,34 @@ import "./index.css";
             class="select-value"
             placeholder="Choose a delivery window"
           />
-          <Select.Icon class="select-icon">⌄</Select.Icon>
+          <Select.Icon class="select-icon"
+            ><ChevronDown size={14} /></Select.Icon
+          >
         </Select.Trigger>
         <Select.Clear class="select-clear" aria-label="Clear delivery window">
-          <span aria-hidden="true">×</span>
+          <span aria-hidden="true"><X size={12} /></span>
         </Select.Clear>
       </div>
       <Select.Content class="select-content" sideOffset={6}>
-        <Select.Item class="select-item" value="morning"> Morning </Select.Item>
+        <Select.Item class="select-item" value="morning">
+          <span>Morning</span>
+          <Select.ItemIndicator class="select-item-indicator">
+            <Check size={14} />
+          </Select.ItemIndicator>
+        </Select.Item>
         <Select.Item class="select-item" value="afternoon">
-          Afternoon
+          <span>Afternoon</span>
+          <Select.ItemIndicator class="select-item-indicator">
+            <Check size={14} />
+          </Select.ItemIndicator>
         </Select.Item>
         <Select.Separator class="select-separator" />
-        <Select.Item class="select-item" value="evening"> Evening </Select.Item>
+        <Select.Item class="select-item" value="evening">
+          <span>Evening</span>
+          <Select.ItemIndicator class="select-item-indicator">
+            <Check size={14} />
+          </Select.ItemIndicator>
+        </Select.Item>
       </Select.Content>
     </Select.Root>
     <p class="select-error" id="delivery-error" data-select-error hidden>
@@ -36,7 +52,7 @@ import "./index.css";
     </p>
   </div>
 
-  <button class="button" type="submit">Continue</button>
+  <button class="button button--small" type="submit">Continue</button>
   <output class="select-result" data-select-result></output>
 </form>
 

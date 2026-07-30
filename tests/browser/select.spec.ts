@@ -16,6 +16,12 @@ test("opens, navigates, selects, clears, and restores focus", async ({
 
   await expect(select).toHaveAttribute("data-enhanced", "");
   await expect(trigger).toHaveText(/France/);
+  await expect(
+    demo.locator('[data-value="fr"] [data-ormo-select-item-indicator]'),
+  ).toHaveCSS("visibility", "visible");
+  await expect(
+    demo.locator('[data-value="gb"] [data-ormo-select-item-indicator]'),
+  ).toHaveCSS("visibility", "hidden");
   await trigger.click();
   await expect(listbox).toBeVisible();
   await expect(trigger).toHaveAttribute("aria-expanded", "true");
@@ -25,6 +31,9 @@ test("opens, navigates, selects, clears, and restores focus", async ({
 
   await expect(select).toHaveJSProperty("value", "gb");
   await expect(trigger).toHaveText(/United Kingdom/);
+  await expect(
+    demo.locator('[data-value="gb"] [data-ormo-select-item-indicator]'),
+  ).toHaveCSS("visibility", "visible");
   await expect(listbox).toBeHidden();
   await expect(trigger).toBeFocused();
 
@@ -48,6 +57,47 @@ test("skips disabled options and supports typeahead", async ({ page }) => {
   await expect(select).toHaveJSProperty("value", "ca");
 });
 
+test("closes when the selected item is clicked", async ({ page }) => {
+  const demo = page.locator('[data-select-demo="default"]');
+  const trigger = demo.getByRole("combobox", { name: "Country" });
+  const listbox = demo.getByRole("listbox");
+
+  await trigger.click();
+  await demo.getByRole("option", { name: "France" }).click();
+
+  await expect(listbox).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
+test("opens at the trigger width when no item is selected", async ({
+  page,
+}) => {
+  const demo = page.locator('[data-select-demo="default"]');
+  const trigger = demo.getByRole("combobox", { name: "Country" });
+  const clear = demo.getByRole("button", { name: "Clear country" });
+
+  await clear.click();
+  await trigger.click();
+
+  const widths = await demo.evaluate(
+    (fixture) =>
+      new Promise<{ content: number; trigger: number }>((resolve) => {
+        requestAnimationFrame(() => {
+          resolve({
+            content: fixture
+              .querySelector<HTMLElement>("[data-ormo-select-content]")!
+              .getBoundingClientRect().width,
+            trigger: fixture
+              .querySelector<HTMLElement>("[data-ormo-select-trigger]")!
+              .getBoundingClientRect().width,
+          });
+        });
+      }),
+  );
+
+  expect(widths.content).toBeCloseTo(widths.trigger, 0);
+});
+
 test("closes on Tab without interrupting normal focus navigation", async ({
   page,
 }) => {
@@ -64,6 +114,34 @@ test("closes on Tab without interrupting normal focus navigation", async ({
   await expect(clear).toBeFocused();
 });
 
+test("dismisses with Escape without changing the value", async ({ page }) => {
+  const demo = page.locator('[data-select-demo="default"]');
+  const select = demo.locator("ormo-select");
+  const trigger = demo.getByRole("combobox", { name: "Country" });
+  const listbox = demo.getByRole("listbox");
+
+  await trigger.click();
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Escape");
+
+  await expect(listbox).toBeHidden();
+  await expect(trigger).toBeFocused();
+  await expect(select).toHaveJSProperty("value", "fr");
+});
+
+test("light-dismisses when clicking outside", async ({ page }) => {
+  const demo = page.locator('[data-select-demo="default"]');
+  const trigger = demo.getByRole("combobox", { name: "Country" });
+  const listbox = demo.getByRole("listbox");
+
+  await trigger.click();
+  await expect(listbox).toBeVisible();
+  await page.locator("body").click({ position: { x: 1, y: 1 } });
+
+  await expect(listbox).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
 test("participates in required form validation and submission", async ({
   page,
 }) => {
@@ -72,6 +150,10 @@ test("participates in required form validation and submission", async ({
   const submit = demo.getByRole("button", { name: "Continue" });
   const result = demo.locator("[data-select-result]");
   const error = demo.getByText("Choose a delivery window.");
+  const field = demo.locator(".select-field");
+  const initialWidth = await field.evaluate(
+    (element) => element.getBoundingClientRect().width,
+  );
 
   await submit.click();
   await expect(trigger).toBeFocused();
@@ -80,6 +162,11 @@ test("participates in required form validation and submission", async ({
 
   await trigger.press("ArrowDown");
   await trigger.press("Enter");
+  await expect
+    .poll(() =>
+      field.evaluate((element) => element.getBoundingClientRect().width),
+    )
+    .toBe(initialWidth);
   await expect(error).toBeHidden();
   await submit.click();
   await expect(result).toHaveText("Selected: morning");
@@ -112,5 +199,23 @@ test("has no accessibility violations when closed or open", async ({
   await expectNoAxeViolations(page, {
     include: '[data-select-demo="default"]',
     label: "open select",
+  });
+});
+
+test.describe("without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("keeps the server-rendered native fallback usable", async ({ page }) => {
+    const demo = page.locator('[data-select-demo="default"]');
+    const control = demo.locator("[data-ormo-select-control]");
+
+    await expect(demo.locator("ormo-select")).not.toHaveAttribute(
+      "data-enhanced",
+      "",
+    );
+    await expect(control).toBeVisible();
+    await expect(control).toHaveValue("fr");
+    await control.selectOption("gb");
+    await expect(control).toHaveValue("gb");
   });
 });

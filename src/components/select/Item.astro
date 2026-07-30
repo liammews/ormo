@@ -2,7 +2,7 @@
 import {
   getSelectGroupSsrContext,
   getSelectSsrContext,
-  htmlToText,
+  selectItemHtmlToText,
 } from "../../internal/select-ssr-context";
 import type { SelectItemProps } from "./types";
 
@@ -17,7 +17,7 @@ const {
 const select = getSelectSsrContext();
 const group = getSelectGroupSsrContext();
 const content = await Astro.slots.render("default");
-const resolvedTextValue = textValue?.trim() || htmlToText(content);
+const resolvedTextValue = textValue?.trim() || selectItemHtmlToText(content);
 const selected = select?.defaultValue === value;
 
 if (select && !select.native) {

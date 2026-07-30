@@ -61,6 +61,11 @@ export interface SelectItemProps extends Omit<
   disabled?: boolean;
 }
 
+export type SelectItemIndicatorProps = Omit<
+  HTMLAttributes<"span">,
+  "aria-hidden"
+>;
+
 export type SelectGroupProps = Omit<HTMLAttributes<"div">, "role">;
 export type SelectGroupLabelProps = HTMLAttributes<"div">;
 export type SelectSeparatorProps = Omit<

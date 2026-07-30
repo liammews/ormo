@@ -34,6 +34,11 @@ describe("Select markup", () => {
     expect(html).toContain('data-value="us"');
     expect(html).toContain('aria-disabled="true"');
     expect(html).toContain('data-text-value="Café © 🚀 ≂̸"');
+    expect(html).toContain(
+      'aria-hidden="true" data-ormo-select-item-indicator',
+    );
+    expect(html).toContain('data-text-value="France"');
+    expect(html).not.toContain('data-text-value="France ✓"');
   });
 
   it("renders only native select semantics in native mode", async () => {
@@ -47,5 +52,6 @@ describe("Select markup", () => {
     expect(html).not.toContain("<ormo-select");
     expect(html).not.toContain('role="combobox"');
     expect(html).not.toContain("src/runtime/select");
+    expect(html).not.toContain("data-ormo-select-item-indicator");
   });
 });

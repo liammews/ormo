@@ -11,6 +11,8 @@ export { default as Icon } from "./Icon.astro";
 // @ts-ignore -- Astro source modules are resolved by Astro's compiler.
 export { default as Item } from "./Item.astro";
 // @ts-ignore -- Astro source modules are resolved by Astro's compiler.
+export { default as ItemIndicator } from "./ItemIndicator.astro";
+// @ts-ignore -- Astro source modules are resolved by Astro's compiler.
 export { default as Root } from "./Root.astro";
 // @ts-ignore -- Astro source modules are resolved by Astro's compiler.
 export { default as Separator } from "./Separator.astro";
@@ -32,6 +34,7 @@ export type {
   SelectGroupProps,
   SelectIconProps,
   SelectItemProps,
+  SelectItemIndicatorProps,
   SelectNativeRootProps,
   SelectOpenChangeDetail,
   SelectOpenChangeEvent,

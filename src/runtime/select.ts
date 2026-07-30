@@ -602,6 +602,7 @@ export class OrmoSelect extends HTMLElement {
     this.#highlight(
       selected && !isItemDisabled(selected) ? selected : undefined,
     );
+    this.#measureTrigger();
     try {
       content.showPopover();
     } catch {
@@ -654,12 +655,7 @@ export class OrmoSelect extends HTMLElement {
     const content = this.#content;
     if (!trigger || !content) return;
 
-    const rect = trigger.getBoundingClientRect();
-    content.style.setProperty("--ormo-select-trigger-width", `${rect.width}px`);
-    content.style.setProperty(
-      "--ormo-select-trigger-height",
-      `${rect.height}px`,
-    );
+    this.#measureTrigger();
 
     if (this.dataset.positioning !== "floating") return;
     const positioner = getFloatingPositioner();
@@ -676,6 +672,19 @@ export class OrmoSelect extends HTMLElement {
       }) ?? undefined;
   }
 
+  #measureTrigger(): void {
+    const trigger = this.#trigger;
+    const content = this.#content;
+    if (!trigger || !content) return;
+
+    const rect = trigger.getBoundingClientRect();
+    content.style.setProperty("--ormo-select-trigger-width", `${rect.width}px`);
+    content.style.setProperty(
+      "--ormo-select-trigger-height",
+      `${rect.height}px`,
+    );
+  }
+
   #stopPositioner(): void {
     this.#positionerCleanup?.();
     this.#positionerCleanup = undefined;
@@ -687,7 +696,8 @@ export class OrmoSelect extends HTMLElement {
 
   #selectItem(item: HTMLElement): void {
     if (isItemDisabled(item)) return;
-    if (this.#setValue(itemValue(item), "item", true)) {
+    const value = itemValue(item);
+    if (value === this.value || this.#setValue(value, "item", true)) {
       this.#hide("selection");
       this.#trigger?.focus();
     }
