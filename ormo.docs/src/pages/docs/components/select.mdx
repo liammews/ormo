@@ -90,12 +90,13 @@ The custom interface keeps a real `<select>` as its source of truth. Native subm
 
 Items may contain non-interactive presentation. Pass `textValue` when the visible text cannot be reliably inferred; Ormo uses it for typeahead, the trigger value and the native fallback.
 
-```astro
-<Select.Item value="gb" textValue="United Kingdom">
+<CodeBlock
+  lang="astro"
+  code={`<Select.Item value="gb" textValue="United Kingdom">
   <Flag code="gb" aria-hidden="true" />
   <span>United Kingdom</span>
-</Select.Item>
-```
+</Select.Item>`}
+/>
 
 Do not put buttons, links or other interactive controls inside an item.
 
