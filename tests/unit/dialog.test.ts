@@ -298,7 +298,7 @@ describe("dialog", () => {
   });
 
   it("reconciles generated and authored relationships at runtime", async () => {
-    const { content, title, description } = createDialog();
+    const { root, content, title, description } = createDialog();
 
     title.id = "updated-dialog-title";
     description.id = "updated-dialog-description";
@@ -309,6 +309,9 @@ describe("dialog", () => {
 
     content.setAttribute("aria-label", "Runtime preferences");
     content.setAttribute("aria-describedby", "authored-description");
+    (
+      root as OrmoDialogElement & { connectedCallback(): void }
+    ).connectedCallback();
     await vi.waitFor(
       () => {
         expect(content.hasAttribute("aria-labelledby")).toBe(false);
@@ -321,6 +324,9 @@ describe("dialog", () => {
 
     content.removeAttribute("aria-label");
     content.removeAttribute("aria-describedby");
+    (
+      root as OrmoDialogElement & { connectedCallback(): void }
+    ).connectedCallback();
     await vi.waitFor(() => {
       expect(content.getAttribute("aria-labelledby")).toBe(title.id);
       expect(content.getAttribute("aria-describedby")).toBe(description.id);

@@ -297,9 +297,13 @@ export class OrmoDialog extends HTMLElement {
     const labelledBy = content.getAttribute("aria-labelledby");
     const hasAuthoredLabelledBy =
       labelledBy !== null && labelledBy !== generatedLabel;
+    const pointsToManagedTitle = title !== undefined && labelledBy === title.id;
 
     if (content.hasAttribute("aria-label") || hasAuthoredLabelledBy) {
-      if (generatedLabel && labelledBy === generatedLabel) {
+      if (
+        (generatedLabel && labelledBy === generatedLabel) ||
+        (content.hasAttribute("aria-label") && pointsToManagedTitle)
+      ) {
         content.removeAttribute("aria-labelledby");
       }
       this.#generatedLabels.delete(content);
