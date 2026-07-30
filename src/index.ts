@@ -18,6 +18,7 @@ export * as RadioGroup from "./components/radio/group";
 export * as Select from "./components/select/index";
 export * as Tabs from "./components/tabs/index";
 export * as Tooltip from "./components/tooltip/index";
+export type { OrmoValueChangeDetail, OrmoValueChangeEvent } from "./events";
 export { Button, setButtonState } from "./components/button/index";
 export type {
   ButtonAsButtonProps,

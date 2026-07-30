@@ -62,6 +62,36 @@
     margin-block-end: var(--ormo-select-side-offset, 0px);
   }
 
+  :where([data-ormo-select-content][data-side="right"][data-align="start"]) {
+    position-area: right span-bottom;
+    margin-inline-start: var(--ormo-select-side-offset, 0px);
+  }
+
+  :where([data-ormo-select-content][data-side="right"][data-align="center"]) {
+    position-area: right center;
+    margin-inline-start: var(--ormo-select-side-offset, 0px);
+  }
+
+  :where([data-ormo-select-content][data-side="right"][data-align="end"]) {
+    position-area: right span-top;
+    margin-inline-start: var(--ormo-select-side-offset, 0px);
+  }
+
+  :where([data-ormo-select-content][data-side="left"][data-align="start"]) {
+    position-area: left span-bottom;
+    margin-inline-end: var(--ormo-select-side-offset, 0px);
+  }
+
+  :where([data-ormo-select-content][data-side="left"][data-align="center"]) {
+    position-area: left center;
+    margin-inline-end: var(--ormo-select-side-offset, 0px);
+  }
+
+  :where([data-ormo-select-content][data-side="left"][data-align="end"]) {
+    position-area: left span-top;
+    margin-inline-end: var(--ormo-select-side-offset, 0px);
+  }
+
   :where([data-ormo-select-content]) {
     position-try-fallbacks:
       flip-block,

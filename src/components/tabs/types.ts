@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from "astro/types";
+import type {} from "../../events";
 
 export type TabsOrientation = "horizontal" | "vertical";
 
@@ -41,6 +42,22 @@ export interface OrmoTabsElement extends HTMLElement {
   activateOnFocus: boolean;
   loopFocus: boolean;
   disabled: boolean;
+  addEventListener(
+    type: "ormo:value-change",
+    listener:
+      ((this: OrmoTabsElement, event: TabsValueChangeEvent) => void) | null,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener<K extends keyof HTMLElementEventMap>(
+    type: K,
+    listener: (this: HTMLElement, event: HTMLElementEventMap[K]) => void,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
 }
 
 declare global {

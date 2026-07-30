@@ -67,7 +67,7 @@
 }
 
 .checkbox-error {
-  color: var(--content-danger, #b42318);
+  color: var(--content-error);
   font-size: var(--font-size-2);
   line-height: var(--line-height-base);
 }

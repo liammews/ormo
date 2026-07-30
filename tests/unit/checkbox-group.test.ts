@@ -123,7 +123,7 @@ describe("checkbox-group", () => {
     let detail: CheckboxGroupValueChangeEvent["detail"] | undefined;
 
     root.addEventListener("ormo:value-change", (event) => {
-      detail = (event as CheckboxGroupValueChangeEvent).detail;
+      detail = event.detail;
     });
 
     members[0]!.checked = true;
@@ -141,7 +141,7 @@ describe("checkbox-group", () => {
     const reasons: CheckboxGroupValueChangeEvent["detail"]["reason"][] = [];
 
     root.addEventListener("ormo:value-change", (event) => {
-      reasons.push((event as CheckboxGroupValueChangeEvent).detail.reason);
+      reasons.push(event.detail.reason);
     });
 
     const parent = getParent(root);

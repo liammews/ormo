@@ -1,4 +1,7 @@
 import type { HTMLAttributes } from "astro/types";
+import type {} from "../../events";
+
+export type { OrmoValueChangeEvent } from "../../events";
 
 export type AccordionType = "single" | "multiple";
 export type AccordionOrientation = "vertical" | "horizontal";
@@ -51,25 +54,33 @@ export interface AccordionValueChangeDetail {
 
 export type AccordionValueChangeEvent = CustomEvent<AccordionValueChangeDetail>;
 
-/** Shared by Accordion and Tabs selection changes. */
-export type OrmoValueChangeEvent = CustomEvent<{
-  value: string | string[] | null;
-}>;
-
 export interface OrmoAccordionElement extends HTMLElement {
   type: AccordionType;
   value: AccordionValue;
   collapsible: boolean;
   disabled: boolean;
   hiddenUntilFound: boolean;
+  addEventListener(
+    type: "ormo:value-change",
+    listener:
+      | ((this: OrmoAccordionElement, event: AccordionValueChangeEvent) => void)
+      | null,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener<K extends keyof HTMLElementEventMap>(
+    type: K,
+    listener: (this: HTMLElement, event: HTMLElementEventMap[K]) => void,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
 }
 
 declare global {
   interface HTMLElementTagNameMap {
     "ormo-accordion": OrmoAccordionElement;
-  }
-
-  interface GlobalEventHandlersEventMap {
-    "ormo:value-change": OrmoValueChangeEvent;
   }
 }

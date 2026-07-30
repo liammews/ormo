@@ -56,6 +56,8 @@ export function isPopoverFloatingPositionerRegistered(): boolean {
 let generatedId = 0;
 
 interface TriggerSnapshot {
+  anchorName: string;
+  anchorNamePriority: string;
   ariaControls: string | null;
   ariaExpanded: string | null;
   ariaHasPopup: string | null;
@@ -458,6 +460,7 @@ export class OrmoPopover extends HTMLElement {
 
     if (!content) {
       this.#stopPositioner();
+      this.#releaseManagedTriggers();
       if (import.meta.env.DEV) validatePopover(this);
       return;
     }
@@ -538,10 +541,6 @@ export class OrmoPopover extends HTMLElement {
   #applyAnchorName(content: HTMLElement): void {
     const anchorName = `--${this.id}`;
     content.style.setProperty("--ormo-popover-anchor", anchorName);
-
-    for (const trigger of this.#getTriggers()) {
-      trigger.style.setProperty("anchor-name", anchorName);
-    }
   }
 
   #syncTriggerMetrics(content: HTMLElement): void {
@@ -665,6 +664,8 @@ export class OrmoPopover extends HTMLElement {
     for (const trigger of triggers) {
       if (!this.#triggerSnapshots.has(trigger)) {
         this.#triggerSnapshots.set(trigger, {
+          anchorName: trigger.style.getPropertyValue("anchor-name"),
+          anchorNamePriority: trigger.style.getPropertyPriority("anchor-name"),
           ariaControls: trigger.getAttribute("aria-controls"),
           ariaExpanded: trigger.getAttribute("aria-expanded"),
           ariaHasPopup: trigger.getAttribute("aria-haspopup"),
@@ -687,9 +688,21 @@ export class OrmoPopover extends HTMLElement {
     const snapshot = this.#triggerSnapshots.get(trigger);
     this.#managedTriggers.delete(trigger);
     this.#triggerSnapshots.delete(trigger);
-    trigger.style.removeProperty("anchor-name");
 
-    if (!snapshot) return;
+    if (!snapshot) {
+      trigger.style.removeProperty("anchor-name");
+      return;
+    }
+
+    if (snapshot.anchorName) {
+      trigger.style.setProperty(
+        "anchor-name",
+        snapshot.anchorName,
+        snapshot.anchorNamePriority,
+      );
+    } else {
+      trigger.style.removeProperty("anchor-name");
+    }
 
     if (snapshot.ariaControls === null) {
       trigger.removeAttribute("aria-controls");

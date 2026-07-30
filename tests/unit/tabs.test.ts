@@ -3,7 +3,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type {
   OrmoTabsElement,
   TabsOrientation,
-  TabsValueChangeEvent,
 } from "../../src/components/tabs/types";
 import "../../src/runtime/tabs";
 
@@ -148,7 +147,7 @@ describe("tabs", () => {
     const changes: string[] = [];
 
     root.addEventListener("ormo:value-change", (event) => {
-      changes.push((event as TabsValueChangeEvent).detail.value);
+      changes.push(event.detail.value);
     });
 
     getTabs(root)[1]?.click();

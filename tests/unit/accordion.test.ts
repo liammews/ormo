@@ -3,7 +3,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type {
   AccordionType,
   AccordionValue,
-  AccordionValueChangeEvent,
   OrmoAccordionElement,
 } from "../../src/components/accordion/types";
 import "../../src/runtime/accordion";
@@ -140,7 +139,7 @@ describe("accordion", () => {
     const changes: AccordionValue[] = [];
 
     root.addEventListener("ormo:value-change", (event) => {
-      changes.push((event as AccordionValueChangeEvent).detail.value);
+      changes.push(event.detail.value);
     });
 
     trigger?.click();

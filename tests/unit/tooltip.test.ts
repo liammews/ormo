@@ -292,7 +292,7 @@ describe("tooltip", () => {
     expect(root.open).toBe(false);
   });
 
-  it("supports detached triggers", () => {
+  it("supports detached triggers and restores authored trigger styles", () => {
     const root = document.createElement("ormo-tooltip") as OrmoTooltipElement;
     root.id = "toolbar-tip";
     root.setAttribute("data-delay", "0");
@@ -306,6 +306,11 @@ describe("tooltip", () => {
     trigger.type = "button";
     trigger.setAttribute("data-ormo-tooltip-trigger", "");
     trigger.setAttribute("data-ormo-tooltip-for", "toolbar-tip");
+    trigger.style.setProperty(
+      "anchor-name",
+      "--authored-tooltip-anchor",
+      "important",
+    );
     trigger.textContent = "Save";
 
     document.body.append(trigger, root);
@@ -319,6 +324,14 @@ describe("tooltip", () => {
     pointerOver(trigger);
     expect(root.open).toBe(true);
     expect(trigger.getAttribute("aria-describedby")).toBe(content.id);
+
+    (
+      root as OrmoTooltipElement & { disconnectedCallback(): void }
+    ).disconnectedCallback();
+    expect(trigger.style.getPropertyValue("anchor-name")).toBe(
+      "--authored-tooltip-anchor",
+    );
+    expect(trigger.style.getPropertyPriority("anchor-name")).toBe("important");
   });
 
   it("warns when floating positioning is requested without the floating import", () => {

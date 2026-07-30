@@ -104,6 +104,8 @@ function detectHintPopoverSupport(): boolean {
 }
 
 interface TriggerSnapshot {
+  anchorName: string;
+  anchorNamePriority: string;
   ariaDescribedBy: string | null;
   dataOpen: boolean;
   dataState: string | undefined;
@@ -673,6 +675,7 @@ export class OrmoTooltip extends HTMLElement {
 
     if (!content) {
       this.#stopPositioner();
+      this.#releaseManagedTriggers();
       if (import.meta.env.DEV) validateTooltip(this);
       return;
     }
@@ -697,10 +700,6 @@ export class OrmoTooltip extends HTMLElement {
   #applyAnchorName(content: HTMLElement): void {
     const anchorName = `--${this.id}`;
     content.style.setProperty("--ormo-tooltip-anchor", anchorName);
-
-    for (const trigger of this.#getTriggers()) {
-      trigger.style.setProperty("anchor-name", anchorName);
-    }
   }
 
   #syncTriggerMetrics(content: HTMLElement): void {
@@ -878,6 +877,8 @@ export class OrmoTooltip extends HTMLElement {
     for (const trigger of triggers) {
       if (!this.#triggerSnapshots.has(trigger)) {
         this.#triggerSnapshots.set(trigger, {
+          anchorName: trigger.style.getPropertyValue("anchor-name"),
+          anchorNamePriority: trigger.style.getPropertyPriority("anchor-name"),
           ariaDescribedBy: trigger.getAttribute("aria-describedby"),
           dataOpen: trigger.hasAttribute("data-open"),
           dataState: trigger.dataset.state,
@@ -902,13 +903,25 @@ export class OrmoTooltip extends HTMLElement {
     const describedId = this.#describedByIds.get(trigger);
     this.#managedTriggers.delete(trigger);
     this.#triggerSnapshots.delete(trigger);
-    trigger.style.removeProperty("anchor-name");
 
     if (describedId) {
       this.#removeDescribedBy(trigger, describedId);
     }
 
-    if (!snapshot) return;
+    if (!snapshot) {
+      trigger.style.removeProperty("anchor-name");
+      return;
+    }
+
+    if (snapshot.anchorName) {
+      trigger.style.setProperty(
+        "anchor-name",
+        snapshot.anchorName,
+        snapshot.anchorNamePriority,
+      );
+    } else {
+      trigger.style.removeProperty("anchor-name");
+    }
 
     if (snapshot.dataState === undefined) {
       delete trigger.dataset.state;

@@ -101,7 +101,7 @@ describe("radio-group", () => {
     });
     const detail: RadioGroupValueChangeEvent["detail"][] = [];
     root.addEventListener("ormo:value-change", (event) => {
-      detail.push((event as RadioGroupValueChangeEvent).detail);
+      detail.push(event.detail);
     });
 
     const standard = getMembers(root)[0]!;
@@ -122,7 +122,7 @@ describe("radio-group", () => {
     const changes: RadioGroupValueChangeEvent["detail"][] = [];
     root.addEventListener("change", nativeChange);
     root.addEventListener("ormo:value-change", (event) => {
-      changes.push((event as RadioGroupValueChangeEvent).detail);
+      changes.push(event.detail);
     });
 
     root.value = "pickup";

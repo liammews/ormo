@@ -28,3 +28,9 @@
   opacity: 0;
   transform: scale(0.98);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .tooltip-content {
+    transition: none;
+  }
+}

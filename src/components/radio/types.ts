@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from "astro/types";
+import type {} from "../../events";
 
 type RadioInputAttributes = Omit<
   HTMLAttributes<"input">,
@@ -43,6 +44,26 @@ export interface OrmoRadioGroupElement extends HTMLElement {
   readonly valid: boolean;
   checkValidity(): boolean;
   reportValidity(): boolean;
+  addEventListener(
+    type: "ormo:value-change",
+    listener:
+      | ((
+          this: OrmoRadioGroupElement,
+          event: RadioGroupValueChangeEvent,
+        ) => void)
+      | null,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener<K extends keyof HTMLElementEventMap>(
+    type: K,
+    listener: (this: HTMLElement, event: HTMLElementEventMap[K]) => void,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
 }
 
 declare global {

@@ -240,7 +240,7 @@ describe("popover", () => {
     expect(root.open).toBe(false);
   });
 
-  it("connects detached triggers", () => {
+  it("connects detached triggers and restores authored trigger styles", () => {
     const root = document.createElement("ormo-popover") as OrmoPopoverElement;
     root.id = "filters-popover";
     root.innerHTML = `
@@ -253,6 +253,11 @@ describe("popover", () => {
     trigger.type = "button";
     trigger.setAttribute("data-ormo-popover-trigger", "");
     trigger.setAttribute("data-ormo-popover-for", "filters-popover");
+    trigger.style.setProperty(
+      "anchor-name",
+      "--authored-popover-anchor",
+      "important",
+    );
     trigger.textContent = "Open filters";
 
     document.body.append(trigger, root);
@@ -270,6 +275,14 @@ describe("popover", () => {
     expect(document.activeElement).toBe(
       root.querySelector("[data-ormo-popover-close]"),
     );
+
+    (
+      root as OrmoPopoverElement & { disconnectedCallback(): void }
+    ).disconnectedCallback();
+    expect(trigger.style.getPropertyValue("anchor-name")).toBe(
+      "--authored-popover-anchor",
+    );
+    expect(trigger.style.getPropertyPriority("anchor-name")).toBe("important");
   });
 
   it("warns when floating positioning is requested without the floating import", () => {
