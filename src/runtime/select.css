@@ -1,5 +1,6 @@
-/* Behaviour-critical enhancement and placement. Consumer classes retain
-   precedence because every selector is wrapped in :where(). */
+/* Behaviour-critical enhancement and placement. The enhancement visibility
+   rules intentionally override consumer styles; placement rules use :where()
+   so consumer presentation classes retain precedence. */
 
 :where(ormo-select:not([data-enhanced]) [data-ormo-select-trigger]),
 :where(ormo-select:not([data-enhanced]) [data-ormo-select-clear]) {

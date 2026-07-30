@@ -76,6 +76,8 @@ primitives.
 
 ### Component structure
 
+- Add the primitive to `primitive-contracts.json`; see
+  [`PRIMITIVE_CONTRACT.md`](../PRIMITIVE_CONTRACT.md) for the fields and checks.
 - Use `.astro` files for authored component parts.
 - Put shared public types in `types.ts`.
 - Export the public component and types from the component's `index.ts`.
@@ -163,6 +165,15 @@ Run the complete validation suite before considering the implementation ready:
 
 ```sh
 pnpm validate
+```
+
+Use `pnpm validate:full` before a release or when changing browser behaviour. It
+adds the Chromium public-demo suite to the normal validation gates. Runtime and
+Astro render tests also have separate watch commands:
+
+```sh
+pnpm test:watch:runtime
+pnpm test:watch:astro
 ```
 
 ## 4. Build the documentation demos
@@ -335,6 +346,8 @@ Before marking the component ready:
   combinations for complex interaction patterns.
 - Confirm native-only paths do not ship unnecessary component JavaScript.
 - Confirm the component can be imported through its package subpath.
+- Confirm its primitive contract lists every public part and representative
+  runtime and test file.
 - Add a changeset describing the user-facing addition.
 - Run `pnpm validate` from the repository root.
 

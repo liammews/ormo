@@ -1,5 +1,5 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { expectNoAxeViolations } from "./helpers/axe";
 
 function parseRgb(value: string): [number, number, number] {
   const channels = value
@@ -135,11 +135,9 @@ test("composes with Field relationships in server-rendered HTML", async ({
 test("has no automatically detectable accessibility violations", async ({
   page,
 }) => {
-  const results = await new AxeBuilder({ page })
-    .include('[data-browser-fixture="input"]')
-    .analyze();
-
-  expect(results.violations).toEqual([]);
+  await expectNoAxeViolations(page, {
+    include: '[data-browser-fixture="input"]',
+  });
 });
 
 test("meets placeholder, control boundary, and focus contrast in both themes", async ({

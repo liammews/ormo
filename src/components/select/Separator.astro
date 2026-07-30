@@ -12,11 +12,6 @@ const select = getSelectSsrContext();
   select?.native ? (
     <hr {...attributes} data-ormo-select-separator />
   ) : (
-    <div
-      {...attributes}
-      role="separator"
-      aria-orientation="horizontal"
-      data-ormo-select-separator
-    />
+    <div {...attributes} aria-hidden="true" data-ormo-select-separator />
   )
 }

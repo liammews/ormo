@@ -1,6 +1,7 @@
 ---
 import funnelDisplayLatinUrl from "@fontsource-variable/funnel-display/files/funnel-display-latin-wght-normal.woff2?url";
 import interLatinUrl from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
+import primitiveContracts from "../../../primitive-contracts.json";
 import SidebarMenu from "../components/docs/SidebarMenu/SidebarMenu.astro";
 import SidebarMenuItem from "../components/docs/SidebarMenuItem/SidebarMenuItem.astro";
 import Text from "../components/docs/Text/Text.astro";
@@ -22,6 +23,41 @@ interface SidebarSection {
   }>;
 }
 
+const componentOrder = [
+  "accordion",
+  "alert-dialog",
+  "avatar",
+  "breadcrumbs",
+  "button",
+  "checkbox",
+  "dialog",
+  "field",
+  "fieldset",
+  "input",
+  "popover",
+  "radio",
+  "select",
+  "tabs",
+  "tooltip",
+] as const;
+
+const primitiveById = new Map(
+  primitiveContracts.primitives.map((primitive) => [primitive.id, primitive]),
+);
+
+const componentItems: SidebarSection["items"] = componentOrder.map((id) => {
+  const primitive = primitiveById.get(id);
+  if (!primitive) throw new Error(`Missing primitive contract for "${id}"`);
+
+  return {
+    label: primitive.label,
+    href: `/docs/components/${id}`,
+    status: primitive.status as NonNullable<
+      SidebarSection["items"][number]["status"]
+    >,
+  };
+});
+
 const sidebarSections: SidebarSection[] = [
   {
     title: "Overview",
@@ -39,59 +75,7 @@ const sidebarSections: SidebarSection[] = [
   },
   {
     title: "Components",
-    items: [
-      {
-        label: "Accordion",
-        href: "/docs/components/accordion",
-        status: "beta",
-      },
-      {
-        label: "Alert Dialog",
-        href: "/docs/components/alert-dialog",
-        status: "beta",
-      },
-      {
-        label: "Avatar",
-        href: "/docs/components/avatar",
-        status: "beta",
-      },
-      {
-        label: "Breadcrumbs",
-        href: "/docs/components/breadcrumbs",
-        status: "beta",
-      },
-      {
-        label: "Button",
-        href: "/docs/components/button",
-        status: "beta",
-      },
-      {
-        label: "Checkbox",
-        href: "/docs/components/checkbox",
-        status: "beta",
-      },
-      { label: "Dialog", href: "/docs/components/dialog", status: "beta" },
-      { label: "Field", href: "/docs/components/field", status: "beta" },
-      {
-        label: "Fieldset",
-        href: "/docs/components/fieldset",
-        status: "beta",
-      },
-      { label: "Input", href: "/docs/components/input", status: "dev" },
-      {
-        label: "Popover",
-        href: "/docs/components/popover",
-        status: "dev",
-      },
-      { label: "Radio", href: "/docs/components/radio", status: "beta" },
-      { label: "Select", href: "/docs/components/select", status: "dev" },
-      { label: "Tabs", href: "/docs/components/tabs", status: "dev" },
-      {
-        label: "Tooltip",
-        href: "/docs/components/tooltip",
-        status: "dev",
-      },
-    ],
+    items: componentItems,
   },
 ];
 

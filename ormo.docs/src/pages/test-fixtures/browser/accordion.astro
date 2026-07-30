@@ -5,6 +5,9 @@ import AccordionInitialValueDemo from "../../../components/demos/Accordion/Accor
 import AccordionMultipleDemo from "../../../components/demos/Accordion/AccordionMultiple/AccordionMultipleDemo.astro";
 import AccordionRequireOpenDemo from "../../../components/demos/Accordion/AccordionRequireOpen/AccordionRequireOpenDemo.astro";
 import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+
+// AccordionHiddenUntilFoundDemo is excluded because its beforematch behaviour
+// depends on browser Find-in-page UI that Playwright cannot trigger reliably.
 ---
 
 <BrowserFixtureLayout title="Accordion">

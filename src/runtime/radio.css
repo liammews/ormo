@@ -1,5 +1,5 @@
 /* Behaviour-critical: decorative indicators must not steal pointer input
-   from the native radio (GD-006 / GD-015). Wrapped in :where() so
+   from the native radio (GD-006 / GD-021). Wrapped in :where() so
    consumer classes can override when they intentionally need hits. */
 
 :where([data-ormo-radio-indicator]) {

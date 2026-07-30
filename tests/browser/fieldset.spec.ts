@@ -1,5 +1,5 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { expectNoAxeViolations } from "./helpers/axe";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/test-fixtures/browser/fieldset/");
@@ -108,12 +108,10 @@ test("associates an out-of-form fieldset and its controls explicitly", async ({
 test("has no automatically detectable accessibility violations", async ({
   page,
 }) => {
-  const results = await new AxeBuilder({ page })
-    .include(
+  await expectNoAxeViolations(page, {
+    include:
       "[data-fieldset-demo], [data-fieldset-disabled-demo], [data-fieldset-form-demo]",
-    )
-    .analyze();
-  expect(results.violations).toEqual([]);
+  });
 });
 
 test.describe("without JavaScript", () => {

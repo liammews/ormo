@@ -1,5 +1,5 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { expectNoAxeViolations } from "./helpers/axe";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/test-fixtures/browser/tabs/");
@@ -109,11 +109,10 @@ test("has no automatically detectable accessibility violations", async ({
     "disabled",
     "controlled",
   ]) {
-    const results = await new AxeBuilder({ page })
-      .include(`[data-tabs-demo="${demo}"]`)
-      .analyze();
-
-    expect(results.violations, demo).toEqual([]);
+    await expectNoAxeViolations(page, {
+      include: `[data-tabs-demo="${demo}"]`,
+      label: demo,
+    });
   }
 });
 

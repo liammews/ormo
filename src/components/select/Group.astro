@@ -32,12 +32,7 @@ for (const item of select?.items ?? []) {
   ) : (
     <>
       {index > 0 && (
-        <div
-          role="separator"
-          aria-orientation="horizontal"
-          data-ormo-select-separator
-          data-automatic
-        />
+        <div aria-hidden="true" data-ormo-select-separator data-automatic />
       )}
       <div
         {...attributes}

@@ -1,5 +1,5 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { expectNoAxeViolations } from "./helpers/axe";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/test-fixtures/browser/select/");
@@ -97,12 +97,20 @@ test("native mode remains an unenhanced operating-system select", async ({
   await expect(select).toHaveValue("gb");
 });
 
-test("has no automatically detectable WCAG A or AA violations", async ({
+test("has no accessibility violations when closed or open", async ({
   page,
 }) => {
-  const results = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-    .analyze();
+  const demo = page.locator('[data-select-demo="default"]');
 
-  expect(results.violations).toEqual([]);
+  await expectNoAxeViolations(page, {
+    include: '[data-select-demo="default"]',
+    label: "closed select",
+  });
+
+  await demo.getByRole("combobox").click();
+  await expect(demo.getByRole("listbox")).toBeVisible();
+  await expectNoAxeViolations(page, {
+    include: '[data-select-demo="default"]',
+    label: "open select",
+  });
 });

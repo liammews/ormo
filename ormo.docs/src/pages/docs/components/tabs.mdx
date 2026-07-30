@@ -6,8 +6,18 @@ description: "A set of layered panels with accessible tab controls"
 
 import TabsDemo from "../../../components/demos/Tabs/TabsDemo.astro";
 import tabsDemoCode from "../../../components/demos/Tabs/TabsDemo.astro?raw";
+import TabsActivateOnFocusDemo from "../../../components/demos/Tabs/TabsActivateOnFocusDemo.astro";
+import tabsActivateOnFocusDemoCode from "../../../components/demos/Tabs/TabsActivateOnFocusDemo.astro?raw";
+import TabsControlledDemo from "../../../components/demos/Tabs/TabsControlledDemo.astro";
+import tabsControlledDemoCode from "../../../components/demos/Tabs/TabsControlledDemo.astro?raw";
+import TabsDisabledDemo from "../../../components/demos/Tabs/TabsDisabledDemo.astro";
+import tabsDisabledDemoCode from "../../../components/demos/Tabs/TabsDisabledDemo.astro?raw";
+import TabsVerticalDemo from "../../../components/demos/Tabs/TabsVerticalDemo.astro";
+import tabsVerticalDemoCode from "../../../components/demos/Tabs/TabsVerticalDemo.astro?raw";
 import tabsDemoCss from "../../../components/demos/Tabs/index.css?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
 <DemoBlock
   files={[
@@ -17,3 +27,213 @@ import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 >
   <TabsDemo />
 </DemoBlock>
+
+## Anatomy
+
+Each `Tabs.Tab` and `Tabs.Panel` pair shares a unique `value`.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Tabs from "@ormo/primitives/tabs";
+---
+
+<Tabs.Root defaultValue="overview">
+  <Tabs.List aria-label="Project">
+    <Tabs.Tab value="overview">Overview</Tabs.Tab>
+    <Tabs.Tab value="activity">Activity</Tabs.Tab>
+  </Tabs.List>
+  <Tabs.Panel value="overview">Overview content</Tabs.Panel>
+  <Tabs.Panel value="activity">Activity content</Tabs.Panel>
+</Tabs.Root>`}
+/>
+
+## Examples
+
+### Vertical
+
+Set `orientation="vertical"` when tabs are arranged in a column. This changes the relevant arrow keys and exposed orientation.
+
+<DemoBlock
+  files={[{ filename: "TabsVertical.astro", code: tabsVerticalDemoCode }]}
+>
+  <TabsVerticalDemo />
+</DemoBlock>
+
+### Automatic activation
+
+`activateOnFocus` selects a tab as arrow-key focus moves. Use it only when panels can appear without noticeable latency.
+
+<DemoBlock
+  files={[
+    {
+      filename: "TabsActivateOnFocus.astro",
+      code: tabsActivateOnFocusDemoCode,
+    },
+  ]}
+>
+  <TabsActivateOnFocusDemo />
+</DemoBlock>
+
+### Disabled tabs
+
+Disabled tabs remain discoverable but are skipped by keyboard navigation and cannot be selected.
+
+<DemoBlock
+  files={[{ filename: "TabsDisabled.astro", code: tabsDisabledDemoCode }]}
+>
+  <TabsDisabledDemo />
+</DemoBlock>
+
+### Browser control
+
+Read or assign the custom element’s `value` for framework-independent control.
+
+<DemoBlock
+  files={[{ filename: "TabsControlled.astro", code: tabsControlledDemoCode }]}
+>
+  <TabsControlledDemo />
+</DemoBlock>
+
+## API reference
+
+All parts forward relevant native attributes.
+
+<PropsTable
+  id="tabs-root-props"
+  caption="Tabs Root properties"
+  rows={[
+    {
+      name: "defaultValue",
+      type: "string",
+      description: "Selects the initial panel during server rendering.",
+    },
+    {
+      name: "orientation",
+      type: '"horizontal" | "vertical"',
+      defaultValue: '"horizontal"',
+      description: "Sets visual and keyboard orientation.",
+    },
+    {
+      name: "activateOnFocus",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Selects a tab when roving focus reaches it.",
+    },
+    {
+      name: "loopFocus",
+      type: "boolean",
+      defaultValue: "true",
+      description: "Wraps arrow-key focus at either end.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Disables selection throughout the root.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered custom element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered custom element.",
+    },
+  ]}
+/>
+
+<PropsTable
+  id="tabs-parts"
+  caption="Tabs part properties"
+  rows={[
+    {
+      name: "Tabs.List",
+      type: "native attributes",
+      description:
+        "Renders the element with role=tablist and should receive an accessible name.",
+    },
+    {
+      name: "Tabs.Tab value",
+      type: "string",
+      description: "Required value linking the button with its panel.",
+    },
+    {
+      name: "Tabs.Tab disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Prevents focus and selection for this tab.",
+    },
+    {
+      name: "Tabs.Panel value",
+      type: "string",
+      description: "Required value linking the panel with its tab.",
+    },
+    {
+      name: "class / style",
+      type: "string | CSSProperties",
+      description: "All parts accept consumer presentation styles.",
+    },
+  ]}
+/>
+
+## JavaScript API
+
+The `<ormo-tabs>` element exposes `value`, `orientation`, `activateOnFocus`, `loopFocus` and `disabled`. User selection emits non-cancellable `ormo:value-change` with `{ value }`; direct `value` assignment updates selection without emitting the event.
+
+<CodeBlock
+  lang="js"
+  code={`tabs.addEventListener("ormo:value-change", (event) => {
+  console.log(event.detail.value);
+});
+
+tabs.value = "activity";`}
+/>
+
+## Accessibility
+
+Tabs implements the WAI-ARIA tabs pattern with generated tab/panel relationships and roving tab focus. Give `Tabs.List` an accessible name.
+
+<PropsTable
+  id="tabs-keyboard"
+  caption="Tabs keyboard behaviour"
+  nameHeader="Key"
+  nameElement="kbd"
+  rows={[
+    {
+      name: "Tab",
+      type: "Focus",
+      description: "Moves into the selected tab, then onwards to page content.",
+    },
+    {
+      name: "Arrow Left / Arrow Right",
+      type: "Navigation",
+      description: "Moves focus through horizontal tabs.",
+    },
+    {
+      name: "Arrow Up / Arrow Down",
+      type: "Navigation",
+      description: "Moves focus through vertical tabs.",
+    },
+    {
+      name: "Home / End",
+      type: "Navigation",
+      description: "Moves focus to the first or last enabled tab.",
+    },
+    {
+      name: "Enter / Space",
+      type: "Selection",
+      description: "Selects the focused tab when automatic activation is off.",
+    },
+  ]}
+/>
+
+## Styling
+
+Style the consumer classes and public `data-state`, `data-disabled` and `data-orientation` attributes. Active tabs and panels use `data-state="active"`; inactive parts use `"inactive"`. Internal `data-ormo-tabs-*` attributes are runtime ownership selectors.
+
+## Runtime
+
+The server renders complete tab, tablist and panel relationships plus the initial selection. JavaScript adds roving focus, keyboard selection, browser properties and events. Without JavaScript, the initial panel remains visible and the remaining panels remain hidden.

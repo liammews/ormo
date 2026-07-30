@@ -1,5 +1,5 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { expectNoAxeViolations } from "./helpers/axe";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/test-fixtures/browser/radio/");
@@ -194,8 +194,7 @@ test("has no automatically detectable accessibility violations", async ({
     "[data-radio-field-demo]",
     "[data-radio-disabled-demo]",
   ]) {
-    const results = await new AxeBuilder({ page }).include(selector).analyze();
-    expect(results.violations, selector).toEqual([]);
+    await expectNoAxeViolations(page, { include: selector, label: selector });
   }
 });
 

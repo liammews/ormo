@@ -1,5 +1,5 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { expectNoAxeViolations } from "./helpers/axe";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/test-fixtures/browser/checkbox/");
@@ -398,8 +398,7 @@ test("has no automatically detectable accessibility violations", async ({
     "[data-checkbox-field-demo]",
     "[data-checkbox-disabled-demo]",
   ]) {
-    const results = await new AxeBuilder({ page }).include(selector).analyze();
-    expect(results.violations, selector).toEqual([]);
+    await expectNoAxeViolations(page, { include: selector, label: selector });
   }
 });
 

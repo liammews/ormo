@@ -4,11 +4,15 @@ import TooltipDemo from "../../../components/demos/Tooltip/TooltipDemo.astro";
 import TooltipDetachedTriggerDemo from "../../../components/demos/Tooltip/TooltipDetachedTriggerDemo.astro";
 import TooltipFloatingDemo from "../../../components/demos/Tooltip/TooltipFloatingDemo.astro";
 import TooltipToolbarDemo from "../../../components/demos/Tooltip/TooltipToolbarDemo.astro";
+
+// Delay, disabled, placement and programmatic demos are focused documentation
+// variants. Their timing, disabled, positioning and browser-property contracts
+// are covered by the included focused demos and runtime unit tests.
 ---
 
 <BrowserFixtureLayout title="Tooltip">
-  <TooltipDemo />
-  <TooltipToolbarDemo />
-  <TooltipDetachedTriggerDemo />
-  <TooltipFloatingDemo />
+  <div data-tooltip-demo="default"><TooltipDemo /></div>
+  <div data-tooltip-demo="toolbar"><TooltipToolbarDemo /></div>
+  <div data-tooltip-demo="detached"><TooltipDetachedTriggerDemo /></div>
+  <div data-tooltip-demo="floating"><TooltipFloatingDemo /></div>
 </BrowserFixtureLayout>

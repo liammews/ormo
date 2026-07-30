@@ -1,13 +1,19 @@
 ---
 layout: ../../../layouts/MdxDocLayout.astro
 title: "Input"
-description: "A text input component"
+description: "A native text input with constrained, type-safe input types"
 ---
 
 import InputDemo from "../../../components/demos/Input/InputDemo.astro";
 import inputDemoCode from "../../../components/demos/Input/InputDemo.astro?raw";
+import InputDisabledDemo from "../../../components/demos/Input/InputDisabledDemo.astro";
+import inputDisabledDemoCode from "../../../components/demos/Input/InputDisabledDemo.astro?raw";
+import InputErrorDemo from "../../../components/demos/Input/InputErrorDemo.astro";
+import inputErrorDemoCode from "../../../components/demos/Input/InputErrorDemo.astro?raw";
 import inputCss from "../../../components/demos/Input/index.css?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
 <DemoBlock
   files={[
@@ -17,3 +23,83 @@ import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 >
   <InputDemo />
 </DemoBlock>
+
+## Anatomy
+
+Import `Input` and provide the same native attributes you would use on an HTML input. Associate it with a visible label directly or compose it with `Field`.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import { Input } from "@ormo/primitives/input";
+---
+
+<label for="email">Email address</label>
+<Input id="email" name="email" type="email" autocomplete="email" />`}
+/>
+
+## Examples
+
+### Disabled
+
+Use the native `disabled` attribute when the value must not be edited, focused or submitted.
+
+<DemoBlock
+  files={[{ filename: "InputDisabled.astro", code: inputDisabledDemoCode }]}
+>
+  <InputDisabledDemo />
+</DemoBlock>
+
+### Invalid
+
+Native constraint attributes and `aria-invalid` compose with `Field` validation and consumer error presentation.
+
+<DemoBlock files={[{ filename: "InputError.astro", code: inputErrorDemoCode }]}>
+  <InputErrorDemo />
+</DemoBlock>
+
+## API reference
+
+`Input` renders an `<input>` and forwards its native attributes. It does not wrap the element or replace native value, form, validation or event APIs.
+
+<PropsTable
+  id="input-props"
+  caption="Input properties"
+  rows={[
+    {
+      name: "type",
+      type: '"date" | "datetime-local" | "email" | "month" | "number" | "password" | "search" | "tel" | "text" | "time" | "url" | "week"',
+      defaultValue: '"text"',
+      description:
+        "Selects a text-like native input type. Checkbox, radio, file, button and hidden inputs are intentionally outside this primitive.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Applies native disabled behaviour.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered input.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered input.",
+    },
+  ]}
+/>
+
+## Accessibility
+
+`Input` preserves native input semantics. Authors must provide an accessible name through a `<label>`, `aria-label` or `aria-labelledby`, choose an appropriate `type` and `autocomplete` value, and expose validation errors in text. Keyboard and assistive-technology behaviour remains the browser’s native behaviour for the selected type.
+
+## Styling
+
+The primitive ships no presentation CSS. Style the passed `class`, native pseudo-classes such as `:focus-visible`, `:disabled` and `:user-invalid`, and Field’s public state hooks when composed. `data-ormo-input` is an internal ownership selector rather than a styling contract.
+
+## Runtime
+
+`Input` ships no JavaScript. The server renders one native `<input>`, so values, validation, events, forms and keyboard behaviour work identically without client-side JavaScript.

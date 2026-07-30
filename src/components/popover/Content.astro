@@ -1,5 +1,6 @@
 ---
 import { getPopoverSsrContext } from "../../internal/popover-ssr-context";
+import { styleToCssText } from "../../internal/style-to-css-text";
 import type { PopoverContentProps } from "./types";
 
 type Props = PopoverContentProps;
@@ -16,30 +17,6 @@ const {
 
 const ssrContext = getPopoverSsrContext();
 const popoverMode = ssrContext?.disablePointerDismissal ? "manual" : "auto";
-
-function styleToCssText(value: unknown): string {
-  if (value == null || value === false) {
-    return "";
-  }
-
-  if (typeof value === "string") {
-    return value.trim();
-  }
-
-  if (typeof value === "object") {
-    return Object.entries(value as Record<string, unknown>)
-      .filter(([, entry]) => entry != null && entry !== false)
-      .map(([property, entry]) => {
-        const cssProperty = property.startsWith("--")
-          ? property
-          : property.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
-        return `${cssProperty}: ${String(entry)}`;
-      })
-      .join("; ");
-  }
-
-  return "";
-}
 
 const sideOffsetStyle = `--ormo-popover-side-offset: ${sideOffset}px`;
 const authoredStyle = styleToCssText(style);

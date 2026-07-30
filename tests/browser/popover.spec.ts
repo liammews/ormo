@@ -1,5 +1,5 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { expectNoAxeViolations } from "./helpers/axe";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/test-fixtures/browser/popover/");
@@ -172,14 +172,20 @@ test("exposes trigger size CSS variables while open", async ({ page }) => {
     .toEqual({ width: "", height: "" });
 });
 
-test("has no critical accessibility violations on the docs page", async ({
+test("has no accessibility violations when closed or open", async ({
   page,
 }) => {
-  const results = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-    .analyze();
+  const demo = page.locator('[data-popover-demo="default"]');
 
-  expect(
-    results.violations.filter((violation) => violation.impact === "critical"),
-  ).toEqual([]);
+  await expectNoAxeViolations(page, {
+    include: '[data-popover-demo="default"]',
+    label: "closed popover",
+  });
+
+  await demo.getByRole("button", { name: "Filters" }).click();
+  await expect(demo.getByRole("dialog")).toBeVisible();
+  await expectNoAxeViolations(page, {
+    include: '[data-popover-demo="default"]',
+    label: "open popover",
+  });
 });

@@ -1,5 +1,5 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { expectNoAxeViolations } from "./helpers/axe";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/test-fixtures/browser/field/");
@@ -130,18 +130,11 @@ test("exposes the intentional error demo to assistive tech", async ({
 test("has no automatically detectable accessibility violations", async ({
   page,
 }) => {
-  let results = await new AxeBuilder({ page })
-    .include("[data-field-demo]")
-    .analyze();
-  expect(results.violations).toEqual([]);
-
-  results = await new AxeBuilder({ page })
-    .include("[data-field-error-demo]")
-    .analyze();
-  expect(results.violations).toEqual([]);
-
-  results = await new AxeBuilder({ page })
-    .include("[data-field-disabled-demo]")
-    .analyze();
-  expect(results.violations).toEqual([]);
+  for (const selector of [
+    "[data-field-demo]",
+    "[data-field-error-demo]",
+    "[data-field-disabled-demo]",
+  ]) {
+    await expectNoAxeViolations(page, { include: selector, label: selector });
+  }
 });

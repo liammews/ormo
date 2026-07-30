@@ -1,13 +1,29 @@
 ---
 layout: ../../../layouts/MdxDocLayout.astro
 title: "Tooltip"
-description: "A non-interactive popup that appears when an element is hoverd and focused, showing a hint for sighted users."
+description: "A non-interactive hint shown on pointer hover or keyboard focus"
 ---
 
 import TooltipDemo from "../../../components/demos/Tooltip/TooltipDemo.astro";
 import tooltipDemoCode from "../../../components/demos/Tooltip/TooltipDemo.astro?raw";
+import TooltipDelayDemo from "../../../components/demos/Tooltip/TooltipDelayDemo.astro";
+import tooltipDelayDemoCode from "../../../components/demos/Tooltip/TooltipDelayDemo.astro?raw";
+import TooltipDetachedTriggerDemo from "../../../components/demos/Tooltip/TooltipDetachedTriggerDemo.astro";
+import tooltipDetachedTriggerDemoCode from "../../../components/demos/Tooltip/TooltipDetachedTriggerDemo.astro?raw";
+import TooltipDisabledDemo from "../../../components/demos/Tooltip/TooltipDisabledDemo.astro";
+import tooltipDisabledDemoCode from "../../../components/demos/Tooltip/TooltipDisabledDemo.astro?raw";
+import TooltipFloatingDemo from "../../../components/demos/Tooltip/TooltipFloatingDemo.astro";
+import tooltipFloatingDemoCode from "../../../components/demos/Tooltip/TooltipFloatingDemo.astro?raw";
+import TooltipPlacementDemo from "../../../components/demos/Tooltip/TooltipPlacementDemo.astro";
+import tooltipPlacementDemoCode from "../../../components/demos/Tooltip/TooltipPlacementDemo.astro?raw";
+import TooltipProgrammaticDemo from "../../../components/demos/Tooltip/TooltipProgrammaticDemo.astro";
+import tooltipProgrammaticDemoCode from "../../../components/demos/Tooltip/TooltipProgrammaticDemo.astro?raw";
+import TooltipToolbarDemo from "../../../components/demos/Tooltip/TooltipToolbarDemo.astro";
+import tooltipToolbarDemoCode from "../../../components/demos/Tooltip/TooltipToolbarDemo.astro?raw";
 import tooltipDemoCss from "../../../components/demos/Tooltip/index.css?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
 <DemoBlock
   files={[
@@ -17,3 +33,219 @@ import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 >
   <TooltipDemo />
 </DemoBlock>
+
+## Anatomy
+
+Tooltip content supplements a trigger’s existing accessible name. Keep it short and non-interactive; use Popover for controls or rich content.
+
+<CodeBlock lang="astro" code={`---
+import * as Tooltip from "@ormo/primitives/tooltip";
+---
+
+<Tooltip.Root>
+  <Tooltip.Trigger aria-label="Save document">Save</Tooltip.Trigger>
+  <Tooltip.Content>Save</Tooltip.Content>
+</Tooltip.Root>`} />
+
+## Examples
+
+### Delay
+
+Configure pointer opening and closing delays while keeping keyboard focus immediate.
+
+<DemoBlock
+  files={[{ filename: "TooltipDelay.astro", code: tooltipDelayDemoCode }]}
+>
+  <TooltipDelayDemo />
+</DemoBlock>
+
+### Toolbar
+
+Moving directly between related toolbar triggers skips the opening delay.
+
+<DemoBlock
+  files={[{ filename: "TooltipToolbar.astro", code: tooltipToolbarDemoCode }]}
+>
+  <TooltipToolbarDemo />
+</DemoBlock>
+
+### Disabled
+
+Disable the root when a hint should temporarily remain unavailable.
+
+<DemoBlock
+  files={[{ filename: "TooltipDisabled.astro", code: tooltipDisabledDemoCode }]}
+>
+  <TooltipDisabledDemo />
+</DemoBlock>
+
+### Placement
+
+Choose a preferred side, alignment and offset; CSS anchor positioning flips when space is constrained.
+
+<DemoBlock
+  files={[
+    { filename: "TooltipPlacement.astro", code: tooltipPlacementDemoCode },
+  ]}
+>
+  <TooltipPlacementDemo />
+</DemoBlock>
+
+### Floating UI
+
+Select floating positioning and import the optional entry for broader positioning support.
+
+<DemoBlock
+  files={[{ filename: "TooltipFloating.astro", code: tooltipFloatingDemoCode }]}
+>
+  <TooltipFloatingDemo />
+</DemoBlock>
+
+### Detached trigger
+
+Use `for` with the root ID when the trigger lives elsewhere in the DOM.
+
+<DemoBlock
+  files={[
+    {
+      filename: "TooltipDetachedTrigger.astro",
+      code: tooltipDetachedTriggerDemoCode,
+    },
+  ]}
+>
+  <TooltipDetachedTriggerDemo />
+</DemoBlock>
+
+### Programmatic control
+
+The custom element can show and hide a tooltip for framework-independent integrations.
+
+<DemoBlock
+  files={[
+    {
+      filename: "TooltipProgrammatic.astro",
+      code: tooltipProgrammaticDemoCode,
+    },
+  ]}
+>
+  <TooltipProgrammaticDemo />
+</DemoBlock>
+
+## API reference
+
+<PropsTable
+  id="tooltip-root-props"
+  caption="Tooltip Root properties"
+  rows={[
+    {
+      name: "delay",
+      type: "number",
+      defaultValue: "700",
+      description:
+        "Milliseconds before pointer interest opens Content; focus remains immediate.",
+    },
+    {
+      name: "closeDelay",
+      type: "number",
+      defaultValue: "100",
+      description:
+        "Milliseconds before Content closes after pointer interest leaves.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Prevents Content from opening.",
+    },
+    {
+      name: "positioning",
+      type: '"css-anchor" | "floating"',
+      defaultValue: '"css-anchor"',
+      description:
+        "Selects the placement engine; floating requires the optional import.",
+    },
+    {
+      name: "class / style",
+      type: "string | CSSProperties",
+      description: "Adds consumer styles to the custom element.",
+    },
+  ]}
+/>
+
+<PropsTable
+  id="tooltip-part-props"
+  caption="Tooltip part properties"
+  rows={[
+    {
+      name: "Trigger for",
+      type: "string",
+      description: "Targets a detached Root ID.",
+    },
+    {
+      name: "Content side",
+      type: '"top" | "right" | "bottom" | "left"',
+      defaultValue: '"top"',
+      description: "Sets the preferred placement side.",
+    },
+    {
+      name: "Content align",
+      type: '"start" | "center" | "end"',
+      defaultValue: '"center"',
+      description: "Aligns Content along the side axis.",
+    },
+    {
+      name: "Content sideOffset",
+      type: "number",
+      defaultValue: "0",
+      description: "Sets distance from the trigger in pixels.",
+    },
+    {
+      name: "class / style",
+      type: "string | CSSProperties",
+      description: "Both parts accept consumer presentation styles.",
+    },
+  ]}
+/>
+
+## JavaScript API
+
+The `<ormo-tooltip>` element exposes `delay`, `closeDelay`, `disabled`, readonly `open`, and `show()` and `hide()`. `ormo:tooltip-open-change` bubbles with `{ open, reason }`.
+
+<CodeBlock lang="js" code={`tooltip.addEventListener("ormo:tooltip-open-change", (event) => {
+  console.log(event.detail.open, event.detail.reason);
+});
+
+tooltip.show();
+tooltip.hide();`} />
+
+## Accessibility
+
+Content uses `role="tooltip"` and is referenced from the trigger with `aria-describedby` only while open. It never receives focus and must not contain links, buttons or other interactive content. The trigger must retain a useful accessible name without the tooltip.
+
+<PropsTable
+  id="tooltip-keyboard"
+  caption="Tooltip keyboard behaviour"
+  nameHeader="Key"
+  nameElement="kbd"
+  rows={[
+    {
+      name: "Tab / Shift + Tab",
+      type: "Focus",
+      description:
+        "Opening follows focus on the trigger; moving focus away closes Content.",
+    },
+    {
+      name: "Escape",
+      type: "Dismissal",
+      description: "Closes Content without moving focus.",
+    },
+  ]}
+/>
+
+## Styling
+
+Style consumer classes and public `data-state`, `data-open`, `data-side`, `data-align`, `data-starting-style` and `data-ending-style` hooks. Content exposes `--ormo-tooltip-side-offset`, `--ormo-tooltip-trigger-width` and `--ormo-tooltip-trigger-height`. Respect reduced motion for transitions.
+
+## Runtime
+
+The server renders the trigger and hidden tooltip content. JavaScript coordinates pointer/focus interest, delays, description relationships, dismissal, events and positioning. The optional floating entry registers Floating UI. Without JavaScript, the tooltip remains unavailable and the trigger retains its native behaviour and accessible name.

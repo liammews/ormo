@@ -4,6 +4,9 @@ import ButtonNonNativeDemo from "../../../components/demos/Button/ButtonNonNativ
 import ButtonPendingDemo from "../../../components/demos/Button/ButtonPendingDemo.astro";
 import ButtonSubmitGuardDemo from "../../../components/demos/Button/ButtonSubmitGuardDemo.astro";
 import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+
+// The default and native-disabled demos add no browser behaviour beyond native
+// button semantics; those contracts are covered by render, unit and no-JS tests.
 ---
 
 <BrowserFixtureLayout title="Button">

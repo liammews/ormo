@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    - cron: "17 3 * * 1"
 
 permissions:
   contents: read
@@ -20,5 +22,25 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm validate
-      - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm test:browser:ci
+      - name: Install Chromium
+        if: github.event_name == 'pull_request'
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Test public demos in Chromium
+        if: github.event_name == 'pull_request'
+        run: pnpm exec playwright test --project=chromium
+      - name: Install cross-browser engines
+        if: github.event_name != 'pull_request'
+        run: pnpm exec playwright install --with-deps
+      - name: Test public demos across browsers
+        if: github.event_name != 'pull_request'
+        run: pnpm exec playwright test
+      - name: Upload browser traces and reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7

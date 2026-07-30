@@ -1,5 +1,5 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { expectNoAxeViolations } from "./helpers/axe";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/test-fixtures/browser/tooltip/");
@@ -96,14 +96,20 @@ test("positions with Floating UI and preserves requested side", async ({
   await expect(content).not.toHaveAttribute("data-ormo-tooltip-positioning");
 });
 
-test("has no critical accessibility violations on the docs page", async ({
+test("has no accessibility violations when closed or open", async ({
   page,
 }) => {
-  const results = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-    .analyze();
+  const demo = page.locator('[data-tooltip-demo="default"]');
 
-  expect(
-    results.violations.filter((violation) => violation.impact === "critical"),
-  ).toEqual([]);
+  await expectNoAxeViolations(page, {
+    include: '[data-tooltip-demo="default"]',
+    label: "closed tooltip",
+  });
+
+  await demo.getByRole("button").focus();
+  await expect(demo.getByRole("tooltip")).toBeVisible();
+  await expectNoAxeViolations(page, {
+    include: '[data-tooltip-demo="default"]',
+    label: "open tooltip",
+  });
 });

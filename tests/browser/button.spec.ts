@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { expectNoAxeViolations } from "./helpers/axe";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/test-fixtures/browser/button/");
@@ -166,11 +167,9 @@ test("exposes pending busy state without failing axe", async ({ page }) => {
   await expect(button).toHaveAttribute("aria-busy", "true");
   await expect(button).toHaveAttribute("aria-disabled", "true");
 
-  const results = await new AxeBuilder({ page })
-    .include('[data-browser-fixture="button"]')
-    .analyze();
-
-  expect(results.violations).toEqual([]);
+  await expectNoAxeViolations(page, {
+    include: '[data-browser-fixture="button"]',
+  });
 });
 
 test("axe detects unnamed native and non-native buttons", async ({ page }) => {

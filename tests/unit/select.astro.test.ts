@@ -27,6 +27,10 @@ describe("Select markup", () => {
     expect(html).toContain('role="group"');
     expect(html).toContain('aria-labelledby="europe-label"');
     expect(html.match(/data-ormo-select-separator/g)).toHaveLength(1);
+    expect(html).toContain(
+      'aria-hidden="true" data-ormo-select-separator data-automatic',
+    );
+    expect(html).not.toContain('role="separator"');
     expect(html).toContain('data-value="us"');
     expect(html).toContain('aria-disabled="true"');
   });

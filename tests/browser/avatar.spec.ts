@@ -1,5 +1,5 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { expectNoAxeViolations } from "./helpers/axe";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/test-fixtures/browser/avatar/");
@@ -31,7 +31,5 @@ test("keeps interactive wrappers named and focusable", async ({ page }) => {
 test("has no automatically detectable accessibility violations", async ({
   page,
 }) => {
-  const results = await new AxeBuilder({ page }).include("main").analyze();
-
-  expect(results.violations).toEqual([]);
+  await expectNoAxeViolations(page, { include: "main" });
 });

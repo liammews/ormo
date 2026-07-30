@@ -1,0 +1,276 @@
+{
+  "version": 1,
+  "statuses": ["dev", "alpha", "beta", "production"],
+  "contract": {
+    "runtimeModels": {
+      "static": "Server-rendered semantics with no component runtime.",
+      "conditional-native": "Native HTML remains usable; JavaScript is loaded only for enhanced configurations.",
+      "custom-element": "A custom element coordinates state and exposes a framework-independent DOM API."
+    },
+    "publicSurface": [
+      "parts",
+      "package export",
+      "DOM hooks",
+      "DOM properties and methods",
+      "events",
+      "behaviour CSS"
+    ],
+    "privateSurface": [
+      "SSR context",
+      "runtime configuration attributes",
+      "loading condition"
+    ],
+    "deliverySurface": [
+      "documentation",
+      "status",
+      "public demo",
+      "browser fixture",
+      "changeset"
+    ],
+    "testTaxonomy": {
+      "static": ["Astro render", "browser semantics", "accessibility"],
+      "conditional-native": [
+        "runtime unit",
+        "Astro render",
+        "no-JavaScript browser path",
+        "enhanced browser path",
+        "accessibility"
+      ],
+      "custom-element": [
+        "runtime unit",
+        "reconnection and cleanup",
+        "DOM API and events",
+        "Astro render",
+        "browser interaction",
+        "accessibility"
+      ]
+    },
+    "diagnosticOwnership": {
+      "SSR warnings": "Component render tests beside other Astro suites",
+      "runtime warnings": "Runtime unit tests beside the owning controller",
+      "dev-toolbar diagnostics": "Scanner rule tests plus toolbar integration tests"
+    },
+    "changesets": "Required for consumer-visible API, behaviour, semantics, styling-hook or status changes."
+  },
+  "primitives": [
+    {
+      "id": "accordion",
+      "label": "Accordion",
+      "status": "beta",
+      "runtimeModel": "custom-element",
+      "parts": ["Content", "Header", "Item", "Root", "Trigger"],
+      "runtime": ["src/runtime/accordion.ts"],
+      "ssrContext": "src/internal/accordion-ssr-context.ts",
+      "behaviourCss": [],
+      "tests": [
+        "tests/unit/accordion.test.ts",
+        "tests/unit/accordion-ssr-context.test.ts"
+      ]
+    },
+    {
+      "id": "alert-dialog",
+      "label": "Alert Dialog",
+      "status": "beta",
+      "runtimeModel": "custom-element",
+      "parts": [
+        "Action",
+        "Cancel",
+        "Content",
+        "Description",
+        "Root",
+        "Title",
+        "Trigger"
+      ],
+      "runtime": ["src/runtime/alert-dialog.ts"],
+      "ssrContext": null,
+      "behaviourCss": [],
+      "tests": [
+        "tests/unit/alert-dialog.test.ts",
+        "tests/unit/alert-dialog.astro.test.ts"
+      ]
+    },
+    {
+      "id": "avatar",
+      "label": "Avatar",
+      "status": "beta",
+      "runtimeModel": "custom-element",
+      "parts": ["Fallback", "Image", "Root"],
+      "runtime": ["src/runtime/avatar.ts"],
+      "ssrContext": "src/internal/avatar-ssr-context.ts",
+      "behaviourCss": [],
+      "tests": [
+        "tests/unit/avatar.test.ts",
+        "tests/unit/avatar.astro.test.ts",
+        "tests/unit/avatar-ssr-context.test.ts"
+      ]
+    },
+    {
+      "id": "breadcrumbs",
+      "label": "Breadcrumbs",
+      "status": "beta",
+      "runtimeModel": "static",
+      "parts": ["Item", "Link", "List", "Page", "Root", "Separator"],
+      "runtime": [],
+      "ssrContext": "src/internal/breadcrumbs-ssr-context.ts",
+      "behaviourCss": [],
+      "tests": [
+        "tests/unit/breadcrumbs.astro.test.ts",
+        "tests/unit/breadcrumbs-ssr-context.test.ts"
+      ]
+    },
+    {
+      "id": "button",
+      "label": "Button",
+      "status": "beta",
+      "runtimeModel": "conditional-native",
+      "parts": ["Button", "Runtime"],
+      "runtime": ["src/runtime/button.ts"],
+      "ssrContext": null,
+      "behaviourCss": [],
+      "tests": ["tests/unit/button.test.ts", "tests/unit/button.astro.test.ts"]
+    },
+    {
+      "id": "checkbox",
+      "label": "Checkbox",
+      "status": "beta",
+      "runtimeModel": "conditional-native",
+      "parts": ["Checkbox", "Group", "GroupLabel", "Indicator", "Runtime"],
+      "runtime": ["src/runtime/checkbox.ts", "src/runtime/checkbox-group.ts"],
+      "ssrContext": "src/internal/checkbox-group-ssr-context.ts",
+      "behaviourCss": ["src/runtime/checkbox.css"],
+      "tests": [
+        "tests/unit/checkbox.test.ts",
+        "tests/unit/checkbox.astro.test.ts",
+        "tests/unit/checkbox-group.test.ts",
+        "tests/unit/checkbox-group-ssr-context.test.ts"
+      ]
+    },
+    {
+      "id": "dialog",
+      "label": "Dialog",
+      "status": "beta",
+      "runtimeModel": "custom-element",
+      "parts": ["Close", "Content", "Description", "Root", "Title", "Trigger"],
+      "runtime": ["src/runtime/dialog.ts"],
+      "ssrContext": null,
+      "behaviourCss": [],
+      "tests": ["tests/unit/dialog.test.ts", "tests/unit/dialog.astro.test.ts"]
+    },
+    {
+      "id": "field",
+      "label": "Field",
+      "status": "beta",
+      "runtimeModel": "custom-element",
+      "parts": ["Control", "Description", "Error", "Label", "Root"],
+      "runtime": ["src/runtime/field.ts"],
+      "ssrContext": "src/internal/field-ssr-context.ts",
+      "behaviourCss": [],
+      "tests": ["tests/unit/field.test.ts", "tests/unit/field.astro.test.ts"]
+    },
+    {
+      "id": "fieldset",
+      "label": "Fieldset",
+      "status": "beta",
+      "runtimeModel": "static",
+      "parts": ["Legend", "Root"],
+      "runtime": [],
+      "ssrContext": null,
+      "behaviourCss": [],
+      "tests": [
+        "tests/unit/fieldset.astro.test.ts",
+        "tests/unit/fieldset-diagnostics.test.ts"
+      ]
+    },
+    {
+      "id": "input",
+      "label": "Input",
+      "status": "beta",
+      "runtimeModel": "static",
+      "parts": ["Input"],
+      "runtime": [],
+      "ssrContext": null,
+      "behaviourCss": [],
+      "tests": [
+        "tests/unit/input.astro.test.ts",
+        "tests/unit/input-diagnostics.test.ts"
+      ]
+    },
+    {
+      "id": "popover",
+      "label": "Popover",
+      "status": "beta",
+      "runtimeModel": "custom-element",
+      "parts": ["Close", "Content", "Description", "Root", "Title", "Trigger"],
+      "runtime": ["src/runtime/popover.ts", "src/runtime/popover-floating.ts"],
+      "ssrContext": "src/internal/popover-ssr-context.ts",
+      "behaviourCss": ["src/runtime/popover.css"],
+      "tests": [
+        "tests/unit/popover.test.ts",
+        "tests/unit/popover-ssr-context.test.ts"
+      ]
+    },
+    {
+      "id": "radio",
+      "label": "Radio",
+      "status": "beta",
+      "runtimeModel": "conditional-native",
+      "parts": ["Group", "GroupLabel", "Indicator", "Radio", "Runtime"],
+      "runtime": ["src/runtime/radio.ts", "src/runtime/radio-group.ts"],
+      "ssrContext": "src/internal/radio-group-ssr-context.ts",
+      "behaviourCss": ["src/runtime/radio.css"],
+      "tests": [
+        "tests/unit/radio.test.ts",
+        "tests/unit/radio.astro.test.ts",
+        "tests/unit/radio-group.test.ts",
+        "tests/unit/radio-group-ssr-context.test.ts"
+      ]
+    },
+    {
+      "id": "select",
+      "label": "Select",
+      "status": "dev",
+      "runtimeModel": "conditional-native",
+      "parts": [
+        "Clear",
+        "Content",
+        "Group",
+        "GroupLabel",
+        "Icon",
+        "Item",
+        "Root",
+        "Separator",
+        "Trigger",
+        "Value"
+      ],
+      "runtime": ["src/runtime/select.ts", "src/runtime/select-floating.ts"],
+      "ssrContext": "src/internal/select-ssr-context.ts",
+      "behaviourCss": ["src/runtime/select.css"],
+      "tests": ["tests/unit/select.test.ts", "tests/unit/select.astro.test.ts"]
+    },
+    {
+      "id": "tabs",
+      "label": "Tabs",
+      "status": "beta",
+      "runtimeModel": "custom-element",
+      "parts": ["List", "Panel", "Root", "Tab"],
+      "runtime": ["src/runtime/tabs.ts"],
+      "ssrContext": "src/internal/tabs-ssr-context.ts",
+      "behaviourCss": [],
+      "tests": [
+        "tests/unit/tabs.test.ts",
+        "tests/unit/tabs-ssr-context.test.ts"
+      ]
+    },
+    {
+      "id": "tooltip",
+      "label": "Tooltip",
+      "status": "beta",
+      "runtimeModel": "custom-element",
+      "parts": ["Content", "Root", "Trigger"],
+      "runtime": ["src/runtime/tooltip.ts", "src/runtime/tooltip-floating.ts"],
+      "ssrContext": null,
+      "behaviourCss": ["src/runtime/tooltip.css"],
+      "tests": ["tests/unit/tooltip.test.ts"]
+    }
+  ]
+}

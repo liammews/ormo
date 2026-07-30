@@ -65,7 +65,7 @@ export type SelectGroupProps = Omit<HTMLAttributes<"div">, "role">;
 export type SelectGroupLabelProps = HTMLAttributes<"div">;
 export type SelectSeparatorProps = Omit<
   HTMLAttributes<"div">,
-  "role" | "aria-orientation"
+  "role" | "aria-orientation" | "aria-hidden"
 >;
 
 export interface SelectBeforeValueChangeDetail {

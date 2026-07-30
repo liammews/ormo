@@ -1,6 +1,6 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import type { Locator } from "@playwright/test";
+import { expectNoAxeViolations } from "./helpers/axe";
 
 const getItem = (demo: Locator, value: string) =>
   demo.locator(`[data-ormo-accordion-item][data-value="${value}"]`);
@@ -137,10 +137,10 @@ test("has no automatically detectable accessibility violations", async ({
     "require-open",
     "disabled",
   ]) {
-    const results = await new AxeBuilder({ page })
-      .include(`[data-accordion-demo="${demo}"]`)
-      .analyze();
-    expect(results.violations, demo).toEqual([]);
+    await expectNoAxeViolations(page, {
+      include: `[data-accordion-demo="${demo}"]`,
+      label: demo,
+    });
   }
 });
 

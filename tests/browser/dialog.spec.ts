@@ -1,5 +1,5 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { expectNoAxeViolations } from "./helpers/axe";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/test-fixtures/browser/dialog/");
@@ -112,19 +112,19 @@ test("supports detached triggers and restores the exact invoker", async ({
 test("has no automatically detectable accessibility violations", async ({
   page,
 }) => {
-  let results = await new AxeBuilder({ page })
-    .include("[data-dialog-demo]")
-    .analyze();
-  expect(results.violations).toEqual([]);
+  await expectNoAxeViolations(page, {
+    include: "[data-dialog-demo]",
+    label: "closed dialog demos",
+  });
 
   await page.getByRole("button", { name: "View notifications" }).click();
   await expect(
     page.getByRole("dialog", { name: "Notifications" }).first(),
   ).not.toHaveAttribute("data-starting-style");
-  results = await new AxeBuilder({ page })
-    .include("[data-dialog-demo]")
-    .analyze();
-  expect(results.violations).toEqual([]);
+  await expectNoAxeViolations(page, {
+    include: "[data-dialog-demo]",
+    label: "open dialog demo",
+  });
 });
 
 test("fits within a narrow viewport", async ({ page }) => {
@@ -155,8 +155,9 @@ test("locks background scrolling until the dialog closes", async ({ page }) => {
 
   await page.mouse.move(4, 4);
   await page.mouse.wheel(0, 500);
-  await page.waitForTimeout(100);
-  expect(await page.evaluate(() => window.scrollY)).toBe(initialScroll);
+  await expect
+    .poll(() => page.evaluate(() => window.scrollY))
+    .toBe(initialScroll);
 
   await page.keyboard.press("Escape");
   await expect(page.locator("html")).not.toHaveAttribute(
@@ -217,8 +218,6 @@ test("remains modal when closed and reopened in the same task", async ({
     dialogRoot.close();
     dialogRoot.showModal();
   });
-  await page.waitForTimeout(50);
-
   await expect(dialog).toBeVisible();
   await expect(root).toHaveAttribute("data-state", "open");
   await expect(root).toHaveAttribute("data-open", "");

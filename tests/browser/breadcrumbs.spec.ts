@@ -1,5 +1,5 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { expectNoAxeViolations } from "./helpers/axe";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/test-fixtures/browser/breadcrumbs/");
@@ -60,10 +60,10 @@ test("annotates microdata when enabled", async ({ page }) => {
 
 test("has no accessibility violations in demos", async ({ page }) => {
   for (const demo of ["default", "current-link", "microdata", "labelled-by"]) {
-    const results = await new AxeBuilder({ page })
-      .include(`[data-breadcrumbs-demo="${demo}"]`)
-      .analyze();
-    expect(results.violations, demo).toEqual([]);
+    await expectNoAxeViolations(page, {
+      include: `[data-breadcrumbs-demo="${demo}"]`,
+      label: demo,
+    });
   }
 });
 

@@ -1,5 +1,5 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { expectNoAxeViolations } from "./helpers/axe";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/test-fixtures/browser/alert-dialog/");
@@ -74,19 +74,19 @@ test("honours an authored initial focus target", async ({ page }) => {
 test("has no automatically detectable accessibility violations", async ({
   page,
 }) => {
-  let results = await new AxeBuilder({ page })
-    .include("[data-alert-dialog-demo]")
-    .analyze();
-  expect(results.violations).toEqual([]);
+  await expectNoAxeViolations(page, {
+    include: "[data-alert-dialog-demo]",
+    label: "closed alert dialog demos",
+  });
 
   await page.getByRole("button", { name: "Delete project" }).first().click();
   await expect(
     page.getByRole("alertdialog", { name: "Delete this project?" }),
   ).not.toHaveAttribute("data-starting-style");
-  results = await new AxeBuilder({ page })
-    .include("[data-alert-dialog-demo]")
-    .analyze();
-  expect(results.violations).toEqual([]);
+  await expectNoAxeViolations(page, {
+    include: "[data-alert-dialog-demo]",
+    label: "open alert dialog demo",
+  });
 });
 
 test("fits within a narrow viewport", async ({ page }) => {
@@ -291,8 +291,6 @@ test("remains modal when closed and reopened in the same task", async ({
 
   const root = page.locator("#reopen-alert");
   const dialog = page.getByRole("alertdialog", { name: "Reopen fixture" });
-  await page.waitForTimeout(50);
-
   await expect(dialog).toBeVisible();
   await expect(root).toHaveAttribute("data-state", "open");
   await expect(root).toHaveAttribute("data-open", "");
@@ -470,10 +468,10 @@ test("supports multiple detached triggers and restores focus to the invoker", as
   await expect(menuTrigger).toHaveAttribute("data-state", "open");
   await expect(dialog.getByRole("button", { name: "Cancel" })).toBeFocused();
 
-  const results = await new AxeBuilder({ page })
-    .include("[data-alert-dialog-detached-demo]")
-    .analyze();
-  expect(results.violations).toEqual([]);
+  await expectNoAxeViolations(page, {
+    include: "[data-alert-dialog-detached-demo]",
+    label: "open detached alert dialog",
+  });
 
   await page.keyboard.press("Escape");
 
