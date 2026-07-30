@@ -3,19 +3,19 @@
   --content-subtle: var(--color-gray-11);
   --content-invert: var(--color-gray-1);
   --content-disabled: var(--color-gray-10);
-  --content-placeholder: var(--color-gray-8);
+  --content-placeholder: var(--color-gray-11);
   --content-brand: var(--color-brand-12);
   --content-link: var(--color-brand-10);
   --content-link-hover: var(--color-brand-11);
   --content-info: var(--color-blue-11);
   --content-success: var(--color-green-11);
-  --content-error: var(--color-amber-11);
-  --content-warning: var(--color-red-11);
-  --content-onbrand: var(--color-gray-12);
+  --content-error: var(--color-red-11);
+  --content-warning: var(--color-amber-11);
+  --content-onbrand: light-dark(var(--color-gray-12), var(--color-white));
 
   --surface-canvas: var(--color-gray-2);
   --surface-elevated: var(--color-gray-3);
-    --surface-active: var(--color-gray-4);
+  --surface-active: var(--color-gray-4);
   --surface-base: var(--color-gray-1);
   --surface-invert: var(--color-gray-12);
   --surface-disabled: var(--color-gray-3);
@@ -31,16 +31,11 @@
   --surface-warning-tint: var(--color-amber-2);
 
   --border-default: var(--color-gray-5);
-  --border-hover: var(--color-gray-5);
-  --border-active: var(--color-gray-6);
+  --border-hover: var(--color-gray-6);
+  --border-active: var(--color-gray-7);
+  --border-control: var(--color-gray-9);
   --border-brand: var(--color-brand-9);
 
   --focus-default: var(--color-blue-10);
-  --focus-subtle: var(--color-gray-6);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --content-onbrand: var(--color-white);
-  }
+  --focus-subtle: var(--color-gray-9);
 }

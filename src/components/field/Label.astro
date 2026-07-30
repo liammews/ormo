@@ -1,11 +1,24 @@
 ---
 import type { FieldLabelProps } from "./types";
+import { getFieldSsrContext } from "../../internal/field-ssr-context";
 
 type Props = FieldLabelProps;
 
-const attributes: Props = Astro.props;
+const { id, for: htmlFor, ...attributes }: Props = Astro.props;
+const field = getFieldSsrContext();
+const labelIndex = field ? ++field.labelCount : undefined;
+const labelId =
+  id ??
+  (field && labelIndex ? `${field.rootId}-label-${labelIndex}` : undefined);
+const resolvedFor = htmlFor ?? field?.controlId;
 ---
 
-<label {...attributes} data-ormo-field-label>
+<label
+  {...attributes}
+  id={labelId}
+  for={resolvedFor}
+  data-ormo-field-label
+  data-invalid={field?.invalid ? "" : undefined}
+>
   <slot />
 </label>

@@ -3,15 +3,17 @@ import * as Field from "@ormo/primitives/field";
 import "./index.css";
 ---
 
-<Field.Root class="field" disabled name="email">
+<Field.Root class="field">
   <Field.Label class="field-label" for="disabled-email">
     Email address
   </Field.Label>
   <Field.Control
     class="field-input"
     id="disabled-email"
+    name="email"
     type="email"
-    value="you@example.com"
+    disabled
+    value="liam@ormo.dev"
     aria-describedby="disabled-email-description"
   />
   <Field.Description class="field-description" id="disabled-email-description">

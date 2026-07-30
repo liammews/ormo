@@ -558,6 +558,8 @@ state API from becoming the default cost for ordinary form grouping.
   out-of-form descendants; those controls need their own `form` attributes.
 - Fieldset does not provide CheckboxGroup’s value, parent, aggregate, event, or
   group-required APIs.
+- The optional development toolbar reports missing, misplaced, empty, or
+  duplicated Legend parts without adding JavaScript to production pages.
 
 ## GD-020: Accordion exposes a minimal post-render JavaScript API
 

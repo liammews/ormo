@@ -3,20 +3,20 @@ import * as Field from "@ormo/primitives/field";
 import "./index.css";
 ---
 
-<Field.Root class="field" invalid name="email">
+<Field.Root class="field" invalid>
   <Field.Label class="field-label" for="invalid-email">
     Email address
   </Field.Label>
   <Field.Control
     class="field-input"
     id="invalid-email"
+    name="email"
     type="email"
     value="not-an-email"
     autocomplete="email"
-    aria-invalid="true"
     aria-describedby="invalid-email-message"
   />
-  <Field.Error class="field-error" id="invalid-email-message" match={true}>
+  <Field.Error class="field-error" id="invalid-email-message">
     Enter an email address in the format name@example.com.
   </Field.Error>
 </Field.Root>

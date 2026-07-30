@@ -11,13 +11,12 @@ test("opens, focuses content, closes, and restores focus without trapping Tab", 
   const demo = page.locator('[data-popover-demo="form"]');
   const trigger = demo.getByRole("button", { name: "Share" });
   const dialog = demo.getByRole("dialog", { name: "Share link" });
-  const input = dialog.getByRole("textbox", { name: "Email" });
-  const outside = demo.getByLabel("Outside the popover");
+  const outside = demo.getByRole("button", { name: "Outside action" });
 
   await trigger.click();
 
   await expect(dialog).toBeVisible();
-  await expect(input).toBeFocused();
+  await expect(dialog).toBeFocused();
   await expect(dialog).not.toHaveAttribute("aria-modal", "true");
   await expect(dialog).toHaveAttribute("aria-labelledby", /-title$/);
 
@@ -99,7 +98,7 @@ test("supports detached triggers and restores the exact invoker", async ({
 
   await menu.click();
   await expect(dialog).toBeVisible();
-  await page.getByRole("button", { name: "Close" }).click();
+  await page.keyboard.press("Escape");
   await expect(menu).toBeFocused();
 });
 

@@ -2,6 +2,10 @@ import type { HTMLAttributes } from "astro/types";
 import type { ButtonAsButtonProps } from "../button/types";
 
 export type DialogCloseReason = "close" | "escape" | "outside" | "programmatic";
+export type DialogBeforeCloseReason = Exclude<
+  DialogCloseReason,
+  "programmatic"
+>;
 
 export interface DialogRootProps extends HTMLAttributes<"div"> {
   /** Prevents pointer presses outside Content from closing the dialog. */
@@ -37,6 +41,13 @@ export interface DialogOpenChangeDetail {
   returnValue: string;
 }
 
+export interface DialogBeforeCloseDetail {
+  reason: DialogBeforeCloseReason;
+  returnValue: string;
+  originalEvent: Event;
+}
+
+export type DialogBeforeCloseEvent = CustomEvent<DialogBeforeCloseDetail>;
 export type DialogOpenChangeEvent = CustomEvent<DialogOpenChangeDetail>;
 
 export interface OrmoDialogElement extends HTMLElement {
@@ -52,6 +63,7 @@ declare global {
   }
 
   interface GlobalEventHandlersEventMap {
+    "ormo:dialog-before-close": DialogBeforeCloseEvent;
     "ormo:dialog-open-change": DialogOpenChangeEvent;
   }
 }

@@ -1,11 +1,24 @@
 ---
 import type { FieldDescriptionProps } from "./types";
+import { getFieldSsrContext } from "../../internal/field-ssr-context";
 
 type Props = FieldDescriptionProps;
 
-const attributes: Props = Astro.props;
+const { id, ...attributes }: Props = Astro.props;
+const field = getFieldSsrContext();
+const descriptionIndex = field ? ++field.descriptionCount : undefined;
+const descriptionId =
+  id ??
+  (field && descriptionIndex
+    ? `${field.rootId}-description-${descriptionIndex}`
+    : undefined);
 ---
 
-<div {...attributes} data-ormo-field-description>
+<div
+  {...attributes}
+  id={descriptionId}
+  data-ormo-field-description
+  data-invalid={field?.invalid ? "" : undefined}
+>
   <slot />
 </div>

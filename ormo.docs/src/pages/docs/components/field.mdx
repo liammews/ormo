@@ -1,13 +1,19 @@
 ---
 layout: ../../../layouts/MdxDocLayout.astro
 title: "Field"
-description: "Provides accessible labelling, descriptions, errors, and form state"
+description: "Connects a form control with its label, descriptions, errors, validation, and interaction state."
 ---
 
 import FieldDemo from "../../../components/demos/Field/FieldDemo.astro";
 import fieldDemoCode from "../../../components/demos/Field/FieldDemo.astro?raw";
 import fieldDemoCss from "../../../components/demos/Field/index.css?raw";
+import FieldDisabledDemo from "../../../components/demos/Field/FieldDisabledDemo.astro";
+import fieldDisabledDemoCode from "../../../components/demos/Field/FieldDisabledDemo.astro?raw";
+import FieldErrorDemo from "../../../components/demos/Field/FieldErrorDemo.astro";
+import fieldErrorDemoCode from "../../../components/demos/Field/FieldErrorDemo.astro?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
 <DemoBlock
   files={[
@@ -17,3 +23,531 @@ import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 >
   <FieldDemo />
 </DemoBlock>
+
+## Anatomy
+
+Import the parts and place one native control inside `Field.Root`. `Field.Control` renders an input; a native `<select>` or `<textarea>` can be used in its place.
+
+Put native form attributes such as `name`, `required`, `disabled`, and `readonly` on the control. This preserves form submission and constraint validation in the server-rendered HTML, before the Field runtime loads.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Field from "@ormo/primitives/field";
+---
+
+<Field.Root id="email-field" validationMode="onBlur">
+  <Field.Label for="email">Email address</Field.Label>
+  <Field.Control
+    id="email"
+    name="email"
+    type="email"
+    required
+    autocomplete="email"
+    aria-describedby="email-description"
+  />
+  <Field.Description id="email-description">
+    We’ll only use this to contact you about your account.
+  </Field.Description>
+  <Field.Error match="valueMissing">
+    Enter your email address.
+  </Field.Error>
+</Field.Root>`}
+/>
+
+`Field.Root` owns the first supported control in its subtree. Use one field per input, select, or textarea. For related native controls without coordinated state, use [Fieldset](/docs/components/fieldset). Wrap [CheckboxGroup](/docs/components/checkbox#checkbox-group) or [RadioGroup](/docs/components/radio#radio-group) in `Field.Root` when the group needs descriptions, errors, or Field state.
+
+## Examples
+
+### Explicit invalid state
+
+Set `invalid` when validity is controlled by a server response or other state outside native constraint validation. A generic `Field.Error` is rendered visibly on the server, and the control receives `aria-invalid="true"`.
+
+<DemoBlock
+  files={[
+    { filename: "Field.astro", code: fieldErrorDemoCode },
+    { filename: "index.css", code: fieldDemoCss },
+  ]}
+>
+  <FieldErrorDemo />
+</DemoBlock>
+
+### Disabled control
+
+Set `disabled` on the native control. The browser then removes it from focus, validation, and successful form data, while Field mirrors the state to its public styling hooks.
+
+<DemoBlock
+  files={[
+    { filename: "Field.astro", code: fieldDisabledDemoCode },
+    { filename: "index.css", code: fieldDemoCss },
+  ]}
+>
+  <FieldDisabledDemo />
+</DemoBlock>
+
+### Custom validation
+
+Assign a synchronous or asynchronous validator through the browser API. Return a string to set native custom validity, or return `null` or `undefined` when the value is valid. The context includes a snapshot of the associated form data and an `AbortSignal`; pass the signal to cancellable work so stale validation stops when the value, validator, or owned control changes.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Field from "@ormo/primitives/field";
+---
+
+<Field.Root
+  id="username-field"
+  validationMode="onChange"
+  validationDebounceTime={250}
+>
+  <Field.Label>Username</Field.Label>
+  <Field.Control name="username" required autocomplete="username" />
+  <Field.Error>This username is not available.</Field.Error>
+</Field.Root>
+
+<script>
+  import type { OrmoFieldElement } from "@ormo/primitives/field";
+
+  const field = document.querySelector<OrmoFieldElement>("#username-field");
+
+  if (field) {
+    field.validator = async (value, _control, { formData, signal }) => {
+      if (!value) return null;
+
+      const organisation = formData?.get("organisation");
+      const response = await fetch(
+        \`/api/usernames/\${encodeURIComponent(value)}?organisation=\${organisation ?? ""}\`,
+        { signal },
+      );
+
+      if (!response.ok) {
+        throw new Error("Username validation failed");
+      }
+
+      const { available } = await response.json();
+      return available ? null : "This username is not available.";
+    };
+  }
+</script>`}
+
+/>
+
+A thrown error or rejected promise marks the field invalid and emits `ormo:field-validation-error`; it is not converted into a user-facing validation message. Handle the event when the interface needs a distinct service-failure message.
+
+### Validation timing
+
+`validationMode="onSubmit"` defers visible validity state until submission or an explicit `validate()` call. Use `"onBlur"` to validate after focus leaves the control, or `"onChange"` for validation while the value changes. `validationDebounceTime` only delays custom validation in `"onChange"` mode; native state and interaction hooks continue to update immediately.
+
+## API reference
+
+All parts forward the relevant native HTML attributes unless noted otherwise.
+
+### Root
+
+`Field.Root` renders `<ormo-field>` and coordinates one control or one supported checkbox or radio group with its labels, descriptions, errors, validation, and derived state.
+
+<PropsTable
+  id="field-root-props"
+  caption="Field Root properties"
+  rows={[
+    {
+      name: "invalid",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Sets an explicit invalid state for server or application-controlled errors. It renders aria-invalid on Field.Control and reveals a generic Field.Error during server rendering.",
+    },
+    {
+      name: "validationMode",
+      type: '"onSubmit" | "onBlur" | "onChange"',
+      defaultValue: '"onSubmit"',
+      description:
+        "Controls when native validity and a custom validator become visible through Field state and errors.",
+    },
+    {
+      name: "validationDebounceTime",
+      type: "number",
+      defaultValue: "0",
+      description:
+        "Delays custom validation by this many milliseconds in onChange mode. Zero validates without a timer.",
+    },
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the identifier used as the prefix for generated part ids. A unique id is generated when omitted.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered custom element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered custom element.",
+    },
+  ]}
+/>
+
+### Label
+
+`Field.Label` renders `<label>`. It receives a generated `id` and targets the generated `Field.Control` id when `for` is omitted.
+
+<PropsTable
+  id="field-label-props"
+  caption="Field Label properties"
+  rows={[
+    {
+      name: "for",
+      type: "string",
+      description:
+        "Targets an authored control id. Supply it when Field.Control has a custom id or when using a native select or textarea.",
+    },
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the label identifier. A Field-scoped id is generated when omitted.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered label.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered label.",
+    },
+  ]}
+/>
+
+### Control
+
+`Field.Control` renders a native `<input>` and remains the form participant. Native input properties, methods, events, constraint validation, form data, and CSS pseudo-classes remain available.
+
+<PropsTable
+  id="field-control-props"
+  caption="Field Control properties"
+  rows={[
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the control identifier used by Field.Label and authored ARIA relationships. A Field-scoped id is generated when omitted.",
+    },
+    {
+      name: "name",
+      type: "string",
+      description:
+        "Sets the native submitted field name. Put this on the control rather than Field.Root.",
+    },
+    {
+      name: "required",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Participates in native required constraint validation and exposes the :required pseudo-class.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Prevents native focus, editing, validation, and successful form submission.",
+    },
+    {
+      name: "readonly",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Prevents editing while retaining focus and form submission through the native read-only state.",
+    },
+    {
+      name: "aria-describedby",
+      type: "string",
+      description:
+        "References descriptions that must be available before JavaScript. The runtime preserves authored ids and adds Field.Description plus visible Field.Error ids.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered input.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered input.",
+    },
+  ]}
+/>
+
+### Description
+
+`Field.Description` renders `<div>` containing supporting or constraint text. The runtime adds every description id to the owned control or group’s `aria-describedby` value.
+
+<PropsTable
+  id="field-description-props"
+  caption="Field Description properties"
+  rows={[
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the description identifier. A Field-scoped id is generated when omitted.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered description.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered description.",
+    },
+  ]}
+/>
+
+### Error
+
+`Field.Error` renders `<div role="alert">`. It is hidden until its `match` condition applies, then the runtime includes its id in the owned control or group’s `aria-describedby` value.
+
+<PropsTable
+  id="field-error-props"
+  caption="Field Error properties"
+  rows={[
+    {
+      name: "match",
+      type: 'boolean | "badInput" | "customError" | "patternMismatch" | "rangeOverflow" | "rangeUnderflow" | "stepMismatch" | "tooLong" | "tooShort" | "typeMismatch" | "valid" | "valueMissing"',
+      description:
+        "Selects the state that reveals the error. Omit it to match any invalid state. A native ValidityState key matches that constraint, true always reveals the error, false always hides it, and valid matches a completed valid state.",
+    },
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the error identifier. A Field-scoped id is generated when omitted.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered alert.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered alert.",
+    },
+  ]}
+/>
+
+## JavaScript API
+
+`Field.Root` renders an `<ormo-field>` custom element for framework-independent validation and state control. Native attributes remain on the owned control; the corresponding custom-element properties delegate to that live control or group.
+
+<PropsTable
+  id="field-browser-api"
+  caption="Field browser element API"
+  nameHeader="Member"
+  rows={[
+    {
+      name: "invalid",
+      type: "boolean",
+      description:
+        "Gets the combined invalid state or sets the explicit invalid override.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      description:
+        "Gets or sets the native disabled state of the owned control or group.",
+    },
+    {
+      name: "name",
+      type: "string",
+      description: "Gets or sets the live name of the owned control or group.",
+    },
+    {
+      name: "required",
+      type: "boolean",
+      description:
+        "Gets or sets the live required state of the owned control or group.",
+    },
+    {
+      name: "readOnly",
+      type: "boolean",
+      description:
+        "Gets or sets the native readOnly property of an owned input or textarea. It returns false for groups and unsupported controls.",
+    },
+    {
+      name: "state",
+      type: "FieldState",
+      description:
+        "Gets a snapshot containing disabled, dirty, filled, focused, invalid, touched, valid, and validating booleans.",
+      details: [{ label: "Writable", value: "No" }],
+    },
+    {
+      name: "validationMode",
+      type: '"onSubmit" | "onBlur" | "onChange"',
+      description: "Gets or sets when validation state becomes visible.",
+    },
+    {
+      name: "validationDebounceTime",
+      type: "number",
+      description:
+        "Gets or sets the custom-validator delay used in onChange mode.",
+    },
+    {
+      name: "validator",
+      type: "FieldValidator | undefined",
+      description:
+        "Gets, replaces, or removes the synchronous or asynchronous custom validator. Replacing or removing it aborts pending work and clears its custom validity.",
+    },
+    {
+      name: "validate()",
+      type: "() => Promise<boolean>",
+      description:
+        "Runs custom and native validation, updates Field state and errors, and resolves with the combined result.",
+    },
+  ]}
+/>
+
+### validator
+
+The validator receives `(value, control, context)`. `context.formData` is a `FormData` snapshot or `null` when the control has no associated form, and `context.signal` is aborted when the result becomes stale. A string becomes the control’s native custom validity message; `null` or `undefined` clears it.
+
+### ormo:field-state-change
+
+Fires whenever the derived Field state changes after initial connection. It bubbles across shadow boundaries, cannot be cancelled, and exposes a `FieldState` snapshot as `event.detail.state`.
+
+### ormo:field-validation-error
+
+Fires when a validator throws or rejects. It bubbles across shadow boundaries, cannot be cancelled, and exposes `control`, `error`, and the validated `value` in `event.detail`. Aborted or stale validators do not emit it.
+
+<CodeBlock
+  lang="js"
+  code={`const field = document.querySelector("ormo-field");
+
+field.addEventListener("ormo:field-state-change", (event) => {
+console.log(event.detail.state);
+});
+
+field.addEventListener("ormo:field-validation-error", (event) => {
+console.error(event.detail.error);
+});
+
+const valid = await field.validate();`}
+/>
+
+## Accessibility
+
+The field builds on native form semantics. `Field.Label` labels `Field.Control`, and the runtime connects descriptions plus visible errors through `aria-describedby`. Invalid state is mirrored to `aria-invalid`, while `Field.Error` uses `role="alert"` so newly revealed error text can be announced.
+
+Every control needs an accessible name. Prefer a visible `Field.Label`; use `aria-label` or `aria-labelledby` only when visible label text is not appropriate. When marking a field required, include a visible text or symbol explanation that does not rely on colour alone. Keep instructions available before validation, and write errors that explain how to correct the value.
+
+On unsuccessful form submission, Field focuses the first invalid owned control and uses the browser’s native validation interface when a native constraint also fails.
+
+<PropsTable
+  id="field-keyboard"
+  caption="Field keyboard behaviour"
+  nameHeader="Key"
+  nameElement="kbd"
+  rows={[
+    {
+      name: "Tab",
+      type: "Focus",
+      description:
+        "Moves focus forwards to the native control according to document order.",
+    },
+    {
+      name: "Shift + Tab",
+      type: "Focus",
+      description:
+        "Moves focus backwards from the native control according to document order.",
+    },
+  ]}
+/>
+
+The owned native control retains its element-specific keyboard behaviour. Field does not add arrow-key navigation or activation shortcuts.
+
+## Styling
+
+Field ships no layout or brand styles. Add `class` to each rendered part and style native control state with pseudo-classes such as `:disabled`, `:required`, `:read-only`, `:valid`, and `:invalid`.
+
+The runtime mirrors each public state hook to `Field.Root`, `Field.Label`, the owned control or group, `Field.Description`, and `Field.Error`. Attributes prefixed with `data-ormo-*` are internal runtime selectors, not styling APIs.
+
+<PropsTable
+  id="field-styling"
+  caption="Field styling hooks"
+  nameHeader="Hook"
+  rows={[
+    {
+      name: "data-disabled",
+      type: "boolean attribute",
+      description: "Present while the owned control or group is disabled.",
+    },
+    {
+      name: "data-dirty",
+      type: "boolean attribute",
+      description:
+        "Present when the current value differs from the value captured on connection or reset.",
+    },
+    {
+      name: "data-filled",
+      type: "boolean attribute",
+      description:
+        "Present when a text value, selected option, file, checked control, or group value is present.",
+    },
+    {
+      name: "data-focused",
+      type: "boolean attribute",
+      description:
+        "Present while the owned control, or a member of the owned group, contains focus.",
+    },
+    {
+      name: "data-invalid",
+      type: "boolean attribute",
+      description:
+        "Present for explicit invalid state, authored aria-invalid, failed custom validation, or a revealed native constraint failure.",
+    },
+    {
+      name: "data-touched",
+      type: "boolean attribute",
+      description:
+        "Present after focus leaves the owned control or group, or after native invalid state is reported.",
+    },
+    {
+      name: "data-valid",
+      type: "boolean attribute",
+      description:
+        "Present after completed validation when no invalid condition remains.",
+    },
+    {
+      name: "data-validating",
+      type: "boolean attribute",
+      description: "Present while an asynchronous validator is pending.",
+    },
+  ]}
+/>
+
+<CodeBlock
+  lang="css"
+  code={`.field[data-invalid] .field-input {
+  border-color: var(--border-error);
+}
+
+.field[data-validating] .field-input {
+cursor: progress;
+}
+
+.field-input:disabled {
+cursor: not-allowed;
+opacity: 0.6;
+}`}
+/>
+
+## Runtime
+
+`Field.Root` loads one deduplicated custom-element runtime. Server rendering provides the native control, label relationship for `Field.Control`, authored descriptions, native form attributes, and explicit invalid state. Without JavaScript, native input focus, editing, submission, and constraint validation continue to work; automatic description and error relationships, validation timing, custom validators, derived state hooks, form-wide async validation, and the browser API are unavailable.

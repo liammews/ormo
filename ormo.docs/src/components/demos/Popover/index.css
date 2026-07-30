@@ -13,7 +13,6 @@
   padding: var(--space-150);
   background: var(--surface-base);
   color: var(--content-default);
-  box-shadow: 0 0.75rem 2rem rgb(0 0 0 / 18%);
   transition:
     opacity var(--duration-1) var(--ease-1),
     transform var(--duration-1) var(--ease-1);
@@ -38,52 +37,11 @@
   line-height: var(--line-height-loose);
 }
 
-.popover-form {
-  display: grid;
-  gap: var(--space-50);
-  margin-block-start: var(--space-125);
-}
-
-.popover-label {
-  font-size: var(--font-size-2);
-  font-weight: var(--font-weight-medium);
-}
-
-.popover-input {
-  min-height: 2.75rem;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-2);
-  padding-inline: var(--space-75);
-  background: var(--surface-base);
-  color: var(--content-default);
-  font: inherit;
-}
-
-.popover-actions {
-  margin-block-start: var(--space-125);
-}
-
-.popover-input:focus-visible,
-.popover-outside:focus-visible {
-  outline: var(--focus-width) solid var(--focus-default);
-  outline-offset: var(--focus-offset);
-}
-
 .popover-status {
   min-height: var(--line-height-base);
   margin: 0;
   color: var(--content-subtle);
   font-size: var(--font-size-2);
-}
-
-.popover-outside {
-  min-height: 2.75rem;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-2);
-  padding-inline: var(--space-75);
-  background: var(--surface-base);
-  color: var(--content-default);
-  font: inherit;
 }
 
 .popover-icon {

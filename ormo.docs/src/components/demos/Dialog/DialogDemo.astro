@@ -3,55 +3,19 @@ import * as Dialog from "@ormo/primitives/dialog";
 import "./index.css";
 ---
 
-<div data-profile-editor>
-  <Dialog.Root>
-    <Dialog.Trigger class="dialog-trigger button">Edit profile</Dialog.Trigger>
+<Dialog.Root>
+  <Dialog.Trigger class="dialog-trigger button">
+    View notifications
+  </Dialog.Trigger>
 
-    <Dialog.Content class="dialog-content">
-      <Dialog.Title class="dialog-title">Edit profile</Dialog.Title>
-      <Dialog.Description class="dialog-description">
-        Change how your name appears to other people.
-      </Dialog.Description>
+  <Dialog.Content class="dialog-content">
+    <Dialog.Title class="dialog-title">Notifications</Dialog.Title>
+    <Dialog.Description class="dialog-description">
+      You are all caught up. Good job!
+    </Dialog.Description>
 
-      <form class="dialog-form" data-profile-form>
-        <label class="dialog-label" for="dialog-display-name">
-          Display name
-        </label>
-        <input
-          class="dialog-input"
-          id="dialog-display-name"
-          name="displayName"
-          value="Ada Lovelace"
-          autocomplete="name"
-        />
-
-        <div class="dialog-actions button-group button-group--end">
-          <Dialog.Close class="dialog-button button button--secondary">
-            Cancel
-          </Dialog.Close>
-          <Dialog.Close
-            class="dialog-button dialog-primary button"
-            value="save"
-            data-save-profile
-          >
-            Save changes
-          </Dialog.Close>
-        </div>
-      </form>
-    </Dialog.Content>
-  </Dialog.Root>
-
-  <p class="dialog-status" aria-live="polite" data-profile-status></p>
-</div>
-
-<script>
-  for (const editor of document.querySelectorAll<HTMLElement>(
-    "[data-profile-editor]",
-  )) {
-    const save = editor.querySelector<HTMLElement>("[data-save-profile]");
-    const status = editor.querySelector<HTMLElement>("[data-profile-status]");
-    save?.addEventListener("click", () => {
-      if (status) status.textContent = "Profile saved.";
-    });
-  }
-</script>
+    <div class="dialog-actions button-group button-group--end">
+      <Dialog.Close class="dialog-button button">Close</Dialog.Close>
+    </div>
+  </Dialog.Content>
+</Dialog.Root>

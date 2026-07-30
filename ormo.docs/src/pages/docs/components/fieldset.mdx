@@ -1,13 +1,19 @@
 ---
 layout: ../../../layouts/MdxDocLayout.astro
 title: "Fieldset"
-description: "Groups related form controls under a native legend"
+description: "Groups related form controls under a native legend."
 ---
 
 import FieldsetDemo from "../../../components/demos/Fieldset/FieldsetDemo.astro";
 import fieldsetDemoCode from "../../../components/demos/Fieldset/FieldsetDemo.astro?raw";
 import fieldsetDemoCss from "../../../components/demos/Fieldset/index.css?raw";
+import FieldsetDisabledDemo from "../../../components/demos/Fieldset/FieldsetDisabledDemo.astro";
+import fieldsetDisabledDemoCode from "../../../components/demos/Fieldset/FieldsetDisabledDemo.astro?raw";
+import FieldsetFormAssociationDemo from "../../../components/demos/Fieldset/FieldsetFormAssociationDemo.astro";
+import fieldsetFormAssociationDemoCode from "../../../components/demos/Fieldset/FieldsetFormAssociationDemo.astro?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
 <DemoBlock
   files={[
@@ -17,3 +23,300 @@ import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 >
   <FieldsetDemo />
 </DemoBlock>
+
+## Anatomy
+
+Import both parts and make `Fieldset.Legend` the first child of `Fieldset.Root`. The native legend supplies the accessible name for the group. Every control inside the group still needs its own label.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Fieldset from "@ormo/primitives/fieldset";
+---
+
+<Fieldset.Root aria-describedby="delivery-hint">
+  <Fieldset.Legend>Delivery address</Fieldset.Legend>
+  <p id="delivery-hint">
+    Enter the address where this order should be sent.
+  </p>
+
+<label for="address-line">Address line</label>
+<input
+  id="address-line"
+  name="address-line"
+  autocomplete="shipping address-line1"
+/>
+
+  <label for="town">Town or city</label>
+  <input
+    id="town"
+    name="town"
+    autocomplete="shipping address-level2"
+  />
+</Fieldset.Root>`}
+/>
+
+Use [Field](/docs/components/field) for one control with its own label, description, error, and validation state. Use the fieldset when one caption applies to several related controls. Choose [CheckboxGroup](/docs/components/checkbox#checkbox-group) or [RadioGroup](/docs/components/radio#radio-group) when the controls need coordinated values, required-group validation, or a browser API.
+
+## Examples
+
+### Disabled group
+
+Set `disabled` on `Fieldset.Root` to disable every descendant form control. The legend continues to name the group while its controls are unavailable.
+
+<DemoBlock
+  files={[
+    { filename: "Fieldset.astro", code: fieldsetDisabledDemoCode },
+    { filename: "index.css", code: fieldsetDemoCss },
+  ]}
+>
+  <FieldsetDisabledDemo />
+</DemoBlock>
+
+### Form association
+
+The native `form` attribute associates a fieldset with a form elsewhere in the document, but it does not associate the fieldset’s descendant controls. Add the same `form` id to each out-of-form control that should participate in submission.
+
+The fieldset’s `name` is available through the form and DOM APIs; it does not add a value to `FormData`.
+
+<DemoBlock
+  files={[
+    { filename: "Fieldset.astro", code: fieldsetFormAssociationDemoCode },
+    { filename: "index.css", code: fieldsetDemoCss },
+  ]}
+>
+  <FieldsetFormAssociationDemo />
+</DemoBlock>
+
+### Related choices
+
+A fieldset is the zero-JavaScript option when checkboxes or radios need only a shared caption. Keep a native name on each member and label every individual option:
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Fieldset from "@ormo/primitives/fieldset";
+import { Radio } from "@ormo/primitives/radio";
+---
+
+<Fieldset.Root>
+  <Fieldset.Legend>Billing cycle</Fieldset.Legend>
+  <label>
+    <Radio name="billing-cycle" value="monthly" checked />
+    Monthly
+  </label>
+  <label>
+    <Radio name="billing-cycle" value="yearly" />
+    Yearly
+  </label>
+</Fieldset.Root>`}
+/>
+
+## API reference
+
+Both parts forward the relevant native HTML attributes.
+
+### Root
+
+`Fieldset.Root` renders a native `<fieldset>` and groups related form controls under a shared caption.
+
+<PropsTable
+  id="fieldset-root-props"
+  caption="Fieldset Root properties"
+  rows={[
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Disables descendant form controls through native HTML, except controls inside the first direct Legend.",
+    },
+    {
+      name: "form",
+      type: "string",
+      description:
+        "Associates the fieldset itself with the form that has this id. It does not associate out-of-form descendant controls.",
+    },
+    {
+      name: "name",
+      type: "string",
+      description:
+        "Sets the fieldset’s native name for DOM and form element lookup. A fieldset does not contribute its own entry to FormData.",
+    },
+    {
+      name: "aria-describedby",
+      type: "string",
+      description:
+        "References supporting text or a group-level error that describes the fieldset.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered fieldset.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered fieldset.",
+    },
+  ]}
+/>
+
+### Legend
+
+`Fieldset.Legend` renders a native `<legend>` and provides the fieldset’s visible accessible name. It must be the first direct child of `Fieldset.Root`; use one legend per fieldset.
+
+<PropsTable
+  id="fieldset-legend-props"
+  caption="Fieldset Legend properties"
+  rows={[
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered legend.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered legend.",
+    },
+  ]}
+/>
+
+## JavaScript API
+
+Fieldset does not define a custom element or browser controller. `Fieldset.Root` remains an `HTMLFieldSetElement`, so its standard DOM API is available directly.
+
+<PropsTable
+  id="fieldset-browser-api"
+  caption="Native fieldset element API"
+  nameHeader="Member"
+  rows={[
+    {
+      name: "disabled",
+      type: "boolean",
+      description:
+        "Gets or sets native disabled cascading for descendant controls.",
+    },
+    {
+      name: "form",
+      type: "HTMLFormElement | null",
+      description: "Gets the fieldset’s associated form.",
+      details: [{ label: "Writable", value: "No" }],
+    },
+    {
+      name: "name",
+      type: "string",
+      description: "Gets or sets the fieldset’s native name.",
+    },
+    {
+      name: "elements",
+      type: "HTMLCollection",
+      description:
+        "Gets the listed form controls contained by the fieldset, including controls in nested groups.",
+      details: [{ label: "Writable", value: "No" }],
+    },
+    {
+      name: "type",
+      type: '"fieldset"',
+      description: 'Always returns "fieldset".',
+      details: [{ label: "Writable", value: "No" }],
+    },
+    {
+      name: "willValidate",
+      type: "false",
+      description:
+        "A fieldset is barred from native constraint validation. Validate its descendant controls or use an enhanced group primitive instead.",
+      details: [{ label: "Writable", value: "No" }],
+    },
+  ]}
+/>
+
+<CodeBlock
+  lang="js"
+  code={`const fieldset = document.querySelector("fieldset");
+
+fieldset.disabled = false;
+console.log(fieldset.form);
+console.log(Array.from(fieldset.elements));
+console.log(fieldset.name);`}
+/>
+
+## Accessibility
+
+The native fieldset and legend relationship provides the group role and accessible name without ARIA. Keep `Fieldset.Legend` visible, non-empty, and first in `Fieldset.Root`. Every descendant input, select, textarea, checkbox, or radio still needs its own accessible label.
+
+Use `aria-describedby` on `Fieldset.Root` for group-level instructions and errors. Error text should identify the problem and how to correct it, and must not rely on colour alone.
+
+A fieldset does not introduce keyboard interaction. Focus moves through its enabled descendant controls in document order. When the group is disabled, controls in the first legend remain operable while the remaining descendants leave the focus order.
+
+<PropsTable
+  id="fieldset-keyboard"
+  caption="Fieldset keyboard behaviour"
+  nameHeader="Key"
+  nameElement="kbd"
+  rows={[
+    {
+      name: "Tab",
+      type: "Focus",
+      description:
+        "Moves focus forwards through enabled descendant controls in document order.",
+    },
+    {
+      name: "Shift + Tab",
+      type: "Focus",
+      description:
+        "Moves focus backwards through enabled descendant controls in document order.",
+    },
+  ]}
+/>
+
+The optional [development toolbar](/docs/dev-toolbar) reports a missing, empty, misplaced, or duplicated `Fieldset.Legend`. Manual screen-reader testing is still recommended for nested fieldsets and legends containing interactive controls.
+
+## Styling
+
+Fieldset ships no layout or brand styles. Add `class` to either part and use the native `:disabled` or `:enabled` pseudo-classes for group state. The `data-ormo-fieldset-*` attributes identify internal component structure and are not state APIs.
+
+Native fieldsets have special box-model behaviour and a default `min-inline-size` based on their contents. Set `min-inline-size: 0` when the group must shrink inside a grid or flex layout. A native legend is positioned over the fieldset’s block-start border and shrink-wraps its content.
+
+<PropsTable
+  id="fieldset-styling"
+  caption="Fieldset styling hooks"
+  nameHeader="Hook"
+  rows={[
+    {
+      name: ":disabled",
+      type: "CSS pseudo-class",
+      description:
+        "Matches a disabled fieldset and can style the group, legend, or descendants.",
+      details: [{ label: "Element", value: "Fieldset.Root" }],
+    },
+    {
+      name: ":enabled",
+      type: "CSS pseudo-class",
+      description: "Matches an enabled fieldset.",
+      details: [{ label: "Element", value: "Fieldset.Root" }],
+    },
+  ]}
+/>
+
+<CodeBlock
+  lang="css"
+  code={`.fieldset {
+  min-inline-size: 0;
+  margin: 0;
+  border: 1px solid currentColor;
+}
+
+.fieldset:disabled {
+opacity: 0.6;
+}
+
+.fieldset:disabled > .fieldset-legend {
+opacity: 1;
+}`}
+/>
+
+## Runtime
+
+`Fieldset.Root` and `Fieldset.Legend` render only native HTML and ship no client JavaScript. Group naming, form association, disabled cascading, focus behaviour, and the DOM API work during server rendering and without JavaScript. Any script that changes `disabled` or handles submission is application code rather than Fieldset runtime.

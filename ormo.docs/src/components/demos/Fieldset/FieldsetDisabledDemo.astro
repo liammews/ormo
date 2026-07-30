@@ -1,0 +1,47 @@
+---
+import * as Field from "@ormo/primitives/field";
+import * as Fieldset from "@ormo/primitives/fieldset";
+import "./index.css";
+---
+
+<div class="fieldset-demo" data-fieldset-disabled-demo>
+  <Fieldset.Root
+    class="fieldset"
+    disabled
+    aria-describedby="delivery-address-hint"
+    data-disabled-fieldset
+  >
+    <Fieldset.Legend class="fieldset-legend">
+      Delivery address
+    </Fieldset.Legend>
+    <p class="fieldset-hint" id="delivery-address-hint">
+      These details are currently unavailable.
+    </p>
+    <div class="fieldset-fields">
+      <Field.Root class="fieldset-field">
+        <Field.Label class="fieldset-label" for="alternate-address-line">
+          Address line
+        </Field.Label>
+        <Field.Control
+          class="fieldset-input"
+          id="alternate-address-line"
+          name="alternate-address-line"
+          autocomplete="shipping address-line1"
+          placeholder="Hornsey Road"
+        />
+      </Field.Root>
+      <Field.Root class="fieldset-field">
+        <Field.Label class="fieldset-label" for="alternate-address-town">
+          Town or city
+        </Field.Label>
+        <Field.Control
+          class="fieldset-input"
+          id="alternate-address-town"
+          name="alternate-address-town"
+          autocomplete="shipping address-level2"
+          placeholder="London"
+        />
+      </Field.Root>
+    </div>
+  </Fieldset.Root>
+</div>

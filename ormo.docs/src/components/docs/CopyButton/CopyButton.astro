@@ -24,6 +24,32 @@ import { Check, Copy } from "@lucide/astro";
   const copyButtons =
     document.querySelectorAll<HTMLButtonElement>("[data-copy-button]");
 
+  const copyText = async (text: string, button: HTMLButtonElement) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      return;
+    } catch {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.readOnly = true;
+      textarea.style.position = "fixed";
+      textarea.style.inset = "0 auto auto 0";
+      textarea.style.opacity = "0";
+      textarea.style.pointerEvents = "none";
+      document.body.append(textarea);
+      textarea.select();
+      textarea.setSelectionRange(0, textarea.value.length);
+
+      const copied = document.execCommand("copy");
+      textarea.remove();
+      button.focus({ preventScroll: true });
+
+      if (!copied) {
+        throw new Error("Unable to copy code");
+      }
+    }
+  };
+
   const resetButton = (button: HTMLButtonElement) => {
     button.dataset.state = "idle";
     button.setAttribute("aria-label", "Copy code to clipboard");
@@ -48,7 +74,7 @@ import { Check, Copy } from "@lucide/astro";
       if (existingTimer) window.clearTimeout(existingTimer);
 
       try {
-        await navigator.clipboard.writeText(code);
+        await copyText(code, button);
         button.dataset.state = "copied";
         button.setAttribute("aria-label", "Code copied");
         button.setAttribute("title", "Copied");

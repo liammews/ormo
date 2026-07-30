@@ -1,0 +1,157 @@
+---
+import { Monitor, Moon, Sun } from "@lucide/astro";
+import { Button } from "@ormo/primitives/button";
+---
+
+<Button
+  class="theme-switcher button button--secondary button--square"
+  type="button"
+  aria-label="Theme: System. Switch to light theme."
+  title="Theme: System"
+  data-theme-switcher
+>
+  <span
+    class="theme-switcher_icon"
+    data-theme-icon="system"
+    aria-hidden="true"
+  >
+    <Monitor size={16} stroke-width={2} />
+  </span>
+  <span
+    class="theme-switcher_icon"
+    data-theme-icon="light"
+    aria-hidden="true"
+  >
+    <Sun size={16} stroke-width={2} />
+  </span>
+  <span
+    class="theme-switcher_icon"
+    data-theme-icon="dark"
+    aria-hidden="true"
+  >
+    <Moon size={16} stroke-width={2} />
+  </span>
+  <span
+    class="theme-switcher_status"
+    aria-live="polite"
+    data-theme-status
+  ></span>
+</Button>
+
+<script>
+  type Theme = "system" | "light" | "dark";
+
+  const themes: Theme[] = ["system", "light", "dark"];
+  const themeLabels: Record<Theme, string> = {
+    system: "System",
+    light: "Light",
+    dark: "Dark",
+  };
+
+  const isTheme = (value: string | undefined): value is Theme =>
+    value !== undefined && themes.includes(value as Theme);
+
+  const getNextTheme = (theme: Theme): Theme =>
+    themes[(themes.indexOf(theme) + 1) % themes.length] ?? "system";
+
+  const updateButton = (button: HTMLButtonElement, theme: Theme) => {
+    const nextTheme = getNextTheme(theme);
+    const currentLabel = themeLabels[theme];
+    const nextLabel = themeLabels[nextTheme];
+
+    button.setAttribute(
+      "aria-label",
+      `Theme: ${currentLabel}. Switch to ${nextLabel.toLowerCase()} theme.`,
+    );
+    button.title = `Theme: ${currentLabel}`;
+  };
+
+  const themeButtons = document.querySelectorAll<HTMLButtonElement>(
+    "[data-theme-switcher]",
+  );
+
+  for (const button of themeButtons) {
+    if (button.dataset.themeSwitcherInitialized === "true") continue;
+
+    button.dataset.themeSwitcherInitialized = "true";
+
+    const initialTheme = isTheme(document.documentElement.dataset.theme)
+      ? document.documentElement.dataset.theme
+      : "system";
+    updateButton(button, initialTheme);
+
+    button.addEventListener("click", () => {
+      const currentTheme = isTheme(document.documentElement.dataset.theme)
+        ? document.documentElement.dataset.theme
+        : "system";
+      const nextTheme = getNextTheme(currentTheme);
+
+      document.documentElement.dataset.theme = nextTheme;
+      updateButton(button, nextTheme);
+
+      try {
+        localStorage.setItem("ormo-docs-theme", nextTheme);
+      } catch {
+        // The selected theme still applies when storage is unavailable.
+      }
+
+      const status = button.querySelector<HTMLElement>("[data-theme-status]");
+      if (status) status.textContent = `${themeLabels[nextTheme]} theme`;
+    });
+  }
+</script>
+
+<style>
+  .theme-switcher {
+    display: inline-grid;
+    inline-size: 2rem;
+    min-width: 2rem;
+    min-height: 2rem;
+    block-size: 2rem;
+    flex: none;
+    margin-inline-start: auto;
+    padding: 0;
+    place-items: center;
+  }
+
+  .theme-switcher_icon {
+    display: grid;
+    grid-area: 1 / 1;
+    inline-size: 1rem;
+    block-size: 1rem;
+    opacity: 0;
+    filter: blur(0.25rem);
+    place-items: center;
+    transform: scale(0.6);
+    transition:
+      opacity var(--duration-1) var(--ease-1),
+      transform var(--duration-1) var(--ease-1),
+      filter var(--duration-1) var(--ease-1);
+  }
+
+  :global(html:not([data-theme])) .theme-switcher_icon[data-theme-icon="system"],
+  :global(html[data-theme="system"])
+    .theme-switcher_icon[data-theme-icon="system"],
+  :global(html[data-theme="light"])
+    .theme-switcher_icon[data-theme-icon="light"],
+  :global(html[data-theme="dark"]) .theme-switcher_icon[data-theme-icon="dark"] {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+  }
+
+  .theme-switcher_status {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .theme-switcher_icon {
+      transition: none;
+    }
+  }
+</style>

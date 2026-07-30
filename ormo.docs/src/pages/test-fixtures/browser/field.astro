@@ -6,9 +6,10 @@ import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
 ---
 
 <BrowserFixtureLayout title="Field">
-  <div id="field-default-demo-description" data-field-demo>
+  <form id="field-default-demo-description" data-field-demo>
     <FieldDemo />
-  </div>
+    <button type="submit" data-field-submit>Submit field</button>
+  </form>
   <div data-field-error-demo><FieldErrorDemo /></div>
   <div data-field-disabled-demo><FieldDisabledDemo /></div>
 </BrowserFixtureLayout>

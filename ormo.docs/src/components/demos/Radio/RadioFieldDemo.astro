@@ -1,13 +1,14 @@
 ---
 import { Radio, RadioIndicator } from "@ormo/primitives/radio";
 import * as RadioGroup from "@ormo/primitives/radio/group";
+import { Button } from "@ormo/primitives/button";
 import * as Field from "@ormo/primitives/field";
 import "./index.css";
 ---
 
-<form>
-  <Field.Root class="radio-group" name="delivery">
-    <RadioGroup.Root name="delivery" required>
+<form class="radio-required-form">
+  <Field.Root class="radio-group radio-required-field">
+    <RadioGroup.Root class="radio-required-options" name="delivery" required>
       <RadioGroup.Label class="radio-group-label">
         Delivery speed
       </RadioGroup.Label>
@@ -35,5 +36,5 @@ import "./index.css";
       Choose a delivery speed.
     </Field.Error>
   </Field.Root>
-  <button type="submit" style="margin-block-start: 0.75rem">Continue</button>
+  <Button class="button" type="submit">Continue</Button>
 </form>

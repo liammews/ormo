@@ -1,11 +1,8 @@
 import type { HTMLAttributes } from "astro/types";
+import type { InputProps } from "../input/types";
 
 export interface FieldRootProps extends HTMLAttributes<"div"> {
   invalid?: boolean;
-  disabled?: boolean;
-  name?: string;
-  required?: boolean;
-  readOnly?: boolean;
   validationMode?: FieldValidationMode;
   /** Debounce in milliseconds for `validationMode="onChange"`. */
   validationDebounceTime?: number;
@@ -15,7 +12,7 @@ export type FieldLabelProps = HTMLAttributes<"label">;
 
 export type FieldDescriptionProps = HTMLAttributes<"div">;
 
-export type FieldControlProps = HTMLAttributes<"input">;
+export type FieldControlProps = InputProps;
 
 export interface FieldErrorProps extends HTMLAttributes<"div"> {
   match?: FieldValidityMatch;
@@ -53,9 +50,15 @@ export interface FieldState {
 
 export type FieldValidationResult = string | null | undefined;
 
+export interface FieldValidatorContext {
+  formData: FormData | null;
+  signal: AbortSignal;
+}
+
 export type FieldValidator = (
   value: string,
   control: FieldControlElement,
+  context: FieldValidatorContext,
 ) => FieldValidationResult | Promise<FieldValidationResult>;
 
 export interface FieldStateChangeDetail {
@@ -63,6 +66,14 @@ export interface FieldStateChangeDetail {
 }
 
 export type FieldStateChangeEvent = CustomEvent<FieldStateChangeDetail>;
+
+export interface FieldValidationErrorDetail {
+  control: FieldControlElement;
+  error: unknown;
+  value: string;
+}
+
+export type FieldValidationErrorEvent = CustomEvent<FieldValidationErrorDetail>;
 
 export interface OrmoFieldElement extends HTMLElement {
   invalid: boolean;
@@ -83,6 +94,7 @@ declare global {
   }
 
   interface GlobalEventHandlersEventMap {
-    "ormo:state-change": FieldStateChangeEvent;
+    "ormo:field-state-change": FieldStateChangeEvent;
+    "ormo:field-validation-error": FieldValidationErrorEvent;
   }
 }

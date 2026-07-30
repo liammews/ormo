@@ -19,9 +19,12 @@ export type {
   FieldState,
   FieldStateChangeDetail,
   FieldStateChangeEvent,
+  FieldValidationErrorDetail,
+  FieldValidationErrorEvent,
   FieldValidationMode,
   FieldValidationResult,
   FieldValidator,
+  FieldValidatorContext,
   FieldValidityMatch,
   OrmoFieldElement,
 } from "./types";

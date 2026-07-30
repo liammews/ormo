@@ -1,0 +1,14 @@
+---
+import * as Field from "../../../src/components/field";
+---
+
+<Field.Root id="disabled-email-field">
+  <Field.Label>Email address</Field.Label>
+  <Field.Control
+    name="email"
+    type="email"
+    value="person@example.com"
+    disabled
+  />
+  <Field.Error match="valueMissing">Enter your email address.</Field.Error>
+</Field.Root>

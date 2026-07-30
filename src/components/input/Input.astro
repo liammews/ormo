@@ -1,9 +1,39 @@
 ---
+import { getFieldSsrContext } from "../../internal/field-ssr-context";
 import type { InputProps } from "./types";
 
 type Props = InputProps;
 
-const attributes: Props = Astro.props;
+const {
+  id,
+  "aria-invalid": ariaInvalid,
+  "data-ormo-input": ormoInputAttribute,
+  "data-ormo-field-control": fieldControlAttribute,
+  "data-ormo-field-inherited-invalid": inheritedInvalidAttribute,
+  "data-invalid": authoredDataInvalid,
+  ...attributes
+}: Props = Astro.props;
+void [ormoInputAttribute, inheritedInvalidAttribute];
+
+const field = getFieldSsrContext();
+const isFieldControl =
+  field !== undefined || fieldControlAttribute !== undefined;
+const controlId = id ?? field?.controlId;
+const resolvedAriaInvalid =
+  ariaInvalid ?? (field?.invalid ? "true" : undefined);
+const resolvedDataInvalid = field
+  ? field.invalid
+    ? ""
+    : undefined
+  : authoredDataInvalid;
 ---
 
-<input {...attributes} data-ormo-input />
+<input
+  {...attributes}
+  id={controlId}
+  aria-invalid={resolvedAriaInvalid}
+  data-ormo-input
+  data-ormo-field-control={isFieldControl ? "" : undefined}
+  data-ormo-field-inherited-invalid={field?.invalid ? "" : undefined}
+  data-invalid={resolvedDataInvalid}
+/>

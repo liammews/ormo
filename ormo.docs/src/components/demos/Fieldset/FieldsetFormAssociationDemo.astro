@@ -1,0 +1,86 @@
+---
+import * as Field from "@ormo/primitives/field";
+import * as Fieldset from "@ormo/primitives/fieldset";
+import "./index.css";
+---
+
+<div class="fieldset-demo" data-fieldset-form-demo>
+  <form id="contact-details-form" data-associated-form></form>
+
+  <Fieldset.Root
+    class="fieldset"
+    name="contact-details"
+    form="contact-details-form"
+    aria-describedby="contact-details-hint"
+    data-associated-fieldset
+  >
+    <Fieldset.Legend class="fieldset-legend"> Contact details </Fieldset.Legend>
+    <p class="fieldset-hint" id="contact-details-hint">
+      These controls are associated with a form elsewhere in the document.
+    </p>
+    <div class="fieldset-fields">
+      <Field.Root class="fieldset-field">
+        <Field.Label class="fieldset-label" for="associated-email">
+          Email address
+        </Field.Label>
+        <Field.Control
+          class="fieldset-input"
+          id="associated-email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          form="contact-details-form"
+          required
+          placeholder="liam@ormo.dev"
+        />
+      </Field.Root>
+      <Field.Root class="fieldset-field">
+        <Field.Label class="fieldset-label" for="associated-phone">
+          Phone number
+        </Field.Label>
+        <Field.Control
+          class="fieldset-input"
+          id="associated-phone"
+          name="phone"
+          type="tel"
+          autocomplete="tel"
+          form="contact-details-form"
+          placeholder="+44 20 1010 2603"
+        />
+      </Field.Root>
+    </div>
+  </Fieldset.Root>
+
+  <div class="fieldset-actions">
+    <button class="button" type="submit" form="contact-details-form">
+      Save contact details
+    </button>
+    <output
+      class="fieldset-status"
+      form="contact-details-form"
+      aria-live="polite"
+      data-fieldset-form-status></output>
+  </div>
+</div>
+
+<script>
+  for (const demo of document.querySelectorAll<HTMLElement>(
+    "[data-fieldset-form-demo]",
+  )) {
+    if (demo.dataset.initialized === "true") continue;
+
+    const form = demo.querySelector<HTMLFormElement>("[data-associated-form]");
+    const status = demo.querySelector<HTMLOutputElement>(
+      "[data-fieldset-form-status]",
+    );
+
+    if (!form || !status) continue;
+
+    demo.dataset.initialized = "true";
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const formData = new FormData(form);
+      status.value = `Saved ${String(formData.get("email"))}`;
+    });
+  }
+</script>

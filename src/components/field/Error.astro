@@ -1,24 +1,33 @@
 ---
 import type { FieldErrorProps } from "./types";
+import { getFieldSsrContext } from "../../internal/field-ssr-context";
 
 type Props = FieldErrorProps;
 
-const { match, ...attributes }: Props = Astro.props;
+const { match, id, ...attributes }: Props = Astro.props;
+const field = getFieldSsrContext();
 const serializedMatch =
   match === undefined
     ? undefined
     : typeof match === "boolean"
       ? String(match)
       : match;
-// Stay hidden in SSR unless match={true}. The field runtime reveals errors when
-// they apply, which avoids flashing invalid copy before JavaScript connects.
-const initiallyHidden = match !== true;
+const errorIndex = field ? ++field.errorCount : undefined;
+const errorId =
+  id ??
+  (field && errorIndex ? `${field.rootId}-error-${errorIndex}` : undefined);
+// A generic error can reflect an explicitly invalid server state. Native
+// validity-specific matches remain hidden until the browser evaluates them.
+const initiallyHidden =
+  match === true ? false : match === undefined && field?.invalid ? false : true;
 ---
 
 <div
   {...attributes}
+  id={errorId}
   data-ormo-field-error
   data-match={serializedMatch}
+  data-invalid={field?.invalid ? "" : undefined}
   role="alert"
   hidden={initiallyHidden}
 >

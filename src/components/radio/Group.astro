@@ -3,6 +3,7 @@ import {
   createRadioGroupRootId,
   renderWithRadioGroupContext,
 } from "../../internal/radio-group-ssr-context";
+import { getFieldSsrContext } from "../../internal/field-ssr-context";
 import type { RadioGroupRootProps } from "./types";
 
 type Props = RadioGroupRootProps;
@@ -15,13 +16,16 @@ const {
   id,
   "aria-labelledby": ariaLabelledBy,
   "aria-label": ariaLabel,
+  "aria-invalid": ariaInvalid,
   ...attributes
 } = Astro.props as RadioGroupRootProps & {
   id?: string;
   "aria-labelledby"?: string;
   "aria-label"?: string;
+  "aria-invalid"?: string;
 };
 
+const field = getFieldSsrContext();
 const rootId = id ?? createRadioGroupRootId();
 const labelId = `${rootId}-label`;
 const ssrContext = {
@@ -51,10 +55,13 @@ const resolvedLabelledBy = ariaLabelledBy ?? generatedLabelledBy;
   role="radiogroup"
   aria-labelledby={resolvedLabelledBy}
   aria-label={ariaLabel}
+  aria-invalid={ariaInvalid ?? (field?.invalid ? "true" : undefined)}
   aria-required={required ? "true" : undefined}
   data-ormo-radio-group
   data-disabled={disabled ? "" : undefined}
   data-required={required ? "" : undefined}
+  data-invalid={field?.invalid ? "" : undefined}
+  data-ormo-field-inherited-invalid={field?.invalid ? "" : undefined}
   data-name={name}
   data-default-value={defaultValue}
   data-managed-labelledby={generatedLabelledBy}

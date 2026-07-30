@@ -1,13 +1,19 @@
 ---
 layout: ../../../layouts/MdxDocLayout.astro
 title: "Dialog"
-description: "A modal window for focused content and tasks"
+description: "A modal window for focused content and tasks."
 ---
 
 import DialogDemo from "../../../components/demos/Dialog/DialogDemo.astro";
 import dialogDemoCode from "../../../components/demos/Dialog/DialogDemo.astro?raw";
 import dialogDemoCss from "../../../components/demos/Dialog/index.css?raw";
+import DialogDetachedTriggerDemo from "../../../components/demos/Dialog/DialogDetachedTriggerDemo.astro";
+import dialogDetachedTriggerDemoCode from "../../../components/demos/Dialog/DialogDetachedTriggerDemo.astro?raw";
+import DialogPersistentDemo from "../../../components/demos/Dialog/DialogPersistentDemo.astro";
+import dialogPersistentDemoCode from "../../../components/demos/Dialog/DialogPersistentDemo.astro?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
 
 <DemoBlock
   files={[
@@ -17,3 +23,584 @@ import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
 >
   <DialogDemo />
 </DemoBlock>
+
+## Usage
+
+Use a dialog for a focused task or supporting content that temporarily makes the rest of the page unavailable. Use [Alert Dialog](/docs/components/alert-dialog) when an important or destructive decision requires an explicit response, and [Popover](/docs/components/popover) when the rest of the page should remain interactive.
+
+The component always opens modally. It uses the native `<dialog>` top layer rather than rendering a portal or a separate overlay element.
+
+## Anatomy
+
+Import the component and assemble its parts. Include a visible title and at least one visible close control.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Dialog from "@ormo/primitives/dialog";
+---
+
+<Dialog.Root>
+  <Dialog.Trigger>Edit profile</Dialog.Trigger>
+
+  <Dialog.Content>
+    <Dialog.Title>Edit profile</Dialog.Title>
+    <Dialog.Description>
+      Change how your name appears to other people.
+    </Dialog.Description>
+
+    <label for="display-name">Display name</label>
+    <input id="display-name" name="displayName" />
+
+    <Dialog.Close>Cancel</Dialog.Close>
+    <Dialog.Close value="save">Save changes</Dialog.Close>
+
+  </Dialog.Content>
+</Dialog.Root>`}
+/>
+
+## Examples
+
+### Initial focus
+
+When the dialog opens, focus moves to the first eligible descendant with `autofocus`, then the first tabbable element, and finally `Dialog.Content`. Add `tabindex="-1"` and `autofocus` to `Dialog.Title` when users should read structured or potentially overflowing content before reaching the controls.
+
+Only one element within `Dialog.Content` should have `autofocus`.
+
+<CodeBlock
+  lang="astro"
+  code={`<Dialog.Content>
+  <Dialog.Title tabindex="-1" autofocus>
+    Terms of service
+  </Dialog.Title>
+  <!-- Structured content and controls -->
+</Dialog.Content>`}
+/>
+
+### Prevent pointer dismissal
+
+Set `disablePointerDismissal` when an outside pointer press should not close the dialog. <kbd>Escape</kbd> and `Dialog.Close` continue to work.
+
+<DemoBlock
+  files={[
+    {
+      filename: "Dialog.astro",
+      code: dialogPersistentDemoCode,
+    },
+  ]}
+>
+  <DialogPersistentDemo />
+</DemoBlock>
+
+### Detached triggers
+
+Set `for` to the `id` of a `Dialog.Root` when a trigger must be rendered outside that root. Multiple detached triggers can open the same dialog; focus returns to the exact trigger that opened it.
+
+<DemoBlock
+  files={[
+    {
+      filename: "Dialog.astro",
+      code: dialogDetachedTriggerDemoCode,
+    },
+  ]}
+>
+  <DialogDetachedTriggerDemo />
+</DemoBlock>
+
+### Prevent dismissal
+
+Listen for `ormo:dialog-before-close` and call `event.preventDefault()` to keep the dialog open after `Dialog.Close`, an outside pointer press, or <kbd>Escape</kbd>. Use this for unsaved-change confirmation or another condition that must be resolved before dismissal.
+
+<CodeBlock
+  lang="js"
+  code={`const dialog = document.querySelector("ormo-dialog");
+
+dialog?.addEventListener("ormo:dialog-before-close", (event) => {
+if (hasUnsavedChanges()) {
+event.preventDefault();
+showDiscardConfirmation();
+}
+});`}
+/>
+
+The event represents a user dismissal request. Calling `close()` programmatically and submitting a native `<form method="dialog">` do not fire it.
+
+### Native dialog form
+
+A `Dialog.Close` with `type="submit"` defers to its form rather than closing immediately. Use `<form method="dialog">` for synchronous native validation and return-value behaviour. For asynchronous submission, prevent the form submission, await the operation, then call `close()`.
+
+<CodeBlock
+  lang="astro"
+  code={`<Dialog.Content>
+  <Dialog.Title>Rename project</Dialog.Title>
+
+  <form method="dialog">
+    <label for="project-name">Project name</label>
+    <input id="project-name" name="projectName" required />
+
+    <Dialog.Close type="button">Cancel</Dialog.Close>
+    <Dialog.Close type="submit" value="saved">
+      Save
+    </Dialog.Close>
+
+  </form>
+</Dialog.Content>`}
+/>
+
+## API reference
+
+All parts forward the relevant native HTML attributes unless noted otherwise.
+
+### Root
+
+Renders `<ormo-dialog>`, groups the dialog parts, and coordinates modal state, focus, ARIA relationships, scroll locking, and triggers.
+
+<PropsTable
+  id="dialog-root-props"
+  caption="Dialog Root properties"
+  rows={[
+    {
+      name: "disablePointerDismissal",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Prevents pointer presses outside the content element from closing the dialog. Explicit close controls and keyboard dismissal remain available.",
+    },
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Identifies the root for detached triggers and prefixes generated content, title, and description ids. A unique id is generated when omitted.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered custom element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered custom element.",
+    },
+  ]}
+/>
+
+### Trigger
+
+Renders `<button>` and opens the corresponding dialog.
+
+<PropsTable
+  id="dialog-trigger-props"
+  caption="Dialog Trigger properties"
+  rows={[
+    {
+      name: "for",
+      type: "string",
+      description:
+        "Targets the root id when the trigger is rendered outside it. Omit this prop for a descendant trigger.",
+    },
+    {
+      name: "type",
+      type: '"button" | "submit" | "reset"',
+      defaultValue: '"button"',
+      description:
+        "Sets the native button type. Keep the default so opening the dialog does not submit or reset a surrounding form.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Prevents the native trigger from being focused or activated.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered button.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered button.",
+    },
+  ]}
+/>
+
+The trigger renders `aria-haspopup="dialog"`. After runtime initialisation, `aria-controls` references `Dialog.Content`.
+
+### Content
+
+Renders `<dialog role="dialog" aria-modal="true">` as the native modal container. The `open`, `role`, modal state, and internal state attributes are managed by the component.
+
+<PropsTable
+  id="dialog-content-props"
+  caption="Dialog Content properties"
+  rows={[
+    {
+      name: "finalFocus",
+      type: "string",
+      description:
+        "Sets a CSS selector for the element that receives focus after the dialog closes. The target must be programmatically focusable.",
+    },
+    {
+      name: "tabindex",
+      type: "number | string",
+      defaultValue: "-1",
+      description:
+        "Keeps the content element programmatically focusable as the fallback initial-focus target. Avoid placing it in the normal sequential focus order.",
+    },
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the identifier referenced by triggers. An id is generated when omitted.",
+    },
+    {
+      name: "aria-label",
+      type: "string",
+      description:
+        "Provides an accessible name without a title part. Prefer a visible title where possible.",
+    },
+    {
+      name: "aria-labelledby",
+      type: "string",
+      description:
+        "References an authored accessible name and takes precedence over the relationship generated from the title part.",
+    },
+    {
+      name: "aria-describedby",
+      type: "string",
+      description:
+        "References authored explanatory content and takes precedence over the relationship generated from the description part.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered dialog element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered dialog element.",
+    },
+  ]}
+/>
+
+When `finalFocus` is omitted, focus returns to the trigger or element that opened the dialog. The `finalFocus` property on `Dialog.Root` takes precedence over the selector prop when it references a connected, focusable element.
+
+### Title
+
+Renders the selected heading element and provides the dialog’s visible accessible name.
+
+<PropsTable
+  id="dialog-title-props"
+  caption="Dialog Title properties"
+  rows={[
+    {
+      name: "as",
+      type: '"h1" | "h2" | "h3" | "h4" | "h5" | "h6"',
+      defaultValue: '"h2"',
+      description:
+        "Selects the heading level that fits the surrounding page hierarchy.",
+    },
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the identifier used by the content element’s aria-labelledby relationship. An id is generated when omitted.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered heading.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered heading.",
+    },
+  ]}
+/>
+
+### Description
+
+Renders `<p>` or `<div>` and provides a concise description of the dialog’s purpose.
+
+<PropsTable
+  id="dialog-description-props"
+  caption="Dialog Description properties"
+  rows={[
+    {
+      name: "as",
+      type: '"p" | "div"',
+      defaultValue: '"p"',
+      description:
+        "Selects a div when the description must contain content that is not valid inside a paragraph.",
+    },
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Sets the identifier used by the content element’s aria-describedby relationship. An id is generated when omitted.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered description.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered description.",
+    },
+  ]}
+/>
+
+Omit `Dialog.Description` and `aria-describedby` when the dialog contains structured content, such as multiple paragraphs, a list, or a table, that should be explored with screen-reader navigation rather than announced as one string.
+
+### Close
+
+Renders a native [Button](/docs/components/button) that closes the dialog.
+
+<PropsTable
+  id="dialog-close-props"
+  caption="Dialog Close properties"
+  rows={[
+    {
+      name: "value",
+      type: "string",
+      defaultValue: '""',
+      description:
+        "Sets the native dialog returnValue and the open-change event returnValue when the button dismisses the dialog.",
+    },
+    {
+      name: "type",
+      type: '"button" | "submit" | "reset"',
+      defaultValue: '"button"',
+      description:
+        "Sets the native button type. A submit button defers to its form and does not close the dialog before validation or submission.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Disables the button.",
+    },
+    {
+      name: "focusableWhenDisabled",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Keeps the disabled button in the sequential focus order after runtime initialisation.",
+    },
+    {
+      name: "pending",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Exposes Button pending state through aria-busy and data-pending. It does not keep the dialog open by itself.",
+    },
+    {
+      name: "autofocus",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Makes the close button the initial-focus target when it is programmatically focusable.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered button.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered button.",
+    },
+  ]}
+/>
+
+Preventing a `Dialog.Close` click’s default behaviour keeps the dialog open. Prefer `ormo:dialog-before-close` when the same condition must cover every user dismissal method.
+
+## JavaScript API
+
+`Dialog.Root` renders an `<ormo-dialog>` custom element for framework-independent client-side control.
+
+<PropsTable
+  id="dialog-browser-api"
+  caption="Dialog browser element API"
+  nameHeader="Member"
+  rows={[
+    {
+      name: "open",
+      type: "boolean",
+      description: "Reads whether the content element is currently open.",
+      details: [{ label: "Access", value: "Read only" }],
+    },
+    {
+      name: "finalFocus",
+      type: "HTMLElement | null",
+      defaultValue: "null",
+      description:
+        "Gets or sets an explicit focus-restoration destination. A connected, focusable element takes precedence over the content finalFocus selector.",
+    },
+    {
+      name: "showModal()",
+      type: "() => void",
+      description:
+        "Opens the content element as a native modal dialog. Focus returns to the element that was active when the method was called unless finalFocus overrides it.",
+    },
+    {
+      name: "close(returnValue?)",
+      type: "(returnValue?: string) => void",
+      description:
+        "Closes the content element programmatically and optionally sets its native returnValue. Programmatic closing cannot be cancelled.",
+    },
+  ]}
+/>
+
+`ormo:dialog-before-close` fires before a user-requested dismissal from `Dialog.Close`, an outside pointer press, or <kbd>Escape</kbd>. It bubbles across shadow boundaries and can be cancelled. Its `detail` contains `reason`, `returnValue`, and `originalEvent`.
+
+The reason is `close`, `outside`, or `escape`. `returnValue` contains the activated close control’s value and is otherwise empty. Calling `event.preventDefault()` leaves the dialog open.
+
+`ormo:dialog-open-change` fires after the dialog opens or closes. It bubbles across shadow boundaries, cannot be cancelled, and includes `open`, `reason`, and `returnValue` in `event.detail`.
+
+The opening reason is `trigger` or `programmatic`. The closing reason is `close`, `escape`, `outside`, or `programmatic`.
+
+<CodeBlock
+  lang="js"
+  code={`const dialog = document.querySelector("ormo-dialog");
+
+dialog?.addEventListener("ormo:dialog-before-close", (event) => {
+console.log(event.detail.reason);
+});
+
+dialog?.addEventListener("ormo:dialog-open-change", (event) => {
+console.log(event.detail.open);
+console.log(event.detail.reason);
+console.log(event.detail.returnValue);
+});
+
+dialog?.showModal();
+dialog?.close("complete");`}
+/>
+
+## Accessibility
+
+The component follows the [WAI-ARIA modal dialog pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/) on a native modal `<dialog>`. `Dialog.Title` supplies the accessible name, and a concise `Dialog.Description` supplies the optional accessible description.
+
+Include a visible `Dialog.Close` so keyboard and touch screen-reader users always have an explicit way to leave the dialog. Development diagnostics warn when `Dialog.Content` has no accessible name or visible close control.
+
+On open, focus moves to the first eligible element with `autofocus`, then the first tabbable element, and finally `Dialog.Content`. Focus remains inside while open. On close, focus returns to an explicit `finalFocus` target or the element that opened the dialog.
+
+<PropsTable
+  id="dialog-keyboard"
+  caption="Dialog keyboard behaviour"
+  nameHeader="Key"
+  nameElement="kbd"
+  rows={[
+    {
+      name: "Tab",
+      type: "Focus",
+      description:
+        "Moves focus forwards through tabbable controls and wraps from the last control to the first.",
+    },
+    {
+      name: "Shift + Tab",
+      type: "Focus",
+      description:
+        "Moves focus backwards through tabbable controls and wraps from the first control to the last.",
+    },
+    {
+      name: "Escape",
+      type: "Dismissal",
+      description:
+        "Requests dismissal with an escape reason and restores focus unless the before-close event is cancelled.",
+    },
+    {
+      name: "Enter",
+      type: "Activation",
+      description:
+        "Uses the focused control’s native keyboard behaviour. An enabled close button requests dismissal.",
+    },
+    {
+      name: "Space",
+      type: "Activation",
+      description:
+        "Uses the focused control’s native keyboard behaviour. An enabled close button requests dismissal.",
+    },
+  ]}
+/>
+
+An outside pointer press requests dismissal unless `disablePointerDismissal` is set. Outside pointer dismissal and <kbd>Escape</kbd> are conveniences, not replacements for a visible close control.
+
+## Styling
+
+The component ships no layout or brand styles. Pass `class` values to its parts, style the native `::backdrop` pseudo-element through `Dialog.Content`, and use the public state hooks below. Attributes prefixed with `data-ormo-*` are internal runtime selectors, not styling APIs.
+
+<PropsTable
+  id="dialog-styling"
+  caption="Dialog styling hooks"
+  nameHeader="Hook"
+  rows={[
+    {
+      name: "data-state",
+      type: '"open" | "closed"',
+      description: "Explicit modal state for CSS selectors.",
+      details: [{ label: "Element", value: "Root, Trigger, Content" }],
+    },
+    {
+      name: "data-open",
+      type: "boolean attribute",
+      description: "Present while the dialog is open.",
+      details: [{ label: "Element", value: "Root, Trigger, Content" }],
+    },
+    {
+      name: "data-starting-style",
+      type: "boolean attribute",
+      description:
+        "Present from immediately before the content element opens until the next animation frame.",
+      details: [{ label: "Element", value: "Content" }],
+    },
+    {
+      name: "data-ending-style",
+      type: "boolean attribute",
+      description:
+        "Present after the content element closes until its finite CSS transitions and animations finish.",
+      details: [{ label: "Element", value: "Content" }],
+    },
+  ]}
+/>
+
+Use `data-starting-style` and `data-ending-style` for optional enter and exit motion. Respect `prefers-reduced-motion`, and include discrete `display` and `overlay` transitions when the closed native dialog must remain visually present for an exit transition. The component exposes no CSS custom properties.
+
+<CodeBlock
+  lang="css"
+  code={String.raw`.dialog-content {
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease,
+    display 120ms allow-discrete,
+    overlay 120ms allow-discrete;
+}
+
+.dialog-content[data-starting-style],
+.dialog-content[data-ending-style] {
+opacity: 0;
+transform: scale(0.98);
+}
+
+.dialog-content::backdrop {
+background: rgb(0 0 0 / 50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+.dialog-content {
+transition: none;
+}
+}`}
+/>
+
+## Runtime
+
+`Dialog.Root` loads one deduplicated runtime that opens `Dialog.Content` with the native modal API, generates and reconciles ARIA relationships, manages focus and scroll locking, coordinates triggers and transitions, and handles Astro navigation and DOM lifecycle changes. The server renders a closed `<dialog>` with its semantic parts; without JavaScript, the dialog remains closed and its trigger cannot open it.

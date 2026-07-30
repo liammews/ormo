@@ -12,32 +12,10 @@ import "./index.css";
       <Popover.Description class="popover-description">
         The page stays interactive. Tab can leave this popover.
       </Popover.Description>
-
-      <form class="popover-form">
-        <label class="popover-label" for="popover-share-email">Email</label>
-        <input
-          class="popover-input"
-          id="popover-share-email"
-          name="email"
-          type="email"
-          autocomplete="email"
-        />
-        <div class="popover-actions button-group button-group--end">
-          <Popover.Close class="popover-button popover-primary button"
-            >Send</Popover.Close
-          >
-        </div>
-      </form>
     </Popover.Content>
   </Popover.Root>
 
-  <label class="popover-label" for="popover-outside-field">
-    Outside the popover
-  </label>
-  <input
-    class="popover-outside"
-    id="popover-outside-field"
-    name="outside"
-    autocomplete="off"
-  />
+  <button class="button button--secondary" type="button">
+    Outside action
+  </button>
 </div>

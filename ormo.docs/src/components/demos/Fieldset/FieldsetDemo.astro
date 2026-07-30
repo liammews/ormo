@@ -1,65 +1,50 @@
 ---
+import * as Field from "@ormo/primitives/field";
 import * as Fieldset from "@ormo/primitives/fieldset";
 import "./index.css";
 ---
 
-<form class="fieldset-demo">
+<form class="fieldset-demo" id="personal-details-form">
   <Fieldset.Root
     class="fieldset"
-    name="contact-preference"
-    aria-describedby="contact-method-hint"
+    name="personal-details"
+    aria-describedby="personal-details-hint"
   >
     <Fieldset.Legend class="fieldset-legend">
-      Preferred contact method
+      Personal details
     </Fieldset.Legend>
-    <p class="fieldset-hint" id="contact-method-hint">
-      Choose how you would like us to send account updates.
+    <p class="fieldset-hint" id="personal-details-hint">
+      Tell us who this account belongs to.
     </p>
-    <div class="fieldset-options">
-      <label class="fieldset-option">
-        <input
-          class="fieldset-radio"
-          type="radio"
-          name="contact-method"
-          value="email"
-          checked
+    <div class="fieldset-fields">
+      <Field.Root class="fieldset-field">
+        <Field.Label class="fieldset-label" for="first-name">
+          First name
+        </Field.Label>
+        <Field.Control
+          class="fieldset-input"
+          id="first-name"
+          name="first-name"
+          type="text"
           required
+          placeholder="Marcus"
+          autocomplete="given-name"
         />
-        <span class="fieldset-option-content">
-          <span class="fieldset-option-title">Email</span>
-          <span class="fieldset-option-description">
-            Updates are sent to your primary email address.
-          </span>
-        </span>
-      </label>
-      <label class="fieldset-option">
-        <input
-          class="fieldset-radio"
-          type="radio"
-          name="contact-method"
-          value="text"
+      </Field.Root>
+      <Field.Root class="fieldset-field">
+        <Field.Label class="fieldset-label" for="last-name">
+          Last name
+        </Field.Label>
+        <Field.Control
+          class="fieldset-input"
+          id="last-name"
+          name="last-name"
+          type="text"
+          required
+          placeholder="Syring"
+          autocomplete="family-name"
         />
-        <span class="fieldset-option-content">
-          <span class="fieldset-option-title">Text message</span>
-          <span class="fieldset-option-description">
-            Standard messaging rates may apply.
-          </span>
-        </span>
-      </label>
-      <label class="fieldset-option">
-        <input
-          class="fieldset-radio"
-          type="radio"
-          name="contact-method"
-          value="phone"
-        />
-        <span class="fieldset-option-content">
-          <span class="fieldset-option-title">Phone call</span>
-          <span class="fieldset-option-description">
-            We will call during your local business hours.
-          </span>
-        </span>
-      </label>
+      </Field.Root>
     </div>
   </Fieldset.Root>
 </form>

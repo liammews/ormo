@@ -1,4 +1,4 @@
 :root {
-  --focus-offset: 3px;
-  --focus-width: 2px;
+  --focus-offset: 0px;
+  --focus-width: 1px;
 }

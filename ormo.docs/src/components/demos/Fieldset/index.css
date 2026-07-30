@@ -7,18 +7,15 @@
 .fieldset {
   min-inline-size: 0;
   margin: 0;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-2);
-  padding: var(--space-100);
-  background: var(--surface-base);
+  border: 0;
 }
 
 .fieldset-legend {
-  padding-inline: var(--space-25);
   color: var(--content-default);
   font-size: var(--font-size-3);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-base);
+  margin-bottom: var(--space-25);
 }
 
 .fieldset-hint {
@@ -28,54 +25,86 @@
   line-height: var(--line-height-base);
 }
 
-.fieldset-options {
+.fieldset-fields {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-100);
+  padding-top: var(--space-100);
+  border-top: 1px solid var(--border-default);
+}
+
+.fieldset-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
   gap: var(--space-50);
 }
 
-.fieldset-option {
-  display: grid;
-  grid-template-columns: 1.25rem minmax(0, 1fr);
-  gap: var(--space-50);
-  align-items: start;
-  border-radius: var(--radius-2);
-  padding: var(--space-50);
-  cursor: pointer;
-}
-
-.fieldset-radio {
-  width: 1.25rem;
-  height: 1.25rem;
-  margin: 0.125rem 0 0;
-  accent-color: var(--focus-default);
-}
-
-.fieldset-radio:focus-visible {
-  outline: var(--focus-width) solid var(--focus-default);
-  outline-offset: var(--focus-offset);
-}
-
-.fieldset-option-content {
-  display: grid;
-  gap: var(--space-25);
-}
-
-.fieldset-option-title {
-  font-size: var(--font-size-3);
+.fieldset-label {
+  color: var(--content-default);
+  font-size: var(--font-size-2);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-base);
 }
 
-.fieldset-option-description {
-  color: var(--content-subtle);
+.fieldset-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 2rem;
+  padding: 0 var(--space-75);
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-2);
+  background: var(--surface-base);
+  color: var(--content-default);
+  font-family: var(--font-family-sans);
   font-size: var(--font-size-2);
   line-height: var(--line-height-base);
+  transition: border-color var(--duration-1) var(--ease-1);
+}
+
+.fieldset-input:focus-visible {
+  border-color: var(--focus-subtle);
+  outline: var(--focus-width) solid var(--focus-subtle);
 }
 
 .fieldset:disabled {
   color: var(--content-disabled);
 }
 
-.fieldset:disabled .fieldset-option {
+.fieldset:disabled .fieldset-label,
+.fieldset:disabled .fieldset-hint {
+  color: var(--content-disabled);
+}
+
+.fieldset:disabled .fieldset-input {
+  border-color: var(--border-default);
+  background: var(--surface-disabled);
+  color: var(--content-disabled);
   cursor: not-allowed;
+}
+
+.fieldset-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-100);
+  margin-block-start: var(--space-200);
+}
+
+.fieldset-status {
+  color: var(--content-subtle);
+  font-size: var(--font-size-2);
+  line-height: var(--line-height-base);
+}
+
+@media (max-width: 30rem) {
+  .fieldset-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fieldset-input {
+    transition: none;
+  }
 }

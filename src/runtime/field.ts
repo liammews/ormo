@@ -5,6 +5,7 @@ import type {
   FieldState,
   FieldValidationMode,
   FieldValidator,
+  FieldValidatorContext,
   FieldValidityMatch,
   OrmoFieldElement,
 } from "../components/field/types";
@@ -29,13 +30,14 @@ interface FieldParts {
   errors: HTMLElement[];
 }
 
-interface FormSubmitBarrier {
-  tasks: Promise<void>[];
-  scheduled: boolean;
+interface FormFieldRegistry {
+  fields: Set<OrmoField>;
+  submitHandler: (event: SubmitEvent) => void;
 }
 
-const formSubmitBarriers = new WeakMap<HTMLFormElement, FormSubmitBarrier>();
+const formFieldRegistries = new WeakMap<HTMLFormElement, FormFieldRegistry>();
 const resumableSubmitForms = new WeakSet<HTMLFormElement>();
+const internallyCheckedControls = new WeakSet<FieldControlElement>();
 
 const validityMatches: Exclude<FieldValidityMatch, boolean>[] = [
   "badInput",
@@ -120,8 +122,137 @@ function firstInvalidControl(
     .filter(isFieldControl)
     .find((candidate) => {
       const field = candidate.closest(tagName);
-      return field instanceof OrmoField && !candidate.validity.valid;
+      return field instanceof OrmoField && field.state.invalid;
     });
+}
+
+function registerField(form: HTMLFormElement, field: OrmoField): void {
+  let registry = formFieldRegistries.get(form);
+
+  if (!registry) {
+    const submitHandler = (event: SubmitEvent): void => {
+      if (
+        resumableSubmitForms.has(form) ||
+        form.noValidate ||
+        (event.submitter instanceof HTMLButtonElement &&
+          event.submitter.formNoValidate) ||
+        (event.submitter instanceof HTMLInputElement &&
+          event.submitter.formNoValidate)
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      const activeRegistry = formFieldRegistries.get(form);
+      const fields = Array.from(activeRegistry?.fields ?? []).filter(
+        (candidate) => candidate.isConnected,
+      );
+
+      void Promise.all(fields.map((candidate) => candidate.validate())).then(
+        (validationResults) => {
+          const invalidControl = firstInvalidControl(form);
+
+          if (validationResults.includes(false) || invalidControl) {
+            invalidControl?.focus();
+            if (invalidControl && !invalidControl.validity.valid) {
+              reportValidityWithoutRevalidation(invalidControl);
+            }
+            return;
+          }
+
+          const submitter =
+            event.submitter instanceof HTMLButtonElement ||
+            event.submitter instanceof HTMLInputElement
+              ? event.submitter
+              : undefined;
+
+          // The browser keeps a form's submission algorithm active through
+          // the current task. Resume from a new task so requestSubmit creates
+          // a fresh submit event instead of being ignored as re-entrant.
+          setTimeout(() => {
+            if (!form.isConnected) {
+              return;
+            }
+
+            resumableSubmitForms.add(form);
+            try {
+              form.requestSubmit(
+                submitter && submitter.isConnected && submitter.form === form
+                  ? submitter
+                  : undefined,
+              );
+            } finally {
+              resumableSubmitForms.delete(form);
+            }
+          }, 0);
+        },
+      );
+    };
+
+    registry = { fields: new Set(), submitHandler };
+    formFieldRegistries.set(form, registry);
+    form.addEventListener("submit", submitHandler, { capture: true });
+  }
+
+  registry.fields.add(field);
+}
+
+function unregisterField(form: HTMLFormElement, field: OrmoField): void {
+  const registry = formFieldRegistries.get(form);
+
+  if (!registry) {
+    return;
+  }
+
+  registry.fields.delete(field);
+
+  if (registry.fields.size === 0) {
+    form.removeEventListener("submit", registry.submitHandler, {
+      capture: true,
+    });
+    formFieldRegistries.delete(form);
+  }
+}
+
+function checkValidityWithoutRevalidation(
+  control: FieldControlElement,
+): boolean {
+  internallyCheckedControls.add(control);
+  try {
+    return control.checkValidity();
+  } finally {
+    internallyCheckedControls.delete(control);
+  }
+}
+
+function reportValidityWithoutRevalidation(
+  control: FieldControlElement,
+): boolean {
+  internallyCheckedControls.add(control);
+  try {
+    return control.reportValidity();
+  } finally {
+    internallyCheckedControls.delete(control);
+  }
+}
+
+function getValidatorContext(
+  control: FieldControlElement,
+  signal: AbortSignal,
+): FieldValidatorContext {
+  let formData: FormData | null = null;
+
+  if (control.form) {
+    try {
+      formData = new FormData(control.form);
+    } catch {
+      formData = null;
+    }
+  }
+
+  return { formData, signal };
 }
 
 function isFieldGroup(
@@ -148,6 +279,22 @@ function getGroupControl(
       ? 'input[type="radio"]'
       : 'input[type="checkbox"]:not([data-ormo-checkbox-parent])';
   return group.querySelector<HTMLInputElement>(selector) ?? undefined;
+}
+
+function checkGroupValidityWithoutRevalidation(
+  group: OrmoFieldGroupElement,
+): boolean {
+  const control = getGroupControl(group);
+  if (control) {
+    internallyCheckedControls.add(control);
+  }
+  try {
+    return group.checkValidity();
+  } finally {
+    if (control) {
+      internallyCheckedControls.delete(control);
+    }
+  }
 }
 
 export function validateField(root: HTMLElement): void {
@@ -216,6 +363,15 @@ export function validateField(root: HTMLElement): void {
       root,
     );
   }
+
+  labels
+    .filter((label) => label.htmlFor && label.htmlFor !== control.id)
+    .forEach((label) => {
+      console.warn(
+        `[Ormo Field] Field.Label for="${label.htmlFor}" does not reference the owned control id="${control.id}".`,
+        label,
+      );
+    });
 }
 
 function setStateAttribute(
@@ -224,7 +380,9 @@ function setStateAttribute(
   present: boolean,
 ): void {
   elements.forEach((element) => {
-    element.toggleAttribute(name, present);
+    if (element.hasAttribute(name) !== present) {
+      element.toggleAttribute(name, present);
+    }
   });
 }
 
@@ -244,6 +402,8 @@ function statesEqual(left: FieldState, right: FieldState): boolean {
 export class OrmoField extends HTMLElement implements OrmoFieldElement {
   #controller: AbortController | undefined;
   #formController: AbortController | undefined;
+  #boundForm: HTMLFormElement | undefined;
+  #validationController: AbortController | undefined;
   #observer: MutationObserver | undefined;
   #debounceTimer: ReturnType<typeof setTimeout> | undefined;
   #control: FieldControlElement | undefined;
@@ -251,16 +411,10 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   #initialValue = "";
   #initialized = false;
   #invalidOverride = false;
-  #disabledOverride = false;
-  #requiredOverride = false;
-  #readOnlyOverride = false;
-  #nameOverride: string | undefined;
   #originalAriaInvalid: string | null = null;
-  #originalDisabled = false;
-  #originalRequired = false;
-  #originalReadOnly = false;
-  #originalName = "";
+  #managedAriaInvalid: string | null | undefined;
   #originalGroupAriaInvalid: string | null = null;
+  #managedGroupAriaInvalid: string | null | undefined;
   #authoredDescribedByIds = new Set<string>();
   #managedDescribedByIds = new Set<string>();
   #managedLabels = new Set<HTMLLabelElement>();
@@ -268,6 +422,7 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   #touched = false;
   #validated = false;
   #validating = false;
+  #validationFailed = false;
   #validator: FieldValidator | undefined;
   #validatorApplied = false;
   #validatorGeneration = 0;
@@ -276,12 +431,6 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   connectedCallback(): void {
     if (!this.#initialized) {
       this.#invalidOverride = this.hasAttribute("data-invalid");
-      this.#disabledOverride = this.hasAttribute("data-disabled");
-      this.#requiredOverride = this.hasAttribute("data-required");
-      this.#readOnlyOverride = this.hasAttribute("data-readonly");
-      this.#nameOverride = this.hasAttribute("name")
-        ? (this.getAttribute("name") ?? "")
-        : undefined;
     }
 
     this.#controller?.abort();
@@ -320,7 +469,25 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
 
     this.#observer?.disconnect();
     this.#observer = new MutationObserver(this.#handleMutations);
-    this.#observer.observe(this, { childList: true, subtree: true });
+    this.#observer.observe(this, {
+      attributeFilter: [
+        "aria-describedby",
+        "aria-invalid",
+        "data-disabled",
+        "data-match",
+        "data-name",
+        "data-required",
+        "disabled",
+        "for",
+        "id",
+        "name",
+        "readonly",
+        "required",
+      ],
+      attributes: true,
+      childList: true,
+      subtree: true,
+    });
     this.#initialized = true;
   }
 
@@ -329,11 +496,10 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     this.#controller = undefined;
     this.#formController?.abort();
     this.#formController = undefined;
+    this.#unbindForm();
     this.#observer?.disconnect();
     this.#observer = undefined;
-    this.#clearDebounce();
-    this.#validatorGeneration += 1;
-    this.#validating = false;
+    this.#cancelValidation();
   }
 
   get state(): FieldState {
@@ -354,40 +520,50 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   }
 
   set disabled(value: boolean) {
-    this.#disabledOverride = value;
+    if (this.#group) {
+      this.#group.disabled = value;
+    } else if (this.#control) {
+      this.#control.disabled = value;
+    }
     this.#applyState();
   }
 
   get name(): string {
-    return this.#nameOverride ?? this.#group?.name ?? this.#control?.name ?? "";
+    return this.#group?.name ?? this.#control?.name ?? "";
   }
 
   set name(value: string) {
-    this.#nameOverride = value;
-    this.setAttribute("name", value);
     if (this.#group) {
       this.#group.name = value;
+    } else if (this.#control) {
+      this.#control.name = value;
     }
     this.#applyState();
   }
 
   get required(): boolean {
-    return this.#requiredOverride || this.#originalRequired;
+    return this.#group?.required ?? this.#control?.required ?? false;
   }
 
   set required(value: boolean) {
-    this.#requiredOverride = value;
-    this.toggleAttribute("data-required", value);
+    if (this.#group) {
+      this.#group.required = value;
+    } else if (this.#control) {
+      this.#control.required = value;
+    }
     this.#applyState();
   }
 
   get readOnly(): boolean {
-    return this.#readOnlyOverride || this.#originalReadOnly;
+    return this.#control && "readOnly" in this.#control
+      ? this.#control.readOnly
+      : false;
   }
 
   set readOnly(value: boolean) {
-    this.#readOnlyOverride = value;
-    this.toggleAttribute("data-readonly", value);
+    if (this.#control && "readOnly" in this.#control) {
+      this.#control.readOnly = value;
+    }
     this.#applyState();
   }
 
@@ -416,16 +592,20 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   }
 
   set validator(value: FieldValidator | undefined) {
+    this.#cancelValidation();
     this.#validator = value;
     const validatorControl =
       this.#control ?? (this.#group && getGroupControl(this.#group));
 
-    if (!value && validatorControl && this.#validatorApplied) {
+    if (validatorControl && this.#validatorApplied) {
       validatorControl.setCustomValidity("");
       this.#validatorApplied = false;
-      this.#validating = false;
-    } else if (value && this.#validated) {
-      void this.#runValidator();
+    }
+
+    this.#validationFailed = false;
+
+    if (value && this.#validated) {
+      void this.#runValidator().then(() => this.#applyState());
     }
 
     this.#applyState();
@@ -434,12 +614,12 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   async validate(): Promise<boolean> {
     this.#validated = true;
     this.#clearDebounce();
+    const validationSucceeded = await this.#runValidator();
 
     if (this.#group) {
-      await this.#runValidator();
-      const valid = this.#group.checkValidity();
+      const valid = checkGroupValidityWithoutRevalidation(this.#group);
       this.#applyState();
-      return valid;
+      return validationSucceeded && valid && !this.state.invalid;
     }
 
     const control = this.#control;
@@ -448,10 +628,9 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       return true;
     }
 
-    await this.#runValidator();
-    const valid = control.checkValidity();
+    const valid = checkValidityWithoutRevalidation(control);
     this.#applyState();
-    return valid;
+    return validationSucceeded && valid && !this.state.invalid;
   }
 
   #getParts(): FieldParts {
@@ -495,18 +674,23 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     this.#validated = false;
     this.#focused = false;
     this.#validatorApplied = false;
-    this.#validating = false;
-    this.#validatorGeneration += 1;
-    this.#clearDebounce();
+    this.#validationFailed = false;
+    this.#cancelValidation();
 
     if (!group) {
       this.#initialValue = "";
       this.#originalGroupAriaInvalid = null;
+      this.#managedGroupAriaInvalid = undefined;
       return;
     }
 
     this.#initialValue = getGroupValue(group);
-    this.#originalGroupAriaInvalid = group.getAttribute("aria-invalid");
+    this.#originalGroupAriaInvalid = group.hasAttribute(
+      "data-ormo-field-inherited-invalid",
+    )
+      ? null
+      : group.getAttribute("aria-invalid");
+    this.#managedGroupAriaInvalid = undefined;
     this.#authoredDescribedByIds = new Set(
       getTokens(group.getAttribute("aria-describedby")),
     );
@@ -530,6 +714,7 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     } else {
       group.setAttribute("aria-invalid", this.#originalGroupAriaInvalid);
     }
+    this.#managedGroupAriaInvalid = undefined;
 
     const describedBy = Array.from(this.#authoredDescribedByIds).join(" ");
 
@@ -553,26 +738,23 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     this.#validated = false;
     this.#focused = false;
     this.#validatorApplied = false;
-    this.#validating = false;
-    this.#validatorGeneration += 1;
-    this.#clearDebounce();
+    this.#validationFailed = false;
+    this.#cancelValidation();
 
     if (!control) {
       this.#initialValue = "";
       this.#originalAriaInvalid = null;
-      this.#originalDisabled = false;
-      this.#originalRequired = false;
-      this.#originalReadOnly = false;
-      this.#originalName = "";
+      this.#managedAriaInvalid = undefined;
       return;
     }
 
     this.#initialValue = getControlValue(control);
-    this.#originalAriaInvalid = control.getAttribute("aria-invalid");
-    this.#originalDisabled = control.disabled;
-    this.#originalRequired = control.required;
-    this.#originalReadOnly = "readOnly" in control ? control.readOnly : false;
-    this.#originalName = control.name;
+    this.#originalAriaInvalid = control.hasAttribute(
+      "data-ormo-field-inherited-invalid",
+    )
+      ? null
+      : control.getAttribute("aria-invalid");
+    this.#managedAriaInvalid = undefined;
     this.#authoredDescribedByIds = new Set(
       getTokens(control.getAttribute("aria-describedby")),
     );
@@ -586,18 +768,12 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       return;
     }
 
-    control.disabled = this.#originalDisabled;
-    control.required = this.#originalRequired;
-    if ("readOnly" in control) {
-      control.readOnly = this.#originalReadOnly;
-    }
-    control.name = this.#originalName;
-
     if (this.#originalAriaInvalid === null) {
       control.removeAttribute("aria-invalid");
     } else {
       control.setAttribute("aria-invalid", this.#originalAriaInvalid);
     }
+    this.#managedAriaInvalid = undefined;
 
     const describedBy = Array.from(this.#authoredDescribedByIds).join(" ");
 
@@ -633,7 +809,9 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       label.id ||= `${this.id}-label-${index + 1}`;
 
       if (control && (!label.htmlFor || this.#managedLabels.has(label))) {
-        label.htmlFor = control.id;
+        if (label.htmlFor !== control.id) {
+          label.htmlFor = control.id;
+        }
         this.#managedLabels.add(label);
       }
     });
@@ -644,9 +822,11 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       error.id ||= `${this.id}-error-${index + 1}`;
     });
 
-    getTokens(describedTarget.getAttribute("aria-describedby"))
-      .filter((id) => !this.#managedDescribedByIds.has(id))
-      .forEach((id) => this.#authoredDescribedByIds.add(id));
+    this.#authoredDescribedByIds = new Set(
+      getTokens(describedTarget.getAttribute("aria-describedby")).filter(
+        (id) => !this.#managedDescribedByIds.has(id),
+      ),
+    );
 
     this.#syncDescribedBy(parts);
   }
@@ -665,17 +845,19 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       [...descriptions, ...visibleErrors].map((element) => element.id),
     );
 
-    const describedByIds = [
-      ...this.#authoredDescribedByIds,
-      ...this.#managedDescribedByIds,
-    ];
+    const describedByIds = Array.from(
+      new Set([
+        ...this.#authoredDescribedByIds,
+        ...this.#managedDescribedByIds,
+      ]),
+    );
 
     if (describedByIds.length > 0) {
-      describedTarget.setAttribute(
-        "aria-describedby",
-        describedByIds.join(" "),
-      );
-    } else {
+      const describedBy = describedByIds.join(" ");
+      if (describedTarget.getAttribute("aria-describedby") !== describedBy) {
+        describedTarget.setAttribute("aria-describedby", describedBy);
+      }
+    } else if (describedTarget.hasAttribute("aria-describedby")) {
       describedTarget.removeAttribute("aria-describedby");
     }
   }
@@ -683,19 +865,27 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
   #bindForm(): void {
     this.#formController?.abort();
     this.#formController = new AbortController();
+    this.#unbindForm();
     const form = this.#control?.form ?? this.#group?.form;
 
     if (!form) {
       return;
     }
 
+    this.#boundForm = form;
+    registerField(form, this);
     form.addEventListener("reset", this.#handleReset, {
       signal: this.#formController.signal,
     });
-    form.addEventListener("submit", this.#handleSubmit, {
-      capture: true,
-      signal: this.#formController.signal,
-    });
+  }
+
+  #unbindForm(): void {
+    if (!this.#boundForm) {
+      return;
+    }
+
+    unregisterField(this.#boundForm, this);
+    this.#boundForm = undefined;
   }
 
   #clearDebounce(): void {
@@ -705,15 +895,26 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     }
   }
 
-  async #runValidator(): Promise<void> {
+  #cancelValidation(): void {
+    this.#clearDebounce();
+    this.#validationController?.abort();
+    this.#validationController = undefined;
+    this.#validatorGeneration += 1;
+    this.#validating = false;
+  }
+
+  async #runValidator(): Promise<boolean> {
     const control = this.#control;
     const group = this.#group;
 
     if ((!control && !group) || !this.#validator) {
       this.#validating = false;
-      return;
+      return true;
     }
 
+    this.#validationController?.abort();
+    const controller = new AbortController();
+    this.#validationController = controller;
     const generation = ++this.#validatorGeneration;
     const value = group
       ? getGroupValue(group)
@@ -723,47 +924,73 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
 
     if (!validatorControl || !isFieldControl(validatorControl)) {
       this.#validating = false;
-      return;
+      return true;
     }
 
-    const result = this.#validator(value, validatorControl);
+    if (this.#validatorApplied) {
+      validatorControl.setCustomValidity("");
+      this.#validatorApplied = false;
+    }
+    this.#validationFailed = false;
 
-    if (
-      result !== null &&
-      result !== undefined &&
-      typeof result === "object" &&
-      "then" in result
-    ) {
-      this.#validating = true;
-      this.#applyState();
+    try {
+      const result = this.#validator(
+        value,
+        validatorControl,
+        getValidatorContext(validatorControl, controller.signal),
+      );
+      const isPromise =
+        result !== null &&
+        result !== undefined &&
+        typeof result === "object" &&
+        "then" in result;
 
-      try {
-        const message = await result;
-
-        if (
-          generation !== this.#validatorGeneration ||
-          (control && control !== this.#control) ||
-          (group && group !== this.#group)
-        ) {
-          return;
-        }
-
-        validatorControl.setCustomValidity(message ?? "");
-        this.#validatorApplied = true;
-      } finally {
-        if (generation === this.#validatorGeneration) {
-          this.#validating = false;
-        }
+      if (isPromise) {
+        this.#validating = true;
+        this.#applyState();
       }
 
-      return;
-    }
+      const message = isPromise
+        ? await Promise.resolve(result)
+        : (result as string | null | undefined);
 
-    this.#validating = false;
-    validatorControl.setCustomValidity(
-      (result as string | null | undefined) ?? "",
-    );
-    this.#validatorApplied = true;
+      if (
+        controller.signal.aborted ||
+        generation !== this.#validatorGeneration ||
+        (control && control !== this.#control) ||
+        (group && group !== this.#group)
+      ) {
+        return false;
+      }
+
+      validatorControl.setCustomValidity(message ?? "");
+      this.#validatorApplied = true;
+      return true;
+    } catch (error) {
+      if (
+        controller.signal.aborted ||
+        generation !== this.#validatorGeneration
+      ) {
+        return false;
+      }
+
+      this.#validationFailed = true;
+      this.dispatchEvent(
+        new CustomEvent("ormo:field-validation-error", {
+          bubbles: true,
+          composed: true,
+          detail: { control: validatorControl, error, value },
+        }),
+      );
+      return false;
+    } finally {
+      if (generation === this.#validatorGeneration) {
+        this.#validating = false;
+        if (this.#validationController === controller) {
+          this.#validationController = undefined;
+        }
+      }
+    }
   }
 
   #scheduleValidation(): void {
@@ -784,15 +1011,13 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
 
   #getState(parts: FieldParts): FieldState {
     const { control, group } = parts;
-    const disabled =
-      this.#disabledOverride ||
-      this.#originalDisabled ||
-      Boolean(group?.disabled);
+    const disabled = Boolean(group?.disabled ?? control?.disabled);
     const groupInvalid = group !== undefined && this.#validated && !group.valid;
     const invalid =
       this.#invalidOverride ||
       this.#originalAriaInvalid === "true" ||
       this.#originalGroupAriaInvalid === "true" ||
+      this.#validationFailed ||
       groupInvalid ||
       (this.#validated &&
         !this.#validating &&
@@ -854,29 +1079,6 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     );
   }
 
-  #applyControlAttributes(control: FieldControlElement): void {
-    control.disabled = this.#disabledOverride || this.#originalDisabled;
-    control.required = this.#requiredOverride || this.#originalRequired;
-
-    if ("readOnly" in control) {
-      control.readOnly = this.#readOnlyOverride || this.#originalReadOnly;
-    }
-
-    if (this.#nameOverride !== undefined) {
-      control.name = this.#nameOverride;
-    }
-  }
-
-  #applyGroupAttributes(group: OrmoFieldGroupElement): void {
-    if (this.#disabledOverride) {
-      group.disabled = true;
-    }
-
-    if (this.#nameOverride !== undefined) {
-      group.name = this.#nameOverride;
-    }
-  }
-
   #applyState(): void {
     const parts = this.#getParts();
     const { control, group, labels, descriptions, errors } = parts;
@@ -891,12 +1093,6 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       this.#setControl(group ? undefined : control);
       this.#prepareRelationships(parts);
       this.#bindForm();
-    }
-
-    if (group) {
-      this.#applyGroupAttributes(group);
-    } else if (control) {
-      this.#applyControlAttributes(control);
     }
 
     const state = this.#getState(parts);
@@ -919,22 +1115,28 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     setStateAttribute(stateElements, "data-validating", state.validating);
 
     if (control) {
-      if (state.invalid) {
-        control.setAttribute("aria-invalid", "true");
-      } else if (this.#originalAriaInvalid === null) {
-        control.removeAttribute("aria-invalid");
-      } else {
-        control.setAttribute("aria-invalid", this.#originalAriaInvalid);
+      const ariaInvalid = state.invalid ? "true" : this.#originalAriaInvalid;
+      if (control.getAttribute("aria-invalid") !== ariaInvalid) {
+        this.#managedAriaInvalid = ariaInvalid;
+        if (ariaInvalid === null) {
+          control.removeAttribute("aria-invalid");
+        } else {
+          control.setAttribute("aria-invalid", ariaInvalid);
+        }
       }
     }
 
     if (group) {
-      if (state.invalid) {
-        group.setAttribute("aria-invalid", "true");
-      } else if (this.#originalGroupAriaInvalid === null) {
-        group.removeAttribute("aria-invalid");
-      } else {
-        group.setAttribute("aria-invalid", this.#originalGroupAriaInvalid);
+      const ariaInvalid = state.invalid
+        ? "true"
+        : this.#originalGroupAriaInvalid;
+      if (group.getAttribute("aria-invalid") !== ariaInvalid) {
+        this.#managedGroupAriaInvalid = ariaInvalid;
+        if (ariaInvalid === null) {
+          group.removeAttribute("aria-invalid");
+        } else {
+          group.setAttribute("aria-invalid", ariaInvalid);
+        }
       }
     }
 
@@ -962,7 +1164,7 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       this.isConnected
     ) {
       this.dispatchEvent(
-        new CustomEvent("ormo:state-change", {
+        new CustomEvent("ormo:field-state-change", {
           bubbles: true,
           composed: true,
           detail: { state: { ...state } },
@@ -1078,6 +1280,16 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     this.#touched = true;
     this.#validated = true;
     this.#clearDebounce();
+
+    if (
+      event.target instanceof Element &&
+      isFieldControl(event.target) &&
+      internallyCheckedControls.has(event.target)
+    ) {
+      this.#applyState();
+      return;
+    }
+
     void this.#runValidator().then(() => this.#applyState());
     this.#applyState();
   };
@@ -1091,9 +1303,8 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
         return;
       }
 
-      this.#clearDebounce();
-      this.#validatorGeneration += 1;
-      this.#validating = false;
+      this.#cancelValidation();
+      this.#validationFailed = false;
 
       const validatorControl = control ?? (group && getGroupControl(group));
       if (this.#validatorApplied && validatorControl) {
@@ -1113,87 +1324,37 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     });
   };
 
-  #handleSubmit = (event: SubmitEvent): void => {
-    const control = this.#control;
-    const group = this.#group;
-    const form = control?.form ?? group?.form;
-
-    if (form && resumableSubmitForms.has(form)) {
-      return;
-    }
-
-    this.#validated = true;
-    this.#clearDebounce();
-
-    const validation = this.#runValidator();
-
-    if (!form) {
-      event.preventDefault();
-      void validation.then(() => {
-        this.#applyState();
-
-        if (group && !group.checkValidity()) {
-          group.reportValidity();
-          return;
-        }
-
-        if (control && !control.checkValidity()) {
-          control.focus();
-          control.reportValidity();
-        }
-      });
-      return;
-    }
-
-    event.preventDefault();
-
-    let barrier = formSubmitBarriers.get(form);
-
-    if (!barrier) {
-      barrier = { tasks: [], scheduled: false };
-      formSubmitBarriers.set(form, barrier);
-    }
-
-    barrier.tasks.push(
-      validation.then(() => {
-        this.#applyState();
-      }),
-    );
-
-    if (barrier.scheduled) {
-      return;
-    }
-
-    barrier.scheduled = true;
-
-    queueMicrotask(() => {
-      const active = formSubmitBarriers.get(form);
-
-      if (!active) {
-        return;
+  #handleMutations = (records: MutationRecord[]): void => {
+    if (
+      this.#control &&
+      records.some(
+        (record) =>
+          record.target === this.#control &&
+          record.attributeName === "aria-invalid",
+      )
+    ) {
+      const value = this.#control.getAttribute("aria-invalid");
+      if (value !== this.#managedAriaInvalid) {
+        this.#originalAriaInvalid = value;
       }
+      this.#managedAriaInvalid = undefined;
+    }
 
-      formSubmitBarriers.delete(form);
+    if (
+      this.#group &&
+      records.some(
+        (record) =>
+          record.target === this.#group &&
+          record.attributeName === "aria-invalid",
+      )
+    ) {
+      const value = this.#group.getAttribute("aria-invalid");
+      if (value !== this.#managedGroupAriaInvalid) {
+        this.#originalGroupAriaInvalid = value;
+      }
+      this.#managedGroupAriaInvalid = undefined;
+    }
 
-      void Promise.all(active.tasks).then(() => {
-        const invalidControl = firstInvalidControl(form);
-
-        if (invalidControl) {
-          invalidControl.focus();
-          invalidControl.reportValidity();
-          return;
-        }
-
-        resumableSubmitForms.add(form);
-        form.requestSubmit(
-          event.submitter instanceof HTMLElement ? event.submitter : undefined,
-        );
-        resumableSubmitForms.delete(form);
-      });
-    });
-  };
-
-  #handleMutations = (): void => {
     const parts = this.#getParts();
     const controlChanged = parts.control !== this.#control;
     const groupChanged = parts.group !== this.#group;

@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type {
+  DialogBeforeCloseEvent,
   DialogOpenChangeEvent,
   OrmoDialogElement,
 } from "../../src/components/dialog/types";
@@ -107,6 +108,58 @@ describe("dialog", () => {
     close.click();
 
     expect(content.open).toBe(true);
+  });
+
+  it("allows user-requested dismissal to be cancelled with its reason", () => {
+    const { root, trigger, content, close } = createDialog();
+    const requests: DialogBeforeCloseEvent["detail"][] = [];
+    root.addEventListener("ormo:dialog-before-close", (event) => {
+      const request = event as DialogBeforeCloseEvent;
+      requests.push(request.detail);
+      request.preventDefault();
+    });
+    vi.spyOn(content, "getBoundingClientRect").mockReturnValue({
+      bottom: 300,
+      height: 200,
+      left: 100,
+      right: 400,
+      top: 100,
+      width: 300,
+      x: 100,
+      y: 100,
+      toJSON: () => undefined,
+    });
+    trigger.click();
+
+    close.click();
+    expect(content.open).toBe(true);
+
+    const outsideEvent = new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+      clientX: 20,
+      clientY: 20,
+      detail: 1,
+    });
+    content.dispatchEvent(outsideEvent);
+    expect(content.open).toBe(true);
+
+    const escapeEvent = new Event("cancel", { cancelable: true });
+    content.dispatchEvent(escapeEvent);
+    expect(escapeEvent.defaultPrevented).toBe(true);
+    expect(content.open).toBe(true);
+
+    expect(requests.map(({ reason }) => reason)).toEqual([
+      "close",
+      "outside",
+      "escape",
+    ]);
+    expect(requests[0]).toMatchObject({
+      reason: "close",
+      returnValue: "done",
+    });
+    expect(requests[1]?.originalEvent).toBe(outsideEvent);
+    expect(requests[2]?.originalEvent).toBe(escapeEvent);
   });
 
   it("reports native Escape dismissal", () => {
@@ -244,6 +297,33 @@ describe("dialog", () => {
     expect(content.getAttribute("aria-describedby")).toBe("custom-description");
   });
 
+  it("reconciles generated and authored relationships at runtime", async () => {
+    const { content, title, description } = createDialog();
+
+    title.id = "updated-dialog-title";
+    description.id = "updated-dialog-description";
+    await vi.waitFor(() => {
+      expect(content.getAttribute("aria-labelledby")).toBe(title.id);
+      expect(content.getAttribute("aria-describedby")).toBe(description.id);
+    });
+
+    content.setAttribute("aria-label", "Runtime preferences");
+    content.setAttribute("aria-describedby", "authored-description");
+    await vi.waitFor(() => {
+      expect(content.hasAttribute("aria-labelledby")).toBe(false);
+      expect(content.getAttribute("aria-describedby")).toBe(
+        "authored-description",
+      );
+    });
+
+    content.removeAttribute("aria-label");
+    content.removeAttribute("aria-describedby");
+    await vi.waitFor(() => {
+      expect(content.getAttribute("aria-labelledby")).toBe(title.id);
+      expect(content.getAttribute("aria-describedby")).toBe(description.id);
+    });
+  });
+
   it("allows Description to be omitted for structured content", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const root = document.createElement("ormo-dialog");
@@ -337,17 +417,56 @@ describe("dialog", () => {
     expect(document.activeElement).toBe(childTrigger);
   });
 
-  it("releases the scroll lock if open Content is removed", async () => {
-    const { trigger, content } = createDialog();
+  it("normalizes state and focus if open Content is removed", async () => {
+    const { root, trigger, content } = createDialog();
+    const listener = vi.fn();
+    root.addEventListener("ormo:dialog-open-change", listener);
     trigger.click();
 
     content.remove();
 
     await vi.waitFor(() => {
+      expect(root.open).toBe(false);
+      expect(root.dataset.state).toBe("closed");
+      expect(root.hasAttribute("data-open")).toBe(false);
+      expect(trigger.dataset.state).toBeUndefined();
+      expect(trigger.hasAttribute("aria-controls")).toBe(false);
+      expect(document.activeElement).toBe(trigger);
       expect(
         document.documentElement.hasAttribute("data-ormo-scroll-locked"),
       ).toBe(false);
       expect(document.documentElement.style.overflow).toBe("");
     });
+
+    expect(
+      (listener.mock.calls.at(-1)?.[0] as DialogOpenChangeEvent).detail,
+    ).toEqual({
+      open: false,
+      reason: "programmatic",
+      returnValue: "",
+    });
+  });
+
+  it("closes and clears transition state when disconnected", () => {
+    const { root, trigger, content } = createDialog();
+    trigger.click();
+
+    expect(content.open).toBe(true);
+    expect(content.hasAttribute("data-starting-style")).toBe(true);
+
+    root.remove();
+
+    expect(content.open).toBe(false);
+    expect(content.hasAttribute("data-starting-style")).toBe(false);
+    expect(content.hasAttribute("data-ending-style")).toBe(false);
+    expect(root.dataset.state).toBe("closed");
+    expect(root.hasAttribute("data-open")).toBe(false);
+    expect(
+      document.documentElement.hasAttribute("data-ormo-scroll-locked"),
+    ).toBe(false);
+
+    document.body.append(root);
+    expect(content.open).toBe(false);
+    expect(root.dataset.state).toBe("closed");
   });
 });

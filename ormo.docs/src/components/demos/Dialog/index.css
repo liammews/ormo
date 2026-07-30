@@ -1,16 +1,15 @@
 .dialog-content {
   position: fixed;
   inset: 0;
-  width: min(30rem, calc(100% - 2rem));
+  width: min(28rem, calc(100% - 2rem));
   max-height: calc(100dvh - 2rem);
   margin: auto;
   overflow: auto;
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-3);
+  border-radius: var(--radius-2);
   padding: var(--space-150);
   background: var(--surface-base);
   color: var(--content-default);
-  box-shadow: 0 1rem 3rem rgb(0 0 0 / 25%);
   transition:
     opacity var(--duration-1) var(--ease-1),
     transform var(--duration-1) var(--ease-1),
@@ -30,59 +29,22 @@
 
 .dialog-title {
   margin: 0;
-  font: var(--font-weight-medium) var(--font-size-4) / var(--line-height-tight)
-    var(--font-family-display);
+  font-size: var(--font-size-4);
+  line-height: var(--line-height-tight);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-tight);
 }
 
 .dialog-description {
-  margin-block: var(--space-75) 0;
+  margin-block: var(--space-50) 0;
   color: var(--content-subtle);
-  font-size: var(--font-size-3);
-  line-height: var(--line-height-loose);
-}
-
-.dialog-form {
-  display: grid;
-  gap: var(--space-50);
-  margin-block-start: var(--space-125);
-}
-
-.dialog-label {
+  font-family: var(--font-family-sans);
   font-size: var(--font-size-2);
-  font-weight: var(--font-weight-medium);
-}
-
-.dialog-input {
-  min-height: 2.75rem;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-2);
-  padding-inline: var(--space-75);
-  background: var(--surface-base);
-  color: var(--content-default);
-  font: inherit;
+  line-height: var(--line-height-loose);
 }
 
 .dialog-actions {
   margin-block-start: var(--space-150);
-}
-
-.dialog-input:focus-visible {
-  outline: var(--focus-width) solid var(--focus-default);
-  outline-offset: var(--focus-offset);
-}
-
-.dialog-status {
-  min-height: var(--line-height-base);
-  margin: var(--space-75) 0 0;
-  color: var(--content-subtle);
-  font-size: var(--font-size-2);
-}
-
-.dialog-shortcuts {
-  display: grid;
-  gap: var(--space-75);
-  padding-inline-start: var(--space-125);
-  line-height: var(--line-height-loose);
 }
 
 @media (prefers-reduced-motion: reduce) {

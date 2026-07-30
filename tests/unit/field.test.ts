@@ -1,12 +1,17 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { OrmoFieldElement } from "../../src/components/field/types";
+import type {
+  FieldControlElement,
+  FieldValidatorContext,
+  OrmoFieldElement,
+} from "../../src/components/field/types";
 import { validateField } from "../../src/runtime/field";
 import "../../src/runtime/field";
 
 interface FieldOptions {
   disabled?: boolean;
   errorMatch?: string;
+  errorId?: string;
   inForm?: boolean;
   invalid?: boolean;
   controlAttributes?: string;
@@ -17,10 +22,6 @@ interface FieldOptions {
 
 function createField(options: FieldOptions = {}): OrmoFieldElement {
   const root = document.createElement("ormo-field");
-
-  if (options.disabled) {
-    root.setAttribute("data-disabled", "");
-  }
 
   if (options.invalid) {
     root.setAttribute("data-invalid", "");
@@ -47,11 +48,21 @@ function createField(options: FieldOptions = {}): OrmoFieldElement {
     <div data-ormo-field-description>Used for receipts.</div>
     <div
       data-ormo-field-error
+      ${options.errorId ? `id="${options.errorId}"` : ""}
       ${options.errorMatch ? `data-match="${options.errorMatch}" hidden` : "hidden"}
     >
       Enter a valid email address.
     </div>
   `;
+
+  if (options.disabled) {
+    const control = root.querySelector<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >("input, select, textarea");
+    if (control) {
+      control.disabled = true;
+    }
+  }
 
   if (options.inForm) {
     const form = document.createElement("form");
@@ -148,6 +159,21 @@ describe("field", () => {
     expect(control.id).toBe("email");
     expect(label?.htmlFor).toBe("email");
     expect(control.getAttribute("aria-describedby")).toContain("email-help");
+  });
+
+  it("does not duplicate an explicitly referenced managed description", () => {
+    const root = createField({
+      controlAttributes: 'aria-describedby="email-error"',
+      errorId: "email-error",
+      invalid: true,
+    });
+    const control = getControl(root);
+    const describedBy = control
+      .getAttribute("aria-describedby")
+      ?.split(/\s+/)
+      .filter(Boolean);
+
+    expect(describedBy?.filter((id) => id === "email-error")).toHaveLength(1);
   });
 
   it("tracks focus, filled, dirty, touched, and validity state", () => {
@@ -386,12 +412,20 @@ describe("field", () => {
     member.dispatchEvent(new Event("change", { bubbles: true }));
 
     expect(validator).toHaveBeenCalledOnce();
-    expect(validator).toHaveBeenLastCalledWith("express", expect.anything());
+    expect(validator).toHaveBeenLastCalledWith(
+      "express",
+      expect.anything(),
+      expect.anything(),
+    );
 
     group.value = "standard";
 
     expect(validator).toHaveBeenCalledTimes(2);
-    expect(validator).toHaveBeenLastCalledWith("standard", expect.anything());
+    expect(validator).toHaveBeenLastCalledWith(
+      "standard",
+      expect.anything(),
+      expect.anything(),
+    );
   });
 
   it("uses native radio-group validity without recursive validation", async () => {
@@ -482,7 +516,7 @@ describe("field", () => {
 
     root.validator = (value) =>
       value.endsWith("@example.com") ? null : "Use an example.com address.";
-    root.addEventListener("ormo:state-change", (event) => {
+    root.addEventListener("ormo:field-state-change", (event) => {
       states.push(event.detail.state.invalid);
     });
 
@@ -526,6 +560,96 @@ describe("field", () => {
     });
   });
 
+  it("provides form data and an abort signal to validators", async () => {
+    const root = createField({
+      inForm: true,
+      validationMode: "onChange",
+    });
+    const form = getControl(root).form!;
+    const organisation = document.createElement("input");
+    organisation.name = "organisation";
+    organisation.value = "Ormo";
+    form.append(organisation);
+    const validator = vi.fn(
+      (
+        _value: string,
+        _control: FieldControlElement,
+        context: FieldValidatorContext,
+      ) => {
+        expect(context.formData?.get("organisation")).toBe("Ormo");
+        expect(context.signal.aborted).toBe(false);
+        return null;
+      },
+    );
+    root.validator = validator;
+
+    const control = getControl(root);
+    control.value = "person@example.com";
+    control.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    await vi.waitFor(() => expect(validator).toHaveBeenCalledOnce());
+  });
+
+  it("contains validator failures and emits a validation error event", async () => {
+    const root = createField();
+    const failure = new Error("Validation service unavailable");
+    const errors: unknown[] = [];
+
+    root.addEventListener("ormo:field-validation-error", (event) => {
+      errors.push(event.detail.error);
+    });
+    root.validator = async () => {
+      throw failure;
+    };
+
+    await expect(root.validate()).resolves.toBe(false);
+    expect(errors).toEqual([failure]);
+    expect(root.state.invalid).toBe(true);
+    expect(root.state.validating).toBe(false);
+    expect(root.hasAttribute("data-validating")).toBe(false);
+    expect(
+      root.querySelector<HTMLElement>("[data-ormo-field-error]")?.hidden,
+    ).toBe(false);
+  });
+
+  it("aborts pending validation when the validator is removed", async () => {
+    const root = createField({ validationMode: "onChange" });
+    const control = getControl(root);
+    let resolveValidation!: (value: string | null) => void;
+    let signal: AbortSignal | undefined;
+
+    root.validator = (_value, _control, context) => {
+      signal = context.signal;
+      return new Promise((resolve) => {
+        resolveValidation = resolve;
+      });
+    };
+
+    control.value = "person@example.com";
+    control.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    await Promise.resolve();
+    expect(root.state.validating).toBe(true);
+
+    root.validator = undefined;
+    expect(signal?.aborted).toBe(true);
+
+    resolveValidation("Late validation result");
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(control.validity.customError).toBe(false);
+    expect(root.state.validating).toBe(false);
+    expect(root.state.invalid).toBe(false);
+  });
+
+  it("runs a validator once when validate triggers native invalid", async () => {
+    const root = createField({ controlAttributes: "required" });
+    const validator = vi.fn(() => null);
+    root.validator = validator;
+
+    await expect(root.validate()).resolves.toBe(false);
+    expect(validator).toHaveBeenCalledOnce();
+  });
+
   it("debounces onChange validation", async () => {
     vi.useFakeTimers();
     const root = createField({ validationMode: "onChange" });
@@ -559,9 +683,48 @@ describe("field", () => {
     expect(control.name).toBe("email");
     expect(control.required).toBe(true);
     expect(control.readOnly).toBe(true);
-    expect(root.getAttribute("name")).toBe("email");
-    expect(root.hasAttribute("data-required")).toBe(true);
-    expect(root.hasAttribute("data-readonly")).toBe(true);
+    expect(root.hasAttribute("name")).toBe(false);
+    expect(root.hasAttribute("data-required")).toBe(false);
+    expect(root.hasAttribute("data-readonly")).toBe(false);
+  });
+
+  it("reflects live native attributes without overwriting them", async () => {
+    const root = createField();
+    const control = getControl(root);
+
+    control.disabled = true;
+    control.required = true;
+    control.readOnly = true;
+    control.name = "live-email";
+    await Promise.resolve();
+
+    expect(root.disabled).toBe(true);
+    expect(root.required).toBe(true);
+    expect(root.readOnly).toBe(true);
+    expect(root.name).toBe("live-email");
+    expect(root.hasAttribute("data-disabled")).toBe(true);
+
+    root.invalid = true;
+    root.invalid = false;
+
+    expect(control.disabled).toBe(true);
+    expect(control.required).toBe(true);
+    expect(control.readOnly).toBe(true);
+    expect(control.name).toBe("live-email");
+  });
+
+  it("reconciles a live authored aria-invalid state", async () => {
+    const root = createField();
+    const control = getControl(root);
+
+    control.setAttribute("aria-invalid", "true");
+    await Promise.resolve();
+    expect(root.invalid).toBe(true);
+
+    control.removeAttribute("aria-invalid");
+    await Promise.resolve();
+    expect(root.invalid).toBe(false);
+    expect(control.hasAttribute("aria-invalid")).toBe(false);
   });
 
   it("resets tracked state with its native form", async () => {
@@ -717,6 +880,18 @@ describe("development diagnostics", () => {
     expect(warn).toHaveBeenCalledWith(
       expect.stringContaining("only the first native control"),
       multiple,
+    );
+
+    warn.mockClear();
+    const mismatched = document.createElement("ormo-field");
+    mismatched.innerHTML = `
+      <label for="other-control" data-ormo-field-label>Email</label>
+      <input id="email-control" type="email">
+    `;
+    document.body.append(mismatched);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('for="other-control"'),
+      mismatched.querySelector("label"),
     );
   });
 });

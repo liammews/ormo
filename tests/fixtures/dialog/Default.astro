@@ -1,0 +1,28 @@
+---
+import * as Dialog from "../../../src/components/dialog/index";
+---
+
+<Dialog.Root id="profile-dialog" class="dialog-root" disablePointerDismissal>
+  <Dialog.Trigger id="profile-trigger" class="dialog-trigger">
+    Edit profile
+  </Dialog.Trigger>
+  <Dialog.Content
+    id="profile-content"
+    class="dialog-content"
+    finalFocus="#after-profile"
+  >
+    <Dialog.Title as="h3" id="profile-title" class="dialog-title">
+      Edit profile
+    </Dialog.Title>
+    <Dialog.Description
+      as="div"
+      id="profile-description"
+      class="dialog-description"
+    >
+      Change how your name appears.
+    </Dialog.Description>
+    <Dialog.Close class="dialog-close" value="saved">
+      Save changes
+    </Dialog.Close>
+  </Dialog.Content>
+</Dialog.Root>

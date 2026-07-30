@@ -1,0 +1,51 @@
+---
+import * as Field from "@ormo/primitives/field";
+import { Input } from "@ormo/primitives/input";
+import InputDemo from "../../../components/demos/Input/InputDemo.astro";
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+---
+
+<BrowserFixtureLayout title="Input">
+  <form data-input-form>
+    <InputDemo />
+    <button type="submit">Submit</button>
+  </form>
+
+  <div data-input-state-demo>
+    <label class="input-label" for="readonly-reference">
+      Read-only reference
+    </label>
+    <Input
+      class="input"
+      id="readonly-reference"
+      name="reference"
+      value="ORMO-2603"
+      readonly
+    />
+
+    <label class="input-label" for="disabled-account"> Disabled account </label>
+    <Input
+      class="input"
+      id="disabled-account"
+      name="disabled-account"
+      value="Unavailable"
+      disabled
+    />
+  </div>
+
+  <div data-input-field-demo>
+    <Field.Root id="recovery-email-field" invalid>
+      <Field.Label class="input-label">Recovery email</Field.Label>
+      <Input
+        class="input"
+        name="recovery-email"
+        type="email"
+        value="not-an-email"
+        aria-describedby="recovery-email-error"
+      />
+      <Field.Error class="input-hint input-error" id="recovery-email-error">
+        Enter an email address in the format name@example.com.
+      </Field.Error>
+    </Field.Root>
+  </div>
+</BrowserFixtureLayout>

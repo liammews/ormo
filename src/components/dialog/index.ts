@@ -12,6 +12,9 @@ export { default as Title } from "./Title.astro";
 export { default as Trigger } from "./Trigger.astro";
 
 export type {
+  DialogBeforeCloseDetail,
+  DialogBeforeCloseEvent,
+  DialogBeforeCloseReason,
   DialogCloseProps,
   DialogCloseReason,
   DialogContentProps,

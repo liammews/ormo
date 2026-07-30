@@ -5,6 +5,7 @@ import SidebarMenu from "../components/docs/SidebarMenu/SidebarMenu.astro";
 import SidebarMenuItem from "../components/docs/SidebarMenuItem/SidebarMenuItem.astro";
 import Text from "../components/docs/Text/Text.astro";
 import Logo from "../components/docs/Logo/Logo.astro";
+import ThemeSwitcher from "../components/docs/ThemeSwitcher/ThemeSwitcher.astro";
 import "../styles/index.css";
 
 interface Props {
@@ -69,12 +70,12 @@ const sidebarSections: SidebarSection[] = [
         href: "/docs/components/checkbox",
         status: "beta",
       },
-      { label: "Dialog", href: "/docs/components/dialog", status: "dev" },
-      { label: "Field", href: "/docs/components/field", status: "dev" },
+      { label: "Dialog", href: "/docs/components/dialog", status: "beta" },
+      { label: "Field", href: "/docs/components/field", status: "beta" },
       {
         label: "Fieldset",
         href: "/docs/components/fieldset",
-        status: "dev",
+        status: "beta",
       },
       { label: "Input", href: "/docs/components/input", status: "dev" },
       {
@@ -106,6 +107,22 @@ const currentPath = normalizePath(Astro.url.pathname);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
+    <script is:inline>
+      (() => {
+        let theme = "system";
+
+        try {
+          const storedTheme = localStorage.getItem("ormo-docs-theme");
+          if (["system", "light", "dark"].includes(storedTheme)) {
+            theme = storedTheme;
+          }
+        } catch {
+          // System theme remains available when storage is unavailable.
+        }
+
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link
       rel="preload"
@@ -130,6 +147,7 @@ const currentPath = normalizePath(Astro.url.pathname);
       <div>
         <Logo width="4rem" />
       </div>
+      <ThemeSwitcher />
     </header>
 
     <div class="docs-layout">

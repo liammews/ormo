@@ -8,27 +8,24 @@ test.beforeEach(async ({ page }) => {
 test("opens modally, contains focus, closes, and restores focus", async ({
   page,
 }) => {
-  const trigger = page.getByRole("button", { name: "Edit profile" });
-  const dialog = page.getByRole("dialog", { name: "Edit profile" });
-  const input = dialog.getByRole("textbox", { name: "Display name" });
-  const cancel = dialog.getByRole("button", { name: "Cancel" });
-  const save = dialog.getByRole("button", { name: "Save changes" });
+  const trigger = page.getByRole("button", { name: "View notifications" });
+  const dialog = page.getByRole("dialog", { name: "Notifications" }).first();
+  const close = dialog.getByRole("button", { name: "Close" });
 
   await trigger.click();
 
   await expect(dialog).toBeVisible();
-  await expect(input).toBeFocused();
+  await expect(close).toBeFocused();
   await expect(dialog).toHaveAttribute("aria-modal", "true");
   await expect(dialog).toHaveAttribute("aria-labelledby", /-title$/);
   await expect(dialog).toHaveAttribute("aria-describedby", /-description$/);
 
-  await input.focus();
   await page.keyboard.press("Shift+Tab");
-  await expect(save).toBeFocused();
+  await expect(close).toBeFocused();
   await page.keyboard.press("Tab");
-  await expect(input).toBeFocused();
+  await expect(close).toBeFocused();
 
-  await cancel.click();
+  await close.click();
   await expect(dialog).toBeHidden();
   await expect(trigger).toBeFocused();
 });
@@ -36,7 +33,7 @@ test("opens modally, contains focus, closes, and restores focus", async ({
 test("dismisses from Escape and the backdrop with distinct reasons", async ({
   page,
 }) => {
-  const trigger = page.getByRole("button", { name: "Edit profile" });
+  const trigger = page.getByRole("button", { name: "View notifications" });
   const root = page.locator("ormo-dialog").first();
   const reasons = await root.evaluate((element) => {
     const values: string[] = [];
@@ -72,9 +69,9 @@ test("can disable pointer dismissal while retaining Escape", async ({
   page,
 }) => {
   const trigger = page.getByRole("button", {
-    name: "Review keyboard shortcuts",
+    name: "View persistent notification",
   });
-  const dialog = page.getByRole("dialog", { name: "Keyboard shortcuts" });
+  const dialog = page.getByRole("dialog", { name: "Notifications" }).last();
 
   await trigger.click();
   await page.mouse.click(4, 4);
@@ -120,9 +117,9 @@ test("has no automatically detectable accessibility violations", async ({
     .analyze();
   expect(results.violations).toEqual([]);
 
-  await page.getByRole("button", { name: "Edit profile" }).click();
+  await page.getByRole("button", { name: "View notifications" }).click();
   await expect(
-    page.getByRole("dialog", { name: "Edit profile" }),
+    page.getByRole("dialog", { name: "Notifications" }).first(),
   ).not.toHaveAttribute("data-starting-style");
   results = await new AxeBuilder({ page })
     .include("[data-dialog-demo]")
@@ -132,10 +129,11 @@ test("has no automatically detectable accessibility violations", async ({
 
 test("fits within a narrow viewport", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
-  await page.getByRole("button", { name: "Edit profile" }).click();
+  await page.getByRole("button", { name: "View notifications" }).click();
 
   const box = await page
-    .getByRole("dialog", { name: "Edit profile" })
+    .getByRole("dialog", { name: "Notifications" })
+    .first()
     .boundingBox();
   expect(box).not.toBeNull();
   expect(box!.x).toBeGreaterThanOrEqual(0);
@@ -144,7 +142,7 @@ test("fits within a narrow viewport", async ({ page }) => {
 });
 
 test("locks background scrolling until the dialog closes", async ({ page }) => {
-  const trigger = page.getByRole("button", { name: "Edit profile" });
+  const trigger = page.getByRole("button", { name: "View notifications" });
   await trigger.scrollIntoViewIfNeeded();
   await trigger.click();
 
@@ -166,4 +164,259 @@ test("locks background scrolling until the dialog closes", async ({ page }) => {
     "",
   );
   await expect(page.locator("html")).not.toHaveCSS("overflow", "hidden");
+});
+
+test("allows close, outside, and Escape dismissal requests to be cancelled", async ({
+  page,
+}) => {
+  const trigger = page.getByRole("button", { name: "View notifications" });
+  const root = page.locator("ormo-dialog").first();
+  const dialog = page.getByRole("dialog", { name: "Notifications" }).first();
+  await root.evaluate((element) => {
+    const reasons: string[] = [];
+    element.addEventListener("ormo:dialog-before-close", (event) => {
+      reasons.push((event as CustomEvent<{ reason: string }>).detail.reason);
+      event.preventDefault();
+    });
+    (element as HTMLElement & { testReasons: string[] }).testReasons = reasons;
+  });
+
+  await trigger.click();
+  await dialog.getByRole("button", { name: "Close" }).click();
+  await expect(dialog).toBeVisible();
+
+  await page.mouse.click(4, 4);
+  await expect(dialog).toBeVisible();
+
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeVisible();
+
+  await expect
+    .poll(() =>
+      root.evaluate(
+        (element) =>
+          (element as HTMLElement & { testReasons: string[] }).testReasons,
+      ),
+    )
+    .toEqual(["close", "outside", "escape"]);
+});
+
+test("remains modal when closed and reopened in the same task", async ({
+  page,
+}) => {
+  const trigger = page.getByRole("button", { name: "View notifications" });
+  const root = page.locator("ormo-dialog").first();
+  const dialog = page.getByRole("dialog", { name: "Notifications" }).first();
+
+  await trigger.click();
+  await root.evaluate((element) => {
+    const dialogRoot = element as HTMLElement & {
+      close(): void;
+      showModal(): void;
+    };
+    dialogRoot.close();
+    dialogRoot.showModal();
+  });
+  await page.waitForTimeout(50);
+
+  await expect(dialog).toBeVisible();
+  await expect(root).toHaveAttribute("data-state", "open");
+  await expect(root).toHaveAttribute("data-open", "");
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-ormo-scroll-locked",
+    "",
+  );
+  expect(await dialog.evaluate((element) => element.matches(":modal"))).toBe(
+    true,
+  );
+});
+
+test("normalizes an open dialog when Root is moved", async ({ page }) => {
+  const trigger = page.getByRole("button", { name: "View notifications" });
+  const root = page.locator("ormo-dialog").first();
+
+  await trigger.click();
+  await root.evaluate((element) => {
+    element.remove();
+    document.body.append(element);
+  });
+
+  const content = root.locator("dialog");
+  await expect(content).toBeHidden();
+  await expect(root).toHaveAttribute("data-state", "closed");
+  await expect(root).not.toHaveAttribute("data-open", "");
+  await expect(page.locator("html")).not.toHaveAttribute(
+    "data-ormo-scroll-locked",
+    "",
+  );
+  expect(await content.evaluate((element) => element.matches(":modal"))).toBe(
+    false,
+  );
+});
+
+test("normalizes state and restores focus when open Content is removed", async ({
+  page,
+}) => {
+  const trigger = page.getByRole("button", { name: "View notifications" });
+  const root = page.locator("ormo-dialog").first();
+
+  await trigger.click();
+  await root.locator("dialog").evaluate((element) => element.remove());
+
+  await expect(root).toHaveAttribute("data-state", "closed");
+  await expect(root).not.toHaveAttribute("data-open", "");
+  await expect(trigger).toBeFocused();
+  await expect(trigger).not.toHaveAttribute("aria-controls");
+  await expect(page.locator("html")).not.toHaveAttribute(
+    "data-ormo-scroll-locked",
+    "",
+  );
+});
+
+test("reconciles generated and authored accessible relationships", async ({
+  page,
+}) => {
+  const root = page.locator("ormo-dialog").first();
+  const content = root.locator("dialog");
+  const title = content.locator("[data-ormo-dialog-title]");
+  const description = content.locator("[data-ormo-dialog-description]");
+
+  await title.evaluate((element) => {
+    element.id = "runtime-dialog-title";
+  });
+  await description.evaluate((element) => {
+    element.id = "runtime-dialog-description";
+  });
+  await expect(content).toHaveAttribute(
+    "aria-labelledby",
+    "runtime-dialog-title",
+  );
+  await expect(content).toHaveAttribute(
+    "aria-describedby",
+    "runtime-dialog-description",
+  );
+
+  await content.evaluate((element) => {
+    element.setAttribute("aria-label", "Runtime preferences");
+  });
+  await expect(content).not.toHaveAttribute("aria-labelledby");
+  await page.getByRole("button", { name: "View notifications" }).click();
+  await expect(
+    page.getByRole("dialog", { name: "Runtime preferences" }),
+  ).toBeVisible();
+
+  await content.evaluate((element) => {
+    element.removeAttribute("aria-label");
+  });
+  await expect(content).toHaveAttribute(
+    "aria-labelledby",
+    "runtime-dialog-title",
+  );
+});
+
+test("supports a native dialog form and reports its return value", async ({
+  page,
+}) => {
+  await page.evaluate(() => {
+    const fixture = document.createElement("div");
+    fixture.innerHTML = `
+      <ormo-dialog id="form-dialog">
+        <button type="button" data-ormo-dialog-trigger>Open form fixture</button>
+        <dialog data-ormo-dialog-content>
+          <h2 data-ormo-dialog-title>Form fixture</h2>
+          <form method="dialog">
+            <button type="submit" value="saved" data-ormo-dialog-close>Save fixture</button>
+          </form>
+        </dialog>
+      </ormo-dialog>
+    `;
+    const root = fixture.querySelector("ormo-dialog");
+    root?.addEventListener("ormo:dialog-open-change", (event) => {
+      const detail = (
+        event as CustomEvent<{
+          open: boolean;
+          reason: string;
+          returnValue: string;
+        }>
+      ).detail;
+      if (!detail.open) {
+        root.setAttribute("data-close-reason", detail.reason);
+        root.setAttribute("data-return-value", detail.returnValue);
+      }
+    });
+    document.body.append(fixture);
+  });
+
+  const trigger = page.getByRole("button", { name: "Open form fixture" });
+  await trigger.click();
+  await page.getByRole("button", { name: "Save fixture" }).click();
+
+  const root = page.locator("#form-dialog");
+  await expect(page.getByRole("dialog", { name: "Form fixture" })).toBeHidden();
+  await expect(root).toHaveAttribute("data-close-reason", "programmatic");
+  await expect(root).toHaveAttribute("data-return-value", "saved");
+  await expect(trigger).toBeFocused();
+});
+
+test("supports nested dialogs while keeping the parent open", async ({
+  page,
+}) => {
+  await page.evaluate(() => {
+    const fixture = document.createElement("div");
+    fixture.innerHTML = `
+      <ormo-dialog id="parent-dialog">
+        <button type="button" data-ormo-dialog-trigger>Open parent fixture</button>
+        <dialog data-ormo-dialog-content>
+          <h2 data-ormo-dialog-title>Parent fixture</h2>
+          <ormo-dialog id="child-dialog">
+            <button type="button" data-ormo-dialog-trigger>Open child fixture</button>
+            <dialog data-ormo-dialog-content>
+              <h2 data-ormo-dialog-title>Child fixture</h2>
+              <button type="button" data-ormo-dialog-close>Close child fixture</button>
+            </dialog>
+          </ormo-dialog>
+          <button type="button" data-ormo-dialog-close>Close parent fixture</button>
+        </dialog>
+      </ormo-dialog>
+    `;
+    document.body.append(fixture);
+  });
+
+  await page.getByRole("button", { name: "Open parent fixture" }).click();
+  const parent = page.getByRole("dialog", { name: "Parent fixture" });
+  const childTrigger = parent.getByRole("button", {
+    name: "Open child fixture",
+  });
+  await childTrigger.click();
+
+  const child = page.getByRole("dialog", { name: "Child fixture" });
+  await expect(parent).toBeVisible();
+  await expect(child).toBeVisible();
+
+  await child.getByRole("button", { name: "Close child fixture" }).click();
+  await expect(child).toBeHidden();
+  await expect(parent).toBeVisible();
+  await expect(childTrigger).toBeFocused();
+});
+
+test("restores focus to an explicit final destination", async ({ page }) => {
+  await page.evaluate(() => {
+    const fixture = document.createElement("div");
+    fixture.innerHTML = `
+      <ormo-dialog>
+        <button type="button" data-ormo-dialog-trigger>Open final focus fixture</button>
+        <dialog data-final-focus="#dialog-final-focus" data-ormo-dialog-content>
+          <h2 data-ormo-dialog-title>Final focus fixture</h2>
+          <button type="button" data-ormo-dialog-close>Finish fixture</button>
+        </dialog>
+      </ormo-dialog>
+      <h2 id="dialog-final-focus" tabindex="-1">Next task</h2>
+    `;
+    document.body.append(fixture);
+  });
+
+  await page.getByRole("button", { name: "Open final focus fixture" }).click();
+  await page.getByRole("button", { name: "Finish fixture" }).click();
+
+  await expect(page.getByRole("heading", { name: "Next task" })).toBeFocused();
 });

@@ -1,0 +1,20 @@
+---
+import * as Field from "../../../src/components/field";
+---
+
+<Field.Root id="account-email-field" invalid>
+  <Field.Label>Email address</Field.Label>
+  <Field.Control
+    name="email"
+    type="email"
+    required
+    value="not-an-email"
+    aria-describedby="account-email-help account-email-error"
+  />
+  <Field.Description id="account-email-help">
+    Used for account notifications.
+  </Field.Description>
+  <Field.Error id="account-email-error">
+    Enter an email address in the format name@example.com.
+  </Field.Error>
+</Field.Root>

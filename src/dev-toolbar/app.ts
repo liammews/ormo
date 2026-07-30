@@ -1,4 +1,6 @@
 import { defineToolbarApp } from "astro/toolbar";
+import { scanFieldsets } from "./scan-fieldsets";
+import { scanInputs } from "./scan-inputs";
 
 interface Diagnostic {
   element: HTMLElement;
@@ -621,6 +623,8 @@ function scan(): Diagnostic[] {
     ...scanTabs(),
     ...scanCheckboxes(),
     ...scanRadios(),
+    ...scanFieldsets(),
+    ...scanInputs(),
   ];
 }
 
@@ -843,6 +847,11 @@ function identify(element: HTMLElement): string {
     return "Radio Indicator";
   }
   if (element.localName === "ormo-radio-group") return "Radio Group";
+  if (element.hasAttribute("data-ormo-fieldset-legend")) {
+    return "Fieldset Legend";
+  }
+  if (element.hasAttribute("data-ormo-fieldset-root")) return "Fieldset Root";
+  if (element.hasAttribute("data-ormo-input")) return "Input";
   if (element.hasAttribute("data-ormo-button")) return "Button";
   return element.localName;
 }

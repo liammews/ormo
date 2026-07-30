@@ -4,6 +4,7 @@ import {
   normalizeDefaultValues,
   renderWithCheckboxGroupContext,
 } from "../../internal/checkbox-group-ssr-context";
+import { getFieldSsrContext } from "../../internal/field-ssr-context";
 import type { CheckboxGroupRootProps } from "./types";
 
 type Props = CheckboxGroupRootProps;
@@ -17,6 +18,7 @@ const {
   id,
   "aria-labelledby": ariaLabelledBy,
   "aria-label": ariaLabel,
+  "aria-invalid": ariaInvalid,
   ...attributes
 } = Astro.props as CheckboxGroupRootProps & {
   required?: boolean;
@@ -24,8 +26,10 @@ const {
   id?: string;
   "aria-labelledby"?: string;
   "aria-label"?: string;
+  "aria-invalid"?: string;
 };
 
+const field = getFieldSsrContext();
 const rootId = id ?? createCheckboxGroupRootId();
 const labelId = `${rootId}-label`;
 const serializedDefaultValue =
@@ -65,10 +69,13 @@ const initialState =
   role="group"
   aria-labelledby={resolvedLabelledBy}
   aria-label={ariaLabel}
+  aria-invalid={ariaInvalid ?? (field?.invalid ? "true" : undefined)}
   data-ormo-checkbox-group
   data-state={initialState}
   data-disabled={disabled ? "" : undefined}
   data-required={required ? "" : undefined}
+  data-invalid={field?.invalid ? "" : undefined}
+  data-ormo-field-inherited-invalid={field?.invalid ? "" : undefined}
   data-name={name}
   data-default-value={serializedDefaultValue}
   data-managed-labelledby={generatedLabelledBy}

@@ -1,19 +1,21 @@
 ---
 import { Checkbox, CheckboxIndicator } from "@ormo/primitives/checkbox";
 import * as CheckboxGroup from "@ormo/primitives/checkbox/group";
+import { Button } from "@ormo/primitives/button";
 import * as Field from "@ormo/primitives/field";
 import "./index.css";
 ---
 
-<form>
-  <Field.Root class="checkbox-group" name="protocols">
+<form class="checkbox-required-form">
+  <Field.Root class="checkbox-group">
     <CheckboxGroup.Root
+      class="checkbox-required-options"
       name="protocols"
       required
       requiredMessage="Select at least one protocol."
     >
       <CheckboxGroup.Label class="checkbox-group-label">
-        Allowed protocols
+        Preferred package manager
       </CheckboxGroup.Label>
       <div class="checkbox-stack">
         <label class="checkbox-custom-field">
@@ -29,7 +31,7 @@ import "./index.css";
               <path class="checkbox-mixedmark" d="M3 8h10"></path>
             </svg>
           </CheckboxIndicator>
-          HTTP
+          NPM
         </label>
         <label class="checkbox-custom-field">
           <Checkbox class="checkbox-custom" value="https" />
@@ -44,7 +46,7 @@ import "./index.css";
               <path class="checkbox-mixedmark" d="M3 8h10"></path>
             </svg>
           </CheckboxIndicator>
-          HTTPS
+          Yarn
         </label>
         <label class="checkbox-custom-field">
           <Checkbox class="checkbox-custom" value="ssh" />
@@ -59,16 +61,16 @@ import "./index.css";
               <path class="checkbox-mixedmark" d="M3 8h10"></path>
             </svg>
           </CheckboxIndicator>
-          SSH
+          Homebrew
         </label>
       </div>
     </CheckboxGroup.Root>
     <Field.Description class="checkbox-hint">
-      Choose the protocols this service may accept.
+      Chose your preferred package manager.
     </Field.Description>
     <Field.Error class="checkbox-error" match="customError">
       Select at least one protocol.
     </Field.Error>
   </Field.Root>
-  <button type="submit" style="margin-block-start: 0.75rem">Save</button>
+  <Button class="button" type="submit">Save</Button>
 </form>

@@ -1,4 +1,5 @@
 import type {
+  DialogBeforeCloseDetail,
   DialogCloseReason,
   DialogOpenChangeDetail,
 } from "../components/dialog/types";
@@ -38,6 +39,16 @@ const documentStates = new WeakMap<Document, DialogDocumentState>();
 
 function belongsToRoot(element: Element, root: HTMLElement): boolean {
   return element.closest(tagName) === root;
+}
+
+function setAttributeIfChanged(
+  element: Element,
+  name: string,
+  value: string,
+): void {
+  if (element.getAttribute(name) !== value) {
+    element.setAttribute(name, value);
+  }
 }
 
 export function validateDialog(root: HTMLElement): void {
@@ -94,7 +105,9 @@ export class OrmoDialog extends HTMLElement {
   #generatedLabels = new WeakMap<HTMLDialogElement, string>();
   #finalFocus: HTMLElement | null = null;
   #invoker: HTMLElement | undefined;
+  #managedContent: HTMLDialogElement | undefined;
   #managedTriggers = new Set<HTMLElement>();
+  #modalOpen = false;
   #observer: MutationObserver | undefined;
   #pendingReason: DialogCloseReason = "programmatic";
   #transitionFrame: number | undefined;
@@ -130,10 +143,32 @@ export class OrmoDialog extends HTMLElement {
 
     this.#observer?.disconnect();
     this.#observer = new MutationObserver(() => this.#prepareParts());
-    this.#observer.observe(this, { childList: true, subtree: true });
+    this.#observer.observe(this, {
+      attributeFilter: [
+        "aria-label",
+        "aria-labelledby",
+        "aria-describedby",
+        "id",
+      ],
+      attributes: true,
+      childList: true,
+      subtree: true,
+    });
   }
 
   disconnectedCallback(): void {
+    const content = this.#managedContent ?? this.#content;
+    if (content) {
+      this.#normalizeClosedContent(content, {
+        announce: false,
+        restoreFocus: true,
+      });
+    }
+    this.#managedContent = undefined;
+    this.#invoker = undefined;
+    this.#modalOpen = false;
+    this.#pendingReason = "programmatic";
+
     unregisterDialog(this);
     this.#controller?.abort();
     this.#controller = undefined;
@@ -186,8 +221,10 @@ export class OrmoDialog extends HTMLElement {
     this.#invoker ??=
       activeElement instanceof HTMLElement ? activeElement : undefined;
     content.returnValue = "";
+    this.#pendingReason = "programmatic";
     this.#beginStartingStyle(content);
     content.showModal();
+    this.#modalOpen = true;
     lockModalScroll(this.ownerDocument, this);
     this.#setOpenState(true);
 
@@ -227,9 +264,20 @@ export class OrmoDialog extends HTMLElement {
       this.querySelectorAll<HTMLDialogElement>(contentSelector),
     ).filter((content) => belongsToRoot(content, this));
     const content = contents[0];
+    const previousContent = this.#managedContent;
+
+    if (previousContent && previousContent !== content) {
+      this.#normalizeClosedContent(previousContent, {
+        announce: this.isConnected,
+        restoreFocus: true,
+      });
+    }
+    this.#managedContent = content;
 
     if (!content) {
+      this.#setOpenState(false);
       unlockModalScroll(this.ownerDocument, this);
+      this.#releaseManagedTriggers();
       if (import.meta.env.DEV) validateDialog(this);
       return;
     }
@@ -245,52 +293,40 @@ export class OrmoDialog extends HTMLElement {
       content.querySelectorAll<HTMLElement>(descriptionSelector),
     ).find((element) => belongsToRoot(element, this));
 
-    if (title) {
-      title.id ||= `${this.id}-title`;
-      const generatedLabel = this.#generatedLabels.get(content);
+    const generatedLabel = this.#generatedLabels.get(content);
+    const labelledBy = content.getAttribute("aria-labelledby");
+    const hasAuthoredLabelledBy =
+      labelledBy !== null && labelledBy !== generatedLabel;
 
-      if (
-        generatedLabel &&
-        content.getAttribute("aria-labelledby") === generatedLabel
-      ) {
-        content.setAttribute("aria-labelledby", title.id);
-        this.#generatedLabels.set(content, title.id);
-      } else if (
-        !content.hasAttribute("aria-label") &&
-        !content.hasAttribute("aria-labelledby")
-      ) {
-        content.setAttribute("aria-labelledby", title.id);
-        this.#generatedLabels.set(content, title.id);
-      } else {
-        this.#generatedLabels.delete(content);
+    if (content.hasAttribute("aria-label") || hasAuthoredLabelledBy) {
+      if (generatedLabel && labelledBy === generatedLabel) {
+        content.removeAttribute("aria-labelledby");
       }
+      this.#generatedLabels.delete(content);
+    } else if (title) {
+      title.id ||= `${this.id}-title`;
+      setAttributeIfChanged(content, "aria-labelledby", title.id);
+      this.#generatedLabels.set(content, title.id);
     } else {
-      const generatedLabel = this.#generatedLabels.get(content);
-      if (content.getAttribute("aria-labelledby") === generatedLabel) {
+      if (generatedLabel && labelledBy === generatedLabel) {
         content.removeAttribute("aria-labelledby");
       }
       this.#generatedLabels.delete(content);
     }
 
-    if (description) {
-      description.id ||= `${this.id}-description`;
-      const generatedDescription = this.#generatedDescriptions.get(content);
+    const generatedDescription = this.#generatedDescriptions.get(content);
+    const describedBy = content.getAttribute("aria-describedby");
+    const hasAuthoredDescription =
+      describedBy !== null && describedBy !== generatedDescription;
 
-      if (
-        generatedDescription &&
-        content.getAttribute("aria-describedby") === generatedDescription
-      ) {
-        content.setAttribute("aria-describedby", description.id);
-        this.#generatedDescriptions.set(content, description.id);
-      } else if (!content.hasAttribute("aria-describedby")) {
-        content.setAttribute("aria-describedby", description.id);
-        this.#generatedDescriptions.set(content, description.id);
-      } else {
-        this.#generatedDescriptions.delete(content);
-      }
+    if (hasAuthoredDescription) {
+      this.#generatedDescriptions.delete(content);
+    } else if (description) {
+      description.id ||= `${this.id}-description`;
+      setAttributeIfChanged(content, "aria-describedby", description.id);
+      this.#generatedDescriptions.set(content, description.id);
     } else {
-      const generatedDescription = this.#generatedDescriptions.get(content);
-      if (content.getAttribute("aria-describedby") === generatedDescription) {
+      if (generatedDescription && describedBy === generatedDescription) {
         content.removeAttribute("aria-describedby");
       }
       this.#generatedDescriptions.delete(content);
@@ -422,6 +458,41 @@ export class OrmoDialog extends HTMLElement {
     return tabbableElements[0] ?? content;
   }
 
+  #normalizeClosedContent(
+    content: HTMLDialogElement,
+    options: { announce: boolean; restoreFocus: boolean },
+  ): void {
+    const wasOpen =
+      this.#modalOpen || content.open || this.hasAttribute("data-open");
+
+    this.#clearTransitionSchedule();
+    content.removeAttribute(startingStyleAttribute);
+    content.removeAttribute(endingStyleAttribute);
+    if (content.open) {
+      content.removeAttribute("open");
+    }
+
+    this.#modalOpen = false;
+    content.dataset.state = "closed";
+    content.removeAttribute("data-open");
+    this.#setOpenState(false);
+    unlockModalScroll(this.ownerDocument, this);
+
+    if (options.restoreFocus && wasOpen) {
+      this.#resolveFinalFocus(content)?.focus();
+    }
+    this.#invoker = undefined;
+    this.#pendingReason = "programmatic";
+
+    if (options.announce && wasOpen) {
+      this.#dispatchOpenChange({
+        open: false,
+        reason: "programmatic",
+        returnValue: content.returnValue,
+      });
+    }
+  }
+
   #clearTransitionSchedule(): void {
     this.#transitionVersion += 1;
 
@@ -548,6 +619,17 @@ export class OrmoDialog extends HTMLElement {
     );
   }
 
+  #dispatchBeforeClose(detail: DialogBeforeCloseDetail): boolean {
+    return this.dispatchEvent(
+      new CustomEvent("ormo:dialog-before-close", {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        detail,
+      }),
+    );
+  }
+
   #handleClick = (event: MouseEvent): void => {
     if (event.defaultPrevented || !(event.target instanceof Element)) {
       return;
@@ -561,6 +643,19 @@ export class OrmoDialog extends HTMLElement {
     const closeControl =
       event.target.closest<HTMLButtonElement>(closeControlSelector);
     if (closeControl && belongsToRoot(closeControl, this)) {
+      if (closeControl.type === "submit" && closeControl.form) {
+        return;
+      }
+
+      if (
+        !this.#dispatchBeforeClose({
+          reason: "close",
+          returnValue: closeControl.value,
+          originalEvent: event,
+        })
+      ) {
+        return;
+      }
       this.#pendingReason = "close";
       this.#beginEndingStyle(content);
       content.close(closeControl.value);
@@ -583,6 +678,15 @@ export class OrmoDialog extends HTMLElement {
       event.clientY > bounds.bottom;
 
     if (outside) {
+      if (
+        !this.#dispatchBeforeClose({
+          reason: "outside",
+          returnValue: "",
+          originalEvent: event,
+        })
+      ) {
+        return;
+      }
       this.#pendingReason = "outside";
       this.#beginEndingStyle(content);
       content.close();
@@ -591,6 +695,17 @@ export class OrmoDialog extends HTMLElement {
 
   #handleCancel = (event: Event): void => {
     if (event.target !== this.#content) {
+      return;
+    }
+
+    if (
+      !this.#dispatchBeforeClose({
+        reason: "escape",
+        returnValue: "",
+        originalEvent: event,
+      })
+    ) {
+      event.preventDefault();
       return;
     }
 
@@ -643,10 +758,11 @@ export class OrmoDialog extends HTMLElement {
 
   #handleClose = (event: Event): void => {
     const content = this.#content;
-    if (event.target !== content || !content) {
+    if (event.target !== content || !content || content.open) {
       return;
     }
 
+    this.#modalOpen = false;
     const reason = this.#pendingReason;
     this.#pendingReason = "programmatic";
     if (!content.hasAttribute(endingStyleAttribute)) {

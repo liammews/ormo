@@ -18,6 +18,28 @@
   line-height: var(--line-height-base);
 }
 
+.radio-required-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-200);
+}
+
+.radio-required-options {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-50);
+}
+
+.radio-required-field {
+  gap: var(--space-50);
+}
+
+.radio-required-options .radio-group-label {
+  margin-block-end: 0;
+}
+
 .radio-stack {
   display: flex;
   flex-direction: column;
@@ -104,7 +126,7 @@
 .radio-native-field {
   display: flex;
   align-items: center;
-  gap: var(--space-25);
+  gap: var(--space-50);
   color: var(--content-default);
   font-family: var(--font-family-sans);
   font-size: var(--font-size-2);
