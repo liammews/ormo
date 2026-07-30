@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      entities:
+        specifier: ^7.0.1
+        version: 7.0.1
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.9

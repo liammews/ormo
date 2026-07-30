@@ -7,36 +7,10 @@ import {
 } from "@floating-ui/dom";
 
 import {
-  registerTooltipFloatingPositioner,
-  type TooltipPositionerContext,
-} from "./tooltip";
-
-function mapPlacement(
-  side: TooltipPositionerContext["side"],
-  align: TooltipPositionerContext["align"],
-):
-  | "top"
-  | "top-start"
-  | "top-end"
-  | "right"
-  | "right-start"
-  | "right-end"
-  | "bottom"
-  | "bottom-start"
-  | "bottom-end"
-  | "left"
-  | "left-start"
-  | "left-end" {
-  if (align === "center") {
-    return side;
-  }
-
-  if (side === "top" || side === "bottom") {
-    return align === "start" ? `${side}-start` : `${side}-end`;
-  }
-
-  return align === "start" ? `${side}-start` : `${side}-end`;
-}
+  floatingPlacement,
+  type FloatingSide,
+} from "../internal/floating-placement";
+import { registerTooltipFloatingPositioner } from "./tooltip";
 
 registerTooltipFloatingPositioner(
   ({ trigger, content, side, align, sideOffset }) => {
@@ -44,7 +18,7 @@ registerTooltipFloatingPositioner(
       return;
     }
 
-    const placement = mapPlacement(side, align);
+    const placement = floatingPlacement(side, align);
     let active = true;
 
     const stop = autoUpdate(trigger, content, () => {
@@ -81,7 +55,7 @@ registerTooltipFloatingPositioner(
         });
 
         const [resolvedSide, resolvedAlign] = resolved.split("-") as [
-          TooltipPositionerContext["side"],
+          FloatingSide,
           "start" | "end" | undefined,
         ];
         content.dataset.resolvedSide = resolvedSide;

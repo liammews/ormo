@@ -7,36 +7,10 @@ import {
 } from "@floating-ui/dom";
 
 import {
-  registerPopoverFloatingPositioner,
-  type PopoverPositionerContext,
-} from "./popover";
-
-function mapPlacement(
-  side: PopoverPositionerContext["side"],
-  align: PopoverPositionerContext["align"],
-):
-  | "top"
-  | "top-start"
-  | "top-end"
-  | "right"
-  | "right-start"
-  | "right-end"
-  | "bottom"
-  | "bottom-start"
-  | "bottom-end"
-  | "left"
-  | "left-start"
-  | "left-end" {
-  if (align === "center") {
-    return side;
-  }
-
-  if (side === "top" || side === "bottom") {
-    return align === "start" ? `${side}-start` : `${side}-end`;
-  }
-
-  return align === "start" ? `${side}-start` : `${side}-end`;
-}
+  floatingPlacement,
+  type FloatingSide,
+} from "../internal/floating-placement";
+import { registerPopoverFloatingPositioner } from "./popover";
 
 registerPopoverFloatingPositioner(
   ({ trigger, content, side, align, sideOffset }) => {
@@ -44,7 +18,7 @@ registerPopoverFloatingPositioner(
       return;
     }
 
-    const placement = mapPlacement(side, align);
+    const placement = floatingPlacement(side, align);
     let active = true;
 
     const stop = autoUpdate(trigger, content, () => {
@@ -81,7 +55,7 @@ registerPopoverFloatingPositioner(
         });
 
         const [resolvedSide, resolvedAlign] = resolved.split("-") as [
-          PopoverPositionerContext["side"],
+          FloatingSide,
           "start" | "end" | undefined,
         ];
         content.dataset.resolvedSide = resolvedSide;

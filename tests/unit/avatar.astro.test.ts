@@ -6,20 +6,7 @@ import Delayed from "../fixtures/avatar/Delayed.astro";
 import FallbackOnly from "../fixtures/avatar/FallbackOnly.astro";
 import Nested from "../fixtures/avatar/Nested.astro";
 import WithImage from "../fixtures/avatar/WithImage.astro";
-
-function findOpeningTag(
-  html: string,
-  tagName: string,
-  attribute: string,
-): string {
-  const match = html.match(
-    new RegExp(`<${tagName}[^>]*${attribute}(?:=[^ >]+)?[^>]*>`),
-  );
-  if (!match) {
-    throw new Error(`Expected <${tagName}> with ${attribute}`);
-  }
-  return match[0];
-}
+import { findOpeningTag } from "./helpers/astro";
 
 describe("Avatar markup", () => {
   let container: Awaited<ReturnType<typeof experimental_AstroContainer.create>>;

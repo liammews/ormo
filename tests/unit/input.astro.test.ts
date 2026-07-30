@@ -4,20 +4,7 @@ import { beforeAll, describe, expect, expectTypeOf, it } from "vitest";
 import Input from "../../src/components/input/Input.astro";
 import type { InputProps, InputType } from "../../src/components/input/types";
 import FieldComposition from "../fixtures/input/FieldComposition.astro";
-
-function findOpeningTag(
-  html: string,
-  tagName: string,
-  attribute: string,
-): string {
-  const match = html.match(
-    new RegExp(`<${tagName}[^>]*${attribute}(?:=[^ >]+)?[^>]*>`),
-  );
-  if (!match) {
-    throw new Error(`Expected <${tagName}> with ${attribute}`);
-  }
-  return match[0];
-}
+import { findOpeningTag } from "./helpers/astro";
 
 describe("Input markup", () => {
   let container: Awaited<ReturnType<typeof experimental_AstroContainer.create>>;

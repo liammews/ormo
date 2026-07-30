@@ -64,7 +64,8 @@
       "behaviourCss": [],
       "tests": [
         "tests/unit/accordion.test.ts",
-        "tests/unit/accordion-ssr-context.test.ts"
+        "tests/unit/accordion-ssr-context.test.ts",
+        "tests/unit/accordion.astro.test.ts"
       ]
     },
     {
@@ -165,7 +166,11 @@
       "runtime": ["src/runtime/field.ts"],
       "ssrContext": "src/internal/field-ssr-context.ts",
       "behaviourCss": [],
-      "tests": ["tests/unit/field.test.ts", "tests/unit/field.astro.test.ts"]
+      "tests": [
+        "tests/unit/field.test.ts",
+        "tests/unit/field.astro.test.ts",
+        "tests/unit/field-ssr-context.test.ts"
+      ]
     },
     {
       "id": "fieldset",
@@ -206,7 +211,8 @@
       "behaviourCss": ["src/runtime/popover.css"],
       "tests": [
         "tests/unit/popover.test.ts",
-        "tests/unit/popover-ssr-context.test.ts"
+        "tests/unit/popover-ssr-context.test.ts",
+        "tests/unit/popover.astro.test.ts"
       ]
     },
     {
@@ -245,7 +251,11 @@
       "runtime": ["src/runtime/select.ts", "src/runtime/select-floating.ts"],
       "ssrContext": "src/internal/select-ssr-context.ts",
       "behaviourCss": ["src/runtime/select.css"],
-      "tests": ["tests/unit/select.test.ts", "tests/unit/select.astro.test.ts"]
+      "tests": [
+        "tests/unit/select.test.ts",
+        "tests/unit/select.astro.test.ts",
+        "tests/unit/select-ssr-context.test.ts"
+      ]
     },
     {
       "id": "tabs",
@@ -258,7 +268,8 @@
       "behaviourCss": [],
       "tests": [
         "tests/unit/tabs.test.ts",
-        "tests/unit/tabs-ssr-context.test.ts"
+        "tests/unit/tabs-ssr-context.test.ts",
+        "tests/unit/tabs.astro.test.ts"
       ]
     },
     {
@@ -270,7 +281,10 @@
       "runtime": ["src/runtime/tooltip.ts", "src/runtime/tooltip-floating.ts"],
       "ssrContext": null,
       "behaviourCss": ["src/runtime/tooltip.css"],
-      "tests": ["tests/unit/tooltip.test.ts"]
+      "tests": [
+        "tests/unit/tooltip.test.ts",
+        "tests/unit/tooltip.astro.test.ts"
+      ]
     }
   ]
 }

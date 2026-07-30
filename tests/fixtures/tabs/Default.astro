@@ -1,0 +1,18 @@
+---
+import * as Tabs from "../../../src/components/tabs";
+---
+
+<Tabs.Root
+  id="project-tabs"
+  defaultValue="overview"
+  orientation="vertical"
+  activateOnFocus
+  loopFocus={false}
+>
+  <Tabs.List aria-label="Project">
+    <Tabs.Tab value="overview">Overview</Tabs.Tab>
+    <Tabs.Tab value="activity" disabled>Activity</Tabs.Tab>
+  </Tabs.List>
+  <Tabs.Panel value="overview">Overview content</Tabs.Panel>
+  <Tabs.Panel value="activity">Activity content</Tabs.Panel>
+</Tabs.Root>

@@ -2,20 +2,7 @@ import { experimental_AstroContainer } from "astro/container";
 import { beforeAll, describe, expect, it } from "vitest";
 
 import DefaultAlertDialog from "../fixtures/alert-dialog/Default.astro";
-
-function findOpeningTag(
-  html: string,
-  tagName: string,
-  attribute: string,
-): string {
-  const match = html.match(
-    new RegExp(`<${tagName}[^>]*${attribute}(?:=[^ >]+)?[^>]*>`),
-  );
-  if (!match) {
-    throw new Error(`Expected <${tagName}> with ${attribute}`);
-  }
-  return match[0];
-}
+import { findOpeningTag } from "./helpers/astro";
 
 describe("Alert Dialog markup", () => {
   let container: Awaited<ReturnType<typeof experimental_AstroContainer.create>>;

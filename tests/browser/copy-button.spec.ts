@@ -1,6 +1,14 @@
 import { expect, test } from "@playwright/test";
 
 test("reports when the Clipboard API is restricted", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText: () => Promise.reject(new Error("Clipboard restricted")),
+      },
+    });
+  });
   await page.goto("/docs/components/button/");
 
   const button = page.locator("[data-copy-button]").first();

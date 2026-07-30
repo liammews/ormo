@@ -25,3 +25,9 @@ When adding a primitive, add its entry at the same time as its first public
 export. Keep `status` at `dev` until its API and documentation are ready for
 external testing. Status changes are product decisions and should be reviewed
 like public API changes.
+
+`pnpm scaffold:primitive [id]` creates the repetitive static surface, asks
+whether the root export is namespaced or named, and asks whether to create a
+patch changeset. It deliberately does not generate runtime behaviour. Review
+and complete every generated file; the initial documentation is a visible
+checklist rather than a claim that the primitive is ready.

@@ -1,0 +1,18 @@
+---
+import * as Accordion from "../../../src/components/accordion";
+---
+
+<Accordion.Root id="faq" defaultValue="shipping" collapsible={false}>
+  <Accordion.Item value="shipping">
+    <Accordion.Header as="h2">
+      <Accordion.Trigger>Shipping</Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Content>Ships in two days.</Accordion.Content>
+  </Accordion.Item>
+  <Accordion.Item value="returns" disabled>
+    <Accordion.Header>
+      <Accordion.Trigger>Returns</Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Content>Return within 30 days.</Accordion.Content>
+  </Accordion.Item>
+</Accordion.Root>

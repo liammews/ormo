@@ -1,0 +1,18 @@
+---
+import * as Popover from "../../../src/components/popover";
+---
+
+<Popover.Root id="filters" disablePointerDismissal>
+  <Popover.Trigger class="trigger">Open filters</Popover.Trigger>
+  <Popover.Content
+    id="filters-content"
+    side="right"
+    align="end"
+    sideOffset={8}
+    finalFocus="#after-filters"
+  >
+    <Popover.Title as="h3">Filters</Popover.Title>
+    <Popover.Description>Narrow the results.</Popover.Description>
+    <Popover.Close value="done">Done</Popover.Close>
+  </Popover.Content>
+</Popover.Root>

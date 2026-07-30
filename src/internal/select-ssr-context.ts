@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from "node:async_hooks";
+import { decodeHTML } from "entities";
 
 export interface SelectSsrItem {
   value: string;
@@ -57,14 +58,8 @@ export function getSelectGroupSsrContext(): SelectGroupSsrContext | undefined {
 }
 
 export function htmlToText(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;|&apos;/g, "'")
-    .replace(/\s+/g, " ")
+  return decodeHTML(html.replace(/<[^>]*>/g, " "))
+    .replace(/\u00a0/g, " ")
+    .replace(/\s+/gu, " ")
     .trim();
 }

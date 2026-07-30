@@ -33,6 +33,7 @@ describe("Select markup", () => {
     expect(html).not.toContain('role="separator"');
     expect(html).toContain('data-value="us"');
     expect(html).toContain('aria-disabled="true"');
+    expect(html).toContain('data-text-value="Café © 🚀 ≂̸"');
   });
 
   it("renders only native select semantics in native mode", async () => {

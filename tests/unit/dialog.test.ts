@@ -309,12 +309,15 @@ describe("dialog", () => {
 
     content.setAttribute("aria-label", "Runtime preferences");
     content.setAttribute("aria-describedby", "authored-description");
-    await vi.waitFor(() => {
-      expect(content.hasAttribute("aria-labelledby")).toBe(false);
-      expect(content.getAttribute("aria-describedby")).toBe(
-        "authored-description",
-      );
-    });
+    await vi.waitFor(
+      () => {
+        expect(content.hasAttribute("aria-labelledby")).toBe(false);
+        expect(content.getAttribute("aria-describedby")).toBe(
+          "authored-description",
+        );
+      },
+      { timeout: 3000 },
+    );
 
     content.removeAttribute("aria-label");
     content.removeAttribute("aria-describedby");

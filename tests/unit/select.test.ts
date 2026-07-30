@@ -193,4 +193,41 @@ describe("Select", () => {
         ?.selectedOptions[0]?.text,
     ).toBe("Germany");
   });
+
+  it("restores runtime-authored attributes, styles and value text", () => {
+    const root = createSelect();
+    const control = root.querySelector<HTMLSelectElement>(
+      "[data-ormo-select-control]",
+    )!;
+    const button = trigger(root);
+    const content = root.querySelector<HTMLElement>(
+      "[data-ormo-select-content]",
+    )!;
+    const value = root.querySelector<HTMLElement>("[data-ormo-select-value]")!;
+
+    root.remove();
+    button.style.setProperty("anchor-name", "--authored-select", "important");
+    content.style.setProperty("--ormo-select-anchor", "--authored-content");
+    value.textContent = "Authored placeholder";
+
+    document.body.append(root);
+    root.value = "fr";
+    (
+      root as OrmoSelectElement & { disconnectedCallback(): void }
+    ).disconnectedCallback();
+
+    expect(root.hasAttribute("data-enhanced")).toBe(false);
+    expect(control.hasAttribute("aria-hidden")).toBe(false);
+    expect(control.hasAttribute("tabindex")).toBe(false);
+    expect(button.getAttribute("aria-controls")).toBeNull();
+    expect(button.style.getPropertyValue("anchor-name")).toBe(
+      "--authored-select",
+    );
+    expect(button.style.getPropertyPriority("anchor-name")).toBe("important");
+    expect(content.getAttribute("aria-labelledby")).toBeNull();
+    expect(content.style.getPropertyValue("--ormo-select-anchor")).toBe(
+      "--authored-content",
+    );
+    expect(value.textContent).toBe("Authored placeholder");
+  });
 });

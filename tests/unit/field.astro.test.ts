@@ -3,20 +3,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import InvalidField from "../fixtures/field/Invalid.astro";
 import ValidField from "../fixtures/field/Valid.astro";
-
-function findOpeningTag(
-  html: string,
-  tagName: string,
-  attribute: string,
-): string {
-  const match = html.match(
-    new RegExp(`<${tagName}[^>]*${attribute}(?:=[^ >]+)?[^>]*>`),
-  );
-  if (!match) {
-    throw new Error(`Expected <${tagName}> with ${attribute}`);
-  }
-  return match[0];
-}
+import { findOpeningTag } from "./helpers/astro";
 
 describe("Field markup", () => {
   let container: Awaited<ReturnType<typeof experimental_AstroContainer.create>>;

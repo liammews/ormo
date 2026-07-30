@@ -121,6 +121,7 @@
     "docs:dev": "pnpm --dir ormo.docs dev",
     "docs:build": "pnpm --dir ormo.docs build",
     "docs:preview": "pnpm --dir ormo.docs preview",
+    "scaffold:primitive": "node scripts/scaffold-primitive.mjs",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "changeset publish"
@@ -158,5 +159,8 @@
   "packageManager": "pnpm@11.12.0",
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "entities": "^7.0.1"
   }
 }

@@ -6,24 +6,15 @@ import {
   shift,
 } from "@floating-ui/dom";
 
-import {
-  registerSelectFloatingPositioner,
-  type SelectPositionerContext,
-} from "./select";
-
-function placement(
-  side: SelectPositionerContext["side"],
-  align: SelectPositionerContext["align"],
-) {
-  return align === "center" ? side : (`${side}-${align}` as const);
-}
+import { floatingPlacement } from "../internal/floating-placement";
+import { registerSelectFloatingPositioner } from "./select";
 
 registerSelectFloatingPositioner(
   ({ trigger, content, side, align, sideOffset }) => {
     let active = true;
     const stop = autoUpdate(trigger, content, () => {
       void computePosition(trigger, content, {
-        placement: placement(side, align),
+        placement: floatingPlacement(side, align),
         strategy: "fixed",
         middleware: [offset(sideOffset), flip(), shift({ padding: 8 })],
       }).then(({ x, y, placement: resolved }) => {

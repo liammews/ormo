@@ -167,8 +167,16 @@ export class OrmoSelect extends HTMLElement {
   #typeaheadTimer: ReturnType<typeof setTimeout> | undefined;
   #pendingOpenReason: SelectOpenChangeReason = "programmatic";
   #positionerCleanup: SelectPositionerCleanup | undefined;
+  #authoredAttributes = new Map<Element, Map<string, string | null>>();
+  #authoredValueText: string | undefined;
 
   connectedCallback(): void {
+    this.#snapshotAttributes(this, [
+      "id",
+      "data-enhanced",
+      "data-state",
+      "data-open",
+    ]);
     this.#controller?.abort();
     this.#controller = new AbortController();
     this.#prepare();
@@ -236,6 +244,7 @@ export class OrmoSelect extends HTMLElement {
     this.#observer = undefined;
     this.#stopPositioner();
     if (this.#typeaheadTimer) clearTimeout(this.#typeaheadTimer);
+    this.#restoreAuthoredState();
   }
 
   get value(): string {
@@ -302,6 +311,53 @@ export class OrmoSelect extends HTMLElement {
       return;
     }
 
+    this.#snapshotAttributes(control, [
+      "id",
+      "disabled",
+      "tabindex",
+      "aria-hidden",
+    ]);
+    this.#snapshotAttributes(trigger, [
+      "id",
+      "aria-controls",
+      "aria-expanded",
+      "aria-required",
+      "aria-labelledby",
+      "aria-activedescendant",
+      "aria-invalid",
+      "disabled",
+      "data-disabled",
+      "data-state",
+      "data-open",
+      "data-placeholder",
+      "style",
+    ]);
+    this.#snapshotAttributes(content, [
+      "id",
+      "aria-labelledby",
+      "data-disabled",
+      "data-state",
+      "data-open",
+      "data-ormo-select-positioning",
+      "data-resolved-side",
+      "data-resolved-align",
+      "style",
+    ]);
+    for (const label of Array.from(control.labels ?? [])) {
+      this.#snapshotAttributes(label, ["id"]);
+    }
+    for (const item of this.#items) {
+      this.#snapshotAttributes(item, ["id", "aria-selected", "data-selected"]);
+    }
+    for (const clear of this.querySelectorAll(clearSelector)) {
+      this.#snapshotAttributes(clear, ["disabled", "data-disabled"]);
+    }
+    const valuePart = this.querySelector<HTMLElement>(valueSelector);
+    if (valuePart) {
+      this.#snapshotAttributes(valuePart, ["data-placeholder"]);
+      this.#authoredValueText ??= valuePart.textContent ?? "";
+    }
+
     const baseId = this.id || `ormo-select-${++generatedId}`;
     if (!this.id) this.id = baseId;
     if (!control.id) control.id = `${baseId}-control`;
@@ -347,6 +403,32 @@ export class OrmoSelect extends HTMLElement {
     this.setAttribute("data-enhanced", "");
     this.#synchronizeValue();
     validateSelect(this);
+  }
+
+  #snapshotAttributes(element: Element, names: string[]): void {
+    let snapshot = this.#authoredAttributes.get(element);
+    if (!snapshot) {
+      snapshot = new Map();
+      this.#authoredAttributes.set(element, snapshot);
+    }
+    for (const name of names) {
+      if (!snapshot.has(name)) snapshot.set(name, element.getAttribute(name));
+    }
+  }
+
+  #restoreAuthoredState(): void {
+    for (const [element, attributes] of this.#authoredAttributes) {
+      for (const [name, value] of attributes) {
+        if (value === null) element.removeAttribute(name);
+        else element.setAttribute(name, value);
+      }
+    }
+    const valuePart = this.querySelector<HTMLElement>(valueSelector);
+    if (valuePart && this.#authoredValueText !== undefined) {
+      valuePart.textContent = this.#authoredValueText;
+    }
+    this.#authoredAttributes.clear();
+    this.#authoredValueText = undefined;
   }
 
   #rebuildControlOptions(): void {
