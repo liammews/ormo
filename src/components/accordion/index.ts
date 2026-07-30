@@ -13,7 +13,6 @@ export type {
   AccordionContentProps,
   AccordionHeaderProps,
   AccordionItemProps,
-  AccordionOrientation,
   AccordionRootProps,
   AccordionTriggerProps,
   AccordionType,

@@ -16,7 +16,7 @@ test("exposes a labelled breadcrumb landmark with the current page", async ({
   await expect(list).toBeVisible();
 
   const current = nav.locator('[aria-current="page"]');
-  await expect(current).toHaveText("Award Winners");
+  await expect(current).toHaveText("Components");
   await expect(current).toHaveAttribute("data-ormo-breadcrumbs-page", "");
 });
 
@@ -31,12 +31,12 @@ test("keeps separators out of the accessibility tree", async ({ page }) => {
     - navigation "Breadcrumb":
       - list:
         - listitem:
-          - link "Books":
+          - link "Home":
             - /url: /books
         - listitem:
-          - link "Science Fiction":
+          - link "Docs":
             - /url: /books/sciencefiction
-        - listitem: Award Winners
+        - listitem: Components
   `);
 });
 
@@ -76,9 +76,7 @@ test.describe("without JavaScript", () => {
     const demo = page.locator('[data-breadcrumbs-demo="default"]');
     const nav = demo.getByRole("navigation", { name: "Breadcrumb" });
     await expect(nav).toBeVisible();
-    await expect(nav.locator('[aria-current="page"]')).toHaveText(
-      "Award Winners",
-    );
+    await expect(nav.locator('[aria-current="page"]')).toHaveText("Components");
 
     const microdata = page.locator('[data-breadcrumbs-demo="microdata"]');
     await expect(

@@ -4,7 +4,6 @@ import type {} from "../../events";
 export type { OrmoValueChangeEvent } from "../../events";
 
 export type AccordionType = "single" | "multiple";
-export type AccordionOrientation = "vertical" | "horizontal";
 export type AccordionValue = string | string[] | null;
 
 export interface AccordionRootProps extends HTMLAttributes<"div"> {
@@ -21,12 +20,6 @@ export interface AccordionRootProps extends HTMLAttributes<"div"> {
    * @default true
    */
   hiddenUntilFound?: boolean;
-  /**
-   * Exposes styling metadata only. Accordion triggers remain in the normal tab
-   * sequence regardless of orientation.
-   * @deprecated
-   */
-  orientation?: AccordionOrientation;
 }
 
 export interface AccordionItemProps extends Omit<

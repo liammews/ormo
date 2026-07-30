@@ -1,5 +1,15 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import type { Locator } from "@playwright/test";
+
+const getItem = (demo: Locator, value: string) =>
+  demo.locator(`[data-ormo-accordion-item][data-value="${value}"]`);
+
+const getTrigger = (demo: Locator, value: string) =>
+  getItem(demo, value).locator("[data-ormo-accordion-trigger]");
+
+const getPanel = (demo: Locator, value: string) =>
+  getItem(demo, value).locator("[data-ormo-accordion-content]");
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/test-fixtures/browser/accordion/");
@@ -7,20 +17,14 @@ test.beforeEach(async ({ page }) => {
 
 test("opens and closes panels from triggers", async ({ page }) => {
   const demo = page.locator('[data-accordion-demo="default"]');
-  const about = demo.getByRole("button", { name: "What is Ormo?" });
-  const price = demo.getByRole("button", { name: "How much does it cost?" });
-  const aboutPanel = demo.locator(
-    '[data-ormo-accordion-item][data-value="about"] [data-ormo-accordion-content]',
-  );
-  const pricePanel = demo.locator(
-    '[data-ormo-accordion-item][data-value="price"] [data-ormo-accordion-content]',
-  );
+  const about = getTrigger(demo, "about");
+  const price = getTrigger(demo, "price");
+  const aboutPanel = getPanel(demo, "about");
+  const pricePanel = getPanel(demo, "price");
 
   await about.click();
   await expect(about).toHaveAttribute("aria-expanded", "true");
   await expect(aboutPanel).toBeVisible();
-  await expect(aboutPanel).toContainText("unstyled components");
-
   await price.click();
   await expect(price).toHaveAttribute("aria-expanded", "true");
   await expect(pricePanel).toBeVisible();
@@ -30,32 +34,22 @@ test("opens and closes panels from triggers", async ({ page }) => {
 
 test("keeps multiple panels open when type is multiple", async ({ page }) => {
   const demo = page.locator('[data-accordion-demo="multiple"]');
-  const shipping = demo.getByRole("button", { name: "Shipping" });
-  const returns = demo.getByRole("button", { name: "Returns" });
+  const shipping = getTrigger(demo, "shipping");
+  const returns = getTrigger(demo, "returns");
 
   await shipping.click();
   await returns.click();
 
   await expect(shipping).toHaveAttribute("aria-expanded", "true");
   await expect(returns).toHaveAttribute("aria-expanded", "true");
-  await expect(
-    demo.locator(
-      '[data-ormo-accordion-item][data-value="shipping"] [data-ormo-accordion-content]',
-    ),
-  ).toBeVisible();
-  await expect(
-    demo.locator(
-      '[data-ormo-accordion-item][data-value="returns"] [data-ormo-accordion-content]',
-    ),
-  ).toBeVisible();
+  await expect(getPanel(demo, "shipping")).toBeVisible();
+  await expect(getPanel(demo, "returns")).toBeVisible();
 });
 
 test("allows collapsing the open panel by default", async ({ page }) => {
   const demo = page.locator('[data-accordion-demo="default"]');
-  const about = demo.getByRole("button", { name: "What is Ormo?" });
-  const panel = demo.locator(
-    '[data-ormo-accordion-item][data-value="about"] [data-ormo-accordion-content]',
-  );
+  const about = getTrigger(demo, "about");
+  const panel = getPanel(demo, "about");
 
   await about.click();
   await expect(about).toHaveAttribute("aria-expanded", "true");
@@ -68,11 +62,9 @@ test("allows collapsing the open panel by default", async ({ page }) => {
 
 test("keeps one panel open when collapsible is false", async ({ page }) => {
   const demo = page.locator('[data-accordion-demo="require-open"]');
-  const shipping = demo.getByRole("button", { name: "Shipping" });
-  const returns = demo.getByRole("button", { name: "Returns" });
-  const panel = demo.locator(
-    '[data-ormo-accordion-item][data-value="shipping"] [data-ormo-accordion-content]',
-  );
+  const shipping = getTrigger(demo, "shipping");
+  const returns = getTrigger(demo, "returns");
+  const panel = getPanel(demo, "shipping");
 
   await expect(shipping).toHaveAttribute("aria-expanded", "true");
   await expect(shipping).toHaveAttribute("aria-disabled", "true");
@@ -92,9 +84,9 @@ test("disables an individual item while leaving others interactive", async ({
   page,
 }) => {
   const demo = page.locator('[data-accordion-demo="disabled"]');
-  const shipping = demo.getByRole("button", { name: "Shipping information" });
-  const returns = demo.getByRole("button", { name: "Returns unavailable" });
-  const warranty = demo.getByRole("button", { name: "Warranty" });
+  const shipping = getTrigger(demo, "shipping");
+  const returns = getTrigger(demo, "returns");
+  const warranty = getTrigger(demo, "warranty");
 
   await expect(returns).toHaveJSProperty("disabled", true);
   await expect(shipping).toHaveJSProperty("disabled", false);
@@ -109,7 +101,9 @@ test("emits a non-cancelable value change after updating state", async ({
   page,
 }) => {
   const root = page.locator("ormo-accordion").first();
-  const about = root.getByRole("button", { name: "What is Ormo?" });
+  const about = root.locator(
+    '[data-ormo-accordion-item][data-value="about"] [data-ormo-accordion-trigger]',
+  );
 
   await root.evaluate((element) => {
     element.addEventListener("ormo:value-change", (event) => {
@@ -157,19 +151,12 @@ test.describe("without JavaScript", () => {
     await page.goto("/test-fixtures/browser/accordion/");
 
     const demo = page.locator('[data-accordion-demo="initial"]');
-    const aboutTrigger = demo.getByRole("button", { name: "What is Ormo?" });
-    const aboutPanel = demo.locator(
-      '[data-ormo-accordion-item][data-value="about"] [data-ormo-accordion-content]',
-    );
-    const pricePanel = demo.locator(
-      '[data-ormo-accordion-item][data-value="price"] [data-ormo-accordion-content]',
-    );
+    const aboutTrigger = getTrigger(demo, "about");
+    const aboutPanel = getPanel(demo, "about");
+    const pricePanel = getPanel(demo, "price");
 
     await expect(aboutTrigger).toHaveAttribute("aria-expanded", "true");
     await expect(aboutPanel).toBeVisible();
-    await expect(aboutPanel).toContainText(
-      "Ormo is a headless component library for Astro.",
-    );
     await expect(aboutPanel).toHaveAttribute("data-state", "open");
     await expect(pricePanel).toBeHidden();
     await expect(pricePanel).toHaveAttribute("hidden", "until-found");

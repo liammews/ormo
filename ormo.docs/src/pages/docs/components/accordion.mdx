@@ -165,13 +165,6 @@ Renders `<ormo-accordion>`, groups the parts, and coordinates open state, disabl
       ],
     },
     {
-      name: "orientation",
-      type: '"vertical" | "horizontal"',
-      defaultValue: '"vertical"',
-      description:
-        "Deprecated. Exposes styling metadata through data-orientation but does not change keyboard behaviour.",
-    },
-    {
       name: "id",
       type: "string",
       description:
@@ -403,12 +396,6 @@ Closed Content uses `hidden="until-found"`, which retains the Content element’
       type: "string",
       description: "Zero-based item position.",
       details: [{ label: "Element", value: "Item, Header, Trigger, Content" }],
-    },
-    {
-      name: "data-orientation",
-      type: '"vertical" | "horizontal"',
-      description: "Deprecated styling metadata.",
-      details: [{ label: "Element", value: "Root, Content" }],
     },
     {
       name: "data-starting-style",

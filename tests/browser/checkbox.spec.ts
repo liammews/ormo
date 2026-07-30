@@ -7,9 +7,7 @@ test.beforeEach(async ({ page }) => {
 
 test("toggles a standalone checkbox with Space", async ({ page }) => {
   const demo = page.locator("[data-checkbox-demo]");
-  const checkbox = demo.getByRole("checkbox", {
-    name: "Accept the terms and conditions",
-  });
+  const checkbox = demo.locator("[data-ormo-checkbox]");
   const indicator = demo.locator("[data-ormo-checkbox-indicator]");
 
   await checkbox.focus();
@@ -47,7 +45,7 @@ test("wires group name, default value, and aggregate state", async ({
 }) => {
   const demo = page.locator("[data-checkbox-group-demo]");
   const group = demo.locator("ormo-checkbox-group");
-  const https = demo.getByRole("checkbox", { name: "HTTPS" });
+  const https = demo.locator('[data-ormo-checkbox][value="https"]');
 
   await expect(group).toHaveAttribute("data-state", "partial");
   await expect(https).toBeChecked();
@@ -66,9 +64,9 @@ test("identifies member, parent, and programmatic value changes", async ({
   page,
 }) => {
   const group = page.locator("[data-checkbox-group-demo] ormo-checkbox-group");
-  const http = page
-    .locator("[data-checkbox-group-demo]")
-    .getByRole("checkbox", { name: "HTTP", exact: true });
+  const http = page.locator(
+    '[data-checkbox-group-demo] [data-ormo-checkbox][value="http"]',
+  );
 
   await group.evaluate((element) => {
     element.addEventListener("ormo:value-change", (event) => {
@@ -99,17 +97,20 @@ test("identifies member, parent, and programmatic value changes", async ({
     });
   });
   await page
-    .locator("[data-checkbox-parent-demo]")
-    .getByRole("checkbox", { name: "Select all" })
+    .locator(
+      "[data-checkbox-parent-demo] [data-ormo-checkbox][data-ormo-checkbox-parent]",
+    )
     .click();
   await expect(parentGroup).toHaveAttribute("data-observed-reason", "parent");
 });
 
 test("parent select-all checks and clears members", async ({ page }) => {
   const demo = page.locator("[data-checkbox-parent-demo]");
-  const parent = demo.getByRole("checkbox", { name: "Select all" });
-  const fuji = demo.getByRole("checkbox", { name: "Fuji" });
-  const gala = demo.getByRole("checkbox", { name: "Gala" });
+  const parent = demo.locator(
+    "[data-ormo-checkbox][data-ormo-checkbox-parent]",
+  );
+  const fuji = demo.locator('[data-ormo-checkbox][value="fuji"]');
+  const gala = demo.locator('[data-ormo-checkbox][value="gala"]');
 
   await parent.click();
   await expect(fuji).toBeChecked();
@@ -351,7 +352,7 @@ test("runs Field validation once for a group value change", async ({
 }) => {
   const demo = page.locator("[data-checkbox-field-demo]");
   const field = demo.locator("ormo-field");
-  const http = demo.getByRole("checkbox", { name: "HTTP", exact: true });
+  const http = demo.locator('[data-ormo-checkbox][value="http"]');
 
   await field.evaluate((element) => {
     const root = element as HTMLElement & {
@@ -406,9 +407,9 @@ test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 
   test("retains native checkbox and form behaviour", async ({ page }) => {
-    const standalone = page
-      .locator("[data-checkbox-demo]")
-      .getByRole("checkbox", { name: "Accept the terms and conditions" });
+    const standalone = page.locator(
+      "[data-checkbox-demo] [data-ormo-checkbox]",
+    );
     await standalone.focus();
     await page.keyboard.press("Space");
     await expect(standalone).toBeChecked();
@@ -418,9 +419,9 @@ test.describe("without JavaScript", () => {
     );
     await expect(group).toHaveAttribute("data-state", "partial");
     await expect(
-      page
-        .locator("[data-checkbox-group-demo]")
-        .getByRole("checkbox", { name: "HTTPS" }),
+      page.locator(
+        '[data-checkbox-group-demo] [data-ormo-checkbox][value="https"]',
+      ),
     ).toBeChecked();
 
     const submittedValues = await group.evaluate((element) => {

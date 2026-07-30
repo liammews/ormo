@@ -10,31 +10,16 @@ import { Button } from "@ormo/primitives/button";
   title="Theme: System"
   data-theme-switcher
 >
-  <span
-    class="theme-switcher_icon"
-    data-theme-icon="system"
-    aria-hidden="true"
-  >
+  <span class="theme-switcher_icon" data-theme-icon="system" aria-hidden="true">
     <Monitor size={16} stroke-width={2} />
   </span>
-  <span
-    class="theme-switcher_icon"
-    data-theme-icon="light"
-    aria-hidden="true"
-  >
+  <span class="theme-switcher_icon" data-theme-icon="light" aria-hidden="true">
     <Sun size={16} stroke-width={2} />
   </span>
-  <span
-    class="theme-switcher_icon"
-    data-theme-icon="dark"
-    aria-hidden="true"
-  >
+  <span class="theme-switcher_icon" data-theme-icon="dark" aria-hidden="true">
     <Moon size={16} stroke-width={2} />
   </span>
-  <span
-    class="theme-switcher_status"
-    aria-live="polite"
-    data-theme-status
+  <span class="theme-switcher_status" aria-live="polite" data-theme-status
   ></span>
 </Button>
 
@@ -129,12 +114,14 @@ import { Button } from "@ormo/primitives/button";
       filter var(--duration-1) var(--ease-1);
   }
 
-  :global(html:not([data-theme])) .theme-switcher_icon[data-theme-icon="system"],
+  :global(html:not([data-theme]))
+    .theme-switcher_icon[data-theme-icon="system"],
   :global(html[data-theme="system"])
     .theme-switcher_icon[data-theme-icon="system"],
   :global(html[data-theme="light"])
     .theme-switcher_icon[data-theme-icon="light"],
-  :global(html[data-theme="dark"]) .theme-switcher_icon[data-theme-icon="dark"] {
+  :global(html[data-theme="dark"])
+    .theme-switcher_icon[data-theme-icon="dark"] {
     opacity: 1;
     filter: blur(0);
     transform: scale(1);

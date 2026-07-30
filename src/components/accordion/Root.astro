@@ -13,7 +13,6 @@ const {
   defaultValue,
   disabled = false,
   hiddenUntilFound = true,
-  orientation = "vertical",
   ...attributes
 } = Astro.props;
 
@@ -35,7 +34,6 @@ const content = await renderWithAccordionContext(
   {...attributes}
   data-ormo-accordion-root
   data-type={type}
-  data-orientation={orientation}
   data-collapsible={collapsible ? undefined : "false"}
   data-disabled={disabled ? "" : undefined}
   data-hidden-until-found={hiddenUntilFound ? undefined : "false"}
