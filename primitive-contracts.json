@@ -372,6 +372,21 @@
         "tests/unit/switch.astro.test.ts",
         "tests/unit/switch-ssr-context.test.ts"
       ]
+    },
+    {
+      "id": "password-field",
+      "label": "Password Field",
+      "status": "dev",
+      "runtimeModel": "custom-element",
+      "parts": ["Input", "Root", "Toggle"],
+      "runtime": ["src/runtime/password-field.ts"],
+      "ssrContext": "src/internal/password-field-ssr-context.ts",
+      "behaviourCss": ["src/runtime/password-field.css"],
+      "tests": [
+        "tests/unit/password-field.test.ts",
+        "tests/unit/password-field.astro.test.ts",
+        "tests/unit/password-field-ssr-context.test.ts"
+      ]
     }
   ]
 }

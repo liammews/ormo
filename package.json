@@ -74,6 +74,10 @@
       "types": "./src/components/input/index.ts",
       "import": "./src/components/input/index.ts"
     },
+    "./password-field": {
+      "types": "./src/components/password-field/index.ts",
+      "import": "./src/components/password-field/index.ts"
+    },
     "./popover": {
       "types": "./src/components/popover/index.ts",
       "import": "./src/components/popover/index.ts"

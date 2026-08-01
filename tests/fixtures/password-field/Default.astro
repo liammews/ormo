@@ -1,0 +1,22 @@
+---
+import * as Field from "../../../src/components/field";
+import * as PasswordField from "../../../src/components/password-field";
+---
+
+<form method="post">
+  <Field.Root>
+    <Field.Label>Account password</Field.Label>
+    <PasswordField.Root id="account-password-field">
+      <PasswordField.Input
+        name="password"
+        autocomplete="current-password"
+        required
+        minlength={12}
+      />
+      <PasswordField.Toggle showLabel="Show password" hideLabel="Hide password">
+        Visibility
+      </PasswordField.Toggle>
+    </PasswordField.Root>
+    <Field.Description>Use at least 12 characters.</Field.Description>
+  </Field.Root>
+</form>

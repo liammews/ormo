@@ -1,0 +1,48 @@
+---
+import "../../runtime/password-field.css";
+import {
+  createPasswordFieldRootId,
+  renderWithPasswordFieldContext,
+} from "../../internal/password-field-ssr-context";
+import type { PasswordFieldRootProps } from "./types";
+
+type Props = PasswordFieldRootProps;
+
+const {
+  id,
+  defaultVisible = false,
+  "data-ormo-password-field-root": authoredMarker,
+  "data-state": authoredState,
+  "data-visible": authoredVisible,
+  "data-hidden": authoredHidden,
+  ...attributes
+}: Props = Astro.props;
+void [authoredMarker, authoredState, authoredVisible, authoredHidden];
+
+const rootId = id ?? createPasswordFieldRootId();
+const context = {
+  visible: defaultVisible,
+  inputId: `${rootId}-input`,
+  inputCount: 0,
+  toggleCount: 0,
+  inputDisabled: false,
+};
+const content = await renderWithPasswordFieldContext(context, () =>
+  Astro.slots.render("default"),
+);
+const state = defaultVisible ? "visible" : "hidden";
+---
+
+<ormo-password-field
+  {...attributes}
+  id={rootId}
+  data-ormo-password-field-root
+  data-state={state}
+  data-visible={defaultVisible ? "" : undefined}
+  data-hidden={defaultVisible ? undefined : ""}
+  set:html={content}
+/>
+
+<script>
+  import "../../runtime/password-field";
+</script>

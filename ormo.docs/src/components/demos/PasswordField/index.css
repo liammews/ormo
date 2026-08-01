@@ -1,0 +1,79 @@
+.password-field-demo {
+  width: min(100%, 24rem);
+  color: var(--content-default);
+  font-family: var(--font-family-sans);
+}
+
+.password-field-label {
+  display: block;
+  font-size: var(--font-size-2);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-base);
+}
+
+.password-field-description {
+  margin-block-start: var(--space-25);
+  color: var(--content-subtle);
+  font-size: var(--font-size-1);
+  line-height: var(--line-height-base);
+}
+
+.password-field-root {
+  display: flex;
+  margin-block-start: var(--space-75);
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-2);
+  background: var(--surface-base);
+}
+
+.password-field-root:focus-within {
+  border-color: var(--focus-subtle);
+  outline: var(--focus-width) solid var(--focus-subtle);
+}
+
+.password-field-input {
+  min-width: 0;
+  min-height: 2.5rem;
+  flex: 1;
+  padding-inline: var(--space-75);
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--content-default);
+  font: inherit;
+}
+
+.password-field-toggle {
+  display: inline-grid;
+  width: 2.5rem;
+  flex: 0 0 2.5rem;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--content-subtle);
+  cursor: pointer;
+}
+
+.password-field-toggle:hover {
+  color: var(--content-default);
+}
+
+.password-field-toggle:focus-visible {
+  outline: var(--focus-width) solid var(--focus-subtle);
+  outline-offset: calc(var(--focus-width) * -1);
+}
+
+.password-field-toggle:disabled {
+  color: var(--content-disabled);
+  cursor: not-allowed;
+}
+
+.password-field-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.password-field-toggle[data-hidden] [data-icon-visible],
+.password-field-toggle[data-visible] [data-icon-hidden] {
+  display: none;
+}

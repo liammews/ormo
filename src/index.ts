@@ -56,3 +56,4 @@ export type {
   SeparatorProps,
 } from "./components/separator/types";
 export * as Switch from "./components/switch/index";
+export * as PasswordField from "./components/password-field/index";

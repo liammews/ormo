@@ -1,0 +1,71 @@
+---
+import Input from "../input/Input.astro";
+import { getFieldSsrContext } from "../../internal/field-ssr-context";
+import { getPasswordFieldSsrContext } from "../../internal/password-field-ssr-context";
+import type { PasswordFieldInputProps } from "./types";
+
+type Props = PasswordFieldInputProps;
+type ManagedAttributes = {
+  type?: unknown;
+  spellcheck?: unknown;
+  autocapitalize?: unknown;
+  autocorrect?: unknown;
+  "data-ormo-password-field-input"?: unknown;
+  "data-state"?: unknown;
+  "data-visible"?: unknown;
+  "data-hidden"?: unknown;
+};
+
+const context = getPasswordFieldSsrContext();
+const field = getFieldSsrContext();
+const rawAttributes = Astro.props as Props & ManagedAttributes;
+const {
+  id,
+  disabled = false,
+  type: authoredType,
+  spellcheck: authoredSpellcheck,
+  autocapitalize: authoredAutocapitalize,
+  autocorrect: authoredAutocorrect,
+  "data-ormo-password-field-input": authoredMarker,
+  "data-state": authoredState,
+  "data-visible": authoredVisible,
+  "data-hidden": authoredHidden,
+  ...attributes
+} = rawAttributes;
+void [
+  authoredType,
+  authoredSpellcheck,
+  authoredAutocapitalize,
+  authoredAutocorrect,
+  authoredMarker,
+  authoredState,
+  authoredVisible,
+  authoredHidden,
+];
+
+if (context) {
+  context.inputCount += 1;
+  context.inputDisabled = Boolean(disabled);
+  context.inputId = id ?? field?.controlId ?? context.inputId;
+}
+const visible = context?.visible ?? false;
+const state = visible ? "visible" : "hidden";
+---
+
+{
+  context && (
+    <Input
+      {...attributes}
+      id={context.inputId}
+      type={visible ? "text" : "password"}
+      disabled={disabled}
+      spellcheck={false}
+      autocapitalize="none"
+      autocorrect="off"
+      data-ormo-password-field-input
+      data-state={state}
+      data-visible={visible ? "" : undefined}
+      data-hidden={visible ? undefined : ""}
+    />
+  )
+}

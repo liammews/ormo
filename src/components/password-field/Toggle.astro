@@ -1,0 +1,76 @@
+---
+import { getPasswordFieldSsrContext } from "../../internal/password-field-ssr-context";
+import type { PasswordFieldToggleProps } from "./types";
+
+type Props = PasswordFieldToggleProps;
+type ManagedAttributes = {
+  type?: unknown;
+  "aria-controls"?: unknown;
+  "aria-label"?: unknown;
+  "aria-pressed"?: unknown;
+  "data-ormo-password-field-toggle"?: unknown;
+  "data-show-label"?: unknown;
+  "data-hide-label"?: unknown;
+  "data-state"?: unknown;
+  "data-visible"?: unknown;
+  "data-hidden"?: unknown;
+};
+
+const context = getPasswordFieldSsrContext();
+const rawAttributes = Astro.props as Props & ManagedAttributes;
+const {
+  showLabel,
+  hideLabel,
+  disabled: authoredDisabled = false,
+  type: authoredType,
+  "aria-controls": authoredControls,
+  "aria-label": authoredLabel,
+  "aria-pressed": authoredPressed,
+  "data-ormo-password-field-toggle": authoredMarker,
+  "data-show-label": authoredShowLabel,
+  "data-hide-label": authoredHideLabel,
+  "data-state": authoredState,
+  "data-visible": authoredVisible,
+  "data-hidden": authoredHidden,
+  ...attributes
+} = rawAttributes;
+void [
+  authoredType,
+  authoredControls,
+  authoredLabel,
+  authoredPressed,
+  authoredMarker,
+  authoredShowLabel,
+  authoredHideLabel,
+  authoredState,
+  authoredVisible,
+  authoredHidden,
+];
+
+if (context) context.toggleCount += 1;
+const visible = context?.visible ?? false;
+const state = visible ? "visible" : "hidden";
+const disabled = Boolean(authoredDisabled || context?.inputDisabled);
+---
+
+{
+  context && (
+    <button
+      {...attributes}
+      type="button"
+      disabled={disabled || undefined}
+      aria-controls={context.inputId}
+      aria-label={visible ? hideLabel : showLabel}
+      aria-pressed={visible ? "true" : "false"}
+      data-ormo-password-field-toggle
+      data-show-label={showLabel}
+      data-hide-label={hideLabel}
+      data-state={state}
+      data-visible={visible ? "" : undefined}
+      data-hidden={visible ? undefined : ""}
+      data-disabled={disabled ? "" : undefined}
+    >
+      <slot />
+    </button>
+  )
+}
