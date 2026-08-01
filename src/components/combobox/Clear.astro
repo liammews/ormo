@@ -1,0 +1,24 @@
+---
+import { getComboboxSsrContext } from "../../internal/combobox-ssr-context";
+import type { ComboboxClearProps } from "./types";
+
+type Props = ComboboxClearProps;
+const { disabled = false, ...attributes }: Props = Astro.props;
+const combobox = getComboboxSsrContext();
+const initiallyDisabled = disabled || combobox?.defaultValue === "";
+---
+
+{
+  combobox && (
+    <button
+      {...attributes}
+      type="button"
+      disabled={initiallyDisabled || undefined}
+      hidden={combobox.defaultValue === "" || undefined}
+      data-item-disabled={disabled ? "" : undefined}
+      data-ormo-combobox-clear
+    >
+      <slot />
+    </button>
+  )
+}

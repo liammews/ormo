@@ -1,0 +1,82 @@
+---
+import * as Autocomplete from "@ormo/primitives/autocomplete";
+import { X } from "@lucide/astro";
+import "./index.css";
+---
+
+<form class="autocomplete-form" data-autocomplete-form>
+  <div class="autocomplete-field">
+    <label class="autocomplete-label" for="autocomplete-company-input"
+      >Company</label
+    >
+    <Autocomplete.Root
+      class="autocomplete"
+      id="autocomplete-company"
+      name="company"
+      required
+      minLength={1}
+    >
+      <div class="autocomplete-actions">
+        <Autocomplete.Input
+          class="autocomplete-input"
+          placeholder="Company or custom value"
+          aria-describedby="autocomplete-company-error"
+        />
+        <Autocomplete.Clear
+          class="autocomplete-clear"
+          aria-label="Clear company"
+          ><X size={12} aria-hidden="true" /></Autocomplete.Clear
+        >
+      </div>
+      <Autocomplete.Content class="autocomplete-content" sideOffset={6}>
+        <Autocomplete.Item
+          class="autocomplete-item"
+          value="Acme Limited"
+          identifier="acme">Acme Limited</Autocomplete.Item
+        >
+        <Autocomplete.Item
+          class="autocomplete-item"
+          value="Globex Corporation"
+          identifier="globex">Globex Corporation</Autocomplete.Item
+        >
+        <Autocomplete.Empty class="autocomplete-empty"
+          >Use your custom company name.</Autocomplete.Empty
+        >
+      </Autocomplete.Content>
+    </Autocomplete.Root>
+    <p
+      class="autocomplete-error"
+      id="autocomplete-company-error"
+      data-autocomplete-error
+      hidden
+    >
+      Enter a company.
+    </p>
+  </div>
+  <button class="button button--small" type="submit">Continue</button>
+  <output class="autocomplete-result" data-autocomplete-result></output>
+</form>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>(
+    "[data-autocomplete-form]",
+  );
+  const input = form?.querySelector<HTMLInputElement>(
+    "[data-ormo-autocomplete-input]",
+  );
+  const error = form?.querySelector<HTMLElement>("[data-autocomplete-error]");
+  const result = form?.querySelector<HTMLOutputElement>(
+    "[data-autocomplete-result]",
+  );
+  input?.addEventListener("invalid", () => {
+    if (error) error.hidden = false;
+  });
+  input?.addEventListener("input", () => {
+    if (error && input.validity.valid) error.hidden = true;
+  });
+  form?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (result)
+      result.value = `Submitted: ${new FormData(form).get("company")}`;
+  });
+</script>

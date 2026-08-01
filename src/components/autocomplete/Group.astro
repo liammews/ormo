@@ -1,0 +1,40 @@
+---
+import {
+  getAutocompleteSsrContext,
+  renderWithAutocompleteGroupContext,
+} from "../../internal/autocomplete-ssr-context";
+import type { AutocompleteGroupProps } from "./types";
+type Props = AutocompleteGroupProps;
+const { id, ...attributes }: Props = Astro.props;
+const context = getAutocompleteSsrContext();
+const index = context?.groupCount ?? 0;
+if (context) context.groupCount += 1;
+const resolvedId =
+  id ?? `${context?.rootId ?? "ormo-autocomplete"}-group-${index + 1}`;
+const group = { id: resolvedId, labelId: `${resolvedId}-label` };
+const content = await renderWithAutocompleteGroupContext(group, () =>
+  Astro.slots.render("default"),
+);
+---
+
+{
+  context && (
+    <>
+      {index > 0 && (
+        <div
+          aria-hidden="true"
+          data-ormo-autocomplete-separator
+          data-automatic
+        />
+      )}
+      <div
+        {...attributes}
+        id={resolvedId}
+        role="group"
+        aria-labelledby={group.labelId}
+        data-ormo-autocomplete-group
+        set:html={content}
+      />
+    </>
+  )
+}

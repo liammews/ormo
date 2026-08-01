@@ -1,0 +1,120 @@
+/* Behaviour-critical progressive enhancement and placement. */
+
+:where(ormo-combobox[data-enhanced] [data-ormo-combobox-control]) {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  border: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+}
+
+:where(
+  [data-ormo-combobox-item]:not([data-selected])
+    [data-ormo-combobox-item-indicator]
+) {
+  visibility: hidden;
+}
+
+:where(
+  [data-ormo-combobox-item][hidden],
+  [data-ormo-combobox-group][hidden],
+  [data-ormo-combobox-separator][hidden],
+  [data-ormo-combobox-empty][hidden]
+) {
+  display: none !important;
+}
+
+:where([data-ormo-combobox-clear][hidden]) {
+  display: none !important;
+}
+
+:where([data-ormo-combobox-content]) {
+  margin: 0;
+  border: none;
+  padding: 0;
+  overflow: auto;
+  color: inherit;
+  background: transparent;
+  inset: auto;
+  position: fixed;
+  position-anchor: var(--ormo-combobox-anchor);
+}
+
+@supports (anchor-name: --ormo-combobox) {
+  :where([data-ormo-combobox-content][data-side="bottom"][data-align="start"]) {
+    position-area: bottom span-right;
+    margin-block-start: var(--ormo-combobox-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-combobox-content][data-side="bottom"][data-align="center"]
+  ) {
+    position-area: bottom center;
+    margin-block-start: var(--ormo-combobox-side-offset, 0px);
+  }
+  :where([data-ormo-combobox-content][data-side="bottom"][data-align="end"]) {
+    position-area: bottom span-left;
+    margin-block-start: var(--ormo-combobox-side-offset, 0px);
+  }
+  :where([data-ormo-combobox-content][data-side="top"][data-align="start"]) {
+    position-area: top span-right;
+    margin-block-end: var(--ormo-combobox-side-offset, 0px);
+  }
+  :where([data-ormo-combobox-content][data-side="top"][data-align="center"]) {
+    position-area: top center;
+    margin-block-end: var(--ormo-combobox-side-offset, 0px);
+  }
+  :where([data-ormo-combobox-content][data-side="top"][data-align="end"]) {
+    position-area: top span-left;
+    margin-block-end: var(--ormo-combobox-side-offset, 0px);
+  }
+  :where([data-ormo-combobox-content][data-side="right"][data-align="start"]) {
+    position-area: right span-bottom;
+    margin-inline-start: var(--ormo-combobox-side-offset, 0px);
+  }
+  :where([data-ormo-combobox-content][data-side="right"][data-align="center"]) {
+    position-area: right center;
+    margin-inline-start: var(--ormo-combobox-side-offset, 0px);
+  }
+  :where([data-ormo-combobox-content][data-side="right"][data-align="end"]) {
+    position-area: right span-top;
+    margin-inline-start: var(--ormo-combobox-side-offset, 0px);
+  }
+  :where([data-ormo-combobox-content][data-side="left"][data-align="start"]) {
+    position-area: left span-bottom;
+    margin-inline-end: var(--ormo-combobox-side-offset, 0px);
+  }
+  :where([data-ormo-combobox-content][data-side="left"][data-align="center"]) {
+    position-area: left center;
+    margin-inline-end: var(--ormo-combobox-side-offset, 0px);
+  }
+  :where([data-ormo-combobox-content][data-side="left"][data-align="end"]) {
+    position-area: left span-top;
+    margin-inline-end: var(--ormo-combobox-side-offset, 0px);
+  }
+  :where([data-ormo-combobox-content]) {
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+  }
+}
+
+:where(
+  [data-ormo-combobox-content][data-ormo-combobox-positioning="floating"]
+) {
+  inset: auto;
+  top: 0;
+  left: 0;
+  right: auto;
+  bottom: auto;
+  margin: 0;
+  position: fixed;
+  position-anchor: --ormo-combobox-none;
+  position-area: none;
+  position-try-fallbacks: none;
+}

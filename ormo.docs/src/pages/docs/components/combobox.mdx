@@ -1,0 +1,244 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Combobox"
+description: "An editable, filterable single-value picker with a native form fallback."
+---
+
+import ComboboxDemo from "../../../components/demos/Combobox/ComboboxDemo.astro";
+import comboboxDemoCode from "../../../components/demos/Combobox/ComboboxDemo.astro?raw";
+import ComboboxFormDemo from "../../../components/demos/Combobox/ComboboxFormDemo.astro";
+import comboboxFormDemoCode from "../../../components/demos/Combobox/ComboboxFormDemo.astro?raw";
+import comboboxDemoCss from "../../../components/demos/Combobox/index.css?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+<DemoBlock
+  files={[
+    { filename: "Combobox.astro", code: comboboxDemoCode },
+    { filename: "index.css", code: comboboxDemoCss },
+  ]}
+>
+  <ComboboxDemo />
+</DemoBlock>
+
+## Anatomy
+
+Combobox is an editable, constrained single-value picker. Typing filters its
+items; selecting an item commits its machine `value` to a native form control.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Combobox from "@ormo/primitives/combobox";
+---
+
+<label for="country-control">Country</label>
+<Combobox.Root id="country" name="country">
+  <Combobox.Input placeholder="Search countries" />
+  <Combobox.Clear aria-label="Clear country">×</Combobox.Clear>
+  <Combobox.Toggle aria-label="Show countries">
+    <Combobox.Icon>⌄</Combobox.Icon>
+  </Combobox.Toggle>
+  <Combobox.Content>
+    <Combobox.Item value="fr">France</Combobox.Item>
+    <Combobox.Item value="gb">United Kingdom</Combobox.Item>
+    <Combobox.Empty>No countries found.</Combobox.Empty>
+  </Combobox.Content>
+</Combobox.Root>`}
+/>
+
+For a custom root with `id="country"`, label the server-rendered fallback with
+`for="country-control"`. After enhancement, Ormo transfers that accessible name
+to the editable input and redirects label focus.
+
+## Examples
+
+### Forms and validation
+
+The hidden native select remains the source of truth for required validation,
+submission, reset, and machine values.
+
+<DemoBlock
+  files={[{ filename: "ComboboxForm.astro", code: comboboxFormDemoCode }]}
+>
+  <ComboboxFormDemo />
+</DemoBlock>
+
+### Filtering and aliases
+
+`filter="contains"` is the default. Use `"startsWith"` for prefix matching or
+`"none"` when item visibility is managed externally. `textValue` supplies the
+plain label for rich content, while `keywords` adds searchable aliases without
+changing the accessible item name.
+
+<CodeBlock
+  lang="astro"
+  code={`<Combobox.Item
+  value="gb"
+  textValue="United Kingdom"
+  keywords={["UK", "Britain", "Great Britain"]}
+>
+  <Flag code="gb" aria-hidden="true" />
+  <span>United Kingdom</span>
+  <Combobox.ItemIndicator>
+    <Check aria-hidden="true" />
+  </Combobox.ItemIndicator>
+</Combobox.Item>`}
+/>
+
+Items must not contain buttons, links, or other interactive controls.
+
+## API reference
+
+<PropsTable
+  id="combobox-root-props"
+  caption="Combobox Root properties"
+  rows={[
+    {
+      name: "defaultValue",
+      type: "string",
+      defaultValue: '""',
+      description: "Selects the initial item value.",
+    },
+    {
+      name: "name",
+      type: "string",
+      description: "Names the submitted form value.",
+    },
+    {
+      name: "form",
+      type: "string",
+      description: "Associates the native control with a form by id.",
+    },
+    {
+      name: "required",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Requires a committed item selection.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Disables the native and custom interfaces.",
+    },
+    {
+      name: "autocomplete",
+      type: "string",
+      description: "Supplies the native autofill hint.",
+    },
+    {
+      name: "filter",
+      type: '"contains" | "startsWith" | "none"',
+      defaultValue: '"contains"',
+      description: "Chooses built-in local filtering.",
+    },
+    {
+      name: "positioning",
+      type: '"css-anchor" | "floating"',
+      defaultValue: '"css-anchor"',
+      description: "Chooses popup positioning.",
+    },
+  ]}
+/>
+
+### Input, Toggle, Icon, and Clear
+
+`Input` renders the focused editable combobox. `Toggle` opens or closes the
+popup without adding another Tab stop. `Icon` is decorative and aria-hidden.
+`Clear` appears only for a committed selection and clears both its value and
+current text.
+
+### Content
+
+`Content` renders a popover listbox and accepts `side`, `align`, and
+`sideOffset`, matching Select.
+
+### Item and ItemIndicator
+
+`Item` accepts required `value`, optional `textValue`, `keywords`, and
+`disabled`. `ItemIndicator` is aria-hidden, excluded from inferred text, and
+hidden while its item is not selected.
+
+### Empty, Group, GroupLabel, and Separator
+
+`Empty` appears when filtering leaves no items. Groups expose an accessible
+label and later groups receive an automatic separator. Separators never
+participate in keyboard navigation.
+
+## Browser API and events
+
+The custom element exposes `value`, `inputValue`, `disabled`, read-only `open`,
+and `show()`, `hide()`, and `toggle(force?)`.
+
+Value changes use `ormo:combobox-before-value-change` and
+`ormo:combobox-value-change`. Text changes use
+`ormo:combobox-input-value-change`; popup changes use
+`ormo:combobox-open-change`. Events include explicit reasons.
+
+To use Floating UI positioning:
+
+<CodeBlock
+  lang="astro"
+  code={`<Combobox.Root positioning="floating">…</Combobox.Root>
+
+<script>
+  import "@ormo/primitives/combobox/floating";
+</script>`}
+
+/>
+
+## Accessibility
+
+Combobox follows the WAI-ARIA editable combobox pattern. DOM focus remains on
+the input while `aria-activedescendant` identifies the highlighted option.
+
+<PropsTable
+  id="combobox-keyboard"
+  caption="Combobox keyboard interactions"
+  nameHeader="Key"
+  nameElement="kbd"
+  rows={[
+    {
+      name: "ArrowDown / ArrowUp",
+      type: "Navigation",
+      description: "Opens the popup or moves through visible enabled items.",
+    },
+    {
+      name: "Enter",
+      type: "Selection",
+      description: "Commits the highlighted item.",
+    },
+    {
+      name: "Escape",
+      type: "Dismissal",
+      description: "Closes and restores the committed label.",
+    },
+    {
+      name: "Tab",
+      type: "Focus",
+      description: "Closes and continues normal focus navigation.",
+    },
+    {
+      name: "Left / Right / Home / End",
+      type: "Text editing",
+      description: "Retains native single-line input behaviour.",
+    },
+  ]}
+/>
+
+## Styling
+
+Combobox ships only behaviour-critical CSS. Style consumer classes and the
+public `data-state`, `data-open`, `data-placeholder`, `data-selected`,
+`data-highlighted`, `data-disabled`, `data-filtered`, and `data-automatic`
+hooks. Content exposes `--ormo-combobox-trigger-width` and
+`--ormo-combobox-trigger-height`.
+
+## Runtime
+
+The server-rendered native select is the form and validity source. During
+normal JavaScript rendering it starts hidden so it cannot flash before the
+editable interface is prepared. When JavaScript is disabled, a `noscript`
+fallback reveals the native select and hides the inert custom controls.

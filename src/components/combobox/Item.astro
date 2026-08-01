@@ -1,0 +1,52 @@
+---
+import {
+  comboboxItemHtmlToText,
+  getComboboxGroupSsrContext,
+  getComboboxSsrContext,
+} from "../../internal/combobox-ssr-context";
+import type { ComboboxItemProps } from "./types";
+
+type Props = ComboboxItemProps;
+const {
+  value,
+  textValue,
+  keywords = [],
+  disabled = false,
+  ...attributes
+}: Props = Astro.props;
+const combobox = getComboboxSsrContext();
+const group = getComboboxGroupSsrContext();
+const content = await Astro.slots.render("default");
+const resolvedTextValue = textValue?.trim() || comboboxItemHtmlToText(content);
+const selected = combobox?.defaultValue === value;
+
+if (combobox) {
+  combobox.items.push({
+    value,
+    textValue: resolvedTextValue,
+    keywords,
+    disabled,
+    groupId: group?.id,
+    groupLabel: group?.label,
+  });
+}
+---
+
+{
+  combobox && (
+    <div
+      {...attributes}
+      role="option"
+      aria-selected={selected ? "true" : "false"}
+      aria-disabled={disabled ? "true" : undefined}
+      data-ormo-combobox-item
+      data-value={value}
+      data-text-value={resolvedTextValue}
+      data-keywords={keywords.join("\u001f") || undefined}
+      data-selected={selected ? "" : undefined}
+      data-disabled={disabled ? "" : undefined}
+      tabindex="-1"
+      set:html={content}
+    />
+  )
+}

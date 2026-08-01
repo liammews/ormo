@@ -22,6 +22,14 @@
       "types": "./src/components/avatar/index.ts",
       "import": "./src/components/avatar/index.ts"
     },
+    "./autocomplete": {
+      "types": "./src/components/autocomplete/index.ts",
+      "import": "./src/components/autocomplete/index.ts"
+    },
+    "./autocomplete/floating": {
+      "types": "./src/components/autocomplete/floating.ts",
+      "import": "./src/components/autocomplete/floating.ts"
+    },
     "./button": {
       "types": "./src/components/button/index.ts",
       "import": "./src/components/button/index.ts"
@@ -37,6 +45,14 @@
     "./checkbox/group": {
       "types": "./src/components/checkbox/group.ts",
       "import": "./src/components/checkbox/group.ts"
+    },
+    "./combobox": {
+      "types": "./src/components/combobox/index.ts",
+      "import": "./src/components/combobox/index.ts"
+    },
+    "./combobox/floating": {
+      "types": "./src/components/combobox/floating.ts",
+      "import": "./src/components/combobox/floating.ts"
     },
     "./dialog": {
       "types": "./src/components/dialog/index.ts",

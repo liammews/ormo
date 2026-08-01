@@ -1,0 +1,22 @@
+---
+import { getComboboxSsrContext } from "../../internal/combobox-ssr-context";
+import type { ComboboxToggleProps } from "./types";
+
+type Props = ComboboxToggleProps;
+const attributes: Props = Astro.props;
+const combobox = getComboboxSsrContext();
+---
+
+{
+  combobox && (
+    <button
+      {...attributes}
+      type="button"
+      tabindex="-1"
+      data-ormo-combobox-toggle
+      data-state="closed"
+    >
+      <slot />
+    </button>
+  )
+}

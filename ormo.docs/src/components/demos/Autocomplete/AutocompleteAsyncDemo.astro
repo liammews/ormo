@@ -1,0 +1,81 @@
+---
+import * as Autocomplete from "@ormo/primitives/autocomplete";
+import { X } from "@lucide/astro";
+import "./index.css";
+---
+
+<div class="autocomplete-field">
+  <label class="autocomplete-label" for="autocomplete-airport-input"
+    >Airport</label
+  >
+  <Autocomplete.Root
+    class="autocomplete"
+    id="autocomplete-airport"
+    filter="none"
+    minLength={2}
+    data-async-autocomplete
+  >
+    <div class="autocomplete-actions">
+      <Autocomplete.Input
+        class="autocomplete-input"
+        placeholder="Try lon or par"
+      />
+      <Autocomplete.Clear class="autocomplete-clear" aria-label="Clear airport"
+        ><X size={12} aria-hidden="true" /></Autocomplete.Clear
+      >
+    </div>
+    <Autocomplete.Content class="autocomplete-content" sideOffset={6}>
+      <Autocomplete.Loading class="autocomplete-loading"
+        >Loading airports…</Autocomplete.Loading
+      >
+      <Autocomplete.Empty class="autocomplete-empty"
+        >No airports found.</Autocomplete.Empty
+      >
+    </Autocomplete.Content>
+  </Autocomplete.Root>
+</div>
+
+<script>
+  const root = document.querySelector<HTMLElement & { loading: boolean }>(
+    "[data-async-autocomplete]",
+  );
+  const input = root?.querySelector<HTMLInputElement>(
+    "[data-ormo-autocomplete-input]",
+  );
+  const content = root?.querySelector<HTMLElement>(
+    "[data-ormo-autocomplete-content]",
+  );
+  const loading = content?.querySelector("[data-ormo-autocomplete-loading]");
+  const airports = [
+    { value: "London Heathrow", identifier: "LHR" },
+    { value: "London Gatwick", identifier: "LGW" },
+    { value: "Paris Charles de Gaulle", identifier: "CDG" },
+  ];
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  input?.addEventListener("input", () => {
+    if (timer) clearTimeout(timer);
+    content
+      ?.querySelectorAll("[data-ormo-autocomplete-item]")
+      .forEach((item) => item.remove());
+    if (input.value.length < 2 || !root || !content || !loading) return;
+    root.loading = true;
+    timer = setTimeout(() => {
+      const query = input.value.toLocaleLowerCase();
+      for (const airport of airports.filter((entry) =>
+        entry.value.toLocaleLowerCase().includes(query),
+      )) {
+        const item = document.createElement("div");
+        item.className = "autocomplete-item";
+        item.role = "option";
+        item.tabIndex = -1;
+        item.dataset.ormoAutocompleteItem = "";
+        item.dataset.value = airport.value;
+        item.dataset.textValue = airport.value;
+        item.dataset.identifier = airport.identifier;
+        item.textContent = airport.value;
+        content.insertBefore(item, loading);
+      }
+      root.loading = false;
+    }, 250);
+  });
+</script>

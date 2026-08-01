@@ -1,0 +1,38 @@
+---
+import {
+  autocompleteHtmlToText,
+  getAutocompleteSsrContext,
+} from "../../internal/autocomplete-ssr-context";
+import type { AutocompleteItemProps } from "./types";
+type Props = AutocompleteItemProps;
+const {
+  value,
+  identifier,
+  textValue,
+  keywords = [],
+  disabled = false,
+  ...attributes
+}: Props = Astro.props;
+const context = getAutocompleteSsrContext();
+const content = await Astro.slots.render("default");
+const resolvedTextValue = textValue?.trim() || autocompleteHtmlToText(content);
+---
+
+{
+  context && (
+    <div
+      {...attributes}
+      role="option"
+      aria-selected="false"
+      aria-disabled={disabled ? "true" : undefined}
+      data-ormo-autocomplete-item
+      data-value={value}
+      data-identifier={identifier}
+      data-text-value={resolvedTextValue}
+      data-keywords={keywords.join("\u001f") || undefined}
+      data-disabled={disabled ? "" : undefined}
+      tabindex="-1"
+      set:html={content}
+    />
+  )
+}

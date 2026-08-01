@@ -1,0 +1,31 @@
+---
+import * as Autocomplete from "../../../src/components/autocomplete";
+---
+
+<label for="location-input">Location</label>
+<Autocomplete.Root
+  id="location"
+  name="location"
+  defaultValue="Lon"
+  required
+  minLength={2}
+>
+  <Autocomplete.Input placeholder="Search locations" />
+  <Autocomplete.Clear aria-label="Clear location">×</Autocomplete.Clear>
+  <Autocomplete.Content sideOffset={4}>
+    <Autocomplete.Group id="uk">
+      <Autocomplete.GroupLabel>United Kingdom</Autocomplete.GroupLabel>
+      <Autocomplete.Item value="London" identifier="london" keywords={["LDN"]}
+        >London</Autocomplete.Item
+      >
+      <Autocomplete.Item value="Manchester" identifier="manchester"
+        >Manchester</Autocomplete.Item
+      >
+    </Autocomplete.Group>
+    <Autocomplete.Item value="Paris" identifier="paris" disabled
+      >Paris</Autocomplete.Item
+    >
+    <Autocomplete.Loading>Loading places…</Autocomplete.Loading>
+    <Autocomplete.Empty>No places found.</Autocomplete.Empty>
+  </Autocomplete.Content>
+</Autocomplete.Root>

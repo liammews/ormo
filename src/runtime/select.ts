@@ -508,6 +508,7 @@ export class OrmoSelect extends HTMLElement {
         clear.hasAttribute("data-item-disabled") ||
         this.disabled ||
         value === "";
+      clear.hidden = value === "";
       clear.toggleAttribute("data-disabled", clear.disabled);
     }
   }

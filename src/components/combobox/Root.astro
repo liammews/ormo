@@ -1,0 +1,141 @@
+---
+import {
+  createComboboxRootId,
+  renderWithComboboxContext,
+} from "../../internal/combobox-ssr-context";
+import type { ComboboxRootProps } from "./types";
+
+type Props = ComboboxRootProps;
+const {
+  id,
+  name,
+  form,
+  defaultValue = "",
+  disabled = false,
+  required = false,
+  autocomplete,
+  filter = "contains",
+  positioning = "css-anchor",
+  ...attributes
+} = Astro.props as ComboboxRootProps & {
+  filter?: "contains" | "startsWith" | "none";
+  positioning?: "css-anchor" | "floating";
+};
+
+const rootId = id ?? createComboboxRootId();
+const context = {
+  rootId,
+  defaultValue,
+  items: [],
+  groupCount: 0,
+  autocomplete,
+} as Parameters<typeof renderWithComboboxContext>[0];
+
+const content = await renderWithComboboxContext(context, () =>
+  Astro.slots.render("default"),
+);
+
+type FallbackSegment =
+  | { type: "item"; item: (typeof context.items)[number] }
+  | {
+      type: "group";
+      id: string;
+      label: string;
+      items: typeof context.items;
+    };
+
+const fallbackSegments: FallbackSegment[] = [];
+const seenGroups = new Set<string>();
+for (const item of context.items) {
+  if (!item.groupId) {
+    fallbackSegments.push({ type: "item", item });
+    continue;
+  }
+  if (seenGroups.has(item.groupId)) continue;
+  seenGroups.add(item.groupId);
+  fallbackSegments.push({
+    type: "group",
+    id: item.groupId,
+    label: item.groupLabel ?? "",
+    items: context.items.filter(
+      (candidate) => candidate.groupId === item.groupId,
+    ),
+  });
+}
+const hasEmptyItem = context.items.some((item) => item.value === "");
+const noScriptStyles = `
+  ormo-combobox [data-ormo-combobox-control] { display: block !important; }
+  ormo-combobox [data-ormo-combobox-input],
+  ormo-combobox [data-ormo-combobox-toggle],
+  ormo-combobox [data-ormo-combobox-clear] { display: none !important; }
+`;
+---
+
+{
+  (
+    <ormo-combobox
+      {...attributes}
+      id={rootId}
+      data-ormo-combobox-root
+      data-default-value={defaultValue}
+      data-disabled={disabled ? "" : undefined}
+      data-required={required ? "" : undefined}
+      data-filter={filter}
+      data-positioning={positioning === "floating" ? "floating" : undefined}
+      data-state="closed"
+    >
+      <select
+        id={`${rootId}-control`}
+        name={name}
+        form={form}
+        disabled={disabled || undefined}
+        required={required || undefined}
+        autocomplete={autocomplete}
+        data-ormo-combobox-control
+        aria-hidden="false"
+        hidden
+      >
+        {!hasEmptyItem && (
+          <option
+            value=""
+            selected={defaultValue === ""}
+            data-ormo-combobox-placeholder
+          >
+            {context.placeholder ?? ""}
+          </option>
+        )}
+        {fallbackSegments.map((segment) =>
+          segment.type === "item" ? (
+            <option
+              value={segment.item.value}
+              disabled={segment.item.disabled || undefined}
+              selected={segment.item.value === defaultValue}
+            >
+              {segment.item.textValue}
+            </option>
+          ) : (
+            <optgroup label={segment.label}>
+              {segment.items.map((item) => (
+                <option
+                  value={item.value}
+                  disabled={item.disabled || undefined}
+                  selected={item.value === defaultValue}
+                >
+                  {item.textValue}
+                </option>
+              ))}
+            </optgroup>
+          ),
+        )}
+      </select>
+      <Fragment set:html={content} />
+      <noscript>
+        <style is:inline set:html={noScriptStyles} />
+      </noscript>
+    </ormo-combobox>
+  )
+}
+
+<script>
+  import "../../runtime/combobox";
+</script>

@@ -1,0 +1,63 @@
+---
+import * as Autocomplete from "@ormo/primitives/autocomplete";
+import { X } from "@lucide/astro";
+import "./index.css";
+---
+
+<div class="autocomplete-field">
+  <label class="autocomplete-label" for="autocomplete-location-input"
+    >Location</label
+  >
+  <Autocomplete.Root
+    class="autocomplete"
+    id="autocomplete-location"
+    name="location"
+    minLength={1}
+  >
+    <div class="autocomplete-actions">
+      <Autocomplete.Input
+        class="autocomplete-input"
+        placeholder="Search locations"
+      />
+      <Autocomplete.Clear class="autocomplete-clear" aria-label="Clear location"
+        ><X size={12} aria-hidden="true" /></Autocomplete.Clear
+      >
+    </div>
+    <Autocomplete.Content class="autocomplete-content" sideOffset={6}>
+      <Autocomplete.Group class="autocomplete-group">
+        <Autocomplete.GroupLabel class="autocomplete-group-label"
+          >United Kingdom</Autocomplete.GroupLabel
+        >
+        <Autocomplete.Item
+          class="autocomplete-item"
+          value="London"
+          identifier="london"
+          keywords={["LDN", "England"]}>London</Autocomplete.Item
+        >
+        <Autocomplete.Item
+          class="autocomplete-item"
+          value="Manchester"
+          identifier="manchester">Manchester</Autocomplete.Item
+        >
+      </Autocomplete.Group>
+      <Autocomplete.Group class="autocomplete-group">
+        <Autocomplete.GroupLabel class="autocomplete-group-label"
+          >Europe</Autocomplete.GroupLabel
+        >
+        <Autocomplete.Item
+          class="autocomplete-item"
+          value="Paris"
+          identifier="paris">Paris</Autocomplete.Item
+        >
+        <Autocomplete.Item
+          class="autocomplete-item"
+          value="Prague"
+          identifier="prague">Prague</Autocomplete.Item
+        >
+      </Autocomplete.Group>
+      <Autocomplete.Empty class="autocomplete-empty"
+        >No suggestions found.</Autocomplete.Empty
+      >
+    </Autocomplete.Content>
+  </Autocomplete.Root>
+</div>

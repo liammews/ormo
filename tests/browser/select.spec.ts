@@ -11,6 +11,7 @@ test("opens, navigates, selects, clears, and restores focus", async ({
   const demo = page.locator('[data-select-demo="default"]');
   const select = demo.locator("ormo-select");
   const trigger = demo.getByRole("combobox", { name: "Country" });
+  const actions = demo.locator(".select-actions");
   const listbox = demo.getByRole("listbox");
   const clear = demo.getByRole("button", { name: "Clear country" });
 
@@ -22,7 +23,9 @@ test("opens, navigates, selects, clears, and restores focus", async ({
   await expect(
     demo.locator('[data-value="gb"] [data-ormo-select-item-indicator]'),
   ).toHaveCSS("visibility", "hidden");
-  await trigger.click();
+  await trigger.focus();
+  await expect(actions).toHaveCSS("outline-style", "solid");
+  await trigger.press("Enter");
   await expect(listbox).toBeVisible();
   await expect(trigger).toHaveAttribute("aria-expanded", "true");
 
@@ -40,7 +43,7 @@ test("opens, navigates, selects, clears, and restores focus", async ({
   await clear.click();
   await expect(select).toHaveJSProperty("value", "");
   await expect(trigger).toHaveText(/Choose a country/);
-  await expect(clear).toBeDisabled();
+  await expect(clear).toBeHidden();
 });
 
 test("skips disabled options and supports typeahead", async ({ page }) => {

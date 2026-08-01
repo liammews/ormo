@@ -106,6 +106,35 @@
       ]
     },
     {
+      "id": "autocomplete",
+      "label": "Autocomplete",
+      "status": "dev",
+      "runtimeModel": "custom-element",
+      "parts": [
+        "Clear",
+        "Content",
+        "Empty",
+        "Group",
+        "GroupLabel",
+        "Input",
+        "Item",
+        "Loading",
+        "Root",
+        "Separator"
+      ],
+      "runtime": [
+        "src/runtime/autocomplete.ts",
+        "src/runtime/autocomplete-floating.ts"
+      ],
+      "ssrContext": "src/internal/autocomplete-ssr-context.ts",
+      "behaviourCss": ["src/runtime/autocomplete.css"],
+      "tests": [
+        "tests/unit/autocomplete.test.ts",
+        "tests/unit/autocomplete.astro.test.ts",
+        "tests/unit/autocomplete-ssr-context.test.ts"
+      ]
+    },
+    {
       "id": "breadcrumbs",
       "label": "Breadcrumbs",
       "status": "beta",
@@ -144,6 +173,37 @@
         "tests/unit/checkbox.astro.test.ts",
         "tests/unit/checkbox-group.test.ts",
         "tests/unit/checkbox-group-ssr-context.test.ts"
+      ]
+    },
+    {
+      "id": "combobox",
+      "label": "Combobox",
+      "status": "beta",
+      "runtimeModel": "custom-element",
+      "parts": [
+        "Clear",
+        "Content",
+        "Empty",
+        "Group",
+        "GroupLabel",
+        "Icon",
+        "Input",
+        "Item",
+        "ItemIndicator",
+        "Root",
+        "Separator",
+        "Toggle"
+      ],
+      "runtime": [
+        "src/runtime/combobox.ts",
+        "src/runtime/combobox-floating.ts"
+      ],
+      "ssrContext": "src/internal/combobox-ssr-context.ts",
+      "behaviourCss": ["src/runtime/combobox.css"],
+      "tests": [
+        "tests/unit/combobox.test.ts",
+        "tests/unit/combobox.astro.test.ts",
+        "tests/unit/combobox-ssr-context.test.ts"
       ]
     },
     {

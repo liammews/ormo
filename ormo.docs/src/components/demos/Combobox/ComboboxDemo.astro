@@ -1,0 +1,73 @@
+---
+import * as Combobox from "@ormo/primitives/combobox";
+import { Check, ChevronDown, X } from "@lucide/astro";
+import "./index.css";
+---
+
+<div class="combobox-field">
+  <label class="combobox-label" for="combobox-country-control">Country</label>
+
+  <Combobox.Root class="combobox" id="combobox-country" name="country">
+    <div class="combobox-actions">
+      <Combobox.Input class="combobox-input" placeholder="Search countries" />
+      <Combobox.Clear class="combobox-clear" aria-label="Clear country">
+        <X size={12} aria-hidden="true" />
+      </Combobox.Clear>
+      <Combobox.Toggle class="combobox-toggle" aria-label="Show countries">
+        <Combobox.Icon class="combobox-icon">
+          <ChevronDown size={14} />
+        </Combobox.Icon>
+      </Combobox.Toggle>
+    </div>
+
+    <Combobox.Content class="combobox-content" sideOffset={6}>
+      <Combobox.Group class="combobox-group">
+        <Combobox.GroupLabel class="combobox-group-label">
+          Europe
+        </Combobox.GroupLabel>
+        <Combobox.Item
+          class="combobox-item"
+          value="fr"
+          keywords={["French Republic"]}
+        >
+          <span>France</span>
+          <Combobox.ItemIndicator class="combobox-item-indicator">
+            <Check size={14} />
+          </Combobox.ItemIndicator>
+        </Combobox.Item>
+        <Combobox.Item
+          class="combobox-item"
+          value="gb"
+          keywords={["UK", "Britain", "Great Britain"]}
+        >
+          <span>United Kingdom</span>
+          <Combobox.ItemIndicator class="combobox-item-indicator">
+            <Check size={14} />
+          </Combobox.ItemIndicator>
+        </Combobox.Item>
+      </Combobox.Group>
+
+      <Combobox.Group class="combobox-group">
+        <Combobox.GroupLabel class="combobox-group-label">
+          North America
+        </Combobox.GroupLabel>
+        <Combobox.Item class="combobox-item" value="ca">
+          <span>Canada</span>
+          <Combobox.ItemIndicator class="combobox-item-indicator">
+            <Check size={14} />
+          </Combobox.ItemIndicator>
+        </Combobox.Item>
+        <Combobox.Item class="combobox-item" value="us" disabled>
+          <span>United States</span>
+          <Combobox.ItemIndicator class="combobox-item-indicator">
+            <Check size={14} />
+          </Combobox.ItemIndicator>
+        </Combobox.Item>
+      </Combobox.Group>
+
+      <Combobox.Empty class="combobox-empty">
+        No countries found.
+      </Combobox.Empty>
+    </Combobox.Content>
+  </Combobox.Root>
+</div>

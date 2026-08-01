@@ -1,0 +1,13 @@
+---
+import { getComboboxSsrContext } from "../../internal/combobox-ssr-context";
+import type { ComboboxSeparatorProps } from "./types";
+type Props = ComboboxSeparatorProps;
+const attributes: Props = Astro.props;
+const combobox = getComboboxSsrContext();
+---
+
+{
+  combobox && (
+    <div {...attributes} aria-hidden="true" data-ormo-combobox-separator />
+  )
+}

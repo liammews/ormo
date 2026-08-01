@@ -1,0 +1,21 @@
+---
+import {
+  getAutocompleteGroupSsrContext,
+  getAutocompleteSsrContext,
+} from "../../internal/autocomplete-ssr-context";
+import type { AutocompleteGroupLabelProps } from "./types";
+type Props = AutocompleteGroupLabelProps;
+const { id, ...attributes }: Props = Astro.props;
+const context = getAutocompleteSsrContext();
+const group = getAutocompleteGroupSsrContext();
+const resolvedId = id ?? group?.labelId;
+if (group && resolvedId) group.labelId = resolvedId;
+---
+
+{
+  context && (
+    <div {...attributes} id={resolvedId} data-ormo-autocomplete-group-label>
+      <slot />
+    </div>
+  )
+}

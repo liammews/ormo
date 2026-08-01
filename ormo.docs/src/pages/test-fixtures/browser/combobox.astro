@@ -1,0 +1,16 @@
+---
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+import ComboboxDemo from "../../../components/demos/Combobox/ComboboxDemo.astro";
+import ComboboxFormDemo from "../../../components/demos/Combobox/ComboboxFormDemo.astro";
+---
+
+<BrowserFixtureLayout title="Combobox">
+  <div data-combobox-demo="default"><ComboboxDemo /></div>
+  <div data-combobox-demo="form">
+    <ComboboxFormDemo positioning="floating" />
+  </div>
+</BrowserFixtureLayout>
+
+<script>
+  import "@ormo/primitives/combobox/floating";
+</script>

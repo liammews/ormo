@@ -1,0 +1,30 @@
+---
+import {
+  comboboxHtmlToText,
+  getComboboxGroupSsrContext,
+  getComboboxSsrContext,
+} from "../../internal/combobox-ssr-context";
+import type { ComboboxGroupLabelProps } from "./types";
+
+type Props = ComboboxGroupLabelProps;
+const { id, ...attributes }: Props = Astro.props;
+const combobox = getComboboxSsrContext();
+const group = getComboboxGroupSsrContext();
+const content = await Astro.slots.render("default");
+const resolvedId = id ?? group?.labelId;
+if (group) {
+  group.label = comboboxHtmlToText(content);
+  if (resolvedId) group.labelId = resolvedId;
+}
+---
+
+{
+  combobox && (
+    <div
+      {...attributes}
+      id={resolvedId}
+      data-ormo-combobox-group-label
+      set:html={content}
+    />
+  )
+}

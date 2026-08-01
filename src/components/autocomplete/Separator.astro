@@ -1,0 +1,13 @@
+---
+import { getAutocompleteSsrContext } from "../../internal/autocomplete-ssr-context";
+import type { AutocompleteSeparatorProps } from "./types";
+type Props = AutocompleteSeparatorProps;
+const attributes: Props = Astro.props;
+const context = getAutocompleteSsrContext();
+---
+
+{
+  context && (
+    <div {...attributes} aria-hidden="true" data-ormo-autocomplete-separator />
+  )
+}

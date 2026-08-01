@@ -1,0 +1,106 @@
+---
+import * as Combobox from "@ormo/primitives/combobox";
+import type { ComboboxPositioning } from "@ormo/primitives/combobox";
+import { Check, ChevronDown, X } from "@lucide/astro";
+import "./index.css";
+
+interface Props {
+  positioning?: ComboboxPositioning;
+}
+
+const { positioning = "css-anchor" } = Astro.props;
+---
+
+<form class="combobox-form" data-combobox-form>
+  <div class="combobox-field">
+    <label class="combobox-label" for="timezone-control">Timezone</label>
+    <Combobox.Root
+      class="combobox"
+      id="timezone"
+      name="timezone"
+      required
+      positioning={positioning}
+    >
+      <div class="combobox-actions">
+        <Combobox.Input
+          class="combobox-input"
+          placeholder="Search timezones"
+          aria-describedby="timezone-error"
+        />
+        <Combobox.Clear class="combobox-clear" aria-label="Clear timezone">
+          <X size={12} aria-hidden="true" />
+        </Combobox.Clear>
+        <Combobox.Toggle class="combobox-toggle" aria-label="Show timezones">
+          <Combobox.Icon class="combobox-icon">
+            <ChevronDown size={14} />
+          </Combobox.Icon>
+        </Combobox.Toggle>
+      </div>
+      <Combobox.Content class="combobox-content" sideOffset={6}>
+        <Combobox.Item
+          class="combobox-item"
+          value="europe-london"
+          keywords={["GMT", "BST", "United Kingdom"]}
+        >
+          <span>Europe/London</span>
+          <Combobox.ItemIndicator class="combobox-item-indicator">
+            <Check size={14} />
+          </Combobox.ItemIndicator>
+        </Combobox.Item>
+        <Combobox.Item
+          class="combobox-item"
+          value="america-new-york"
+          keywords={["EST", "EDT", "Eastern"]}
+        >
+          <span>America/New York</span>
+          <Combobox.ItemIndicator class="combobox-item-indicator">
+            <Check size={14} />
+          </Combobox.ItemIndicator>
+        </Combobox.Item>
+        <Combobox.Item
+          class="combobox-item"
+          value="asia-tokyo"
+          keywords={["JST", "Japan"]}
+        >
+          <span>Asia/Tokyo</span>
+          <Combobox.ItemIndicator class="combobox-item-indicator">
+            <Check size={14} />
+          </Combobox.ItemIndicator>
+        </Combobox.Item>
+        <Combobox.Empty class="combobox-empty">
+          No timezones found.
+        </Combobox.Empty>
+      </Combobox.Content>
+    </Combobox.Root>
+    <p class="combobox-error" id="timezone-error" data-combobox-error hidden>
+      Choose a timezone.
+    </p>
+  </div>
+
+  <button class="button button--small" type="submit">Continue</button>
+  <output class="combobox-result" data-combobox-result></output>
+</form>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>("[data-combobox-form]");
+  const control = form?.querySelector<HTMLSelectElement>(
+    "[data-ormo-combobox-control]",
+  );
+  const error = form?.querySelector<HTMLElement>("[data-combobox-error]");
+  const result = form?.querySelector<HTMLOutputElement>(
+    "[data-combobox-result]",
+  );
+
+  control?.addEventListener("invalid", () => {
+    if (error) error.hidden = false;
+  });
+  control?.addEventListener("input", () => {
+    if (error && control.validity.valid) error.hidden = true;
+  });
+  form?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (result) {
+      result.value = `Selected: ${new FormData(form).get("timezone")}`;
+    }
+  });
+</script>

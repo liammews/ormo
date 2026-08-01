@@ -10,6 +10,7 @@ const { disabled = false, ...attributes }: Props = Astro.props;
   {...attributes}
   type="button"
   disabled={disabled || undefined}
+  hidden
   data-item-disabled={disabled ? "" : undefined}
   data-ormo-select-clear
 >

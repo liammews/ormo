@@ -1,0 +1,15 @@
+---
+import { getComboboxSsrContext } from "../../internal/combobox-ssr-context";
+import type { ComboboxIconProps } from "./types";
+type Props = ComboboxIconProps;
+const attributes: Props = Astro.props;
+const combobox = getComboboxSsrContext();
+---
+
+{
+  combobox && (
+    <span {...attributes} aria-hidden="true" data-ormo-combobox-icon>
+      <slot />
+    </span>
+  )
+}

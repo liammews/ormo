@@ -1,0 +1,12 @@
+---
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+import AutocompleteDemo from "../../../components/demos/Autocomplete/AutocompleteDemo.astro";
+import AutocompleteAsyncDemo from "../../../components/demos/Autocomplete/AutocompleteAsyncDemo.astro";
+import AutocompleteFormDemo from "../../../components/demos/Autocomplete/AutocompleteFormDemo.astro";
+---
+
+<BrowserFixtureLayout title="Autocomplete">
+  <div data-autocomplete-demo="default"><AutocompleteDemo /></div>
+  <div data-autocomplete-demo="async"><AutocompleteAsyncDemo /></div>
+  <div data-autocomplete-demo="form"><AutocompleteFormDemo /></div>
+</BrowserFixtureLayout>

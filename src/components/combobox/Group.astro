@@ -1,0 +1,44 @@
+---
+import {
+  getComboboxSsrContext,
+  renderWithComboboxGroupContext,
+} from "../../internal/combobox-ssr-context";
+import type { ComboboxGroupProps } from "./types";
+
+type Props = ComboboxGroupProps;
+const { id, ...attributes }: Props = Astro.props;
+const combobox = getComboboxSsrContext();
+const index = combobox?.groupCount ?? 0;
+if (combobox) combobox.groupCount += 1;
+const resolvedId =
+  id ?? `${combobox?.rootId ?? "ormo-combobox"}-group-${index + 1}`;
+const group = {
+  id: resolvedId,
+  labelId: `${resolvedId}-label`,
+  label: undefined as string | undefined,
+};
+const content = await renderWithComboboxGroupContext(group, () =>
+  Astro.slots.render("default"),
+);
+for (const item of combobox?.items ?? []) {
+  if (item.groupId === group.id) item.groupLabel = group.label;
+}
+---
+
+{
+  combobox && (
+    <>
+      {index > 0 && (
+        <div aria-hidden="true" data-ormo-combobox-separator data-automatic />
+      )}
+      <div
+        {...attributes}
+        id={resolvedId}
+        role="group"
+        aria-labelledby={group.labelId}
+        data-ormo-combobox-group
+        set:html={content}
+      />
+    </>
+  )
+}

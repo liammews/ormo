@@ -1,0 +1,34 @@
+---
+import * as Combobox from "../../../src/components/combobox";
+---
+
+<label for="country-control">Country</label>
+<Combobox.Root
+  id="country"
+  name="country"
+  defaultValue="fr"
+  required
+  filter="contains"
+>
+  <Combobox.Input placeholder="Search countries" />
+  <Combobox.Toggle aria-label="Show countries">
+    <Combobox.Icon>⌄</Combobox.Icon>
+  </Combobox.Toggle>
+  <Combobox.Clear aria-label="Clear country">×</Combobox.Clear>
+  <Combobox.Content sideOffset={4}>
+    <Combobox.Group id="europe">
+      <Combobox.GroupLabel>Europe</Combobox.GroupLabel>
+      <Combobox.Item value="gb">United Kingdom</Combobox.Item>
+      <Combobox.Item value="fr" keywords={["French Republic"]}>
+        France
+        <Combobox.ItemIndicator>✓</Combobox.ItemIndicator>
+      </Combobox.Item>
+    </Combobox.Group>
+    <Combobox.Group id="north-america">
+      <Combobox.GroupLabel>North America</Combobox.GroupLabel>
+      <Combobox.Item value="ca">Canada</Combobox.Item>
+      <Combobox.Item value="us" disabled>United States</Combobox.Item>
+    </Combobox.Group>
+    <Combobox.Empty>No countries found.</Combobox.Empty>
+  </Combobox.Content>
+</Combobox.Root>

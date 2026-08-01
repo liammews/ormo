@@ -1,0 +1,25 @@
+---
+import { getComboboxSsrContext } from "../../internal/combobox-ssr-context";
+import type { ComboboxInputProps } from "./types";
+
+type Props = ComboboxInputProps;
+const { placeholder, autocomplete, ...attributes }: Props = Astro.props;
+const combobox = getComboboxSsrContext();
+if (combobox && placeholder !== undefined) combobox.placeholder = placeholder;
+---
+
+{
+  combobox && (
+    <input
+      {...attributes}
+      type="text"
+      role="combobox"
+      aria-autocomplete="list"
+      aria-expanded="false"
+      placeholder={placeholder}
+      autocomplete={autocomplete ?? combobox?.autocomplete}
+      data-ormo-combobox-input
+      data-state="closed"
+    />
+  )
+}

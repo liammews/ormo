@@ -1,0 +1,123 @@
+/* Behaviour-critical progressive enhancement and placement. */
+
+:where(
+  ormo-autocomplete:not([data-enhanced]) [data-ormo-autocomplete-clear],
+  ormo-autocomplete:not([data-enhanced]) [data-ormo-autocomplete-content]
+) {
+  display: none !important;
+}
+
+:where(
+  [data-ormo-autocomplete-item][hidden],
+  [data-ormo-autocomplete-group][hidden],
+  [data-ormo-autocomplete-separator][hidden],
+  [data-ormo-autocomplete-loading][hidden],
+  [data-ormo-autocomplete-empty][hidden],
+  [data-ormo-autocomplete-clear][hidden]
+) {
+  display: none !important;
+}
+
+:where([data-ormo-autocomplete-content]) {
+  margin: 0;
+  border: none;
+  padding: 0;
+  overflow: auto;
+  color: inherit;
+  background: transparent;
+  inset: auto;
+  position: fixed;
+  position-anchor: var(--ormo-autocomplete-anchor);
+}
+
+@supports (anchor-name: --ormo-autocomplete) {
+  :where(
+    [data-ormo-autocomplete-content][data-side="bottom"][data-align="start"]
+  ) {
+    position-area: bottom span-right;
+    margin-block-start: var(--ormo-autocomplete-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-autocomplete-content][data-side="bottom"][data-align="center"]
+  ) {
+    position-area: bottom center;
+    margin-block-start: var(--ormo-autocomplete-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-autocomplete-content][data-side="bottom"][data-align="end"]
+  ) {
+    position-area: bottom span-left;
+    margin-block-start: var(--ormo-autocomplete-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-autocomplete-content][data-side="top"][data-align="start"]
+  ) {
+    position-area: top span-right;
+    margin-block-end: var(--ormo-autocomplete-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-autocomplete-content][data-side="top"][data-align="center"]
+  ) {
+    position-area: top center;
+    margin-block-end: var(--ormo-autocomplete-side-offset, 0px);
+  }
+  :where([data-ormo-autocomplete-content][data-side="top"][data-align="end"]) {
+    position-area: top span-left;
+    margin-block-end: var(--ormo-autocomplete-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-autocomplete-content][data-side="right"][data-align="start"]
+  ) {
+    position-area: right span-bottom;
+    margin-inline-start: var(--ormo-autocomplete-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-autocomplete-content][data-side="right"][data-align="center"]
+  ) {
+    position-area: right center;
+    margin-inline-start: var(--ormo-autocomplete-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-autocomplete-content][data-side="right"][data-align="end"]
+  ) {
+    position-area: right span-top;
+    margin-inline-start: var(--ormo-autocomplete-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-autocomplete-content][data-side="left"][data-align="start"]
+  ) {
+    position-area: left span-bottom;
+    margin-inline-end: var(--ormo-autocomplete-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-autocomplete-content][data-side="left"][data-align="center"]
+  ) {
+    position-area: left center;
+    margin-inline-end: var(--ormo-autocomplete-side-offset, 0px);
+  }
+  :where([data-ormo-autocomplete-content][data-side="left"][data-align="end"]) {
+    position-area: left span-top;
+    margin-inline-end: var(--ormo-autocomplete-side-offset, 0px);
+  }
+  :where([data-ormo-autocomplete-content]) {
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+  }
+}
+
+:where(
+  [data-ormo-autocomplete-content][data-ormo-autocomplete-positioning="floating"]
+) {
+  inset: auto;
+  top: 0;
+  left: 0;
+  right: auto;
+  bottom: auto;
+  margin: 0;
+  position: fixed;
+  position-anchor: --ormo-autocomplete-none;
+  position-area: none;
+  position-try-fallbacks: none;
+}

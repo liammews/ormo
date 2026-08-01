@@ -1,0 +1,31 @@
+---
+import { styleToCssText } from "../../internal/style-to-css-text";
+import type { AutocompleteContentProps } from "./types";
+type Props = AutocompleteContentProps;
+const {
+  side = "bottom",
+  align = "start",
+  sideOffset = 0,
+  style,
+  ...attributes
+}: Props = Astro.props;
+const authoredStyle = styleToCssText(style);
+const offsetStyle = `--ormo-autocomplete-side-offset: ${sideOffset}px`;
+const mergedStyle = authoredStyle
+  ? `${authoredStyle}; ${offsetStyle}`
+  : offsetStyle;
+---
+
+<div
+  {...attributes}
+  role="listbox"
+  popover="auto"
+  tabindex="-1"
+  data-ormo-autocomplete-content
+  data-side={side}
+  data-align={align}
+  data-state="closed"
+  style={mergedStyle}
+>
+  <slot />
+</div>

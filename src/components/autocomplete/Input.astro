@@ -1,0 +1,29 @@
+---
+import { getAutocompleteSsrContext } from "../../internal/autocomplete-ssr-context";
+import type { AutocompleteInputProps } from "./types";
+
+type Props = AutocompleteInputProps;
+const { id, autocomplete, ...attributes }: Props = Astro.props;
+const context = getAutocompleteSsrContext();
+---
+
+{
+  context && (
+    <input
+      {...attributes}
+      id={id ?? `${context.rootId}-input`}
+      type="text"
+      role="combobox"
+      aria-autocomplete="list"
+      aria-expanded="false"
+      name={context.name}
+      form={context.form}
+      value={context.defaultValue}
+      required={context.required || undefined}
+      disabled={context.disabled || undefined}
+      autocomplete={autocomplete ?? context.autocomplete}
+      data-ormo-autocomplete-input
+      data-state="closed"
+    />
+  )
+}

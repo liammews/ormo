@@ -1,0 +1,23 @@
+---
+import { getAutocompleteSsrContext } from "../../internal/autocomplete-ssr-context";
+import type { AutocompleteLoadingProps } from "./types";
+type Props = AutocompleteLoadingProps;
+const attributes: Props = Astro.props;
+const context = getAutocompleteSsrContext();
+---
+
+{
+  context && (
+    <div
+      {...attributes}
+      role="option"
+      aria-disabled="true"
+      hidden
+      data-ormo-autocomplete-loading
+    >
+      <span role="status" aria-live="polite">
+        <slot />
+      </span>
+    </div>
+  )
+}

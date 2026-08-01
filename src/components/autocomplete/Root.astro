@@ -1,0 +1,55 @@
+---
+import {
+  createAutocompleteRootId,
+  renderWithAutocompleteContext,
+} from "../../internal/autocomplete-ssr-context";
+import type { AutocompleteRootProps } from "./types";
+
+type Props = AutocompleteRootProps;
+const {
+  id,
+  name,
+  form,
+  defaultValue = "",
+  disabled = false,
+  required = false,
+  autocomplete,
+  filter = "contains",
+  minLength = 0,
+  loading = false,
+  positioning = "css-anchor",
+  ...attributes
+}: Props = Astro.props;
+const rootId = id ?? createAutocompleteRootId();
+const content = await renderWithAutocompleteContext(
+  {
+    rootId,
+    defaultValue,
+    name,
+    form,
+    required,
+    disabled,
+    autocomplete,
+    groupCount: 0,
+  },
+  () => Astro.slots.render("default"),
+);
+---
+
+<ormo-autocomplete
+  {...attributes}
+  id={rootId}
+  data-ormo-autocomplete-root
+  data-default-value={defaultValue}
+  data-disabled={disabled ? "" : undefined}
+  data-loading={loading ? "" : undefined}
+  data-filter={filter}
+  data-min-length={Math.max(0, minLength)}
+  data-positioning={positioning === "floating" ? "floating" : undefined}
+  data-state="closed"
+  set:html={content}
+/>
+
+<script>
+  import "../../runtime/autocomplete";
+</script>

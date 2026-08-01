@@ -1,0 +1,22 @@
+---
+import { getAutocompleteSsrContext } from "../../internal/autocomplete-ssr-context";
+import type { AutocompleteClearProps } from "./types";
+type Props = AutocompleteClearProps;
+const { disabled = false, ...attributes }: Props = Astro.props;
+const context = getAutocompleteSsrContext();
+---
+
+{
+  context && (
+    <button
+      {...attributes}
+      type="button"
+      disabled={disabled || context.disabled || undefined}
+      hidden={context.defaultValue === "" || undefined}
+      data-item-disabled={disabled ? "" : undefined}
+      data-ormo-autocomplete-clear
+    >
+      <slot />
+    </button>
+  )
+}

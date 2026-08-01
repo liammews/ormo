@@ -1,5 +1,6 @@
 export * as Accordion from "./components/accordion/index";
 export * as AlertDialog from "./components/alert-dialog/index";
+export * as Autocomplete from "./components/autocomplete/index";
 export * as Avatar from "./components/avatar/index";
 export * as Dialog from "./components/dialog/index";
 export * as Popover from "./components/popover/index";
@@ -44,6 +45,7 @@ export type {
   OrmoCheckboxGroupElement,
 } from "./components/checkbox/types";
 export * as CheckboxGroup from "./components/checkbox/group";
+export * as Combobox from "./components/combobox/index";
 export * as Field from "./components/field/index";
 export * as Fieldset from "./components/fieldset/index";
 export { Input } from "./components/input/index";

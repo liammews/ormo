@@ -1,0 +1,165 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Autocomplete"
+description: "A freeform text field with local or externally managed suggestions."
+---
+
+import AutocompleteDemo from "../../../components/demos/Autocomplete/AutocompleteDemo.astro";
+import demoCode from "../../../components/demos/Autocomplete/AutocompleteDemo.astro?raw";
+import AutocompleteAsyncDemo from "../../../components/demos/Autocomplete/AutocompleteAsyncDemo.astro";
+import asyncCode from "../../../components/demos/Autocomplete/AutocompleteAsyncDemo.astro?raw";
+import AutocompleteFormDemo from "../../../components/demos/Autocomplete/AutocompleteFormDemo.astro";
+import formCode from "../../../components/demos/Autocomplete/AutocompleteFormDemo.astro?raw";
+import demoCss from "../../../components/demos/Autocomplete/index.css?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+<DemoBlock
+  files={[
+    { filename: "Autocomplete.astro", code: demoCode },
+    { filename: "index.css", code: demoCss },
+  ]}
+>
+  <AutocompleteDemo />
+</DemoBlock>
+
+## Anatomy
+
+Autocomplete accepts freeform text and offers optional suggestions. Unlike
+Combobox, its current input text is always the submitted value and does not
+need to match an item.
+
+<CodeBlock
+  lang="astro"
+  code={`<Autocomplete.Root name="location">
+  <Autocomplete.Input placeholder="Search locations" />
+  <Autocomplete.Clear aria-label="Clear location">×</Autocomplete.Clear>
+  <Autocomplete.Content>
+    <Autocomplete.Item value="London" identifier="london">London</Autocomplete.Item>
+    <Autocomplete.Loading>Loading…</Autocomplete.Loading>
+    <Autocomplete.Empty>No suggestions found.</Autocomplete.Empty>
+  </Autocomplete.Content>
+</Autocomplete.Root>`}
+/>
+
+## Examples
+
+### Async suggestions
+
+Use `filter="none"` when application code owns results. The primitive owns
+interaction and presentation state, not requests, debouncing, caching, or
+cancellation.
+
+<DemoBlock files={[{ filename: "AutocompleteAsync.astro", code: asyncCode }]}>
+  <AutocompleteAsyncDemo />
+</DemoBlock>
+
+### Forms and freeform values
+
+`Input` is the real native form control, so required validation, autofill,
+submission, and reset continue to work without mirrored state.
+
+<DemoBlock files={[{ filename: "AutocompleteForm.astro", code: formCode }]}>
+  <AutocompleteFormDemo />
+</DemoBlock>
+
+## API reference
+
+<PropsTable
+  id="autocomplete-root-props"
+  caption="Autocomplete Root properties"
+  rows={[
+    {
+      name: "defaultValue",
+      type: "string",
+      defaultValue: '""',
+      description: "Sets the initial freeform text.",
+    },
+    { name: "name", type: "string", description: "Names the submitted input." },
+    {
+      name: "form",
+      type: "string",
+      description: "Associates the input with a form by id.",
+    },
+    {
+      name: "required",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Uses native required text-input validity.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Disables the composed control.",
+    },
+    {
+      name: "autocomplete",
+      type: "string",
+      description: "Supplies the native autofill hint.",
+    },
+    {
+      name: "filter",
+      type: '"contains" | "startsWith" | "none"',
+      defaultValue: '"contains"',
+      description: "Chooses local or externally owned filtering.",
+    },
+    {
+      name: "minLength",
+      type: "number",
+      defaultValue: "0",
+      description: "Sets the shortest query that may show suggestions.",
+    },
+    {
+      name: "loading",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Shows Loading and marks Content busy.",
+    },
+    {
+      name: "positioning",
+      type: '"css-anchor" | "floating"',
+      defaultValue: '"css-anchor"',
+      description: "Chooses popup positioning.",
+    },
+  ]}
+/>
+
+`Item` accepts `value`, optional `identifier`, `textValue`, `keywords`, and
+`disabled`. Value is inserted and submitted. Identifier is event metadata only.
+`Clear` is shown only while text exists. `Loading` replaces Empty while the
+root is loading.
+
+## Browser API and events
+
+The root exposes `value`, `disabled`, `loading`, read-only `open`, and
+`show()`, `hide()`, and `toggle(force?)`.
+
+Value changes use `ormo:autocomplete-before-value-change` and
+`ormo:autocomplete-value-change`. Suggestion selection additionally emits
+`ormo:autocomplete-select`; popup changes emit
+`ormo:autocomplete-open-change`. Reasons are `input`, `item`, `clear`, and
+`programmatic`.
+
+For Floating UI, load the adapter from a client script:
+
+<CodeBlock lang="astro" code={`<Autocomplete.Root positioning="floating">…</Autocomplete.Root>
+
+<script>
+  import "@ormo/primitives/autocomplete/floating";
+</script>`} />
+
+## Accessibility and keyboard
+
+Focus remains on Input while `aria-activedescendant` identifies a highlighted
+suggestion. Arrow keys navigate, Enter accepts a highlighted suggestion,
+Escape and Tab dismiss without reverting text, and normal text-editing keys
+retain native behavior. Loading is announced politely and Content exposes
+`aria-busy`.
+
+## Runtime
+
+Without JavaScript the native text input remains visible, valid, and
+submittable. Suggestion content and custom actions stay hidden until the custom
+element enhances them.
