@@ -18,6 +18,7 @@ export interface AutocompleteRootProps extends Omit<
   form?: string;
   defaultValue?: string;
   disabled?: boolean;
+  readOnly?: boolean;
   required?: boolean;
   autocomplete?: string;
   filter?: AutocompleteFilter;
@@ -88,6 +89,7 @@ export interface AutocompleteOpenChangeDetail {
 export interface OrmoAutocompleteElement extends HTMLElement {
   value: string;
   disabled: boolean;
+  readOnly: boolean;
   loading: boolean;
   readonly open: boolean;
   show(): void;

@@ -1,0 +1,6 @@
+/* Behaviour-critical: the decorative thumb must not steal input from the
+   native switch control. Consumer classes can override this intentionally. */
+
+:where([data-ormo-switch-thumb]) {
+  pointer-events: none;
+}

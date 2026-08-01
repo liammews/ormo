@@ -50,3 +50,4 @@ export * as Field from "./components/field/index";
 export * as Fieldset from "./components/fieldset/index";
 export { Input } from "./components/input/index";
 export type { InputProps, InputType } from "./components/input/types";
+export * as Switch from "./components/switch/index";

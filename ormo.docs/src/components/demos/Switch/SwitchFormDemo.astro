@@ -1,0 +1,31 @@
+---
+import * as Switch from "@ormo/primitives/switch";
+import "./index.css";
+---
+
+<form class="switch-form" data-switch-form>
+  <label class="switch-field">
+    <Switch.Root class="switch" name="backups" value="enabled" required>
+      <Switch.Thumb class="switch-thumb" />
+    </Switch.Root>
+    <span>
+      <strong>Automatic backups</strong>
+      <small>Turn on backups before you continue.</small>
+    </span>
+  </label>
+  <button class="button button-small" type="submit">Save settings</button>
+  <output class="switch-result" data-switch-result></output>
+</form>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>("[data-switch-form]");
+  const result = form?.querySelector<HTMLOutputElement>("[data-switch-result]");
+  form?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!result) return;
+    const data = new FormData(form);
+    result.textContent = data.has("backups")
+      ? "Automatic backups are on."
+      : "Automatic backups are off.";
+  });
+</script>

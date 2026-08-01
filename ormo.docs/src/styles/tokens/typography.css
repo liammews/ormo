@@ -1,11 +1,26 @@
-@import "@fontsource-variable/funnel-display";
-@import "@fontsource-variable/inter";
+@font-face {
+  font-family: "Funnel Display Variable";
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: optional;
+  src: url("@fontsource-variable/funnel-display/files/funnel-display-latin-wght-normal.woff2")
+    format("woff2-variations");
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: optional;
+  src: url("@fontsource-variable/inter/files/inter-latin-wght-normal.woff2")
+    format("woff2-variations");
+}
 
 @font-face {
   font-family: "Lilex";
   font-style: normal;
   font-weight: 100 700;
-  font-display: swap;
+  font-display: optional;
   src: url("/Lilex/variable/Lilex[wght].ttf") format("truetype");
 }
 
@@ -13,7 +28,7 @@
   font-family: "Lilex";
   font-style: italic;
   font-weight: 100 700;
-  font-display: swap;
+  font-display: optional;
   src: url("/Lilex/variable/Lilex-Italic[wght].ttf") format("truetype");
 }
 

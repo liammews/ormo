@@ -1,0 +1,60 @@
+---
+import { renderWithSwitchContext } from "../../internal/switch-ssr-context";
+import type { SwitchRootProps } from "./types";
+
+type Props = SwitchRootProps;
+const {
+  id,
+  name,
+  value = "on",
+  form,
+  defaultChecked = false,
+  disabled = false,
+  readOnly = false,
+  required = false,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledby,
+  "aria-describedby": ariaDescribedby,
+  ...attributes
+}: Props = Astro.props;
+
+const content = await renderWithSwitchContext(
+  { checked: defaultChecked, disabled, readOnly, required },
+  () => Astro.slots.render("default"),
+);
+const state = defaultChecked ? "checked" : "unchecked";
+---
+
+<ormo-switch
+  {...attributes}
+  data-ormo-switch-root
+  data-state={state}
+  data-disabled={disabled ? "" : undefined}
+  data-readonly={readOnly ? "" : undefined}
+  data-required={required ? "" : undefined}
+>
+  <input
+    id={id}
+    type="checkbox"
+    role="switch"
+    name={name}
+    value={value}
+    form={form}
+    checked={defaultChecked || undefined}
+    disabled={disabled || undefined}
+    required={required || undefined}
+    aria-label={ariaLabel}
+    aria-labelledby={ariaLabelledby}
+    aria-describedby={ariaDescribedby}
+    data-ormo-switch-input
+    data-state={state}
+    data-disabled={disabled ? "" : undefined}
+    data-readonly={readOnly ? "" : undefined}
+    data-required={required ? "" : undefined}
+  />
+  <Fragment set:html={content} />
+</ormo-switch>
+
+<script>
+  import "../../runtime/switch";
+</script>

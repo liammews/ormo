@@ -1,0 +1,25 @@
+---
+import { getSwitchSsrContext } from "../../internal/switch-ssr-context";
+import type { SwitchThumbProps } from "./types";
+
+type Props = SwitchThumbProps;
+const attributes: Props = Astro.props;
+const context = getSwitchSsrContext();
+const state = context?.checked ? "checked" : "unchecked";
+---
+
+{
+  context && (
+    <span
+      {...attributes}
+      aria-hidden="true"
+      data-ormo-switch-thumb
+      data-state={state}
+      data-disabled={context.disabled ? "" : undefined}
+      data-readonly={context.readOnly ? "" : undefined}
+      data-required={context.required ? "" : undefined}
+    >
+      <slot />
+    </span>
+  )
+}

@@ -127,6 +127,7 @@ export class OrmoAutocomplete extends HTMLElement {
   #positionerCleanup: AutocompletePositionerCleanup | undefined;
   #authoredAttributes = new Map<Element, Map<string, string | null>>();
   #authoredValue: string | undefined;
+  #composing = false;
 
   connectedCallback(): void {
     this.#snapshot(this, [
@@ -144,6 +145,16 @@ export class OrmoAutocomplete extends HTMLElement {
     this.addEventListener("pointermove", this.#onPointerMove, { signal });
     this.addEventListener("keydown", this.#onKeyDown, { signal });
     this.#input?.addEventListener("input", this.#onInput, { signal });
+    this.#input?.addEventListener(
+      "compositionstart",
+      this.#onCompositionStart,
+      {
+        signal,
+      },
+    );
+    this.#input?.addEventListener("compositionend", this.#onCompositionEnd, {
+      signal,
+    });
     this.#content?.addEventListener("toggle", this.#onToggle, { signal });
     this.#input?.form?.addEventListener("reset", this.#onReset, { signal });
     this.ownerDocument.addEventListener(
@@ -173,6 +184,7 @@ export class OrmoAutocomplete extends HTMLElement {
     this.#observer = undefined;
     this.#stopPositioner();
     this.#active = undefined;
+    this.#composing = false;
     this.#restore();
   }
 
@@ -186,7 +198,17 @@ export class OrmoAutocomplete extends HTMLElement {
     return this.hasAttribute("data-disabled");
   }
   set disabled(value: boolean) {
+    if (value) this.#hide("programmatic");
     this.toggleAttribute("data-disabled", Boolean(value));
+    this.#prepare();
+  }
+  get readOnly(): boolean {
+    return this.hasAttribute("data-readonly") || Boolean(this.#input?.readOnly);
+  }
+  set readOnly(value: boolean) {
+    if (value) this.#hide("programmatic");
+    this.toggleAttribute("data-readonly", Boolean(value));
+    if (this.#input) this.#input.readOnly = Boolean(value);
     this.#prepare();
   }
   get loading(): boolean {
@@ -248,7 +270,9 @@ export class OrmoAutocomplete extends HTMLElement {
       "aria-invalid",
       "aria-busy",
       "disabled",
+      "readonly",
       "data-disabled",
+      "data-readonly",
       "data-state",
       "data-placeholder",
       "style",
@@ -260,6 +284,7 @@ export class OrmoAutocomplete extends HTMLElement {
       "data-state",
       "data-open",
       "data-disabled",
+      "data-readonly",
       "data-ormo-autocomplete-positioning",
       "data-resolved-side",
       "data-resolved-align",
@@ -273,6 +298,7 @@ export class OrmoAutocomplete extends HTMLElement {
         "disabled",
         "hidden",
         "data-disabled",
+        "data-readonly",
         "data-state",
       ]);
     for (const item of this.#items)
@@ -293,16 +319,24 @@ export class OrmoAutocomplete extends HTMLElement {
     input.setAttribute("aria-controls", content.id);
     input.setAttribute("aria-expanded", this.open ? "true" : "false");
     const disabled = this.disabled;
+    const readOnly = this.readOnly;
     input.disabled = disabled;
+    input.readOnly = readOnly;
     input.toggleAttribute("data-disabled", disabled);
+    input.toggleAttribute("data-readonly", readOnly);
     content.toggleAttribute("data-disabled", disabled);
+    content.toggleAttribute("data-readonly", readOnly);
     for (const clear of this.querySelectorAll<HTMLButtonElement>(
       clearSelector,
     )) {
       clear.disabled =
-        disabled || clear.hasAttribute("data-item-disabled") || !input.value;
+        disabled ||
+        readOnly ||
+        clear.hasAttribute("data-item-disabled") ||
+        !input.value;
       clear.hidden = !input.value;
       clear.toggleAttribute("data-disabled", clear.disabled);
+      clear.toggleAttribute("data-readonly", readOnly);
     }
     const anchor = `--${baseId}-anchor`;
     input.style.setProperty("anchor-name", anchor);
@@ -410,6 +444,7 @@ export class OrmoAutocomplete extends HTMLElement {
     )) {
       clear.disabled =
         this.disabled ||
+        this.readOnly ||
         clear.hasAttribute("data-item-disabled") ||
         !input.value;
       clear.hidden = !input.value;
@@ -455,7 +490,13 @@ export class OrmoAutocomplete extends HTMLElement {
     this.#content?.setAttribute("aria-busy", this.loading ? "true" : "false");
     this.toggleAttribute("data-filtered", Boolean(query));
     this.toggleAttribute("data-query-eligible", eligible);
-    if (this.#active?.hidden) this.#highlight(undefined);
+    if (
+      this.#active &&
+      (!this.contains(this.#active) ||
+        this.#active.hidden ||
+        isDisabled(this.#active))
+    )
+      this.#highlight(undefined);
   }
 
   #highlight(item?: HTMLElement): void {
@@ -485,7 +526,14 @@ export class OrmoAutocomplete extends HTMLElement {
     this.#highlight(items[index]);
   }
   #select(item: HTMLElement): void {
-    if (isDisabled(item)) return;
+    if (
+      this.disabled ||
+      this.readOnly ||
+      !this.contains(item) ||
+      item.hidden ||
+      isDisabled(item)
+    )
+      return;
     const value = itemValue(item);
     const identifier = item.dataset.identifier;
     if (
@@ -511,6 +559,7 @@ export class OrmoAutocomplete extends HTMLElement {
   #show(reason: AutocompleteOpenChangeReason, highlight: boolean): void {
     if (
       this.disabled ||
+      this.readOnly ||
       this.open ||
       !this.#content ||
       this.value.length < this.#minLength
@@ -611,7 +660,7 @@ export class OrmoAutocomplete extends HTMLElement {
     this.#content?.style.removeProperty("--ormo-autocomplete-trigger-height");
   }
 
-  #onInput = (): void => {
+  #processInput(): void {
     const next = this.value;
     const previous = this.#lastValue;
     if (next === previous) return;
@@ -625,10 +674,16 @@ export class OrmoAutocomplete extends HTMLElement {
     this.#filterItems();
     if (next.length >= this.#minLength) this.#show("input", false);
     else this.#hide("input");
+  }
+  #onInput = (event: Event): void => {
+    if (this.#composing || (event instanceof InputEvent && event.isComposing))
+      return;
+    this.#processInput();
   };
   #onClick = (event: MouseEvent): void => {
     if (!(event.target instanceof Element)) return;
     if (event.target.closest(clearSelector)) {
+      if (this.disabled || this.readOnly) return;
       if (this.#setValue("", "clear", undefined, true)) {
         this.#filterItems();
         this.#hide("selection");
@@ -641,6 +696,7 @@ export class OrmoAutocomplete extends HTMLElement {
   };
   #onKeyDown = (event: KeyboardEvent): void => {
     if (event.target !== this.#input || this.disabled) return;
+    if (this.#composing || event.isComposing || event.key === "Process") return;
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       event.preventDefault();
       if (!this.open) this.#show("input", true);
@@ -660,7 +716,13 @@ export class OrmoAutocomplete extends HTMLElement {
     if (event.key === "Tab" && this.open) this.#hide("tab");
   };
   #onPointerMove = (event: PointerEvent): void => {
-    if (!this.open || !(event.target instanceof Element)) return;
+    if (
+      !this.open ||
+      this.disabled ||
+      this.readOnly ||
+      !(event.target instanceof Element)
+    )
+      return;
     const item = event.target.closest<HTMLElement>(itemSelector);
     if (item && this.contains(item) && !item.hidden && !isDisabled(item))
       this.#highlight(item);
@@ -670,6 +732,14 @@ export class OrmoAutocomplete extends HTMLElement {
     const reason = this.#pendingReason;
     this.#syncOpen(open, reason);
     this.#pendingReason = open ? "outside" : "programmatic";
+  };
+  #onCompositionStart = (): void => {
+    this.#composing = true;
+  };
+  #onCompositionEnd = (): void => {
+    if (!this.#composing) return;
+    this.#composing = false;
+    this.#processInput();
   };
   #onReset = (): void => {
     queueMicrotask(() => {

@@ -95,6 +95,12 @@ submission, and reset continue to work without mirrored state.
       description: "Disables the composed control.",
     },
     {
+      name: "readOnly",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Makes the composed control focusable but non-mutating.",
+    },
+    {
       name: "autocomplete",
       type: "string",
       description: "Supplies the native autofill hint.",
@@ -133,8 +139,8 @@ root is loading.
 
 ## Browser API and events
 
-The root exposes `value`, `disabled`, `loading`, read-only `open`, and
-`show()`, `hide()`, and `toggle(force?)`.
+The root exposes `value`, `disabled`, `readOnly`, `loading`, read-only `open`,
+and `show()`, `hide()`, and `toggle(force?)`.
 
 Value changes use `ormo:autocomplete-before-value-change` and
 `ormo:autocomplete-value-change`. Suggestion selection additionally emits
@@ -155,8 +161,8 @@ For Floating UI, load the adapter from a client script:
 Focus remains on Input while `aria-activedescendant` identifies a highlighted
 suggestion. Arrow keys navigate, Enter accepts a highlighted suggestion,
 Escape and Tab dismiss without reverting text, and normal text-editing keys
-retain native behavior. Loading is announced politely and Content exposes
-`aria-busy`.
+retain native behavior. IME input is processed after composition commits.
+Loading is announced politely and Content exposes `aria-busy`.
 
 ## Runtime
 

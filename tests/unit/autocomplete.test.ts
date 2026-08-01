@@ -63,12 +63,12 @@ describe("Autocomplete", () => {
     const root = createAutocomplete();
     const selected = vi.fn();
     root.addEventListener("ormo:autocomplete-select", selected);
-    items(root)[1]?.click();
-    expect(root.value).toBe("Paris");
+    items(root)[0]?.click();
+    expect(root.value).toBe("London");
     expect(selected).toHaveBeenCalledOnce();
     expect(selected.mock.calls[0]?.[0].detail).toEqual({
-      value: "Paris",
-      identifier: "paris",
+      value: "London",
+      identifier: "london",
     });
   });
 
@@ -87,6 +87,75 @@ describe("Autocomplete", () => {
     expect(
       root.querySelector<HTMLElement>("[data-ormo-autocomplete-empty]")?.hidden,
     ).toBe(false);
+  });
+
+  it("closes atomically and blocks pointer selection when disabled", () => {
+    const root = createAutocomplete();
+    root.show();
+    expect(root.open).toBe(true);
+    root.disabled = true;
+    expect(root.open).toBe(false);
+    expect(input(root).disabled).toBe(true);
+    items(root)[1]?.click();
+    expect(root.value).toBe("Lon");
+  });
+
+  it("treats readonly as a composed non-mutating state", () => {
+    const root = createAutocomplete();
+    root.readOnly = true;
+    expect(input(root).readOnly).toBe(true);
+    root.show();
+    expect(root.open).toBe(false);
+    items(root)[1]?.click();
+    root
+      .querySelector<HTMLButtonElement>("[data-ormo-autocomplete-clear]")
+      ?.click();
+    expect(root.value).toBe("Lon");
+    root.readOnly = false;
+    expect(input(root).readOnly).toBe(false);
+  });
+
+  it("clears an active descendant removed by async result replacement", async () => {
+    const root = createAutocomplete();
+    const field = input(root);
+    root.show();
+    field.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
+    );
+    const activeId = field.getAttribute("aria-activedescendant");
+    expect(activeId).toBeTruthy();
+    root.querySelector(`#${activeId}`)?.remove();
+    await new Promise<void>((resolve) => queueMicrotask(resolve));
+    expect(field.hasAttribute("aria-activedescendant")).toBe(false);
+    field.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+    );
+    expect(root.value).toBe("Lon");
+  });
+
+  it("waits for IME composition to commit before filtering and emitting", () => {
+    const root = createAutocomplete();
+    const field = input(root);
+    const changes = vi.fn();
+    root.addEventListener("ormo:autocomplete-value-change", changes);
+    field.dispatchEvent(new CompositionEvent("compositionstart"));
+    field.value = "東京";
+    field.dispatchEvent(
+      new InputEvent("input", { bubbles: true, isComposing: true }),
+    );
+    field.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Enter",
+        bubbles: true,
+        isComposing: true,
+      }),
+    );
+    expect(changes).not.toHaveBeenCalled();
+    expect(root.open).toBe(false);
+    field.dispatchEvent(new CompositionEvent("compositionend"));
+    expect(changes).toHaveBeenCalledOnce();
+    expect(root.value).toBe("東京");
+    expect(root.open).toBe(true);
   });
 
   it("makes input, item, and Clear cancellation atomic", () => {
@@ -143,7 +212,9 @@ describe("Autocomplete", () => {
     expect(root.hasAttribute("data-enhanced")).toBe(false);
     expect(field.value).toBe("Authored");
     expect(field.style.getPropertyValue("anchor-name")).toBe("--authored");
+    changes.mockClear();
     document.body.append(root);
+    root.value = "L";
     items(root)[0]?.click();
     expect(changes).toHaveBeenCalledTimes(2);
   });

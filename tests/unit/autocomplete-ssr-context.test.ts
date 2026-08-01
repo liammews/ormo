@@ -14,6 +14,7 @@ describe("autocomplete SSR context", () => {
         defaultValue: "",
         required: false,
         disabled: false,
+        readOnly: false,
         groupCount: 0,
       },
       async () => {

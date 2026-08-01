@@ -1,0 +1,36 @@
+---
+import * as Switch from "@ormo/primitives/switch";
+import "./index.css";
+---
+
+<div class="switch-demo" data-switch-demo>
+  <label class="switch-field">
+    <Switch.Root class="switch" name="notifications" defaultChecked>
+      <Switch.Thumb class="switch-thumb" />
+    </Switch.Root>
+    <span>
+      <strong>Notifications</strong>
+      <small>Get product updates by email.</small>
+    </span>
+  </label>
+
+  <label class="switch-field">
+    <Switch.Root class="switch" name="analytics" readOnly>
+      <Switch.Thumb class="switch-thumb" />
+    </Switch.Root>
+    <span>
+      <strong>Usage analytics</strong>
+      <small>This setting is managed by your organisation.</small>
+    </span>
+  </label>
+
+  <label class="switch-field" data-disabled>
+    <Switch.Root class="switch" name="legacy" disabled>
+      <Switch.Thumb class="switch-thumb" />
+    </Switch.Root>
+    <span>
+      <strong>Legacy integration</strong>
+      <small>This integration is not available.</small>
+    </span>
+  </label>
+</div>

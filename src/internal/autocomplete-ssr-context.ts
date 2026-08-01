@@ -8,6 +8,7 @@ export interface AutocompleteSsrContext {
   form?: string | undefined;
   required: boolean;
   disabled: boolean;
+  readOnly: boolean;
   autocomplete?: string | undefined;
   groupCount: number;
 }

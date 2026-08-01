@@ -38,6 +38,97 @@ test("dismissal retains unmatched freeform text", async ({ page }) => {
   await expect(demo.getByRole("listbox")).toBeHidden();
 });
 
+test("disabling while open closes and prevents pointer selection", async ({
+  page,
+}) => {
+  const demo = page.locator('[data-autocomplete-demo="default"]');
+  const root = demo.locator("ormo-autocomplete");
+  const input = demo.getByRole("combobox", { name: "Location" });
+  await input.fill("par");
+  await expect(demo.getByRole("listbox")).toBeVisible();
+  await root.evaluate((element) => {
+    (element as HTMLElement & { disabled: boolean }).disabled = true;
+  });
+  await expect(demo.getByRole("listbox")).toBeHidden();
+  await expect(input).toBeDisabled();
+  await demo
+    .locator('[data-ormo-autocomplete-item][data-value="Paris"]')
+    .evaluate((item) => {
+      (item as HTMLElement).click();
+    });
+  await expect(input).toHaveValue("par");
+});
+
+test("readonly blocks opening, selection, and clearing", async ({ page }) => {
+  const demo = page.locator('[data-autocomplete-demo="default"]');
+  const root = demo.locator("ormo-autocomplete");
+  const input = demo.getByRole("combobox", { name: "Location" });
+  await input.fill("par");
+  await root.evaluate((element) => {
+    (element as HTMLElement & { readOnly: boolean }).readOnly = true;
+  });
+  await expect(demo.getByRole("listbox")).toBeHidden();
+  await expect(input).toHaveAttribute("readonly", "");
+  await demo
+    .locator('[data-ormo-autocomplete-item][data-value="Paris"]')
+    .evaluate((item) => {
+      (item as HTMLElement).click();
+    });
+  await expect(input).toHaveValue("par");
+});
+
+test("async replacement clears a detached active option", async ({ page }) => {
+  const demo = page.locator('[data-autocomplete-demo="default"]');
+  const input = demo.getByRole("combobox", { name: "Location" });
+  await input.fill("o");
+  await input.press("ArrowDown");
+  await expect(input).toHaveAttribute("aria-activedescendant", /.+/);
+  await demo
+    .locator("[data-ormo-autocomplete-item][data-highlighted]")
+    .evaluate((item) => item.remove());
+  await expect(input).not.toHaveAttribute("aria-activedescendant", /.+/);
+  await input.press("Enter");
+  await expect(input).toHaveValue("o");
+});
+
+test("IME composition is processed only after commit", async ({ page }) => {
+  const demo = page.locator('[data-autocomplete-demo="default"]');
+  const root = demo.locator("ormo-autocomplete");
+  const result = await root.evaluate((element) => {
+    const input = element.querySelector<HTMLInputElement>(
+      "[data-ormo-autocomplete-input]",
+    )!;
+    let changes = 0;
+    element.addEventListener("ormo:autocomplete-value-change", () => {
+      changes += 1;
+    });
+    input.dispatchEvent(new CompositionEvent("compositionstart"));
+    input.value = "東京";
+    input.dispatchEvent(
+      new InputEvent("input", { bubbles: true, isComposing: true }),
+    );
+    const during = {
+      changes,
+      expanded: input.getAttribute("aria-expanded"),
+    };
+    input.dispatchEvent(new CompositionEvent("compositionend"));
+    return {
+      during,
+      changes,
+      value: input.value,
+    };
+  });
+  expect(result).toEqual({
+    during: { changes: 0, expanded: "false" },
+    changes: 1,
+    value: "東京",
+  });
+  await expect(demo.getByRole("listbox")).toBeVisible();
+  await expect(
+    demo.getByRole("combobox", { name: "Location" }),
+  ).toHaveAttribute("aria-expanded", "true");
+});
+
 test("loads externally managed suggestions and exposes identifiers", async ({
   page,
 }) => {

@@ -346,6 +346,21 @@
         "tests/unit/tooltip.test.ts",
         "tests/unit/tooltip.astro.test.ts"
       ]
+    },
+    {
+      "id": "switch",
+      "label": "Switch",
+      "status": "dev",
+      "runtimeModel": "custom-element",
+      "parts": ["Root", "Thumb"],
+      "runtime": ["src/runtime/switch.ts"],
+      "ssrContext": "src/internal/switch-ssr-context.ts",
+      "behaviourCss": ["src/runtime/switch.css"],
+      "tests": [
+        "tests/unit/switch.test.ts",
+        "tests/unit/switch.astro.test.ts",
+        "tests/unit/switch-ssr-context.test.ts"
+      ]
     }
   ]
 }

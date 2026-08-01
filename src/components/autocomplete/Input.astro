@@ -21,6 +21,7 @@ const context = getAutocompleteSsrContext();
       value={context.defaultValue}
       required={context.required || undefined}
       disabled={context.disabled || undefined}
+      readonly={context.readOnly || undefined}
       autocomplete={autocomplete ?? context.autocomplete}
       data-ormo-autocomplete-input
       data-state="closed"

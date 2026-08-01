@@ -39,6 +39,7 @@ const componentOrder = [
   "popover",
   "radio",
   "select",
+  "switch",
   "tabs",
   "tooltip",
 ] as const;
@@ -195,6 +196,7 @@ const currentPath = normalizePath(Astro.url.pathname);
 
   html {
     scroll-padding-top: calc(var(--docs-header-height) + 2rem);
+    scrollbar-gutter: stable;
   }
 
   body {
@@ -247,7 +249,8 @@ const currentPath = normalizePath(Astro.url.pathname);
   }
 
   .docs-main-wrapper {
-    width: 100%;
+    flex: 1 1 0;
+    min-width: 0;
   }
 
   .docs-main-inner {
@@ -274,9 +277,9 @@ const currentPath = normalizePath(Astro.url.pathname);
 
   .docs-sidebar {
     position: sticky;
-    width: 100%;
+    width: var(--docs-sidebar-width);
+    flex: 0 0 var(--docs-sidebar-width);
     min-width: 0;
-    max-width: var(--docs-sidebar-width);
     inset-block-start: var(--docs-header-height);
     height: calc(100dvh - var(--docs-header-height));
     overflow-y: auto;
@@ -292,6 +295,7 @@ const currentPath = normalizePath(Astro.url.pathname);
   /* Main content */
 
   .docs-content {
+    flex: 1 1 0;
     min-width: 0;
     margin-inline: auto;
     width: 100%;
@@ -314,9 +318,9 @@ const currentPath = normalizePath(Astro.url.pathname);
 
   .docs-toc {
     position: sticky;
-    width: 100%;
+    width: var(--docs-toc-width);
+    flex: 0 0 var(--docs-toc-width);
     min-width: 0;
-    max-width: var(--docs-toc-width);
     inset-block-start: var(--docs-header-height);
     max-height: calc(100dvh - var(--docs-header-height));
     overflow-y: auto;

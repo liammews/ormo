@@ -1,0 +1,113 @@
+.switch-demo,
+.switch-form {
+  display: flex;
+  width: min(100%, 24rem);
+  flex-direction: column;
+  gap: var(--space-150);
+}
+
+.switch-field {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-100);
+  color: var(--content-default);
+  cursor: pointer;
+}
+
+.switch-field[data-disabled] {
+  color: var(--content-disabled);
+  cursor: not-allowed;
+}
+
+.switch-field > span {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-25);
+}
+
+.switch-field strong {
+  font-size: var(--font-size-2);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-base);
+}
+
+.switch-field small {
+  color: var(--content-subtle);
+  font-size: var(--font-size-1);
+  line-height: var(--line-height-base);
+}
+
+.switch {
+  position: relative;
+  display: inline-flex;
+  width: 2.25rem;
+  height: 1.25rem;
+  flex: 0 0 auto;
+  align-items: center;
+  border-radius: var(--radius-full);
+}
+
+.switch [data-ormo-switch-input] {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  appearance: none;
+  border: 1px solid var(--border-control);
+  border-radius: inherit;
+  margin: 0;
+  background: var(--surface-control);
+  cursor: pointer;
+}
+
+.switch [data-ormo-switch-input]:checked {
+  border-color: var(--surface-brand);
+  background: var(--surface-brand);
+}
+
+.switch [data-ormo-switch-input]:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.switch[data-readonly] [data-ormo-switch-input] {
+  cursor: default;
+}
+
+.switch:has([data-ormo-switch-input]:focus-visible) {
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 0 3px var(--focus-subtle);
+}
+
+.switch-thumb {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: var(--radius-full);
+  margin-inline-start: 0.1875rem;
+  background: var(--content-invert);
+  box-shadow: 0 1px 2px
+    color-mix(in srgb, var(--content-default) 24%, transparent);
+  transform: translateX(0);
+  transition: transform 140ms ease;
+}
+
+.switch[data-state="checked"] .switch-thumb,
+.switch [data-ormo-switch-input]:checked ~ .switch-thumb {
+  transform: translateX(1rem);
+}
+
+.switch-result {
+  min-height: 1.25rem;
+  color: var(--content-subtle);
+  font-size: var(--font-size-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switch-thumb {
+    transition: none;
+  }
+}

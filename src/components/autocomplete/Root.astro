@@ -12,6 +12,7 @@ const {
   form,
   defaultValue = "",
   disabled = false,
+  readOnly = false,
   required = false,
   autocomplete,
   filter = "contains",
@@ -29,6 +30,7 @@ const content = await renderWithAutocompleteContext(
     form,
     required,
     disabled,
+    readOnly,
     autocomplete,
     groupCount: 0,
   },
@@ -42,6 +44,7 @@ const content = await renderWithAutocompleteContext(
   data-ormo-autocomplete-root
   data-default-value={defaultValue}
   data-disabled={disabled ? "" : undefined}
+  data-readonly={readOnly ? "" : undefined}
   data-loading={loading ? "" : undefined}
   data-filter={filter}
   data-min-length={Math.max(0, minLength)}

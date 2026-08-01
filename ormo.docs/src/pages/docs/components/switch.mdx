@@ -1,0 +1,245 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Switch"
+description: "A control that indicates whether a setting is on or off."
+---
+
+import SwitchDemo from "../../../components/demos/Switch/SwitchDemo.astro";
+import switchDemoCode from "../../../components/demos/Switch/SwitchDemo.astro?raw";
+import SwitchFormDemo from "../../../components/demos/Switch/SwitchFormDemo.astro";
+import switchFormDemoCode from "../../../components/demos/Switch/SwitchFormDemo.astro?raw";
+import switchDemoCss from "../../../components/demos/Switch/index.css?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+<DemoBlock
+  files={[
+    { filename: "Switch.astro", code: switchDemoCode },
+    { filename: "index.css", code: switchDemoCss },
+  ]}
+>
+  <SwitchDemo />
+</DemoBlock>
+
+## Anatomy
+
+Use a switch for a setting that takes effect when it changes. Use a checkbox
+when the value is part of a form task or when the user must confirm it before
+submission.
+
+`Switch.Root` contains the native control. `Switch.Thumb` is decorative and
+shows the current position.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Switch from "@ormo/primitives/switch";
+---
+
+<label>
+  <Switch.Root name="notifications" defaultChecked>
+    <Switch.Thumb />
+  </Switch.Root>
+  Notifications
+</label>`}
+/>
+
+## Examples
+
+### Form validation
+
+The switch uses a native checkbox input. It supports native form submission,
+external form association, required validation, and reset. An off switch does
+not submit a value.
+
+<DemoBlock files={[{ filename: "SwitchForm.astro", code: switchFormDemoCode }]}>
+  <SwitchFormDemo />
+</DemoBlock>
+
+## API reference
+
+### Root
+
+`Switch.Root` renders an `<ormo-switch>` custom element with a native checkbox
+input. It owns state, form behaviour, and interaction.
+
+<PropsTable
+  id="switch-root-props"
+  caption="Switch Root properties"
+  rows={[
+    {
+      name: "id",
+      type: "string",
+      description: "Sets the native input id for a sibling label.",
+    },
+    {
+      name: "name",
+      type: "string",
+      description: "Names the submitted form value.",
+    },
+    {
+      name: "value",
+      type: "string | number",
+      defaultValue: '"on"',
+      description: "Sets the value submitted while the switch is on.",
+    },
+    {
+      name: "form",
+      type: "string",
+      description: "Associates the native input with a form by id.",
+    },
+    {
+      name: "defaultChecked",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Sets the initial on state.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Removes the switch from interaction and form submission.",
+    },
+    {
+      name: "readOnly",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Keeps the switch focusable but prevents state changes.",
+    },
+    {
+      name: "required",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Requires the switch to be on for native form validity.",
+    },
+    {
+      name: "aria-label",
+      type: "string",
+      description: "Names the native switch when no visible label is present.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the custom element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the custom element.",
+    },
+  ]}
+/>
+
+### Thumb
+
+`Switch.Thumb` renders an `aria-hidden` `<span>`. It indicates the current
+position and does not receive pointer input.
+
+<PropsTable
+  id="switch-thumb-props"
+  caption="Switch Thumb properties"
+  rows={[
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered span.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered span.",
+    },
+  ]}
+/>
+
+## JavaScript API
+
+The `<ormo-switch>` element exposes `checked`, `disabled`, `readOnly`,
+`required`, `name`, `value`, read-only `form`, read-only `valid`,
+`checkValidity()`, and `reportValidity()`.
+
+`ormo:switch-before-checked-change` fires before a user change. It is
+cancellable. `ormo:switch-checked-change` fires after user, programmatic, and
+reset changes. Both events bubble and cross shadow boundaries. Event detail
+includes `checked`, `previousChecked`, and `reason`.
+
+<CodeBlock
+  lang="js"
+  code={`const switchElement = document.querySelector("ormo-switch");
+
+switchElement.addEventListener("ormo:switch-checked-change", (event) => {
+console.log(event.detail.checked, event.detail.reason);
+});
+
+switchElement.checked = true;`}
+/>
+
+## Accessibility
+
+The native checkbox input has `role="switch"`. Give every switch an accessible
+name with a wrapping `<label>`, a sibling label with `for` and `id`,
+`aria-label`, or `aria-labelledby`.
+
+<PropsTable
+  id="switch-keyboard"
+  caption="Switch keyboard behaviour"
+  nameHeader="Key"
+  nameElement="kbd"
+  rows={[
+    {
+      name: "Tab",
+      type: "Focus",
+      description: "Moves focus to the switch.",
+    },
+    {
+      name: "Space",
+      type: "Activation",
+      description: "Changes the switch between on and off.",
+    },
+  ]}
+/>
+
+## Styling
+
+The switch ships no visual styles. Style `Switch.Root` and `Switch.Thumb` with
+classes. The native input is available through `[data-ormo-switch-input]`.
+
+<PropsTable
+  id="switch-styling"
+  caption="Switch styling hooks"
+  nameHeader="Hook"
+  rows={[
+    {
+      name: "data-state",
+      type: '"checked" | "unchecked"',
+      description: "Shows whether the switch is on or off.",
+      details: [{ label: "Element", value: "Root, input, Thumb" }],
+    },
+    {
+      name: "data-disabled",
+      type: "present",
+      description: "Shows that the switch is disabled.",
+      details: [{ label: "Element", value: "Root, input, Thumb" }],
+    },
+    {
+      name: "data-readonly",
+      type: "present",
+      description: "Shows that the switch is readonly.",
+      details: [{ label: "Element", value: "Root, input, Thumb" }],
+    },
+    {
+      name: "data-required",
+      type: "present",
+      description: "Shows that the switch is required.",
+      details: [{ label: "Element", value: "Root, input, Thumb" }],
+    },
+  ]}
+/>
+
+## Runtime
+
+The server renders a labelled native switch, its form state, and its styling
+hooks. JavaScript synchronises composed state, readonly interaction, events,
+and the DOM API. Without JavaScript, the native input remains focusable,
+toggleable, valid, and submittable.
