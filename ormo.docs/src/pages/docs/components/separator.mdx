@@ -1,0 +1,142 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Separator"
+description: "Visually or semantically separates sections of content."
+---
+
+import SeparatorDemo from "../../../components/demos/Separator/SeparatorDemo.astro";
+import separatorDemoCode from "../../../components/demos/Separator/SeparatorDemo.astro?raw";
+import separatorDemoCss from "../../../components/demos/Separator/index.css?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+<DemoBlock
+  files={[
+    { filename: "Separator.astro", code: separatorDemoCode },
+    { filename: "index.css", code: separatorDemoCss },
+  ]}
+>
+  <SeparatorDemo />
+</DemoBlock>
+
+## Anatomy
+
+Import `Separator` and place it between the sections that it divides. The default orientation is horizontal.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import { Separator } from "@ormo/primitives/separator";
+---
+
+<section>Account details</section>
+<Separator />
+<section>Billing details</section>`}
+/>
+
+## Examples
+
+### Vertical
+
+Set `orientation="vertical"` when the separator divides content from left to right. Give the separator a block size through its parent or CSS so the line is visible.
+
+<CodeBlock
+  lang="astro"
+  code={`<nav class="links" aria-label="Resource links">
+  <a href="/docs">Documentation</a>
+  <Separator orientation="vertical" class="vertical-rule" />
+  <a href="/support">Support</a>
+</nav>`}
+/>
+
+### Decorative
+
+Set `decorative` when the line does not communicate a content boundary. This changes the role to `none` and removes separator semantics from the accessibility tree.
+
+<CodeBlock
+  lang="astro"
+  code={`<span>Profile</span>
+<Separator decorative />
+<span>Settings</span>`}
+/>
+
+## API reference
+
+`Separator` renders a `<div>` and forwards its native attributes. It manages its role, accessible orientation, styling orientation, and component marker.
+
+<PropsTable
+  id="separator-props"
+  caption="Separator properties"
+  rows={[
+    {
+      name: "orientation",
+      type: '"horizontal" | "vertical"',
+      defaultValue: '"horizontal"',
+      description:
+        "Sets the direction in which the separator divides content and updates the accessible and styling orientation.",
+    },
+    {
+      name: "decorative",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Removes separator semantics when the line is only visual decoration.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered div.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered div.",
+    },
+  ]}
+/>
+
+## Accessibility
+
+A semantic separator has `role="separator"` and an `aria-orientation` value that matches `orientation`. It is static structure and does not receive focus or add keyboard behaviour. Use it only when the division helps a person understand the content structure.
+
+Use `decorative` when nearby layout, spacing, or content already communicates the grouping. Do not use this component as a draggable panel resize control. An interactive separator needs focus, a value, keyboard behaviour, and a controlled pane relationship.
+
+## Styling
+
+The separator ships no layout or brand styles. Add `class` or `style` to provide its thickness, length, colour, and spacing. Use the public `data-orientation` attribute to style both orientations. `data-ormo-separator` is an internal ownership marker rather than a styling API.
+
+<PropsTable
+  id="separator-styling"
+  caption="Separator styling hooks"
+  nameHeader="Hook"
+  rows={[
+    {
+      name: "data-orientation",
+      type: '"horizontal" | "vertical"',
+      description: "Identifies the separator orientation.",
+      details: [{ label: "Element", value: "Separator" }],
+    },
+  ]}
+/>
+
+<CodeBlock
+  lang="css"
+  code={`.separator {
+  background: currentColor;
+}
+
+.separator[data-orientation="horizontal"] {
+width: 100%;
+height: 1px;
+}
+
+.separator[data-orientation="vertical"] {
+align-self: stretch;
+width: 1px;
+}`}
+/>
+
+## Runtime
+
+`Separator` renders one `<div>` on the server and ships no client JavaScript. Its semantic or decorative role and orientation remain available without JavaScript.

@@ -348,6 +348,17 @@
       ]
     },
     {
+      "id": "separator",
+      "label": "Separator",
+      "status": "beta",
+      "runtimeModel": "static",
+      "parts": ["Separator"],
+      "runtime": [],
+      "ssrContext": null,
+      "behaviourCss": [],
+      "tests": ["tests/unit/separator.astro.test.ts"]
+    },
+    {
       "id": "switch",
       "label": "Switch",
       "status": "dev",

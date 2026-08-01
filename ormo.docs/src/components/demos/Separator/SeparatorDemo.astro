@@ -1,0 +1,21 @@
+---
+import { Separator } from "@ormo/primitives/separator";
+import "./index.css";
+---
+
+<article class="separator-demo" data-separator-demo>
+  <section>
+    <h2 class="separator-title">Build accessible interfaces</h2>
+    <p class="separator-copy">
+      Use small, unstyled parts as the foundation for your design system.
+    </p>
+  </section>
+
+  <Separator class="separator-horizontal" />
+
+  <footer class="separator-links" aria-label="Resource links">
+    <a href="/docs/">Documentation</a>
+    <Separator class="separator-vertical" orientation="vertical" decorative />
+    <a href="https://github.com/">Source</a>
+  </footer>
+</article>

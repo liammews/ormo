@@ -1,0 +1,30 @@
+---
+import type { SeparatorProps } from "./types";
+
+type Props = SeparatorProps;
+
+const {
+  decorative = false,
+  orientation = "horizontal",
+  role: authoredRole,
+  "aria-orientation": authoredAriaOrientation,
+  "data-orientation": authoredDataOrientation,
+  "data-ormo-separator": authoredMarker,
+  ...attributes
+} = Astro.props;
+void [
+  authoredRole,
+  authoredAriaOrientation,
+  authoredDataOrientation,
+  authoredMarker,
+];
+---
+
+<div
+  {...attributes}
+  role={decorative ? "none" : "separator"}
+  aria-orientation={decorative ? undefined : orientation}
+  data-orientation={orientation}
+  data-ormo-separator
+>
+</div>

@@ -1,0 +1,15 @@
+---
+import { Separator } from "@ormo/primitives/separator";
+import SeparatorDemo from "../../../components/demos/Separator/SeparatorDemo.astro";
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+---
+
+<BrowserFixtureLayout title="Separator">
+  <SeparatorDemo />
+
+  <div data-separator-orientation-demo>
+    <p>First section</p>
+    <Separator orientation="vertical" data-vertical-separator />
+    <p>Second section</p>
+  </div>
+</BrowserFixtureLayout>

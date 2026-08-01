@@ -1,0 +1,21 @@
+---
+import { Separator } from "../../../src/components/separator";
+---
+
+<section aria-label="Article sections">
+  <p>Introduction</p>
+  <Separator id="section-separator" class="rule" />
+  <p>Details</p>
+</section>
+
+<nav aria-label="Related pages">
+  <a href="/previous">Previous</a>
+  <Separator orientation="vertical" />
+  <a href="/next">Next</a>
+</nav>
+
+<div aria-label="Decorative example">
+  <span>Profile</span>
+  <Separator decorative />
+  <span>Settings</span>
+</div>

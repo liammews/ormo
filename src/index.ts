@@ -50,4 +50,9 @@ export * as Field from "./components/field/index";
 export * as Fieldset from "./components/fieldset/index";
 export { Input } from "./components/input/index";
 export type { InputProps, InputType } from "./components/input/types";
+export { Separator } from "./components/separator/index";
+export type {
+  SeparatorOrientation,
+  SeparatorProps,
+} from "./components/separator/types";
 export * as Switch from "./components/switch/index";

@@ -98,6 +98,10 @@
       "types": "./src/components/select/floating.ts",
       "import": "./src/components/select/floating.ts"
     },
+    "./separator": {
+      "types": "./src/components/separator/index.ts",
+      "import": "./src/components/separator/index.ts"
+    },
     "./switch": {
       "types": "./src/components/switch/index.ts",
       "import": "./src/components/switch/index.ts"
