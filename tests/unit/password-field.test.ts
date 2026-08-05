@@ -35,7 +35,6 @@ function createPasswordField({
         type="button"
         aria-controls="password"
         aria-label="Show password"
-        aria-pressed="false"
         data-ormo-password-field-toggle
         data-show-label="Show password"
         data-hide-label="Hide password"
@@ -71,7 +70,7 @@ describe("Password Field", () => {
     expect(root.visible).toBe(true);
     expect(input.type).toBe("text");
     expect(input.value).toBe("correct horse battery staple");
-    expect(toggle.getAttribute("aria-pressed")).toBe("true");
+    expect(toggle.hasAttribute("aria-pressed")).toBe(false);
     expect(toggle.getAttribute("aria-label")).toBe("Hide password");
     expect(change.mock.calls[0]?.[0].detail).toEqual({
       previousVisible: false,
@@ -156,6 +155,29 @@ describe("Password Field", () => {
     await nextMutation();
     expect(toggle.disabled).toBe(true);
     expect(toggle.hasAttribute("data-disabled")).toBe(true);
+  });
+
+  it("preserves an authored disabled toggle", () => {
+    const root = createPasswordField();
+    const form = root.closest("form")!;
+    const toggle = root.querySelector("button")!;
+    root.remove();
+    toggle.disabled = true;
+    form.append(root);
+
+    expect(toggle.disabled).toBe(true);
+    expect(toggle.hasAttribute("data-disabled")).toBe(true);
+  });
+
+  it("masks an input removed while visible", async () => {
+    const root = createPasswordField();
+    const input = root.querySelector("input")!;
+    root.visible = true;
+
+    input.remove();
+    await nextMutation();
+
+    expect(input.type).toBe("password");
   });
 
   it("scopes interaction to the owning nested root", () => {

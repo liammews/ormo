@@ -376,7 +376,7 @@
     {
       "id": "password-field",
       "label": "Password Field",
-      "status": "dev",
+      "status": "beta",
       "runtimeModel": "custom-element",
       "parts": ["Input", "Root", "Toggle"],
       "runtime": ["src/runtime/password-field.ts"],

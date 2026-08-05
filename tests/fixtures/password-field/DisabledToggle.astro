@@ -1,0 +1,17 @@
+---
+import * as PasswordField from "../../../src/components/password-field";
+---
+
+<PasswordField.Root>
+  <PasswordField.Input
+    aria-label="Account password"
+    autocomplete="current-password"
+  />
+  <PasswordField.Toggle
+    showLabel="Show password"
+    hideLabel="Hide password"
+    disabled
+  >
+    Visibility
+  </PasswordField.Toggle>
+</PasswordField.Root>

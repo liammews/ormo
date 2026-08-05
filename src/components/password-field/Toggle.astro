@@ -7,7 +7,6 @@ type ManagedAttributes = {
   type?: unknown;
   "aria-controls"?: unknown;
   "aria-label"?: unknown;
-  "aria-pressed"?: unknown;
   "data-ormo-password-field-toggle"?: unknown;
   "data-show-label"?: unknown;
   "data-hide-label"?: unknown;
@@ -25,7 +24,6 @@ const {
   type: authoredType,
   "aria-controls": authoredControls,
   "aria-label": authoredLabel,
-  "aria-pressed": authoredPressed,
   "data-ormo-password-field-toggle": authoredMarker,
   "data-show-label": authoredShowLabel,
   "data-hide-label": authoredHideLabel,
@@ -38,7 +36,6 @@ void [
   authoredType,
   authoredControls,
   authoredLabel,
-  authoredPressed,
   authoredMarker,
   authoredShowLabel,
   authoredHideLabel,
@@ -61,7 +58,6 @@ const disabled = Boolean(authoredDisabled || context?.inputDisabled);
       disabled={disabled || undefined}
       aria-controls={context.inputId}
       aria-label={visible ? hideLabel : showLabel}
-      aria-pressed={visible ? "true" : "false"}
       data-ormo-password-field-toggle
       data-show-label={showLabel}
       data-hide-label={hideLabel}

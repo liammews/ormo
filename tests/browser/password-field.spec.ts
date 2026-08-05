@@ -33,7 +33,7 @@ test("reveals and masks the same native input without exposing its value", async
   await expect(input).toHaveValue("correct horse battery staple");
   await expect(input).toBeFocused();
   await expect(toggle).toHaveAttribute("aria-label", "Hide password");
-  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await expect(toggle).not.toHaveAttribute("aria-pressed");
   await expect(root).not.toHaveAttribute("value", /.+/);
   await expect(input).not.toHaveAttribute("value", /.+/);
 });
@@ -76,6 +76,22 @@ test("preserves native validation, form data, and autocomplete", async ({
       })),
     )
     .toEqual({ password: "pasted password", valid: true });
+});
+
+test("masks a visible input when it is removed", async ({ page }) => {
+  const root = page.locator("[data-ormo-password-field-root]");
+  const input = root.locator("[data-ormo-password-field-input]");
+  const toggle = root.locator("[data-ormo-password-field-toggle]");
+
+  await input.fill("removed password");
+  await toggle.click();
+  const removedType = await input.evaluate(async (element) => {
+    element.remove();
+    await new Promise<void>((resolve) => queueMicrotask(resolve));
+    return (element as HTMLInputElement).type;
+  });
+
+  expect(removedType).toBe("password");
 });
 
 test("has no automatically detectable accessibility violations", async ({

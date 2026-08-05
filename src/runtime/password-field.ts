@@ -145,6 +145,7 @@ export class OrmoPasswordField extends HTMLElement {
     this.#visible = false;
     this.#sync();
     this.removeAttribute("data-enhanced");
+    this.#authoredAttributes.clear();
   }
 
   get #input(): HTMLInputElement | undefined {
@@ -197,7 +198,6 @@ export class OrmoPasswordField extends HTMLElement {
       this.#snapshot(this.#toggle, [
         "aria-controls",
         "aria-label",
-        "aria-pressed",
         "disabled",
         "data-state",
         "data-visible",
@@ -213,7 +213,11 @@ export class OrmoPasswordField extends HTMLElement {
         else element.setAttribute(name, value);
       }
     }
-    this.#authoredAttributes.clear();
+  }
+
+  #wasAuthored(element: Element, name: string): boolean {
+    const value = this.#authoredAttributes.get(element)?.get(name);
+    return value !== undefined && value !== null;
   }
 
   #bindForm(): void {
@@ -281,15 +285,15 @@ export class OrmoPasswordField extends HTMLElement {
     if (toggle) {
       toggle.type = "button";
       toggle.setAttribute("aria-controls", input.id);
-      toggle.setAttribute("aria-pressed", String(visible));
       toggle.setAttribute(
         "aria-label",
         visible
           ? (toggle.dataset.hideLabel ?? "")
           : (toggle.dataset.showLabel ?? ""),
       );
-      toggle.disabled = input.disabled;
-      toggle.toggleAttribute("data-disabled", input.disabled);
+      const disabled = input.disabled || this.#wasAuthored(toggle, "disabled");
+      toggle.disabled = disabled;
+      toggle.toggleAttribute("data-disabled", disabled);
     }
   }
 
@@ -303,6 +307,20 @@ export class OrmoPasswordField extends HTMLElement {
   };
 
   #onMutation = (records: MutationRecord[]): void => {
+    for (const record of records) {
+      for (const node of record.removedNodes) {
+        if (!(node instanceof Element)) continue;
+        const removedInputs = [
+          ...(node.matches(inputSelector) ? [node] : []),
+          ...node.querySelectorAll(inputSelector),
+        ];
+        for (const removedInput of removedInputs) {
+          if (!this.#authoredAttributes.has(removedInput)) continue;
+          if (removedInput instanceof HTMLInputElement)
+            removedInput.type = "password";
+        }
+      }
+    }
     const input = this.#input;
     const needsSync = records.some(
       (record) =>

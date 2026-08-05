@@ -10,6 +10,7 @@ import type {
   PasswordFieldToggleProps,
   PasswordVisibilityChangeDetail,
 } from "../../src/components/password-field/types";
+import DisabledToggle from "../fixtures/password-field/DisabledToggle.astro";
 import Default from "../fixtures/password-field/Default.astro";
 import Visible from "../fixtures/password-field/Visible.astro";
 import { findOpeningTag } from "./helpers/astro";
@@ -49,7 +50,7 @@ describe("Password Field markup", () => {
     expect(input).toContain('autocorrect="off"');
     expect(toggle).toContain('type="button"');
     expect(toggle).toContain('aria-label="Show password"');
-    expect(toggle).toContain('aria-pressed="false"');
+    expect(toggle).not.toContain("aria-pressed");
     expect(toggle).toContain('aria-controls="ormo-field-');
     expect(html).toContain("<script");
   });
@@ -86,7 +87,19 @@ describe("Password Field markup", () => {
     expect(html).toContain('data-state="visible"');
     expect(input).toContain('type="text"');
     expect(toggle).toContain('aria-label="Hide password"');
-    expect(toggle).toContain('aria-pressed="true"');
+    expect(toggle).not.toContain("aria-pressed");
+  });
+
+  it("renders an authored disabled toggle", async () => {
+    const html = await container.renderToString(DisabledToggle);
+    const toggle = findOpeningTag(
+      html,
+      "button",
+      "data-ormo-password-field-toggle",
+    );
+
+    expect(toggle).toContain("disabled");
+    expect(toggle).toContain("data-disabled");
   });
 
   it("does not render orphaned parts", async () => {
@@ -117,7 +130,7 @@ describe("Password Field markup", () => {
     expect(toggle.match(/\stype=/g)).toHaveLength(1);
     expect(toggle.match(/aria-controls=/g)).toHaveLength(1);
     expect(toggle.match(/aria-label=/g)).toHaveLength(1);
-    expect(toggle.match(/aria-pressed=/g)).toHaveLength(1);
+    expect(toggle).not.toContain("aria-pressed");
   });
 });
 
