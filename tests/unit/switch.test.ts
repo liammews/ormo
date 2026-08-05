@@ -47,6 +47,54 @@ describe("Switch", () => {
     expect(root.checked).toBe(false);
     expect(input.disabled).toBe(false);
     expect(root.hasAttribute("data-readonly")).toBe(true);
+    expect(input.getAttribute("aria-readonly")).toBe("true");
+  });
+
+  it("restores readonly state without native click rollback", async () => {
+    const root = createSwitch();
+    root.readOnly = true;
+    const input = root.querySelector<HTMLInputElement>("input")!;
+    input.addEventListener("click", () => {
+      input.checked = true;
+    });
+    input.click();
+    await new Promise<void>((resolve) => queueMicrotask(resolve));
+    expect(root.checked).toBe(false);
+    expect(root.dataset.state).toBe("unchecked");
+  });
+
+  it("initialises replaced parts and ignores nested switch parts", async () => {
+    const root = createSwitch();
+    const nested = document.createElement("ormo-switch");
+    nested.innerHTML = `
+      <input type="checkbox" aria-label="Nested" data-ormo-switch-input>
+      <span data-ormo-switch-thumb></span>
+    `;
+    root.append(nested);
+    const replacement = document.createElement("span");
+    replacement.setAttribute("data-ormo-switch-thumb", "");
+    root
+      .querySelector(":scope > [data-ormo-switch-thumb]")
+      ?.replaceWith(replacement);
+    await new Promise<void>((resolve) => queueMicrotask(resolve));
+    root.checked = true;
+    expect(replacement.dataset.state).toBe("checked");
+    expect(nested.querySelector("span")?.dataset.state).toBe("unchecked");
+  });
+
+  it("follows a form owner established after connection", async () => {
+    const root = createSwitch();
+    const input = root.querySelector<HTMLInputElement>("input")!;
+    input.setAttribute("form", "settings");
+    input.defaultChecked = true;
+    input.checked = false;
+    const form = document.createElement("form");
+    form.id = "settings";
+    document.body.append(form);
+    form.reset();
+    await new Promise<void>((resolve) => queueMicrotask(resolve));
+    expect(root.checked).toBe(true);
+    expect(root.dataset.state).toBe("checked");
   });
 
   it("exposes programmatic state, form properties, and validity", () => {

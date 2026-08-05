@@ -5,6 +5,16 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/test-fixtures/browser/switch/");
 });
 
+test("keeps the documentation demo readonly on its first pointer input", async ({
+  page,
+}) => {
+  await page.goto("/docs/components/switch/");
+  const demo = page.locator("[data-switch-demo]");
+  const readOnly = demo.getByRole("switch", { name: "Usage analytics" });
+  await readOnly.click();
+  await expect(readOnly).not.toBeChecked();
+});
+
 test("toggles with pointer and Space and synchronises the thumb", async ({
   page,
 }) => {
@@ -27,10 +37,15 @@ test("keeps readonly focusable and disabled unavailable", async ({ page }) => {
   const demo = page.locator("[data-switch-demo]");
   const readOnly = demo.getByRole("switch", { name: "Usage analytics" });
   const disabled = demo.getByRole("switch", { name: "Legacy integration" });
+  await readOnly.click();
+  await expect(readOnly).not.toBeChecked();
   await readOnly.focus();
   await expect(readOnly).toBeFocused();
   await readOnly.press("Space");
   await expect(readOnly).not.toBeChecked();
+  await readOnly.locator("xpath=ancestor::label").click();
+  await expect(readOnly).not.toBeChecked();
+  await expect(readOnly).toHaveAttribute("aria-readonly", "true");
   await expect(disabled).toBeDisabled();
 });
 
@@ -91,5 +106,12 @@ test.describe("without JavaScript", () => {
       new FormData(element).get("backups"),
     );
     expect(value).toBe("enabled");
+  });
+
+  test("keeps readonly immutable before enhancement", async ({ page }) => {
+    const control = page.getByRole("switch", { name: "Usage analytics" });
+    await expect(control).toBeDisabled();
+    await control.locator("xpath=ancestor::label").click({ force: true });
+    await expect(control).not.toBeChecked();
   });
 });

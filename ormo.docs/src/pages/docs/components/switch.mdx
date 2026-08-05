@@ -241,5 +241,6 @@ classes. The native input is available through `[data-ormo-switch-input]`.
 
 The server renders a labelled native switch, its form state, and its styling
 hooks. JavaScript synchronises composed state, readonly interaction, events,
-and the DOM API. Without JavaScript, the native input remains focusable,
-toggleable, valid, and submittable.
+and the DOM API. Before JavaScript loads, a readonly switch is disabled so it
+cannot change. Enhancement makes it focusable while keeping it immutable.
+Other switches remain toggleable, valid, and submittable without JavaScript.

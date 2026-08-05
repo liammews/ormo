@@ -4,3 +4,9 @@
 :where([data-ormo-switch-thumb]) {
   pointer-events: none;
 }
+
+/* The SSR input is disabled until the runtime can enforce the focusable
+   readonly state. */
+:where([data-ormo-switch-readonly-fallback]) {
+  cursor: default;
+}

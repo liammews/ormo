@@ -8,6 +8,11 @@ import "./switch.css";
 const tagName = "ormo-switch";
 const inputSelector = "[data-ormo-switch-input]";
 const thumbSelector = "[data-ormo-switch-thumb]";
+const readOnlyFallbackAttribute = "data-ormo-switch-readonly-fallback";
+
+function isOwnedBy(root: HTMLElement, element: Element): boolean {
+  return element.closest(tagName) === root;
+}
 
 function hasAccessibleName(input: HTMLInputElement): boolean {
   if (input.getAttribute("aria-label")?.trim()) return true;
@@ -44,6 +49,8 @@ export function validateSwitch(root: HTMLElement): void {
 
 export class OrmoSwitch extends HTMLElement {
   #controller: AbortController | undefined;
+  #observer: MutationObserver | undefined;
+  #managedInput: HTMLInputElement | undefined;
   #lastChecked = false;
   #authoredAttributes = new Map<Element, Map<string, string | null>>();
 
@@ -58,41 +65,37 @@ export class OrmoSwitch extends HTMLElement {
       "data-readonly",
       "data-required",
     ]);
-    if (!this.#input) return;
-    this.#snapshot(this.#input, [
-      "data-state",
-      "data-disabled",
-      "data-readonly",
-      "data-required",
-    ]);
-    for (const thumb of this.#thumbs)
-      this.#snapshot(thumb, [
-        "data-state",
-        "data-disabled",
-        "data-readonly",
-        "data-required",
-      ]);
-    this.#lastChecked = this.#input.checked;
-    this.#input.addEventListener("click", this.#onClick, { signal });
-    this.#input.addEventListener("input", this.#onInput, { signal });
-    this.#input.form?.addEventListener("reset", this.#onReset, { signal });
-    this.setAttribute("data-enhanced", "");
-    this.#sync();
+    this.addEventListener("click", this.#onClick, { capture: true, signal });
+    this.addEventListener("input", this.#onInput, { signal });
+    this.ownerDocument.addEventListener("reset", this.#onReset, {
+      capture: true,
+      signal,
+    });
+    this.#observer = new MutationObserver(this.#prepare);
+    this.#observer.observe(this, { childList: true, subtree: true });
+    this.#prepare();
     validateSwitch(this);
   }
 
   disconnectedCallback(): void {
     this.#controller?.abort();
     this.#controller = undefined;
+    this.#observer?.disconnect();
+    this.#observer = undefined;
+    this.#managedInput = undefined;
     this.#restore();
   }
 
   get #input(): HTMLInputElement | undefined {
-    return this.querySelector<HTMLInputElement>(inputSelector) ?? undefined;
+    return Array.from(
+      this.querySelectorAll<HTMLInputElement>(inputSelector),
+    ).find((input) => isOwnedBy(this, input));
   }
 
   get #thumbs(): HTMLElement[] {
-    return Array.from(this.querySelectorAll<HTMLElement>(thumbSelector));
+    return Array.from(this.querySelectorAll<HTMLElement>(thumbSelector)).filter(
+      (thumb) => isOwnedBy(this, thumb),
+    );
   }
 
   get checked(): boolean {
@@ -181,6 +184,40 @@ export class OrmoSwitch extends HTMLElement {
     this.#authoredAttributes.clear();
   }
 
+  #prepare = (): void => {
+    const input = this.#input;
+    if (!input) {
+      this.#managedInput = undefined;
+      this.removeAttribute("data-enhanced");
+      return;
+    }
+    if (input !== this.#managedInput) {
+      this.#snapshot(input, [
+        "disabled",
+        "aria-readonly",
+        "data-state",
+        "data-disabled",
+        "data-readonly",
+        "data-required",
+      ]);
+      if (input.hasAttribute(readOnlyFallbackAttribute)) {
+        input.disabled = false;
+      }
+      this.#managedInput = input;
+      this.#lastChecked = input.checked;
+    }
+    for (const thumb of this.#thumbs) {
+      this.#snapshot(thumb, [
+        "data-state",
+        "data-disabled",
+        "data-readonly",
+        "data-required",
+      ]);
+    }
+    this.setAttribute("data-enhanced", "");
+    this.#sync();
+  };
+
   #sync(): void {
     const input = this.#input;
     if (!input) return;
@@ -194,6 +231,7 @@ export class OrmoSwitch extends HTMLElement {
       element.toggleAttribute("data-readonly", readOnly);
       element.toggleAttribute("data-required", required);
     }
+    input.setAttribute("aria-readonly", String(readOnly));
   }
 
   #before(previousChecked: boolean): boolean {
@@ -228,21 +266,32 @@ export class OrmoSwitch extends HTMLElement {
   }
 
   #onClick = (event: MouseEvent): void => {
+    const input = this.#input;
+    if (event.target !== input) return;
     const previousChecked = !this.checked;
     if (this.readOnly || !this.#before(previousChecked)) {
       event.preventDefault();
-      queueMicrotask(() => this.#sync());
+      input.checked = previousChecked;
+      this.#lastChecked = previousChecked;
+      this.#sync();
+      queueMicrotask(() => {
+        input.checked = previousChecked;
+        this.#lastChecked = previousChecked;
+        this.#sync();
+      });
     }
   };
 
-  #onInput = (): void => {
+  #onInput = (event: Event): void => {
+    if (event.target !== this.#input) return;
     const previousChecked = this.#lastChecked;
     this.#lastChecked = this.checked;
     this.#sync();
     this.#emit(previousChecked, "user");
   };
 
-  #onReset = (): void => {
+  #onReset = (event: Event): void => {
+    if (event.target !== this.#input?.form) return;
     const previousChecked = this.checked;
     queueMicrotask(() => {
       this.#lastChecked = this.checked;
