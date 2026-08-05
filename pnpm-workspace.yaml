@@ -3,3 +3,6 @@ packages:
 
 allowBuilds:
   esbuild: true
+
+overrides:
+  cookie: 1.0.2

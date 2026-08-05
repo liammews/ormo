@@ -10,6 +10,8 @@ import AutocompleteAsyncDemo from "../../../components/demos/Autocomplete/Autoco
 import asyncCode from "../../../components/demos/Autocomplete/AutocompleteAsyncDemo.astro?raw";
 import AutocompleteFormDemo from "../../../components/demos/Autocomplete/AutocompleteFormDemo.astro";
 import formCode from "../../../components/demos/Autocomplete/AutocompleteFormDemo.astro?raw";
+import AutocompleteFilteringDemo from "../../../components/demos/Autocomplete/AutocompleteFilteringDemo.astro";
+import filteringCode from "../../../components/demos/Autocomplete/AutocompleteFilteringDemo.astro?raw";
 import demoCss from "../../../components/demos/Autocomplete/index.css?raw";
 import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
 import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
@@ -45,6 +47,12 @@ need to match an item.
 
 ## Examples
 
+### Choose autocomplete or combobox
+
+Use autocomplete when all text is valid and suggestions only help the user.
+Use [Combobox](/docs/components/combobox/) when the value must identify one
+item in a known collection.
+
 ### Async suggestions
 
 Use `filter="none"` when application code owns results. The primitive owns
@@ -64,7 +72,30 @@ submission, and reset continue to work without mirrored state.
   <AutocompleteFormDemo />
 </DemoBlock>
 
+### Filtering, aliases, and disabled items
+
+Use `filter="startsWith"` for prefix matching. `keywords` add search aliases.
+`textValue` supplies searchable plain text when an item has rich content.
+`minLength` keeps the popup closed until the query is long enough.
+
+Matching ignores case and repeated whitespace. It is not
+diacritic-insensitive: `cafe` does not match `Café`.
+
+<DemoBlock
+  files={[{ filename: "AutocompleteFiltering.astro", code: filteringCode }]}
+>
+  <AutocompleteFilteringDemo />
+</DemoBlock>
+
 ## API reference
+
+All parts accept `class` and `style`. They forward relevant native attributes
+unless noted otherwise.
+
+### Root
+
+`Autocomplete.Root` renders `<ormo-autocomplete>`. It owns value, filtering,
+open state, and coordination between parts.
 
 <PropsTable
   id="autocomplete-root-props"
@@ -132,21 +163,130 @@ submission, and reset continue to work without mirrored state.
   ]}
 />
 
-`Item` accepts `value`, optional `identifier`, `textValue`, `keywords`, and
-`disabled`. Value is inserted and submitted. Identifier is event metadata only.
-`Clear` is shown only while text exists. `Loading` replaces Empty while the
-root is loading.
+### Input
 
-## Browser API and events
+`Autocomplete.Input` renders the native text `<input>` and submitted control.
+It accepts `placeholder`, `id`, `aria-label`, `aria-labelledby`, and relevant
+native text-input attributes. `Root` owns `name`, `form`, `required`,
+`disabled`, `readonly`, `autocomplete`, and the initial value.
+
+### Clear
+
+`Autocomplete.Clear` renders `<button type="button">`. Give it an accessible
+name. It stays hidden while the input is empty. Its native `disabled` prop
+permanently disables this action.
+
+### Content
+
+`Autocomplete.Content` renders the listbox popup.
+
+<PropsTable
+  id="autocomplete-content-props"
+  caption="Autocomplete Content properties"
+  rows={[
+    {
+      name: "side",
+      type: '"top" | "right" | "bottom" | "left"',
+      defaultValue: '"bottom"',
+      description: "Sets the preferred popup side.",
+    },
+    {
+      name: "align",
+      type: '"start" | "center" | "end"',
+      defaultValue: '"start"',
+      description: "Sets alignment on the selected side.",
+    },
+    {
+      name: "sideOffset",
+      type: "number",
+      defaultValue: "0",
+      description: "Sets the gap from the input in pixels.",
+    },
+  ]}
+/>
+
+### Item
+
+`Autocomplete.Item` renders `role="option"`.
+
+<PropsTable
+  id="autocomplete-item-props"
+  caption="Autocomplete Item properties"
+  rows={[
+    {
+      name: "value",
+      type: "string",
+      description: "Sets text inserted into the input.",
+      details: [{ label: "Required", value: "Yes" }],
+    },
+    {
+      name: "identifier",
+      type: "string",
+      description:
+        "Adds event metadata. It does not affect selection and does not need to be unique.",
+    },
+    {
+      name: "textValue",
+      type: "string",
+      description: "Overrides searchable text for rich item content.",
+    },
+    {
+      name: "keywords",
+      type: "string[]",
+      defaultValue: "[]",
+      description: "Adds searchable aliases.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Prevents highlight and selection.",
+    },
+  ]}
+/>
+
+Duplicate values and identifiers are valid. Events report the selected item’s
+metadata. Consumers that need a unique identity must author unique identifiers.
+
+### Group and GroupLabel
+
+`Autocomplete.Group` renders `role="group"`. Add one
+`Autocomplete.GroupLabel` to every group. The label supplies the accessible
+group name. The runtime hides a group when none of its items match.
+
+### Separator
+
+`Autocomplete.Separator` renders an accessibility-hidden separator. It does
+not participate in keyboard navigation.
+
+### Loading and Empty
+
+`Autocomplete.Loading` and `Autocomplete.Empty` render disabled options.
+Loading also contains a polite status region. `loading` replaces Empty and
+sets `aria-busy` on Content.
+
+## JavaScript API
 
 The root exposes `value`, `disabled`, `readOnly`, `loading`, read-only `open`,
-and `show()`, `hide()`, and `toggle(force?)`.
+and `show()`, `hide()`, and `toggle(force?)`. Set these properties for runtime
+state changes. Direct `value` assignment emits the non-cancellable value-change
+event with reason `programmatic`; it does not emit native input or change
+events.
 
-Value changes use `ormo:autocomplete-before-value-change` and
-`ormo:autocomplete-value-change`. Suggestion selection additionally emits
-`ormo:autocomplete-select`; popup changes emit
-`ormo:autocomplete-open-change`. Reasons are `input`, `item`, `clear`, and
-`programmatic`.
+`ormo:autocomplete-before-value-change` bubbles, crosses component boundaries,
+and is cancellable. It runs before input, item, or clear changes. Its detail is
+`{ value, previousValue, reason, identifier? }`.
+
+`ormo:autocomplete-value-change` follows a completed value change. Item and
+clear actions also dispatch native `input` and `change` events on the input.
+`ormo:autocomplete-select` reports `{ value, identifier? }`.
+`ormo:autocomplete-open-change` reports `{ open, reason }`. Open reasons include
+`input`, `escape`, `outside`, `tab`, `selection`, and `programmatic`.
+
+Child insertion and removal, item text, `value`, `textValue`, `keywords`, and
+`disabled`, and root `loading`, `filter`, and `minLength` changes are observed.
+Use root properties for `disabled`, `readOnly`, and `loading` so state changes
+are atomic.
 
 For Floating UI, load the adapter from a client script:
 
@@ -158,14 +298,64 @@ For Floating UI, load the adapter from a client script:
 
 ## Accessibility and keyboard
 
-Focus remains on Input while `aria-activedescendant` identifies a highlighted
-suggestion. Arrow keys navigate, Enter accepts a highlighted suggestion,
-Escape and Tab dismiss without reverting text, and normal text-editing keys
-retain native behavior. IME input is processed after composition commits.
-Loading is announced politely and Content exposes `aria-busy`.
+Focus remains on `Autocomplete.Input`. `aria-activedescendant` identifies a
+highlighted suggestion. Navigation clamps at the first and last enabled,
+visible item. Pointer exit keeps the last pointer-highlighted item active.
+
+<PropsTable
+  id="autocomplete-keyboard"
+  caption="Autocomplete keyboard behaviour"
+  nameHeader="Key"
+  nameElement="kbd"
+  rows={[
+    {
+      name: "Arrow Down",
+      type: "Navigate",
+      description:
+        "Opens the popup and highlights the first item, or moves to the next item.",
+    },
+    {
+      name: "Arrow Up",
+      type: "Navigate",
+      description:
+        "Opens the popup and highlights the last item, or moves to the previous item.",
+    },
+    {
+      name: "Enter",
+      type: "Select",
+      description:
+        "Accepts the highlighted item. With no highlight, native form submission continues.",
+    },
+    {
+      name: "Escape",
+      type: "Dismiss",
+      description: "Closes the popup without reverting text.",
+    },
+    {
+      name: "Tab",
+      type: "Focus",
+      description: "Closes the popup and continues native focus movement.",
+    },
+  ]}
+/>
+
+IME input is processed once composition commits. Loading is announced politely
+and Content exposes `aria-busy`. Authors must give the input an accessible name
+and every group a label.
+
+## Styling
+
+The primitive includes behaviour CSS only. Use `class` on each part for layout
+and visual design. Public hooks are `data-state="open|closed"` on Root, Input,
+and Content; `data-open` on Root and Content; `data-disabled` and
+`data-readonly`; `data-highlighted` on Item; and `data-filtered` on Root.
+Content receives `--ormo-autocomplete-trigger-width` and
+`--ormo-autocomplete-trigger-height` while open.
 
 ## Runtime
 
 Without JavaScript the native text input remains visible, valid, and
 submittable. Suggestion content and custom actions stay hidden until the custom
-element enhances them.
+element enhances them. Native Popover API support provides outside dismissal.
+The fallback keeps the popup usable but does not reproduce equivalent outside
+dismissal. Test that fallback if you support browsers without the Popover API.

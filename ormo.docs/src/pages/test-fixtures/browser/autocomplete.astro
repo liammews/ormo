@@ -3,10 +3,16 @@ import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
 import AutocompleteDemo from "../../../components/demos/Autocomplete/AutocompleteDemo.astro";
 import AutocompleteAsyncDemo from "../../../components/demos/Autocomplete/AutocompleteAsyncDemo.astro";
 import AutocompleteFormDemo from "../../../components/demos/Autocomplete/AutocompleteFormDemo.astro";
+import AutocompleteFilteringDemo from "../../../components/demos/Autocomplete/AutocompleteFilteringDemo.astro";
 ---
 
 <BrowserFixtureLayout title="Autocomplete">
   <div data-autocomplete-demo="default"><AutocompleteDemo /></div>
   <div data-autocomplete-demo="async"><AutocompleteAsyncDemo /></div>
   <div data-autocomplete-demo="form"><AutocompleteFormDemo /></div>
+  <div data-autocomplete-demo="filtering"><AutocompleteFilteringDemo /></div>
 </BrowserFixtureLayout>
+
+<script>
+  import "@ormo/primitives/autocomplete/floating";
+</script>

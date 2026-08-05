@@ -2,6 +2,6 @@
 "@ormo/primitives": minor
 ---
 
-Add a freeform Autocomplete primitive with local and externally managed
-suggestions, async loading states, native form behavior, accessible keyboard
-navigation, and optional Floating UI positioning.
+Add the beta Autocomplete primitive with freeform text, local and externally
+managed suggestions, async loading states, native form behaviour, accessible
+keyboard navigation, and optional Floating UI positioning.

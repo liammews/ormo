@@ -73,6 +73,9 @@ function itemKeywords(item: HTMLElement): string[] {
 function isDisabled(item: HTMLElement): boolean {
   return item.hasAttribute("data-disabled");
 }
+function isOwnedBy(root: HTMLElement, element: Element): boolean {
+  return element.closest(tagName) === root;
+}
 function side(value?: string): AutocompleteSide {
   return value === "top" || value === "right" || value === "left"
     ? value
@@ -90,7 +93,9 @@ function offset(content: HTMLElement): number {
 
 export function validateAutocomplete(root: HTMLElement): void {
   if (!import.meta.env.DEV) return;
-  const input = root.querySelector<HTMLInputElement>(inputSelector);
+  const input = Array.from(
+    root.querySelectorAll<HTMLInputElement>(inputSelector),
+  ).find((element) => isOwnedBy(root, element));
   if (!input) console.warn("[Ormo Autocomplete] Add Autocomplete.Input.", root);
   else if (
     !input.labels?.length &&
@@ -99,7 +104,11 @@ export function validateAutocomplete(root: HTMLElement): void {
   ) {
     console.warn("[Ormo Autocomplete] Give Input an accessible name.", root);
   }
-  if (!root.querySelector(contentSelector)) {
+  if (
+    !Array.from(root.querySelectorAll(contentSelector)).some((element) =>
+      isOwnedBy(root, element),
+    )
+  ) {
     console.warn("[Ormo Autocomplete] Add Autocomplete.Content.", root);
   }
   if (root.dataset.positioning === "floating" && !getPositioner()) {
@@ -109,6 +118,7 @@ export function validateAutocomplete(root: HTMLElement): void {
     );
   }
   for (const group of root.querySelectorAll(groupSelector)) {
+    if (!isOwnedBy(root, group)) continue;
     if (!group.querySelector(groupLabelSelector)) {
       console.warn(
         "[Ormo Autocomplete] Every Group needs a GroupLabel.",
@@ -163,11 +173,42 @@ export class OrmoAutocomplete extends HTMLElement {
       { signal },
     );
     this.#observer?.disconnect();
-    this.#observer = new MutationObserver(() => {
+    this.#observer = new MutationObserver((mutations) => {
+      const relevant = mutations.some((mutation) => {
+        if (mutation.type !== "attributes") return true;
+        const target = mutation.target;
+        const name = mutation.attributeName;
+        if (target === this) return true;
+        if (target === this.#input) return name === "readonly";
+        return (
+          target instanceof HTMLElement &&
+          isOwnedBy(this, target) &&
+          target.matches(itemSelector)
+        );
+      });
+      if (!relevant) return;
+      if ((this.disabled || this.readOnly) && this.open)
+        this.#hide("programmatic");
       this.#prepare();
       this.#filterItems();
     });
-    this.#observer.observe(this, { childList: true, subtree: true });
+    this.#observer.observe(this, {
+      attributes: true,
+      attributeFilter: [
+        "data-disabled",
+        "data-filter",
+        "data-keywords",
+        "data-loading",
+        "data-min-length",
+        "data-readonly",
+        "data-text-value",
+        "data-value",
+        "readonly",
+      ],
+      characterData: true,
+      childList: true,
+      subtree: true,
+    });
   }
 
   disconnectedCallback(): void {
@@ -233,13 +274,24 @@ export class OrmoAutocomplete extends HTMLElement {
   }
 
   get #input(): HTMLInputElement | undefined {
-    return this.querySelector(inputSelector) ?? undefined;
+    return Array.from(
+      this.querySelectorAll<HTMLInputElement>(inputSelector),
+    ).find((element) => isOwnedBy(this, element));
   }
   get #content(): HTMLElement | undefined {
-    return this.querySelector(contentSelector) ?? undefined;
+    return Array.from(this.querySelectorAll<HTMLElement>(contentSelector)).find(
+      (element) => isOwnedBy(this, element),
+    );
   }
   get #items(): HTMLElement[] {
-    return Array.from(this.querySelectorAll(itemSelector));
+    return Array.from(this.querySelectorAll<HTMLElement>(itemSelector)).filter(
+      (element) => isOwnedBy(this, element),
+    );
+  }
+  #parts<T extends HTMLElement>(selector: string): T[] {
+    return Array.from(this.querySelectorAll<T>(selector)).filter((element) =>
+      isOwnedBy(this, element),
+    );
   }
   get #visibleItems(): HTMLElement[] {
     return this.#items.filter((item) => !item.hidden && !isDisabled(item));
@@ -291,7 +343,7 @@ export class OrmoAutocomplete extends HTMLElement {
       "hidden",
       "style",
     ]);
-    for (const button of this.querySelectorAll(clearSelector))
+    for (const button of this.#parts(clearSelector))
       this.#snapshot(button, [
         "aria-controls",
         "aria-expanded",
@@ -308,7 +360,7 @@ export class OrmoAutocomplete extends HTMLElement {
         "data-highlighted",
         "hidden",
       ]);
-    for (const part of this.querySelectorAll(
+    for (const part of this.#parts(
       `${groupSelector}, ${separatorSelector}, ${emptySelector}, ${loadingSelector}`,
     ))
       this.#snapshot(part, ["hidden"]);
@@ -320,15 +372,13 @@ export class OrmoAutocomplete extends HTMLElement {
     input.setAttribute("aria-expanded", this.open ? "true" : "false");
     const disabled = this.disabled;
     const readOnly = this.readOnly;
-    input.disabled = disabled;
-    input.readOnly = readOnly;
+    if (input.disabled !== disabled) input.disabled = disabled;
+    if (input.readOnly !== readOnly) input.readOnly = readOnly;
     input.toggleAttribute("data-disabled", disabled);
     input.toggleAttribute("data-readonly", readOnly);
     content.toggleAttribute("data-disabled", disabled);
     content.toggleAttribute("data-readonly", readOnly);
-    for (const clear of this.querySelectorAll<HTMLButtonElement>(
-      clearSelector,
-    )) {
+    for (const clear of this.#parts<HTMLButtonElement>(clearSelector)) {
       clear.disabled =
         disabled ||
         readOnly ||
@@ -439,9 +489,7 @@ export class OrmoAutocomplete extends HTMLElement {
     const input = this.#input;
     if (!input) return;
     input.toggleAttribute("data-placeholder", !input.value);
-    for (const clear of this.querySelectorAll<HTMLButtonElement>(
-      clearSelector,
-    )) {
+    for (const clear of this.#parts<HTMLButtonElement>(clearSelector)) {
       clear.disabled =
         this.disabled ||
         this.readOnly ||
@@ -467,18 +515,16 @@ export class OrmoAutocomplete extends HTMLElement {
         );
       item.hidden = !eligible || !match;
     }
-    for (const group of this.querySelectorAll<HTMLElement>(groupSelector))
+    for (const group of this.#parts<HTMLElement>(groupSelector))
       group.hidden = !Array.from(
         group.querySelectorAll<HTMLElement>(itemSelector),
-      ).some((item) => !item.hidden);
+      ).some((item) => isOwnedBy(this, item) && !item.hidden);
     const visible = this.#items.filter((item) => !item.hidden).length;
-    for (const loading of this.querySelectorAll<HTMLElement>(loadingSelector))
+    for (const loading of this.#parts<HTMLElement>(loadingSelector))
       loading.hidden = !eligible || !this.loading;
-    for (const empty of this.querySelectorAll<HTMLElement>(emptySelector))
+    for (const empty of this.#parts<HTMLElement>(emptySelector))
       empty.hidden = !eligible || this.loading || visible > 0;
-    for (const separator of this.querySelectorAll<HTMLElement>(
-      separatorSelector,
-    )) {
+    for (const separator of this.#parts<HTMLElement>(separatorSelector)) {
       const next = separator.hasAttribute("data-automatic")
         ? separator.nextElementSibling
         : undefined;
@@ -529,7 +575,7 @@ export class OrmoAutocomplete extends HTMLElement {
     if (
       this.disabled ||
       this.readOnly ||
-      !this.contains(item) ||
+      !isOwnedBy(this, item) ||
       item.hidden ||
       isDisabled(item)
     )
@@ -611,7 +657,7 @@ export class OrmoAutocomplete extends HTMLElement {
   #measure(): void {
     if (!this.#input || !this.#content) return;
     const input = this.#input.getBoundingClientRect();
-    const clearElement = this.querySelector<HTMLElement>(clearSelector);
+    const clearElement = this.#parts<HTMLElement>(clearSelector)[0];
     const clear = clearElement?.getBoundingClientRect();
     const width =
       clear && !clearElement?.hidden
@@ -682,7 +728,8 @@ export class OrmoAutocomplete extends HTMLElement {
   };
   #onClick = (event: MouseEvent): void => {
     if (!(event.target instanceof Element)) return;
-    if (event.target.closest(clearSelector)) {
+    const clear = event.target.closest(clearSelector);
+    if (clear && isOwnedBy(this, clear)) {
       if (this.disabled || this.readOnly) return;
       if (this.#setValue("", "clear", undefined, true)) {
         this.#filterItems();
@@ -692,15 +739,15 @@ export class OrmoAutocomplete extends HTMLElement {
       return;
     }
     const item = event.target.closest<HTMLElement>(itemSelector);
-    if (item && this.contains(item)) this.#select(item);
+    if (item && isOwnedBy(this, item)) this.#select(item);
   };
   #onKeyDown = (event: KeyboardEvent): void => {
     if (event.target !== this.#input || this.disabled) return;
     if (this.#composing || event.isComposing || event.key === "Process") return;
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       event.preventDefault();
-      if (!this.open) this.#show("input", true);
-      else this.#move(event.key === "ArrowDown" ? 1 : -1);
+      if (!this.open) this.#show("input", false);
+      this.#move(event.key === "ArrowDown" ? 1 : -1);
       return;
     }
     if (event.key === "Enter" && this.open && this.#active) {
@@ -724,7 +771,7 @@ export class OrmoAutocomplete extends HTMLElement {
     )
       return;
     const item = event.target.closest<HTMLElement>(itemSelector);
-    if (item && this.contains(item) && !item.hidden && !isDisabled(item))
+    if (item && isOwnedBy(this, item) && !item.hidden && !isDisabled(item))
       this.#highlight(item);
   };
   #onToggle = (): void => {

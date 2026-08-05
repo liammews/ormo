@@ -59,6 +59,62 @@ describe("Autocomplete", () => {
     expect(root.open).toBe(false);
   });
 
+  it("opens at each navigation edge and clamps at the boundaries", () => {
+    const root = createAutocomplete();
+    const field = input(root);
+    root.dataset.minLength = "0";
+    root.value = "";
+    field.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }),
+    );
+    expect(items(root)[1]?.hasAttribute("data-highlighted")).toBe(true);
+    field.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }),
+    );
+    expect(items(root)[0]?.hasAttribute("data-highlighted")).toBe(true);
+    field.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }),
+    );
+    expect(items(root)[0]?.hasAttribute("data-highlighted")).toBe(true);
+    field.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
+    );
+    expect(items(root)[1]?.hasAttribute("data-highlighted")).toBe(true);
+  });
+
+  it("reacts to supported item and root DOM mutations", async () => {
+    const root = createAutocomplete();
+    root.value = "par";
+    const paris = items(root)[1]!;
+    expect(paris.hidden).toBe(false);
+    paris.dataset.disabled = "";
+    paris.textContent = "Bordeaux";
+    paris.dataset.textValue = "Bordeaux";
+    await new Promise<void>((resolve) => queueMicrotask(resolve));
+    expect(paris.hidden).toBe(true);
+    root.dataset.filter = "none";
+    await new Promise<void>((resolve) => queueMicrotask(resolve));
+    expect(paris.hidden).toBe(false);
+  });
+
+  it("does not navigate or select items in a nested root", () => {
+    const outer = createAutocomplete();
+    const nested = createAutocomplete();
+    outer.querySelector("[data-ormo-autocomplete-content]")?.append(nested);
+    const outerField = input(outer);
+    outer.value = "p";
+    outer.show();
+    outerField.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }),
+    );
+    expect(outerField.getAttribute("aria-activedescendant")).toBe(
+      items(outer)[1]?.id,
+    );
+    items(nested)[0]?.click();
+    expect(outer.value).toBe("p");
+    expect(nested.value).toBe("London");
+  });
+
   it("selects a suggestion and emits its identifier", () => {
     const root = createAutocomplete();
     const selected = vi.fn();

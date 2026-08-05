@@ -108,7 +108,7 @@
     {
       "id": "autocomplete",
       "label": "Autocomplete",
-      "status": "dev",
+      "status": "beta",
       "runtimeModel": "custom-element",
       "parts": [
         "Clear",

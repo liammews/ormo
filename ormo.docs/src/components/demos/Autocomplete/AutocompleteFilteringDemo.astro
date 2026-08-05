@@ -1,0 +1,49 @@
+---
+import * as Autocomplete from "@ormo/primitives/autocomplete";
+import { X } from "@lucide/astro";
+import "./index.css";
+---
+
+<div class="autocomplete-field">
+  <label class="autocomplete-label" for="autocomplete-language-input"
+    >Language</label
+  >
+  <Autocomplete.Root
+    class="autocomplete"
+    id="autocomplete-language"
+    name="language"
+    filter="startsWith"
+    minLength={2}
+  >
+    <div class="autocomplete-actions">
+      <Autocomplete.Input
+        class="autocomplete-input"
+        placeholder="Type at least two characters"
+      />
+      <Autocomplete.Clear class="autocomplete-clear" aria-label="Clear language"
+        ><X size={12} aria-hidden="true" /></Autocomplete.Clear
+      >
+    </div>
+    <Autocomplete.Content class="autocomplete-content" sideOffset={6}>
+      <Autocomplete.Item
+        class="autocomplete-item"
+        value="JavaScript"
+        textValue="JavaScript"
+        keywords={["JS", "ECMAScript"]}
+        >JavaScript <small>ECMAScript</small></Autocomplete.Item
+      >
+      <Autocomplete.Item
+        class="autocomplete-item"
+        value="TypeScript"
+        keywords={["TS"]}>TypeScript</Autocomplete.Item
+      >
+      <Autocomplete.Separator class="autocomplete-separator" />
+      <Autocomplete.Item class="autocomplete-item" value="Java" disabled
+        >Java (unavailable)</Autocomplete.Item
+      >
+      <Autocomplete.Empty class="autocomplete-empty"
+        >No languages found.</Autocomplete.Empty
+      >
+    </Autocomplete.Content>
+  </Autocomplete.Root>
+</div>
