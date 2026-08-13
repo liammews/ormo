@@ -5,10 +5,22 @@ import type {
   FieldState,
   FieldValidationMode,
   FieldValidator,
-  FieldValidatorContext,
   FieldValidityMatch,
   OrmoFieldElement,
 } from "../components/field/types";
+import { registerField, unregisterField } from "./field-form";
+import {
+  getRelationshipTokens,
+  prepareFieldRelationshipIds,
+  setDescribedBy,
+} from "./field-relationships";
+import {
+  checkValidityWithoutRevalidation,
+  getValidatorContext,
+  isInternallyCheckedControl,
+  reportValidityWithoutRevalidation,
+  validityCheckWithoutRevalidation,
+} from "./field-validation";
 
 const tagName = "ormo-field";
 const labelSelector = "[data-ormo-field-label]";
@@ -19,8 +31,6 @@ const fieldGroupSelector = "ormo-checkbox-group, ormo-radio-group";
 
 type OrmoFieldGroupElement = OrmoCheckboxGroupElement | OrmoRadioGroupElement;
 
-let generatedId = 0;
-
 interface FieldParts {
   control: FieldControlElement | undefined;
   controls: FieldControlElement[];
@@ -29,15 +39,6 @@ interface FieldParts {
   descriptions: HTMLElement[];
   errors: HTMLElement[];
 }
-
-interface FormFieldRegistry {
-  fields: Set<OrmoField>;
-  submitHandler: (event: SubmitEvent) => void;
-}
-
-const formFieldRegistries = new WeakMap<HTMLFormElement, FormFieldRegistry>();
-const resumableSubmitForms = new WeakSet<HTMLFormElement>();
-const internallyCheckedControls = new WeakSet<FieldControlElement>();
 
 const validityMatches: Exclude<FieldValidityMatch, boolean>[] = [
   "badInput",
@@ -63,10 +64,6 @@ function isFieldControl(element: Element): element is FieldControlElement {
     element instanceof HTMLSelectElement ||
     element instanceof HTMLTextAreaElement
   );
-}
-
-function getTokens(value: string | null): string[] {
-  return value?.split(/\s+/).filter(Boolean) ?? [];
 }
 
 function getControlValue(control: FieldControlElement): string {
@@ -115,146 +112,6 @@ function normalizeDebounceTime(value: string | undefined): number {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
 }
 
-function firstInvalidControl(
-  form: HTMLFormElement,
-): FieldControlElement | undefined {
-  return Array.from(form.querySelectorAll(controlSelector))
-    .filter(isFieldControl)
-    .find((candidate) => {
-      const field = candidate.closest(tagName);
-      return field instanceof OrmoField && field.state.invalid;
-    });
-}
-
-function registerField(form: HTMLFormElement, field: OrmoField): void {
-  let registry = formFieldRegistries.get(form);
-
-  if (!registry) {
-    const submitHandler = (event: SubmitEvent): void => {
-      if (
-        resumableSubmitForms.has(form) ||
-        form.noValidate ||
-        (event.submitter instanceof HTMLButtonElement &&
-          event.submitter.formNoValidate) ||
-        (event.submitter instanceof HTMLInputElement &&
-          event.submitter.formNoValidate)
-      ) {
-        return;
-      }
-
-      event.preventDefault();
-      event.stopImmediatePropagation();
-
-      const activeRegistry = formFieldRegistries.get(form);
-      const fields = Array.from(activeRegistry?.fields ?? []).filter(
-        (candidate) => candidate.isConnected,
-      );
-
-      void Promise.all(fields.map((candidate) => candidate.validate())).then(
-        (validationResults) => {
-          const invalidControl = firstInvalidControl(form);
-
-          if (validationResults.includes(false) || invalidControl) {
-            invalidControl?.focus();
-            if (invalidControl && !invalidControl.validity.valid) {
-              reportValidityWithoutRevalidation(invalidControl);
-            }
-            return;
-          }
-
-          const submitter =
-            event.submitter instanceof HTMLButtonElement ||
-            event.submitter instanceof HTMLInputElement
-              ? event.submitter
-              : undefined;
-
-          // The browser keeps a form's submission algorithm active through
-          // the current task. Resume from a new task so requestSubmit creates
-          // a fresh submit event instead of being ignored as re-entrant.
-          setTimeout(() => {
-            if (!form.isConnected) {
-              return;
-            }
-
-            resumableSubmitForms.add(form);
-            try {
-              form.requestSubmit(
-                submitter && submitter.isConnected && submitter.form === form
-                  ? submitter
-                  : undefined,
-              );
-            } finally {
-              resumableSubmitForms.delete(form);
-            }
-          }, 0);
-        },
-      );
-    };
-
-    registry = { fields: new Set(), submitHandler };
-    formFieldRegistries.set(form, registry);
-    form.addEventListener("submit", submitHandler, { capture: true });
-  }
-
-  registry.fields.add(field);
-}
-
-function unregisterField(form: HTMLFormElement, field: OrmoField): void {
-  const registry = formFieldRegistries.get(form);
-
-  if (!registry) {
-    return;
-  }
-
-  registry.fields.delete(field);
-
-  if (registry.fields.size === 0) {
-    form.removeEventListener("submit", registry.submitHandler, {
-      capture: true,
-    });
-    formFieldRegistries.delete(form);
-  }
-}
-
-function checkValidityWithoutRevalidation(
-  control: FieldControlElement,
-): boolean {
-  internallyCheckedControls.add(control);
-  try {
-    return control.checkValidity();
-  } finally {
-    internallyCheckedControls.delete(control);
-  }
-}
-
-function reportValidityWithoutRevalidation(
-  control: FieldControlElement,
-): boolean {
-  internallyCheckedControls.add(control);
-  try {
-    return control.reportValidity();
-  } finally {
-    internallyCheckedControls.delete(control);
-  }
-}
-
-function getValidatorContext(
-  control: FieldControlElement,
-  signal: AbortSignal,
-): FieldValidatorContext {
-  let formData: FormData | null = null;
-
-  if (control.form) {
-    try {
-      formData = new FormData(control.form);
-    } catch {
-      formData = null;
-    }
-  }
-
-  return { formData, signal };
-}
-
 function isFieldGroup(
   element: Element | null | undefined,
 ): element is OrmoFieldGroupElement {
@@ -285,16 +142,9 @@ function checkGroupValidityWithoutRevalidation(
   group: OrmoFieldGroupElement,
 ): boolean {
   const control = getGroupControl(group);
-  if (control) {
-    internallyCheckedControls.add(control);
-  }
-  try {
-    return group.checkValidity();
-  } finally {
-    if (control) {
-      internallyCheckedControls.delete(control);
-    }
-  }
+  return control
+    ? validityCheckWithoutRevalidation(control, () => group.checkValidity())
+    : group.checkValidity();
 }
 
 export function validateField(root: HTMLElement): void {
@@ -692,7 +542,7 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       : group.getAttribute("aria-invalid");
     this.#managedGroupAriaInvalid = undefined;
     this.#authoredDescribedByIds = new Set(
-      getTokens(group.getAttribute("aria-describedby")),
+      getRelationshipTokens(group.getAttribute("aria-describedby")),
     );
     this.#focused = group.contains(group.ownerDocument.activeElement);
   }
@@ -756,7 +606,7 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       : control.getAttribute("aria-invalid");
     this.#managedAriaInvalid = undefined;
     this.#authoredDescribedByIds = new Set(
-      getTokens(control.getAttribute("aria-describedby")),
+      getRelationshipTokens(control.getAttribute("aria-describedby")),
     );
     this.#focused = control === control.ownerDocument.activeElement;
   }
@@ -792,40 +642,20 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
       return;
     }
 
-    if (!this.id) {
-      generatedId += 1;
-      this.id = `ormo-field-${generatedId}`;
-    }
-
-    if (control) {
-      control.id ||= `${this.id}-control`;
-    }
-
-    if (group && !group.id) {
-      group.id = `${this.id}-group`;
-    }
-
-    labels.forEach((label, index) => {
-      label.id ||= `${this.id}-label-${index + 1}`;
-
-      if (control && (!label.htmlFor || this.#managedLabels.has(label))) {
-        if (label.htmlFor !== control.id) {
-          label.htmlFor = control.id;
-        }
-        this.#managedLabels.add(label);
-      }
-    });
-    descriptions.forEach((description, index) => {
-      description.id ||= `${this.id}-description-${index + 1}`;
-    });
-    errors.forEach((error, index) => {
-      error.id ||= `${this.id}-error-${index + 1}`;
+    prepareFieldRelationshipIds({
+      root: this,
+      control,
+      group,
+      labels,
+      descriptions,
+      errors,
+      managedLabels: this.#managedLabels,
     });
 
     this.#authoredDescribedByIds = new Set(
-      getTokens(describedTarget.getAttribute("aria-describedby")).filter(
-        (id) => !this.#managedDescribedByIds.has(id),
-      ),
+      getRelationshipTokens(
+        describedTarget.getAttribute("aria-describedby"),
+      ).filter((id) => !this.#managedDescribedByIds.has(id)),
     );
 
     this.#syncDescribedBy(parts);
@@ -841,25 +671,11 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
 
     const visibleErrors = errors.filter((error) => !error.hidden);
 
-    this.#managedDescribedByIds = new Set(
-      [...descriptions, ...visibleErrors].map((element) => element.id),
+    this.#managedDescribedByIds = setDescribedBy(
+      describedTarget,
+      this.#authoredDescribedByIds,
+      [...descriptions, ...visibleErrors],
     );
-
-    const describedByIds = Array.from(
-      new Set([
-        ...this.#authoredDescribedByIds,
-        ...this.#managedDescribedByIds,
-      ]),
-    );
-
-    if (describedByIds.length > 0) {
-      const describedBy = describedByIds.join(" ");
-      if (describedTarget.getAttribute("aria-describedby") !== describedBy) {
-        describedTarget.setAttribute("aria-describedby", describedBy);
-      }
-    } else if (describedTarget.hasAttribute("aria-describedby")) {
-      describedTarget.removeAttribute("aria-describedby");
-    }
   }
 
   #bindForm(): void {
@@ -873,7 +689,7 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     }
 
     this.#boundForm = form;
-    registerField(form, this);
+    registerField(form, this, reportValidityWithoutRevalidation);
     form.addEventListener("reset", this.#handleReset, {
       signal: this.#formController.signal,
     });
@@ -1284,7 +1100,7 @@ export class OrmoField extends HTMLElement implements OrmoFieldElement {
     if (
       event.target instanceof Element &&
       isFieldControl(event.target) &&
-      internallyCheckedControls.has(event.target)
+      isInternallyCheckedControl(event.target)
     ) {
       this.#applyState();
       return;

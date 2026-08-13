@@ -9,6 +9,10 @@ import type {
   AutocompleteValueChangeDetail,
   AutocompleteValueChangeReason,
 } from "../components/autocomplete/types";
+import {
+  getCollectionItems,
+  moveCollectionItem,
+} from "./collection-navigation";
 import "./autocomplete.css";
 
 const tagName = "ormo-autocomplete";
@@ -284,12 +288,12 @@ export class OrmoAutocomplete extends HTMLElement {
     );
   }
   get #items(): HTMLElement[] {
-    return Array.from(this.querySelectorAll<HTMLElement>(itemSelector)).filter(
-      (element) => isOwnedBy(this, element),
+    return getCollectionItems(this, itemSelector, (element) =>
+      isOwnedBy(this, element),
     );
   }
   #parts<T extends HTMLElement>(selector: string): T[] {
-    return Array.from(this.querySelectorAll<T>(selector)).filter((element) =>
+    return getCollectionItems<T>(this, selector, (element) =>
       isOwnedBy(this, element),
     );
   }
@@ -562,14 +566,13 @@ export class OrmoAutocomplete extends HTMLElement {
   #move(delta: number): void {
     const items = this.#visibleItems;
     if (!items.length) return;
-    const current = this.#active ? items.indexOf(this.#active) : -1;
-    const index =
-      current < 0
-        ? delta > 0
-          ? 0
-          : items.length - 1
-        : Math.max(0, Math.min(items.length - 1, current + delta));
-    this.#highlight(items[index]);
+    this.#highlight(
+      moveCollectionItem({
+        items,
+        current: this.#active,
+        delta: delta < 0 ? -1 : 1,
+      }),
+    );
   }
   #select(item: HTMLElement): void {
     if (

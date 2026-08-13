@@ -10,6 +10,10 @@ import type {
   ComboboxSide,
   ComboboxValueChangeDetail,
 } from "../components/combobox/types";
+import {
+  getCollectionItems,
+  moveCollectionItem,
+} from "./collection-navigation";
 import "./combobox.css";
 
 const tagName = "ormo-combobox";
@@ -288,7 +292,7 @@ export class OrmoCombobox extends HTMLElement {
     return this.querySelector<HTMLElement>(contentSelector) ?? undefined;
   }
   get #items(): HTMLElement[] {
-    return Array.from(this.querySelectorAll<HTMLElement>(itemSelector));
+    return getCollectionItems(this, itemSelector);
   }
   get #visibleEnabledItems(): HTMLElement[] {
     return this.#items.filter((item) => !item.hidden && !isItemDisabled(item));
@@ -650,14 +654,13 @@ export class OrmoCombobox extends HTMLElement {
   #moveHighlight(delta: number): void {
     const items = this.#visibleEnabledItems;
     if (!items.length) return;
-    const current = this.#activeItem ? items.indexOf(this.#activeItem) : -1;
-    const index =
-      current < 0
-        ? delta > 0
-          ? 0
-          : items.length - 1
-        : Math.max(0, Math.min(items.length - 1, current + delta));
-    this.#highlight(items[index]);
+    this.#highlight(
+      moveCollectionItem({
+        items,
+        current: this.#activeItem,
+        delta: delta < 0 ? -1 : 1,
+      }),
+    );
   }
 
   #show(reason: ComboboxOpenChangeReason, highlight: boolean): void {

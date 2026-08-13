@@ -1,0 +1,22 @@
+{
+  "accordion": 3200,
+  "alert-dialog": 4500,
+  "avatar": 1300,
+  "autocomplete": 12100,
+  "breadcrumbs": 0,
+  "button": 1300,
+  "checkbox": 4000,
+  "combobox": 12400,
+  "dialog": 4500,
+  "field": 5200,
+  "fieldset": 0,
+  "input": 0,
+  "popover": 12600,
+  "radio": 3200,
+  "select": 12000,
+  "tabs": 2500,
+  "tooltip": 13000,
+  "separator": 0,
+  "switch": 1800,
+  "password-field": 2400
+}

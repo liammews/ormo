@@ -1,12 +1,12 @@
 const startingStyleAttribute = "data-starting-style";
 const endingStyleAttribute = "data-ending-style";
 
-interface CollapsibleState {
+interface AccordionContentState {
   frameId: number | undefined;
   version: number;
 }
 
-interface CollapsibleOptions {
+interface AccordionContentOptions {
   animate: boolean;
   fallbackFocus?: HTMLElement;
   heightProperty: `--${string}`;
@@ -14,16 +14,16 @@ interface CollapsibleOptions {
   widthProperty?: `--${string}`;
 }
 
-const states = new WeakMap<HTMLElement, CollapsibleState>();
+const states = new WeakMap<HTMLElement, AccordionContentState>();
 
-function getState(element: HTMLElement): CollapsibleState {
+function getState(element: HTMLElement): AccordionContentState {
   const existingState = states.get(element);
 
   if (existingState) {
     return existingState;
   }
 
-  const state: CollapsibleState = {
+  const state: AccordionContentState = {
     frameId: undefined,
     version: 0,
   };
@@ -106,7 +106,7 @@ function waitForAnimations(animations: Animation[]): Promise<void> {
 }
 
 function beginUpdate(element: HTMLElement): {
-  state: CollapsibleState;
+  state: AccordionContentState;
   version: number;
 } {
   const state = getState(element);
@@ -122,7 +122,7 @@ function beginUpdate(element: HTMLElement): {
 
 function scheduleAnimationCompletion(
   element: HTMLElement,
-  state: CollapsibleState,
+  state: AccordionContentState,
   version: number,
   existingAnimations: Set<Animation>,
   start: () => void,
@@ -153,7 +153,7 @@ function scheduleAnimationCompletion(
   });
 }
 
-export function setCollapsibleWidth(
+export function setAccordionContentWidth(
   element: HTMLElement,
   widthProperty: `--${string}` | undefined,
 ): void {
@@ -186,7 +186,7 @@ function finishOpening(
 ): void {
   if (element.dataset.state === "open") {
     element.style.setProperty(heightProperty, "auto");
-    setCollapsibleWidth(element, widthProperty);
+    setAccordionContentWidth(element, widthProperty);
   }
 }
 
@@ -204,10 +204,10 @@ function finishClosing(
   element.style.setProperty(heightProperty, "auto");
 }
 
-export function setCollapsibleState(
+export function setAccordionContentState(
   element: HTMLElement,
   open: boolean,
-  options: CollapsibleOptions,
+  options: AccordionContentOptions,
 ): void {
   const {
     animate,
@@ -227,7 +227,7 @@ export function setCollapsibleState(
     element.removeAttribute("inert");
     element.removeAttribute(endingStyleAttribute);
     element.dataset.state = "open";
-    setCollapsibleWidth(element, widthProperty);
+    setAccordionContentWidth(element, widthProperty);
 
     if (!animate) {
       element.removeAttribute(startingStyleAttribute);
@@ -321,6 +321,6 @@ export function setCollapsibleState(
   );
 }
 
-export function cancelCollapsibleState(element: HTMLElement): void {
+export function cancelAccordionContentState(element: HTMLElement): void {
   beginUpdate(element);
 }

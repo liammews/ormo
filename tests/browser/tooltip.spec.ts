@@ -107,7 +107,13 @@ test("has no accessibility violations when closed or open", async ({
   });
 
   await demo.getByRole("button").focus();
-  await expect(demo.getByRole("tooltip")).toBeVisible();
+  const tooltip = demo.getByRole("tooltip");
+  await expect(tooltip).toBeVisible();
+  await tooltip.evaluate(async (element) => {
+    await Promise.allSettled(
+      element.getAnimations().map((animation) => animation.finished),
+    );
+  });
   await expectNoAxeViolations(page, {
     include: '[data-tooltip-demo="default"]',
     label: "open tooltip",

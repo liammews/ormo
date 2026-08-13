@@ -33,6 +33,17 @@ Run the documentation site locally with:
 pnpm docs:dev
 ```
 
+## Browser support
+
+Ormo supports the current stable desktop releases of Chrome, Firefox and
+Safari. CI tests each browser through the corresponding Playwright engine on
+every main-branch and scheduled build. Pull requests run the Chromium suite.
+
+Ormo does not currently certify mobile browsers or older browser releases.
+Some popup primitives require the HTML Popover API. CSS Anchor Positioning is
+the default positioning path; use the documented optional Floating UI entry
+when broader positioning support is required.
+
 ## License
 
 Ormo is released under the [MIT License](./LICENSE).

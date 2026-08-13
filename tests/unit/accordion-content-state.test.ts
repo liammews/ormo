@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
-  setCollapsibleState,
-  setCollapsibleWidth,
-} from "../../src/runtime/collapsible";
+  setAccordionContentState,
+  setAccordionContentWidth,
+} from "../../src/runtime/accordion-content-state";
 
 const heightProperty = "--ormo-test-height";
 
@@ -77,7 +77,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("collapsible state", () => {
+describe("accordion content state", () => {
   it("measures content and exposes a starting style while opening", async () => {
     const element = document.createElement("div");
     const { animation, finish, finished } = createAnimation();
@@ -93,7 +93,7 @@ describe("collapsible state", () => {
     element.setAttribute("aria-hidden", "true");
     element.setAttribute("inert", "");
 
-    setCollapsibleState(element, true, {
+    setAccordionContentState(element, true, {
       animate: true,
       heightProperty,
     });
@@ -131,7 +131,7 @@ describe("collapsible state", () => {
     document.body.append(trigger, element);
     input.focus();
 
-    setCollapsibleState(element, false, {
+    setAccordionContentState(element, false, {
       animate: true,
       fallbackFocus: trigger,
       heightProperty,
@@ -166,7 +166,7 @@ describe("collapsible state", () => {
     mockMotion(element, animation);
     element.dataset.state = "open";
 
-    setCollapsibleState(element, false, {
+    setAccordionContentState(element, false, {
       animate: true,
       heightProperty,
       hiddenUntilFound: true,
@@ -196,11 +196,11 @@ describe("collapsible state", () => {
     element.dataset.state = "open";
     document.body.append(element);
 
-    setCollapsibleState(element, false, {
+    setAccordionContentState(element, false, {
       animate: true,
       heightProperty,
     });
-    setCollapsibleState(element, true, {
+    setAccordionContentState(element, true, {
       animate: true,
       heightProperty,
     });
@@ -241,7 +241,7 @@ describe("collapsible state", () => {
         : [decorativeAnimation.animation, heightAnimation.animation];
     element.dataset.state = "open";
 
-    setCollapsibleState(element, false, {
+    setAccordionContentState(element, false, {
       animate: true,
       heightProperty,
     });
@@ -271,7 +271,7 @@ describe("collapsible state", () => {
     document.body.append(trigger, element);
     input.focus();
 
-    setCollapsibleState(element, false, {
+    setAccordionContentState(element, false, {
       animate: true,
       fallbackFocus: trigger,
       heightProperty,
@@ -293,7 +293,7 @@ describe("collapsible state", () => {
     mockMotion(element, animation);
     element.dataset.state = "open";
 
-    setCollapsibleState(element, false, {
+    setAccordionContentState(element, false, {
       animate: true,
       heightProperty,
     });
@@ -314,7 +314,7 @@ describe("collapsible state", () => {
     } as CSSStyleDeclaration);
     element.dataset.state = "open";
 
-    setCollapsibleState(element, false, {
+    setAccordionContentState(element, false, {
       animate: true,
       heightProperty,
     });
@@ -332,14 +332,14 @@ describe("collapsible state", () => {
       configurable: true,
       value: 320,
     });
-    setCollapsibleWidth(element, widthProperty);
+    setAccordionContentWidth(element, widthProperty);
     expect(element.style.getPropertyValue(widthProperty)).toBe("320px");
 
     Object.defineProperty(element, "scrollWidth", {
       configurable: true,
       value: 480,
     });
-    setCollapsibleWidth(element, widthProperty);
+    setAccordionContentWidth(element, widthProperty);
     expect(element.style.getPropertyValue(widthProperty)).toBe("480px");
   });
 });

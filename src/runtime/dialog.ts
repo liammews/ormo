@@ -3,8 +3,17 @@ import type {
   DialogCloseReason,
   DialogOpenChangeDetail,
 } from "../components/dialog/types";
-import { getTabbableElements, isProgrammaticallyFocusable } from "./focus";
+import {
+  getTabbableElements,
+  isProgrammaticallyFocusable,
+  resolveFinalFocus,
+} from "./focus";
 import { lockModalScroll, unlockModalScroll } from "./modal-scroll-lock";
+import {
+  endingStyleAttribute,
+  PopupTransition,
+  startingStyleAttribute,
+} from "./popup-transition";
 
 const tagName = "ormo-dialog";
 const triggerSelector = "[data-ormo-dialog-trigger]";
@@ -14,8 +23,6 @@ const titleSelector = "[data-ormo-dialog-title]";
 const descriptionSelector = "[data-ormo-dialog-description]";
 const closeSelector = "[data-ormo-dialog-close]";
 const closeControlSelector = closeSelector;
-const startingStyleAttribute = "data-starting-style";
-const endingStyleAttribute = "data-ending-style";
 const openFromTrigger = Symbol("openFromTrigger");
 const synchronizeTriggers = Symbol("synchronizeTriggers");
 
@@ -110,9 +117,7 @@ export class OrmoDialog extends HTMLElement {
   #modalOpen = false;
   #observer: MutationObserver | undefined;
   #pendingReason: DialogCloseReason = "programmatic";
-  #transitionFrame: number | undefined;
-  #transitionTimeout: ReturnType<typeof setTimeout> | undefined;
-  #transitionVersion = 0;
+  #transition = new PopupTransition();
   #triggerSnapshots = new WeakMap<HTMLElement, TriggerSnapshot>();
 
   connectedCallback(): void {
@@ -498,119 +503,25 @@ export class OrmoDialog extends HTMLElement {
   }
 
   #clearTransitionSchedule(): void {
-    this.#transitionVersion += 1;
-
-    if (this.#transitionFrame !== undefined) {
-      cancelAnimationFrame(this.#transitionFrame);
-      this.#transitionFrame = undefined;
-    }
-
-    if (this.#transitionTimeout !== undefined) {
-      clearTimeout(this.#transitionTimeout);
-      this.#transitionTimeout = undefined;
-    }
+    this.#transition.clear();
   }
 
   #beginStartingStyle(content: HTMLDialogElement): void {
-    this.#clearTransitionSchedule();
-    const version = this.#transitionVersion;
-    content.removeAttribute(endingStyleAttribute);
-    content.setAttribute(startingStyleAttribute, "");
-
-    this.#transitionFrame = requestAnimationFrame(() => {
-      this.#transitionFrame = undefined;
-      if (this.#transitionVersion === version && content.open) {
-        content.removeAttribute(startingStyleAttribute);
-      }
-    });
+    this.#transition.beginOpening(content, () => content.open);
   }
 
   #beginEndingStyle(content: HTMLDialogElement): void {
-    this.#clearTransitionSchedule();
-    const version = this.#transitionVersion;
-    content.removeAttribute(startingStyleAttribute);
-    content.setAttribute(endingStyleAttribute, "");
-
-    this.#transitionFrame = requestAnimationFrame(() => {
-      this.#transitionFrame = undefined;
-      if (this.#transitionVersion !== version || content.open) {
-        return;
-      }
-
-      const animations =
-        typeof content.getAnimations === "function"
-          ? content
-              .getAnimations()
-              .filter((animation) => animation.playState !== "paused")
-          : [];
-
-      if (animations.length === 0) {
-        content.removeAttribute(endingStyleAttribute);
-        return;
-      }
-
-      const endTimes = animations
-        .map((animation) =>
-          Number(animation.effect?.getComputedTiming().endTime),
-        )
-        .filter(Number.isFinite);
-      const maximumEndTime = Math.max(0, ...endTimes);
-      this.#transitionTimeout = setTimeout(() => {
-        if (this.#transitionVersion === version) {
-          content.removeAttribute(endingStyleAttribute);
-        }
-      }, maximumEndTime + 50);
-
-      void Promise.allSettled(
-        animations.map((animation) => animation.finished),
-      ).then(() => {
-        if (this.#transitionVersion === version) {
-          if (this.#transitionTimeout !== undefined) {
-            clearTimeout(this.#transitionTimeout);
-            this.#transitionTimeout = undefined;
-          }
-          content.removeAttribute(endingStyleAttribute);
-        }
-      });
-    });
+    this.#transition.beginClosing(content, () => content.open);
   }
 
   #resolveFinalFocus(content: HTMLDialogElement): HTMLElement | undefined {
-    if (
-      this.#finalFocus?.isConnected &&
-      isProgrammaticallyFocusable(this.#finalFocus)
-    ) {
-      return this.#finalFocus;
-    }
-
-    const selector = content.dataset.finalFocus?.trim();
-    if (selector) {
-      try {
-        const target = this.ownerDocument.querySelector<HTMLElement>(selector);
-        if (target && isProgrammaticallyFocusable(target)) {
-          return target;
-        }
-
-        if (import.meta.env.DEV) {
-          console.warn(
-            `[Ormo Dialog] finalFocus selector "${selector}" must match a focusable element.`,
-            this,
-          );
-        }
-      } catch {
-        if (import.meta.env.DEV) {
-          console.warn(
-            `[Ormo Dialog] finalFocus selector "${selector}" is not valid CSS.`,
-            this,
-          );
-        }
-      }
-    }
-
-    return this.#invoker?.isConnected &&
-      isProgrammaticallyFocusable(this.#invoker)
-      ? this.#invoker
-      : undefined;
+    return resolveFinalFocus({
+      content,
+      explicitTarget: this.#finalFocus ?? undefined,
+      invoker: this.#invoker,
+      owner: this,
+      warningPrefix: "[Ormo Dialog]",
+    });
   }
 
   #dispatchOpenChange(detail: DialogOpenChangeDetail): void {

@@ -56,7 +56,7 @@
     {
       "id": "accordion",
       "label": "Accordion",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "custom-element",
       "parts": ["Content", "Header", "Item", "Root", "Trigger"],
       "runtime": ["src/runtime/accordion.ts"],
@@ -71,7 +71,7 @@
     {
       "id": "alert-dialog",
       "label": "Alert Dialog",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "custom-element",
       "parts": [
         "Action",
@@ -93,7 +93,7 @@
     {
       "id": "avatar",
       "label": "Avatar",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "custom-element",
       "parts": ["Fallback", "Image", "Root"],
       "runtime": ["src/runtime/avatar.ts"],
@@ -108,7 +108,7 @@
     {
       "id": "autocomplete",
       "label": "Autocomplete",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "custom-element",
       "parts": [
         "Clear",
@@ -137,7 +137,7 @@
     {
       "id": "breadcrumbs",
       "label": "Breadcrumbs",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "static",
       "parts": ["Item", "Link", "List", "Page", "Root", "Separator"],
       "runtime": [],
@@ -151,7 +151,7 @@
     {
       "id": "button",
       "label": "Button",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "conditional-native",
       "parts": ["Button", "Runtime"],
       "runtime": ["src/runtime/button.ts"],
@@ -162,7 +162,7 @@
     {
       "id": "checkbox",
       "label": "Checkbox",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "conditional-native",
       "parts": ["Checkbox", "Group", "GroupLabel", "Indicator", "Runtime"],
       "runtime": ["src/runtime/checkbox.ts", "src/runtime/checkbox-group.ts"],
@@ -178,7 +178,7 @@
     {
       "id": "combobox",
       "label": "Combobox",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "custom-element",
       "parts": [
         "Clear",
@@ -209,7 +209,7 @@
     {
       "id": "dialog",
       "label": "Dialog",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "custom-element",
       "parts": ["Close", "Content", "Description", "Root", "Title", "Trigger"],
       "runtime": ["src/runtime/dialog.ts"],
@@ -220,7 +220,7 @@
     {
       "id": "field",
       "label": "Field",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "custom-element",
       "parts": ["Control", "Description", "Error", "Label", "Root"],
       "runtime": ["src/runtime/field.ts"],
@@ -235,7 +235,7 @@
     {
       "id": "fieldset",
       "label": "Fieldset",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "static",
       "parts": ["Legend", "Root"],
       "runtime": [],
@@ -249,7 +249,7 @@
     {
       "id": "input",
       "label": "Input",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "static",
       "parts": ["Input"],
       "runtime": [],
@@ -263,7 +263,7 @@
     {
       "id": "popover",
       "label": "Popover",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "custom-element",
       "parts": ["Close", "Content", "Description", "Root", "Title", "Trigger"],
       "runtime": ["src/runtime/popover.ts", "src/runtime/popover-floating.ts"],
@@ -278,7 +278,7 @@
     {
       "id": "radio",
       "label": "Radio",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "conditional-native",
       "parts": ["Group", "GroupLabel", "Indicator", "Radio", "Runtime"],
       "runtime": ["src/runtime/radio.ts", "src/runtime/radio-group.ts"],
@@ -294,7 +294,7 @@
     {
       "id": "select",
       "label": "Select",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "conditional-native",
       "parts": [
         "Clear",
@@ -321,7 +321,7 @@
     {
       "id": "tabs",
       "label": "Tabs",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "custom-element",
       "parts": ["List", "Panel", "Root", "Tab"],
       "runtime": ["src/runtime/tabs.ts"],
@@ -336,7 +336,7 @@
     {
       "id": "tooltip",
       "label": "Tooltip",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "custom-element",
       "parts": ["Content", "Root", "Trigger"],
       "runtime": ["src/runtime/tooltip.ts", "src/runtime/tooltip-floating.ts"],
@@ -350,7 +350,7 @@
     {
       "id": "separator",
       "label": "Separator",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "static",
       "parts": ["Separator"],
       "runtime": [],
@@ -361,7 +361,7 @@
     {
       "id": "switch",
       "label": "Switch",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "custom-element",
       "parts": ["Root", "Thumb"],
       "runtime": ["src/runtime/switch.ts"],
@@ -376,7 +376,7 @@
     {
       "id": "password-field",
       "label": "Password Field",
-      "status": "beta",
+      "status": "production",
       "runtimeModel": "custom-element",
       "parts": ["Input", "Root", "Toggle"],
       "runtime": ["src/runtime/password-field.ts"],

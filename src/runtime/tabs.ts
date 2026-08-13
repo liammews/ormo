@@ -2,6 +2,11 @@ import type {
   OrmoTabsElement,
   TabsOrientation,
 } from "../components/tabs/types";
+import {
+  getCollectionItems,
+  moveCollectionItem,
+  setRovingTabStop,
+} from "./collection-navigation";
 
 const tagName = "ormo-tabs";
 const listSelector = "[data-ormo-tabs-list]";
@@ -241,36 +246,39 @@ export class OrmoTabs extends HTMLElement implements OrmoTabsElement {
   #getParts(): TabsPart[] {
     const panelsByValue = new Map<string, HTMLElement>();
 
-    for (const panel of this.querySelectorAll<HTMLElement>(panelSelector)) {
-      if (!belongsToRoot(panel, this)) continue;
+    for (const panel of getCollectionItems<HTMLElement>(
+      this,
+      panelSelector,
+      (item) => belongsToRoot(item, this),
+    )) {
       const value = panel.dataset.value;
       if (value !== undefined) {
         panelsByValue.set(value, panel);
       }
     }
 
-    return Array.from(this.querySelectorAll<HTMLButtonElement>(tabSelector))
-      .filter((tab) => belongsToRoot(tab, this))
-      .flatMap((tab) => {
-        const value = tab.dataset.value;
-        if (value === undefined) {
-          return [];
-        }
+    return getCollectionItems<HTMLButtonElement>(this, tabSelector, (item) =>
+      belongsToRoot(item, this),
+    ).flatMap((tab) => {
+      const value = tab.dataset.value;
+      if (value === undefined) {
+        return [];
+      }
 
-        this.#syncAuthoredTabDisabled(tab);
+      this.#syncAuthoredTabDisabled(tab);
 
-        return [
-          {
-            tab,
-            panel: panelsByValue.get(value),
-            value,
-            disabled:
-              this.disabled ||
-              tab.hasAttribute("data-item-disabled") ||
-              this.#authoredTabDisabled.get(tab) === true,
-          },
-        ];
-      });
+      return [
+        {
+          tab,
+          panel: panelsByValue.get(value),
+          value,
+          disabled:
+            this.disabled ||
+            tab.hasAttribute("data-item-disabled") ||
+            this.#authoredTabDisabled.get(tab) === true,
+        },
+      ];
+    });
   }
 
   #syncAuthoredTabDisabled(tab: HTMLButtonElement): void {
@@ -405,15 +413,18 @@ export class OrmoTabs extends HTMLElement implements OrmoTabsElement {
   }
 
   #setRovingTabIndex(focused: HTMLButtonElement): void {
-    for (const { tab } of this.#getParts()) {
-      tab.tabIndex = tab === focused ? 0 : -1;
-    }
+    setRovingTabStop(
+      this.#getParts().map(({ tab }) => tab),
+      focused,
+    );
   }
 
   #restoreRovingTabIndex(): void {
-    for (const { tab } of this.#getParts()) {
-      tab.tabIndex = tab.dataset.state === "active" ? 0 : -1;
-    }
+    const tabs = this.#getParts().map(({ tab }) => tab);
+    setRovingTabStop(
+      tabs,
+      tabs.find((tab) => tab.dataset.state === "active"),
+    );
   }
 
   #enabledParts(): TabsPart[] {
@@ -424,18 +435,12 @@ export class OrmoTabs extends HTMLElement implements OrmoTabsElement {
     const enabled = this.#enabledParts();
     if (enabled.length === 0) return;
 
-    const currentIndex = enabled.findIndex((part) => part.tab === current);
-    if (currentIndex === -1) return;
-
-    let nextIndex = currentIndex + delta;
-
-    if (this.loopFocus) {
-      nextIndex = (nextIndex + enabled.length) % enabled.length;
-    } else {
-      nextIndex = Math.max(0, Math.min(enabled.length - 1, nextIndex));
-    }
-
-    const next = enabled[nextIndex];
+    const next = moveCollectionItem({
+      items: enabled,
+      current: enabled.find((part) => part.tab === current),
+      delta: delta < 0 ? -1 : 1,
+      loop: this.loopFocus,
+    });
     if (!next || next.tab === current) return;
 
     this.#focusTab(next.tab, this.activateOnFocus);

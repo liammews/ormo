@@ -5,3 +5,14 @@ description: "A quick guide to installing Ormo."
 ---
 
 import CodeBlock from "../../components/docs/CodeBlock/CodeBlock.astro";
+
+## Browser support
+
+Ormo supports the current stable desktop releases of Chrome, Firefox and
+Safari. The browser suite runs with the corresponding Playwright engines on
+main-branch and scheduled CI builds. Mobile browsers and older releases are not
+currently certified.
+
+Popup primitives require the HTML Popover API. CSS Anchor Positioning is the
+default positioning path. Use a component's optional Floating UI entry when
+broader positioning support is required.

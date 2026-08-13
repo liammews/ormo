@@ -49,6 +49,7 @@ pnpm format:check          # check formatting without modifying files
 pnpm lint
 pnpm check                 # Astro and TypeScript checks
 pnpm test:runtime          # happy-dom runtime tests
+pnpm test:coverage         # runtime tests and critical shared-code thresholds
 pnpm test:astro            # server-rendered Astro tests
 pnpm test                  # both unit suites
 pnpm validate:library      # all library checks

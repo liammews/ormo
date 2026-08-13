@@ -7,6 +7,11 @@ import type {
   SelectSide,
   SelectValueChangeDetail,
 } from "../components/select/types";
+import {
+  getCollectionItems,
+  moveCollectionItem,
+} from "./collection-navigation";
+import { Typeahead } from "./typeahead";
 import "./select.css";
 
 const tagName = "ormo-select";
@@ -163,8 +168,7 @@ export class OrmoSelect extends HTMLElement {
   #controller: AbortController | undefined;
   #observer: MutationObserver | undefined;
   #activeItem: HTMLElement | undefined;
-  #typeahead = "";
-  #typeaheadTimer: ReturnType<typeof setTimeout> | undefined;
+  #typeahead = new Typeahead();
   #pendingOpenReason: SelectOpenChangeReason = "programmatic";
   #positionerCleanup: SelectPositionerCleanup | undefined;
   #authoredAttributes = new Map<Element, Map<string, string | null>>();
@@ -243,7 +247,7 @@ export class OrmoSelect extends HTMLElement {
     this.#observer?.disconnect();
     this.#observer = undefined;
     this.#stopPositioner();
-    if (this.#typeaheadTimer) clearTimeout(this.#typeaheadTimer);
+    this.#typeahead.clear();
     this.#restoreAuthoredState();
   }
 
@@ -294,7 +298,7 @@ export class OrmoSelect extends HTMLElement {
   }
 
   get #items(): HTMLElement[] {
-    return Array.from(this.querySelectorAll<HTMLElement>(itemSelector));
+    return getCollectionItems(this, itemSelector);
   }
 
   get #enabledItems(): HTMLElement[] {
@@ -582,14 +586,13 @@ export class OrmoSelect extends HTMLElement {
   #moveHighlight(delta: number): void {
     const items = this.#enabledItems;
     if (!items.length) return;
-    const current = this.#activeItem ? items.indexOf(this.#activeItem) : -1;
-    const index =
-      current < 0
-        ? delta > 0
-          ? 0
-          : items.length - 1
-        : Math.max(0, Math.min(items.length - 1, current + delta));
-    this.#highlight(items[index]);
+    this.#highlight(
+      moveCollectionItem({
+        items,
+        current: this.#activeItem,
+        delta: delta < 0 ? -1 : 1,
+      }),
+    );
   }
 
   #show(reason: SelectOpenChangeReason): void {
@@ -705,14 +708,10 @@ export class OrmoSelect extends HTMLElement {
   }
 
   #typeaheadSearch(character: string): void {
-    if (this.#typeaheadTimer) clearTimeout(this.#typeaheadTimer);
-    this.#typeahead += character.toLocaleLowerCase();
-    this.#typeaheadTimer = setTimeout(() => {
-      this.#typeahead = "";
-    }, 700);
-
-    const match = this.#enabledItems.find((item) =>
-      itemText(item).toLocaleLowerCase().startsWith(this.#typeahead),
+    const match = this.#typeahead.search(
+      character,
+      this.#enabledItems,
+      itemText,
     );
     if (!match) return;
     if (this.open) this.#highlight(match);

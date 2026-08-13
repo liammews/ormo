@@ -99,6 +99,49 @@ export function isProgrammaticallyFocusable(element: HTMLElement): boolean {
   return element.matches(focusableSelector);
 }
 
+export function resolveFinalFocus(options: {
+  content: HTMLElement;
+  explicitTarget: HTMLElement | undefined;
+  invoker: HTMLElement | undefined;
+  owner: HTMLElement;
+  warningPrefix: string;
+}): HTMLElement | undefined {
+  const { content, explicitTarget, invoker, owner, warningPrefix } = options;
+
+  if (
+    explicitTarget?.isConnected &&
+    isProgrammaticallyFocusable(explicitTarget)
+  ) {
+    return explicitTarget;
+  }
+
+  const selector = content.dataset.finalFocus?.trim();
+  if (selector) {
+    try {
+      const target = owner.ownerDocument.querySelector<HTMLElement>(selector);
+      if (target && isProgrammaticallyFocusable(target)) return target;
+
+      if (import.meta.env.DEV) {
+        console.warn(
+          `${warningPrefix} finalFocus selector "${selector}" must match a focusable element.`,
+          owner,
+        );
+      }
+    } catch {
+      if (import.meta.env.DEV) {
+        console.warn(
+          `${warningPrefix} finalFocus selector "${selector}" is not valid CSS.`,
+          owner,
+        );
+      }
+    }
+  }
+
+  return invoker?.isConnected && isProgrammaticallyFocusable(invoker)
+    ? invoker
+    : undefined;
+}
+
 export function isTabbable(element: HTMLElement): boolean {
   return (
     isProgrammaticallyFocusable(element) &&

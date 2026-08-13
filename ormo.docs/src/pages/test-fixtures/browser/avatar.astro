@@ -1,6 +1,7 @@
 ---
 import AvatarBrokenDemo from "../../../components/demos/Avatar/AvatarBrokenDemo.astro";
 import AvatarInteractiveDemo from "../../../components/demos/Avatar/AvatarInteractiveDemo.astro";
+import * as Avatar from "@ormo/primitives/avatar";
 import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
 
 // The default, decorative, delayed, fallback-only and icon-fallback demos are
@@ -11,6 +12,15 @@ import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
 <BrowserFixtureLayout title="Avatar">
   <div data-avatar-demo="broken"><AvatarBrokenDemo /></div>
   <div data-avatar-demo="interactive"><AvatarInteractiveDemo /></div>
+  <div data-avatar-demo="loaded">
+    <Avatar.Root id="loaded-avatar" role="img" aria-label="Loaded avatar">
+      <Avatar.Image
+        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E"
+        alt=""
+      />
+      <Avatar.Fallback>LA</Avatar.Fallback>
+    </Avatar.Root>
+  </div>
 </BrowserFixtureLayout>
 
 <script>

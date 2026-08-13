@@ -138,3 +138,26 @@ test("has no automatically detectable accessibility violations", async ({
     await expectNoAxeViolations(page, { include: selector, label: selector });
   }
 });
+
+test.describe("without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("retains native naming, editing, validation, and form data", async ({
+    page,
+  }) => {
+    await page.goto("/test-fixtures/browser/field/");
+    const demo = page.locator("[data-field-demo]");
+    const input = demo.getByRole("textbox", { name: "Email address" });
+
+    await expect(input).toHaveAttribute("required", "");
+    await expect(input).toHaveAttribute("name", "email");
+    await input.fill("person@example.com");
+
+    expect(
+      await demo.evaluate((form: HTMLFormElement) => ({
+        valid: form.checkValidity(),
+        value: new FormData(form).get("email"),
+      })),
+    ).toEqual({ valid: true, value: "person@example.com" });
+  });
+});

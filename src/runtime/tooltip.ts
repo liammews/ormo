@@ -4,6 +4,11 @@ import type {
   TooltipOpenChangeDetail,
   TooltipSide,
 } from "../components/tooltip/types";
+import {
+  endingStyleAttribute,
+  PopupTransition,
+  startingStyleAttribute,
+} from "./popup-transition";
 import { getTabbableElements } from "./focus";
 import "./tooltip.css";
 
@@ -11,8 +16,6 @@ const tagName = "ormo-tooltip";
 const triggerSelector = "[data-ormo-tooltip-trigger]";
 const detachedTargetAttribute = "data-ormo-tooltip-for";
 const contentSelector = "[data-ormo-tooltip-content]";
-const startingStyleAttribute = "data-starting-style";
-const endingStyleAttribute = "data-ending-style";
 const defaultDelay = 700;
 const defaultCloseDelay = 100;
 const defaultSkipDelayDuration = 300;
@@ -284,9 +287,7 @@ export class OrmoTooltip extends HTMLElement {
   #positionerCleanup: TooltipPositionerCleanup | undefined;
   #suppressOpen = false;
   #suppressToggle = false;
-  #transitionFrame: number | undefined;
-  #transitionTimeout: ReturnType<typeof setTimeout> | undefined;
-  #transitionVersion = 0;
+  #transition = new PopupTransition();
   #triggerSnapshots = new WeakMap<HTMLElement, TriggerSnapshot>();
 
   static get observedAttributes(): string[] {
@@ -973,81 +974,15 @@ export class OrmoTooltip extends HTMLElement {
   }
 
   #clearTransitionSchedule(): void {
-    this.#transitionVersion += 1;
-
-    if (this.#transitionFrame !== undefined) {
-      cancelAnimationFrame(this.#transitionFrame);
-      this.#transitionFrame = undefined;
-    }
-
-    if (this.#transitionTimeout !== undefined) {
-      clearTimeout(this.#transitionTimeout);
-      this.#transitionTimeout = undefined;
-    }
+    this.#transition.clear();
   }
 
   #beginStartingStyle(content: HTMLElement): void {
-    this.#clearTransitionSchedule();
-    const version = this.#transitionVersion;
-    content.removeAttribute(endingStyleAttribute);
-    content.setAttribute(startingStyleAttribute, "");
-
-    this.#transitionFrame = requestAnimationFrame(() => {
-      this.#transitionFrame = undefined;
-      if (this.#transitionVersion === version && isTooltipOpen(content)) {
-        content.removeAttribute(startingStyleAttribute);
-      }
-    });
+    this.#transition.beginOpening(content, () => isTooltipOpen(content));
   }
 
   #beginEndingStyle(content: HTMLElement): void {
-    this.#clearTransitionSchedule();
-    const version = this.#transitionVersion;
-    content.removeAttribute(startingStyleAttribute);
-    content.setAttribute(endingStyleAttribute, "");
-
-    this.#transitionFrame = requestAnimationFrame(() => {
-      this.#transitionFrame = undefined;
-      if (this.#transitionVersion !== version || isTooltipOpen(content)) {
-        return;
-      }
-
-      const animations =
-        typeof content.getAnimations === "function"
-          ? content
-              .getAnimations()
-              .filter((animation) => animation.playState !== "paused")
-          : [];
-
-      if (animations.length === 0) {
-        content.removeAttribute(endingStyleAttribute);
-        return;
-      }
-
-      const endTimes = animations
-        .map((animation) =>
-          Number(animation.effect?.getComputedTiming().endTime),
-        )
-        .filter(Number.isFinite);
-      const maximumEndTime = Math.max(0, ...endTimes);
-      this.#transitionTimeout = setTimeout(() => {
-        if (this.#transitionVersion === version) {
-          content.removeAttribute(endingStyleAttribute);
-        }
-      }, maximumEndTime + 50);
-
-      void Promise.allSettled(
-        animations.map((animation) => animation.finished),
-      ).then(() => {
-        if (this.#transitionVersion === version) {
-          if (this.#transitionTimeout !== undefined) {
-            clearTimeout(this.#transitionTimeout);
-            this.#transitionTimeout = undefined;
-          }
-          content.removeAttribute(endingStyleAttribute);
-        }
-      });
-    });
+    this.#transition.beginClosing(content, () => isTooltipOpen(content));
   }
 
   #dispatchOpenChange(detail: TooltipOpenChangeDetail): void {

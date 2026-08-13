@@ -32,7 +32,7 @@
   --border-default: var(--color-gray-5);
   --border-hover: var(--color-gray-6);
   --border-active: var(--color-gray-7);
-  --border-control: var(--color-gray-5);
+  --border-control: var(--color-gray-9);
   --border-brand: var(--color-brand-9);
 
   --focus-default: var(--color-blue-10);

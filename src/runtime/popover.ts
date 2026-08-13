@@ -4,7 +4,16 @@ import type {
   PopoverOpenChangeDetail,
   PopoverSide,
 } from "../components/popover/types";
-import { getTabbableElements, isProgrammaticallyFocusable } from "./focus";
+import {
+  getTabbableElements,
+  isProgrammaticallyFocusable,
+  resolveFinalFocus,
+} from "./focus";
+import {
+  endingStyleAttribute,
+  PopupTransition,
+  startingStyleAttribute,
+} from "./popup-transition";
 import "./popover.css";
 
 const tagName = "ormo-popover";
@@ -14,8 +23,6 @@ const contentSelector = "[data-ormo-popover-content]";
 const titleSelector = "[data-ormo-popover-title]";
 const descriptionSelector = "[data-ormo-popover-description]";
 const closeSelector = "[data-ormo-popover-close]";
-const startingStyleAttribute = "data-starting-style";
-const endingStyleAttribute = "data-ending-style";
 const openFromTrigger = Symbol("openFromTrigger");
 const synchronizeTriggers = Symbol("synchronizeTriggers");
 
@@ -238,9 +245,7 @@ export class OrmoPopover extends HTMLElement {
   #positionerCleanup: PopoverPositionerCleanup | undefined;
   #returnValue = "";
   #suppressToggle = false;
-  #transitionFrame: number | undefined;
-  #transitionTimeout: ReturnType<typeof setTimeout> | undefined;
-  #transitionVersion = 0;
+  #transition = new PopupTransition();
   #triggerSnapshots = new WeakMap<HTMLElement, TriggerSnapshot>();
 
   connectedCallback(): void {
@@ -759,119 +764,25 @@ export class OrmoPopover extends HTMLElement {
   }
 
   #clearTransitionSchedule(): void {
-    this.#transitionVersion += 1;
-
-    if (this.#transitionFrame !== undefined) {
-      cancelAnimationFrame(this.#transitionFrame);
-      this.#transitionFrame = undefined;
-    }
-
-    if (this.#transitionTimeout !== undefined) {
-      clearTimeout(this.#transitionTimeout);
-      this.#transitionTimeout = undefined;
-    }
+    this.#transition.clear();
   }
 
   #beginStartingStyle(content: HTMLElement): void {
-    this.#clearTransitionSchedule();
-    const version = this.#transitionVersion;
-    content.removeAttribute(endingStyleAttribute);
-    content.setAttribute(startingStyleAttribute, "");
-
-    this.#transitionFrame = requestAnimationFrame(() => {
-      this.#transitionFrame = undefined;
-      if (this.#transitionVersion === version && isPopoverOpen(content)) {
-        content.removeAttribute(startingStyleAttribute);
-      }
-    });
+    this.#transition.beginOpening(content, () => isPopoverOpen(content));
   }
 
   #beginEndingStyle(content: HTMLElement): void {
-    this.#clearTransitionSchedule();
-    const version = this.#transitionVersion;
-    content.removeAttribute(startingStyleAttribute);
-    content.setAttribute(endingStyleAttribute, "");
-
-    this.#transitionFrame = requestAnimationFrame(() => {
-      this.#transitionFrame = undefined;
-      if (this.#transitionVersion !== version || isPopoverOpen(content)) {
-        return;
-      }
-
-      const animations =
-        typeof content.getAnimations === "function"
-          ? content
-              .getAnimations()
-              .filter((animation) => animation.playState !== "paused")
-          : [];
-
-      if (animations.length === 0) {
-        content.removeAttribute(endingStyleAttribute);
-        return;
-      }
-
-      const endTimes = animations
-        .map((animation) =>
-          Number(animation.effect?.getComputedTiming().endTime),
-        )
-        .filter(Number.isFinite);
-      const maximumEndTime = Math.max(0, ...endTimes);
-      this.#transitionTimeout = setTimeout(() => {
-        if (this.#transitionVersion === version) {
-          content.removeAttribute(endingStyleAttribute);
-        }
-      }, maximumEndTime + 50);
-
-      void Promise.allSettled(
-        animations.map((animation) => animation.finished),
-      ).then(() => {
-        if (this.#transitionVersion === version) {
-          if (this.#transitionTimeout !== undefined) {
-            clearTimeout(this.#transitionTimeout);
-            this.#transitionTimeout = undefined;
-          }
-          content.removeAttribute(endingStyleAttribute);
-        }
-      });
-    });
+    this.#transition.beginClosing(content, () => isPopoverOpen(content));
   }
 
   #resolveFinalFocus(content: HTMLElement): HTMLElement | undefined {
-    if (
-      this.#finalFocus?.isConnected &&
-      isProgrammaticallyFocusable(this.#finalFocus)
-    ) {
-      return this.#finalFocus;
-    }
-
-    const selector = content.dataset.finalFocus?.trim();
-    if (selector) {
-      try {
-        const target = this.ownerDocument.querySelector<HTMLElement>(selector);
-        if (target && isProgrammaticallyFocusable(target)) {
-          return target;
-        }
-
-        if (import.meta.env.DEV) {
-          console.warn(
-            `[Ormo Popover] finalFocus selector "${selector}" must match a focusable element.`,
-            this,
-          );
-        }
-      } catch {
-        if (import.meta.env.DEV) {
-          console.warn(
-            `[Ormo Popover] finalFocus selector "${selector}" is not valid CSS.`,
-            this,
-          );
-        }
-      }
-    }
-
-    return this.#invoker?.isConnected &&
-      isProgrammaticallyFocusable(this.#invoker)
-      ? this.#invoker
-      : undefined;
+    return resolveFinalFocus({
+      content,
+      explicitTarget: this.#finalFocus ?? undefined,
+      invoker: this.#invoker,
+      owner: this,
+      warningPrefix: "[Ormo Popover]",
+    });
   }
 
   #dispatchOpenChange(detail: PopoverOpenChangeDetail): void {

@@ -327,4 +327,62 @@ describe("tabs", () => {
     expect(tabs[0]?.tabIndex).toBe(0);
     expect(tabs[1]?.tabIndex).toBe(-1);
   });
+
+  it("initializes tabs and panels inserted after connection", async () => {
+    const root = createTabs(["first"]);
+    const list = root.querySelector("[data-ormo-tabs-list]");
+    list?.insertAdjacentHTML(
+      "beforeend",
+      '<button type="button" data-ormo-tabs-tab data-value="second">second</button>',
+    );
+    root.insertAdjacentHTML(
+      "beforeend",
+      '<div data-ormo-tabs-panel data-value="second">second content</div>',
+    );
+
+    await Promise.resolve();
+
+    const tabs = getTabs(root);
+    const panels = getPanels(root);
+    expect(tabs[1]?.getAttribute("aria-controls")).toBe(panels[1]?.id);
+    expect(panels[1]?.getAttribute("aria-labelledby")).toBe(tabs[1]?.id);
+    expect(panels[1]?.hidden).toBe(true);
+    tabs[1]?.click();
+    expect(root.value).toBe("second");
+  });
+
+  it("keeps nested tab interactions scoped to their own root", () => {
+    const outer = createTabs(["outer-one", "outer-two"]);
+    const inner = createTabs(["inner-one", "inner-two"]);
+    getPanels(outer)[0]?.append(inner);
+
+    getTabs(inner)[1]?.click();
+
+    expect(inner.value).toBe("inner-two");
+    expect(outer.value).toBe("outer-one");
+  });
+
+  it("preserves value and restores listeners after reconnection", () => {
+    const root = createTabs(["first", "second"]);
+    root.value = "second";
+
+    root.remove();
+    document.body.append(root);
+    getTabs(root)[0]?.click();
+
+    expect(root.value).toBe("first");
+  });
+
+  it("preserves authored disabled state across root updates", () => {
+    const root = createTabs(["first", "second"]);
+    const tabs = getTabs(root);
+    if (tabs[0]) tabs[0].disabled = true;
+
+    root.disabled = true;
+    root.disabled = false;
+
+    expect(tabs[0]?.disabled).toBe(true);
+    expect(tabs[1]?.disabled).toBe(false);
+    expect(root.value).toBe("second");
+  });
 });

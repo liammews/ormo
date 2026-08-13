@@ -3,10 +3,10 @@ import type {
   AccordionValue,
 } from "../components/accordion/types";
 import {
-  cancelCollapsibleState,
-  setCollapsibleState,
-  setCollapsibleWidth,
-} from "./collapsible";
+  cancelAccordionContentState,
+  setAccordionContentState,
+  setAccordionContentWidth,
+} from "./accordion-content-state";
 
 const tagName = "ormo-accordion";
 const itemSelector = "[data-ormo-accordion-item]";
@@ -103,7 +103,7 @@ export class OrmoAccordion extends HTMLElement {
     this.#resizeObserver?.disconnect();
     this.#resizeObserver = undefined;
     this.#getParts().forEach(({ content }) => {
-      cancelCollapsibleState(content);
+      cancelAccordionContentState(content);
     });
   }
 
@@ -265,7 +265,7 @@ export class OrmoAccordion extends HTMLElement {
     this.#resizeObserver ??= new ResizeObserver((entries) => {
       for (const entry of entries) {
         if (entry.target instanceof HTMLElement) {
-          setCollapsibleWidth(entry.target, contentWidthProperty);
+          setAccordionContentWidth(entry.target, contentWidthProperty);
         }
       }
     });
@@ -350,7 +350,7 @@ export class OrmoAccordion extends HTMLElement {
         }
 
         if (!animate || stateChanged) {
-          setCollapsibleState(content, open, {
+          setAccordionContentState(content, open, {
             animate,
             fallbackFocus: trigger,
             heightProperty: contentHeightProperty,

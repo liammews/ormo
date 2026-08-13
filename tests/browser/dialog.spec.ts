@@ -118,9 +118,15 @@ test("has no automatically detectable accessibility violations", async ({
   });
 
   await page.getByRole("button", { name: "View notifications" }).click();
-  await expect(
-    page.getByRole("dialog", { name: "Notifications" }).first(),
-  ).not.toHaveAttribute("data-starting-style");
+  const openDialog = page
+    .getByRole("dialog", { name: "Notifications" })
+    .first();
+  await expect(openDialog).not.toHaveAttribute("data-starting-style");
+  await openDialog.evaluate(async (element) => {
+    await Promise.allSettled(
+      element.getAnimations().map((animation) => animation.finished),
+    );
+  });
   await expectNoAxeViolations(page, {
     include: "[data-dialog-demo]",
     label: "open dialog demo",

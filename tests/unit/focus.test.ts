@@ -1,13 +1,15 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   getTabbableElements,
   isProgrammaticallyFocusable,
   isTabbable,
+  resolveFinalFocus,
 } from "../../src/runtime/focus";
 
 afterEach(() => {
   document.body.replaceChildren();
+  vi.restoreAllMocks();
 });
 
 describe("focus utilities", () => {
@@ -47,5 +49,54 @@ describe("focus utilities", () => {
     expect(
       getTabbableElements(root).map((element) => element.dataset.control),
     ).toEqual(["selected"]);
+  });
+
+  it("resolves explicit, selected, and invoking final-focus targets", () => {
+    const owner = document.createElement("div");
+    const content = document.createElement("div");
+    const explicitTarget = document.createElement("button");
+    const selectedTarget = document.createElement("button");
+    const invoker = document.createElement("button");
+    selectedTarget.id = "after-popup";
+    content.dataset.finalFocus = "#after-popup";
+    document.body.append(
+      owner,
+      content,
+      explicitTarget,
+      selectedTarget,
+      invoker,
+    );
+
+    expect(
+      resolveFinalFocus({
+        content,
+        explicitTarget,
+        invoker,
+        owner,
+        warningPrefix: "[Test]",
+      }),
+    ).toBe(explicitTarget);
+
+    explicitTarget.remove();
+    expect(
+      resolveFinalFocus({
+        content,
+        explicitTarget,
+        invoker,
+        owner,
+        warningPrefix: "[Test]",
+      }),
+    ).toBe(selectedTarget);
+
+    content.removeAttribute("data-final-focus");
+    expect(
+      resolveFinalFocus({
+        content,
+        explicitTarget,
+        invoker,
+        owner,
+        warningPrefix: "[Test]",
+      }),
+    ).toBe(invoker);
   });
 });

@@ -15,6 +15,16 @@ test("shows fallback when the image fails to load", async ({ page }) => {
   await expect(broken).toHaveAttribute("aria-label", "Ada Lovelace");
 });
 
+test("shows a successfully loaded image and hides its fallback", async ({
+  page,
+}) => {
+  const loaded = page.locator("#loaded-avatar");
+
+  await expect(loaded).toHaveAttribute("data-status", "loaded");
+  await expect(loaded.locator("[data-ormo-avatar-image]")).toBeVisible();
+  await expect(loaded.locator("[data-ormo-avatar-fallback]")).toBeHidden();
+});
+
 test("keeps interactive wrappers named and focusable", async ({ page }) => {
   const button = page.getByRole("button", {
     name: "View Ada Lovelace's profile",
