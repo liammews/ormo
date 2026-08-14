@@ -1,0 +1,30 @@
+---
+import { getDropdownMenuRadioGroupSsrContext } from "../../internal/dropdown-menu-ssr-context";
+import type { DropdownMenuRadioItemProps } from "./types";
+
+type Props = DropdownMenuRadioItemProps;
+const {
+  value,
+  disabled = false,
+  textValue,
+  ...attributes
+}: Props = Astro.props;
+const checked = getDropdownMenuRadioGroupSsrContext()?.value === value;
+---
+
+<div
+  {...attributes}
+  role="menuitemradio"
+  tabindex="-1"
+  aria-checked={checked}
+  aria-disabled={disabled ? "true" : undefined}
+  data-disabled={disabled ? "" : undefined}
+  data-checked={checked ? "" : undefined}
+  data-state={checked ? "checked" : "unchecked"}
+  data-value={value}
+  data-text-value={textValue}
+  data-ormo-dropdown-menu-item
+  data-ormo-dropdown-menu-radio-item
+>
+  <slot />
+</div>

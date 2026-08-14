@@ -1,0 +1,28 @@
+---
+import * as PreviewCard from "@ormo/primitives/preview-card";
+import { ExternalLink, Sparkles } from "@lucide/astro";
+import "./index.css";
+---
+
+<div class="preview-card-demo">
+  Build content-driven websites with{" "}
+  <PreviewCard.Root class="preview-card">
+    <PreviewCard.Trigger
+      class="preview-card__trigger"
+      href="https://astro.build">Astro</PreviewCard.Trigger
+    >
+    <PreviewCard.Content class="preview-card__content" sideOffset={8}>
+      <span class="preview-card__eyebrow">
+        <Sparkles size={13} aria-hidden="true" />
+        Web framework
+      </span>
+      <strong class="preview-card__title">
+        Astro
+        <ExternalLink size={13} aria-hidden="true" />
+      </strong>
+      <span class="preview-card__description">
+        The web framework for content-driven websites.
+      </span>
+    </PreviewCard.Content>
+  </PreviewCard.Root>.
+</div>

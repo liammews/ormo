@@ -1,0 +1,27 @@
+---
+import type { DropdownMenuSubTriggerProps } from "./types";
+import { getDropdownMenuSsrContext } from "../../internal/dropdown-menu-ssr-context";
+
+type Props = DropdownMenuSubTriggerProps;
+const { disabled = false, textValue, ...attributes }: Props = Astro.props;
+const context = getDropdownMenuSsrContext();
+const open = context?.defaultOpen ?? false;
+---
+
+<div
+  {...attributes}
+  role="menuitem"
+  tabindex="-1"
+  aria-haspopup="menu"
+  aria-expanded={open}
+  aria-controls={context ? `${context.rootId}-content` : undefined}
+  aria-disabled={disabled ? "true" : undefined}
+  data-disabled={disabled ? "" : undefined}
+  data-text-value={textValue}
+  data-ormo-dropdown-menu-trigger
+  data-ormo-dropdown-menu-item
+  data-ormo-dropdown-menu-sub-trigger
+  data-state={open ? "open" : "closed"}
+>
+  <slot />
+</div>

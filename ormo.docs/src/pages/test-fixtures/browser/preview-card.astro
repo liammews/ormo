@@ -1,0 +1,27 @@
+---
+import * as PreviewCard from "@ormo/primitives/preview-card";
+import PreviewCardDemo from "../../../components/demos/PreviewCard/PreviewCardDemo.astro";
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+---
+
+<BrowserFixtureLayout title="Preview Card">
+  <PreviewCardDemo />
+  <PreviewCard.Root id="initial-preview" defaultOpen data-initial-preview>
+    <PreviewCard.Trigger href="/initial">Initial preview</PreviewCard.Trigger>
+    <PreviewCard.Content>Initially open content</PreviewCard.Content>
+  </PreviewCard.Root>
+  <PreviewCard.Root
+    id="floating-preview"
+    positioning="floating"
+    data-floating-preview
+  >
+    <PreviewCard.Trigger href="/floating">Floating preview</PreviewCard.Trigger>
+    <PreviewCard.Content side="bottom" align="start" sideOffset={4}>
+      Floating content
+    </PreviewCard.Content>
+  </PreviewCard.Root>
+</BrowserFixtureLayout>
+
+<script>
+  import "@ormo/primitives/preview-card/floating";
+</script>

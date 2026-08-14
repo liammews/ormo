@@ -479,6 +479,58 @@
         "tests/unit/password-field.astro.test.ts",
         "tests/unit/password-field-ssr-context.test.ts"
       ]
+    },
+    {
+      "id": "dropdown-menu",
+      "label": "Dropdown Menu",
+      "status": "production",
+      "runtimeModel": "custom-element",
+      "parts": [
+        "CheckboxItem",
+        "Content",
+        "Group",
+        "GroupLabel",
+        "Item",
+        "ItemIndicator",
+        "LinkItem",
+        "RadioGroup",
+        "RadioItem",
+        "Root",
+        "Separator",
+        "Sub",
+        "SubContent",
+        "SubTrigger",
+        "Trigger"
+      ],
+      "runtime": [
+        "src/runtime/dropdown-menu.ts",
+        "src/runtime/dropdown-menu-floating.ts"
+      ],
+      "ssrContext": "src/internal/dropdown-menu-ssr-context.ts",
+      "behaviourCss": ["src/runtime/dropdown-menu.css"],
+      "tests": [
+        "tests/unit/dropdown-menu.test.ts",
+        "tests/unit/dropdown-menu-ssr-context.test.ts",
+        "tests/unit/dropdown-menu.astro.test.ts"
+      ]
+    },
+    {
+      "id": "preview-card",
+      "label": "Preview Card",
+      "status": "production",
+      "runtimeModel": "custom-element",
+      "parts": ["Content", "Root", "Trigger"],
+      "runtime": [
+        "src/runtime/preview-card.ts",
+        "src/runtime/preview-card-floating.ts"
+      ],
+      "ssrContext": "src/internal/preview-card-ssr-context.ts",
+      "behaviourCss": ["src/runtime/preview-card.css"],
+      "tests": [
+        "tests/unit/preview-card.test.ts",
+        "tests/unit/preview-card-ssr-context.test.ts",
+        "tests/unit/preview-card.astro.test.ts"
+      ]
     }
   ]
 }

@@ -1,0 +1,27 @@
+---
+import type { DropdownMenuCheckboxItemProps } from "./types";
+
+type Props = DropdownMenuCheckboxItemProps;
+const {
+  checked = false,
+  disabled = false,
+  textValue,
+  ...attributes
+}: Props = Astro.props;
+---
+
+<div
+  {...attributes}
+  role="menuitemcheckbox"
+  tabindex="-1"
+  aria-checked={checked}
+  aria-disabled={disabled ? "true" : undefined}
+  data-checked={checked ? "" : undefined}
+  data-disabled={disabled ? "" : undefined}
+  data-state={checked ? "checked" : "unchecked"}
+  data-text-value={textValue}
+  data-ormo-dropdown-menu-item
+  data-ormo-dropdown-menu-checkbox-item
+>
+  <slot />
+</div>

@@ -1,0 +1,27 @@
+---
+import * as DropdownMenu from "../../../src/components/dropdown-menu";
+---
+
+<DropdownMenu.Root id="actions" defaultOpen>
+  <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>
+  <DropdownMenu.Content aria-label="Actions">
+    <DropdownMenu.Group>
+      <DropdownMenu.GroupLabel>Editing</DropdownMenu.GroupLabel>
+      <DropdownMenu.Item textValue="Duplicate">Duplicate</DropdownMenu.Item>
+      <DropdownMenu.Item disabled>Delete</DropdownMenu.Item>
+    </DropdownMenu.Group>
+    <DropdownMenu.Separator />
+    <DropdownMenu.CheckboxItem checked>Toolbar</DropdownMenu.CheckboxItem>
+    <DropdownMenu.RadioGroup value="dark">
+      <DropdownMenu.RadioItem value="light">Light</DropdownMenu.RadioItem>
+      <DropdownMenu.RadioItem value="dark">Dark</DropdownMenu.RadioItem>
+    </DropdownMenu.RadioGroup>
+    <DropdownMenu.Sub>
+      <DropdownMenu.SubTrigger>More</DropdownMenu.SubTrigger>
+      <DropdownMenu.SubContent aria-label="More">
+        <DropdownMenu.Item>Export</DropdownMenu.Item>
+      </DropdownMenu.SubContent>
+    </DropdownMenu.Sub>
+    <DropdownMenu.LinkItem href="/help">Help</DropdownMenu.LinkItem>
+  </DropdownMenu.Content>
+</DropdownMenu.Root>

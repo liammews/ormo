@@ -1,0 +1,10 @@
+---
+import type { DropdownMenuItemIndicatorProps } from "./types";
+
+type Props = DropdownMenuItemIndicatorProps;
+const attributes: Props = Astro.props;
+---
+
+<span {...attributes} aria-hidden="true" data-ormo-dropdown-menu-item-indicator
+  ><slot /></span
+>

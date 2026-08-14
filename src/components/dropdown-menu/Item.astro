@@ -1,0 +1,18 @@
+---
+import type { DropdownMenuItemProps } from "./types";
+
+type Props = DropdownMenuItemProps;
+const { disabled = false, textValue, ...attributes }: Props = Astro.props;
+---
+
+<div
+  {...attributes}
+  role="menuitem"
+  tabindex="-1"
+  aria-disabled={disabled ? "true" : undefined}
+  data-disabled={disabled ? "" : undefined}
+  data-text-value={textValue}
+  data-ormo-dropdown-menu-item
+>
+  <slot />
+</div>

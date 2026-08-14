@@ -1,0 +1,35 @@
+---
+import { styleToCssText } from "../../internal/style-to-css-text";
+import { getDropdownMenuSsrContext } from "../../internal/dropdown-menu-ssr-context";
+import type { DropdownMenuSubContentProps } from "./types";
+
+type Props = DropdownMenuSubContentProps;
+const {
+  side = "right",
+  align = "start",
+  sideOffset = 0,
+  style,
+  ...attributes
+}: Props = Astro.props;
+const offsetStyle = `--ormo-dropdown-menu-side-offset: ${sideOffset}px`;
+const authoredStyle = styleToCssText(style);
+const context = getDropdownMenuSsrContext();
+const open = context?.defaultOpen ?? false;
+---
+
+<div
+  {...attributes}
+  id={context ? `${context.rootId}-content` : undefined}
+  role="menu"
+  popover="manual"
+  tabindex="-1"
+  data-side={side}
+  data-align={align}
+  data-side-offset={sideOffset}
+  data-ormo-dropdown-menu-content
+  data-ormo-dropdown-menu-sub-content
+  data-state={open ? "open" : "closed"}
+  style={authoredStyle ? `${authoredStyle}; ${offsetStyle}` : offsetStyle}
+>
+  <slot />
+</div>

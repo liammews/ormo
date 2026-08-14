@@ -1,0 +1,36 @@
+---
+import {
+  createDropdownMenuRootId,
+  renderWithDropdownMenuContext,
+} from "../../internal/dropdown-menu-ssr-context";
+import type { DropdownMenuRootProps } from "./types";
+
+type Props = DropdownMenuRootProps;
+
+const {
+  id,
+  defaultOpen = false,
+  positioning = "css-anchor",
+  ...attributes
+}: Props = Astro.props;
+const rootId = id ?? createDropdownMenuRootId();
+
+const content = await renderWithDropdownMenuContext(
+  { rootId, defaultOpen, groupCount: 0 },
+  () => Astro.slots.render("default"),
+);
+---
+
+<ormo-dropdown-menu
+  {...attributes}
+  id={rootId}
+  data-default-open={defaultOpen ? "" : undefined}
+  data-positioning={positioning === "floating" ? "floating" : undefined}
+  data-ormo-dropdown-menu-root
+  data-state={defaultOpen ? "open" : "closed"}
+  set:html={content}
+/>
+
+<script>
+  import "../../runtime/dropdown-menu";
+</script>

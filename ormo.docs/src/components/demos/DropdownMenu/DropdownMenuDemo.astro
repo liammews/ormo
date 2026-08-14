@@ -1,0 +1,80 @@
+---
+import * as DropdownMenu from "@ormo/primitives/dropdown-menu";
+import { Check, ChevronDown, ChevronRight, ExternalLink } from "@lucide/astro";
+import "./index.css";
+---
+
+<DropdownMenu.Root class="dropdown-menu" id="page-actions">
+  <DropdownMenu.Trigger class="dropdown-menu__trigger">
+    Actions
+    <ChevronDown class="dropdown-menu__chevron" size={14} aria-hidden="true" />
+  </DropdownMenu.Trigger>
+  <DropdownMenu.Content
+    class="dropdown-menu__content"
+    aria-label="Page actions"
+    sideOffset={6}
+  >
+    <DropdownMenu.Group class="dropdown-menu__group">
+      <DropdownMenu.GroupLabel class="dropdown-menu__label">
+        Page
+      </DropdownMenu.GroupLabel>
+      <DropdownMenu.Item class="dropdown-menu__item"
+        >Duplicate</DropdownMenu.Item
+      >
+      <DropdownMenu.Item class="dropdown-menu__item">Rename</DropdownMenu.Item>
+      <DropdownMenu.Item class="dropdown-menu__item" disabled
+        >Delete</DropdownMenu.Item
+      >
+      <DropdownMenu.CheckboxItem class="dropdown-menu__item" checked>
+        Show toolbar
+        <DropdownMenu.ItemIndicator
+          ><Check size={13} /></DropdownMenu.ItemIndicator
+        >
+      </DropdownMenu.CheckboxItem>
+    </DropdownMenu.Group>
+    <DropdownMenu.Separator class="dropdown-menu__separator" />
+    <DropdownMenu.RadioGroup value="comfortable">
+      <DropdownMenu.GroupLabel class="dropdown-menu__label"
+        >Density</DropdownMenu.GroupLabel
+      >
+      <DropdownMenu.RadioItem class="dropdown-menu__item" value="compact">
+        Compact
+        <DropdownMenu.ItemIndicator
+          ><Check size={13} /></DropdownMenu.ItemIndicator
+        >
+      </DropdownMenu.RadioItem>
+      <DropdownMenu.RadioItem class="dropdown-menu__item" value="comfortable">
+        Comfortable
+        <DropdownMenu.ItemIndicator
+          ><Check size={13} /></DropdownMenu.ItemIndicator
+        >
+      </DropdownMenu.RadioItem>
+    </DropdownMenu.RadioGroup>
+    <DropdownMenu.Separator class="dropdown-menu__separator" />
+    <DropdownMenu.Sub>
+      <DropdownMenu.SubTrigger class="dropdown-menu__item">
+        More tools
+        <ChevronRight size={13} aria-hidden="true" />
+      </DropdownMenu.SubTrigger>
+      <DropdownMenu.SubContent
+        class="dropdown-menu__content"
+        sideOffset={6}
+        aria-label="More tools"
+      >
+        <DropdownMenu.Item class="dropdown-menu__item">Export</DropdownMenu.Item
+        >
+        <DropdownMenu.Item class="dropdown-menu__item"
+          >Archive</DropdownMenu.Item
+        >
+      </DropdownMenu.SubContent>
+    </DropdownMenu.Sub>
+    <DropdownMenu.Separator class="dropdown-menu__separator" />
+    <DropdownMenu.LinkItem
+      class="dropdown-menu__item"
+      href="/docs/components/dropdown-menu"
+    >
+      View documentation
+      <ExternalLink size={13} aria-hidden="true" />
+    </DropdownMenu.LinkItem>
+  </DropdownMenu.Content>
+</DropdownMenu.Root>

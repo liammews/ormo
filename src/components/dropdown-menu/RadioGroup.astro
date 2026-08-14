@@ -1,0 +1,19 @@
+---
+import { renderWithDropdownMenuRadioGroupContext } from "../../internal/dropdown-menu-ssr-context";
+import type { DropdownMenuRadioGroupProps } from "./types";
+
+type Props = DropdownMenuRadioGroupProps;
+const { value, ...attributes }: Props = Astro.props;
+const content = await renderWithDropdownMenuRadioGroupContext({ value }, () =>
+  Astro.slots.render("default"),
+);
+---
+
+<div
+  {...attributes}
+  role="group"
+  data-value={value}
+  data-ormo-dropdown-menu-radio-group
+>
+  <Fragment set:html={content} />
+</div>

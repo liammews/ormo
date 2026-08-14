@@ -1,0 +1,19 @@
+---
+import { getDropdownMenuSsrContext } from "../../internal/dropdown-menu-ssr-context";
+import type { DropdownMenuTriggerProps } from "./types";
+
+type Props = DropdownMenuTriggerProps;
+const { type = "button", ...attributes }: Props = Astro.props;
+const context = getDropdownMenuSsrContext();
+const open = context?.defaultOpen ?? false;
+---
+
+<button
+  {...attributes}
+  type={type}
+  aria-haspopup="menu"
+  aria-expanded={open ? "true" : "false"}
+  aria-controls={context ? `${context.rootId}-content` : undefined}
+  data-ormo-dropdown-menu-trigger
+  data-state={open ? "open" : "closed"}><slot /></button
+>

@@ -1,0 +1,24 @@
+---
+import DropdownMenuDemo from "../../../components/demos/DropdownMenu/DropdownMenuDemo.astro";
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+import * as DropdownMenu from "@ormo/primitives/dropdown-menu";
+---
+
+<BrowserFixtureLayout title="Dropdown Menu">
+  <DropdownMenuDemo />
+  <DropdownMenu.Root id="floating-menu" positioning="floating">
+    <DropdownMenu.Trigger>Floating actions</DropdownMenu.Trigger>
+    <DropdownMenu.Content
+      side="bottom"
+      align="start"
+      sideOffset={4}
+      aria-label="Floating actions"
+    >
+      <DropdownMenu.Item>Floating item</DropdownMenu.Item>
+    </DropdownMenu.Content>
+  </DropdownMenu.Root>
+</BrowserFixtureLayout>
+
+<script>
+  import "@ormo/primitives/dropdown-menu/floating";
+</script>

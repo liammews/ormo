@@ -1,0 +1,283 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: Preview Card
+description: Shows a visual preview of a link destination on pointer or keyboard interest.
+---
+
+import PreviewCardDemo from "../../../components/demos/PreviewCard/PreviewCardDemo.astro";
+import previewCardDemoCode from "../../../components/demos/PreviewCard/PreviewCardDemo.astro?raw";
+import previewCardDemoCss from "../../../components/demos/PreviewCard/index.css?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+<DemoBlock
+  files={[
+    { filename: "PreviewCard.astro", code: previewCardDemoCode },
+    { filename: "index.css", code: previewCardDemoCss },
+  ]}
+>
+  <PreviewCardDemo />
+</DemoBlock>
+
+## Anatomy
+
+`PreviewCard.Trigger` renders a link. Keep all essential information available on its destination page.
+
+<CodeBlock lang="astro" code={`---
+import * as PreviewCard from "@ormo/primitives/preview-card";
+---
+
+<PreviewCard.Root>
+  <PreviewCard.Trigger href="/astro">Astro</PreviewCard.Trigger>
+  <PreviewCard.Content>
+    <strong>Astro</strong>
+    <p>The web framework for content-driven websites.</p>
+  </PreviewCard.Content>
+</PreviewCard.Root>`} />
+
+## Positioning
+
+Preview Card uses CSS Anchor Positioning by default. To use Floating UI collision handling, set `positioning="floating"` and load its optional client entry.
+
+<CodeBlock lang="astro" code={`<PreviewCard.Root positioning="floating">
+  <!-- Trigger and Content -->
+</PreviewCard.Root>
+
+<script>
+  import "@ormo/primitives/preview-card/floating";
+</script>`} />
+
+## API reference
+
+All parts forward the relevant native HTML attributes unless noted otherwise.
+
+### Root
+
+`PreviewCard.Root` renders `<ormo-preview-card>` and manages pointer interest, visual focus interest, state and positioning.
+
+<PropsTable
+  id="preview-card-root-props"
+  caption="Preview Card Root properties"
+  rows={[
+    {
+      name: "defaultOpen",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Opens the preview when JavaScript enhances the server output. Without JavaScript, Content stays closed.",
+    },
+    {
+      name: "delay",
+      type: "number",
+      defaultValue: "600",
+      description: "Sets the pointer opening delay in milliseconds.",
+    },
+    {
+      name: "closeDelay",
+      type: "number",
+      defaultValue: "300",
+      description:
+        "Sets the pointer closing delay in milliseconds. This delay lets the pointer cross from Trigger into Content.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description:
+        "Prevents the visual preview from opening. It does not disable the destination link.",
+    },
+    {
+      name: "positioning",
+      type: '"css-anchor" | "floating"',
+      defaultValue: '"css-anchor"',
+      description:
+        "Selects CSS Anchor Positioning or the optional Floating UI entry.",
+    },
+    {
+      name: "id",
+      type: "string",
+      description:
+        "Identifies the root and provides a collision-safe CSS anchor name.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered custom element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered custom element.",
+    },
+  ]}
+/>
+
+### Trigger
+
+`PreviewCard.Trigger` renders an `<a>`. A useful destination is required even when the preview cannot open.
+
+<PropsTable
+  id="preview-card-trigger-props"
+  caption="Preview Card Trigger properties"
+  rows={[
+    {
+      name: "href",
+      type: "string",
+      description: "Sets the link destination.",
+      details: [{ label: "Required", value: "Yes" }],
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered link.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered link.",
+    },
+  ]}
+/>
+
+### Content
+
+`PreviewCard.Content` renders a visual-only `<div popover="manual">`. It is always hidden from the accessibility tree.
+
+<PropsTable
+  id="preview-card-content-props"
+  caption="Preview Card Content properties"
+  rows={[
+    {
+      name: "side",
+      type: '"top" | "right" | "bottom" | "left"',
+      defaultValue: '"top"',
+      description: "Sets the preferred side of Trigger.",
+    },
+    {
+      name: "align",
+      type: '"start" | "center" | "end"',
+      defaultValue: '"center"',
+      description: "Sets alignment along the selected side.",
+    },
+    {
+      name: "sideOffset",
+      type: "number",
+      defaultValue: "8",
+      description: "Sets the distance from Trigger in pixels.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered preview.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered preview.",
+    },
+  ]}
+/>
+
+## JavaScript API
+
+The `<ormo-preview-card>` element exposes framework-independent control.
+
+<PropsTable
+  id="preview-card-browser-api"
+  caption="Preview Card browser element API"
+  nameHeader="Member"
+  rows={[
+    {
+      name: "open",
+      type: "boolean",
+      description:
+        "Reports whether Content is open. This property is read-only.",
+    },
+    {
+      name: "delay",
+      type: "number",
+      description: "Gets or sets the pointer opening delay.",
+    },
+    {
+      name: "closeDelay",
+      type: "number",
+      description: "Gets or sets the pointer closing delay.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      description: "Gets or sets whether the visual preview can open.",
+    },
+    {
+      name: "show()",
+      type: "() => void",
+      description: "Opens Content unless the root is disabled.",
+    },
+    {
+      name: "hide()",
+      type: "() => void",
+      description: "Closes Content.",
+    },
+  ]}
+/>
+
+`ormo:preview-card-open-change` bubbles and crosses shadow boundaries. It is not cancellable. Its detail contains `open` and a `reason` of `"focus"`, `"pointer"`, `"escape"`, `"trigger"`, or `"programmatic"`.
+
+<CodeBlock lang="js" code={`const preview = document.querySelector("ormo-preview-card");
+
+preview.addEventListener("ormo:preview-card-open-change", (event) => {
+console.log(event.detail.open, event.detail.reason);
+});
+
+preview.show();`} />
+
+## Accessibility
+
+The preview is a visual enhancement. It is hidden from assistive technology and does not describe the trigger. Do not put unique information or interactive controls in `PreviewCard.Content`. The link remains usable without JavaScript, pointer input, or access to the preview.
+
+Pointer interest opens the preview after a delay. Focusing the link can also display it, but focus stays on the link. <kbd>Escape</kbd> closes an open preview.
+
+<PropsTable
+  id="preview-card-keyboard"
+  caption="Preview Card keyboard behaviour"
+  nameHeader="Key"
+  nameElement="kbd"
+  rows={[
+    {
+      name: "Tab",
+      type: "Focus",
+      description:
+        "Moves focus to or from Trigger. Focus can display Content without moving focus into it.",
+    },
+    {
+      name: "Enter",
+      type: "Navigation",
+      description: "Follows the native Trigger link.",
+    },
+    {
+      name: "Escape",
+      type: "Dismissal",
+      description: "Closes an open preview while focus remains on Trigger.",
+    },
+  ]}
+/>
+
+## Styling
+
+Preview Card ships no layout or brand styles. Style the parts through `class` or public state hooks such as `[data-state="open"]`, `[data-starting-style]`, and `[data-ending-style]`.
+
+Content stays hidden while its native popover is closed, even when a consumer class sets `display`. Apply layout either to an inner wrapper or with `:popover-open`:
+
+<CodeBlock
+  lang="css"
+  code={`.preview-card-content:popover-open {
+  display: grid;
+}`}
+/>
+
+Content exposes `--ormo-preview-card-trigger-width` and `--ormo-preview-card-trigger-height` while Floating UI is active. `side`, `align`, and `sideOffset` changes reposition an open preview.
+
+## Status
+
+Preview Card has production manifest status. The package remains unreleased at version `0.0.0` while this passage of work continues.

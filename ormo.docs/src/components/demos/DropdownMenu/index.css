@@ -1,0 +1,91 @@
+.dropdown-menu__trigger {
+  display: inline-flex;
+  min-height: 2rem;
+  align-items: center;
+  gap: var(--space-75);
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-2);
+  padding-inline: var(--space-100);
+  background: var(--surface-base);
+  color: var(--content-default);
+  font: inherit;
+  font-size: var(--font-size-2);
+}
+
+.dropdown-menu__trigger:focus-visible,
+.dropdown-menu__item:focus-visible {
+  outline: var(--focus-width) solid var(--focus-subtle);
+  outline-offset: var(--focus-offset);
+}
+
+.dropdown-menu__chevron {
+  transition: transform var(--duration-1) var(--ease-1);
+}
+
+.dropdown-menu__trigger[data-state="open"] .dropdown-menu__chevron {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu__content {
+  box-sizing: border-box;
+  width: 14rem;
+  max-height: min(18rem, calc(100dvh - 2rem));
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  padding: var(--space-50);
+  background: var(--surface-base);
+  color: var(--content-default);
+}
+
+.dropdown-menu__label {
+  padding: var(--space-50) var(--space-75);
+  color: var(--content-subtle);
+  font-size: var(--font-size-1);
+  font-weight: var(--font-weight-medium);
+}
+
+.dropdown-menu__item {
+  display: flex;
+  min-height: 2rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-100);
+  border-radius: var(--radius-1);
+  padding: var(--space-50) var(--space-75);
+  color: inherit;
+  font-size: var(--font-size-2);
+  text-decoration: none;
+  cursor: default;
+}
+
+.dropdown-menu__item:focus {
+  background: var(--surface-elevated);
+  outline: none;
+}
+
+.dropdown-menu__item[data-disabled] {
+  color: var(--content-disabled);
+  cursor: not-allowed;
+}
+
+.dropdown-menu__item [data-ormo-dropdown-menu-item-indicator] {
+  display: inline-flex;
+  opacity: 0;
+}
+
+.dropdown-menu__item[data-state="checked"]
+  [data-ormo-dropdown-menu-item-indicator] {
+  opacity: 1;
+}
+
+.dropdown-menu__separator {
+  height: 1px;
+  margin-block: var(--space-50);
+  background: var(--border-default);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dropdown-menu__chevron {
+    transition: none;
+  }
+}

@@ -1,0 +1,107 @@
+:where([data-ormo-preview-card-content]) {
+  margin: 0;
+  border: none;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  inset: auto;
+  position: fixed;
+  position-anchor: var(--ormo-preview-card-anchor);
+}
+
+/* A consumer layout declaration must not make a closed popover visible. */
+:where([data-ormo-preview-card-content]):not(:popover-open):not([data-open]) {
+  display: none !important;
+}
+
+@supports (anchor-name: --ormo-preview-card) {
+  :where(
+    [data-ormo-preview-card-content][data-side="bottom"][data-align="start"]
+  ) {
+    position-area: bottom span-right;
+    margin-block-start: var(--ormo-preview-card-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-preview-card-content][data-side="bottom"][data-align="center"]
+  ) {
+    position-area: bottom center;
+    margin-block-start: var(--ormo-preview-card-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-preview-card-content][data-side="bottom"][data-align="end"]
+  ) {
+    position-area: bottom span-left;
+    margin-block-start: var(--ormo-preview-card-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-preview-card-content][data-side="top"][data-align="start"]
+  ) {
+    position-area: top span-right;
+    margin-block-end: var(--ormo-preview-card-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-preview-card-content][data-side="top"][data-align="center"]
+  ) {
+    position-area: top center;
+    margin-block-end: var(--ormo-preview-card-side-offset, 0px);
+  }
+  :where([data-ormo-preview-card-content][data-side="top"][data-align="end"]) {
+    position-area: top span-left;
+    margin-block-end: var(--ormo-preview-card-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-preview-card-content][data-side="right"][data-align="start"]
+  ) {
+    position-area: right span-bottom;
+    margin-inline-start: var(--ormo-preview-card-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-preview-card-content][data-side="right"][data-align="center"]
+  ) {
+    position-area: right center;
+    margin-inline-start: var(--ormo-preview-card-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-preview-card-content][data-side="right"][data-align="end"]
+  ) {
+    position-area: right span-top;
+    margin-inline-start: var(--ormo-preview-card-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-preview-card-content][data-side="left"][data-align="start"]
+  ) {
+    position-area: left span-bottom;
+    margin-inline-end: var(--ormo-preview-card-side-offset, 0px);
+  }
+  :where(
+    [data-ormo-preview-card-content][data-side="left"][data-align="center"]
+  ) {
+    position-area: left center;
+    margin-inline-end: var(--ormo-preview-card-side-offset, 0px);
+  }
+  :where([data-ormo-preview-card-content][data-side="left"][data-align="end"]) {
+    position-area: left span-top;
+    margin-inline-end: var(--ormo-preview-card-side-offset, 0px);
+  }
+  :where([data-ormo-preview-card-content]) {
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+  }
+}
+
+:where(
+  [data-ormo-preview-card-content][data-ormo-preview-card-positioning="floating"]
+) {
+  inset: auto;
+  top: 0;
+  left: 0;
+  right: auto;
+  bottom: auto;
+  margin: 0;
+  position: fixed;
+  position-anchor: --ormo-preview-card-none;
+  position-area: none;
+  position-try-fallbacks: none;
+}

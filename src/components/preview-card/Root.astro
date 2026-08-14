@@ -1,0 +1,40 @@
+---
+import {
+  createPreviewCardRootId,
+  renderWithPreviewCardContext,
+} from "../../internal/preview-card-ssr-context";
+import type { PreviewCardRootProps } from "./types";
+
+type Props = PreviewCardRootProps;
+const {
+  id,
+  defaultOpen = false,
+  delay = 600,
+  closeDelay = 300,
+  disabled = false,
+  positioning = "css-anchor",
+  ...attributes
+}: Props = Astro.props;
+const rootId = id ?? createPreviewCardRootId();
+const content = await renderWithPreviewCardContext(
+  { rootId, defaultOpen },
+  () => Astro.slots.render("default"),
+);
+---
+
+<ormo-preview-card
+  {...attributes}
+  id={rootId}
+  data-default-open={defaultOpen ? "" : undefined}
+  data-delay={delay}
+  data-close-delay={closeDelay}
+  data-disabled={disabled ? "" : undefined}
+  data-positioning={positioning === "floating" ? "floating" : undefined}
+  data-ormo-preview-card-root
+  data-state={defaultOpen ? "open" : "closed"}
+  set:html={content}
+/>
+
+<script>
+  import "../../runtime/preview-card";
+</script>

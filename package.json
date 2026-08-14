@@ -150,6 +150,22 @@
       "types": "./src/components/tooltip/floating.ts",
       "import": "./src/components/tooltip/floating.ts"
     },
+    "./dropdown-menu": {
+      "types": "./src/components/dropdown-menu/index.ts",
+      "import": "./src/components/dropdown-menu/index.ts"
+    },
+    "./dropdown-menu/floating": {
+      "types": "./src/components/dropdown-menu/floating.ts",
+      "import": "./src/components/dropdown-menu/floating.ts"
+    },
+    "./preview-card": {
+      "types": "./src/components/preview-card/index.ts",
+      "import": "./src/components/preview-card/index.ts"
+    },
+    "./preview-card/floating": {
+      "types": "./src/components/preview-card/floating.ts",
+      "import": "./src/components/preview-card/floating.ts"
+    },
     "./package.json": "./package.json"
   },
   "files": [

@@ -1,0 +1,14 @@
+---
+import { getPreviewCardSsrContext } from "../../internal/preview-card-ssr-context";
+import type { PreviewCardTriggerProps } from "./types";
+
+type Props = PreviewCardTriggerProps;
+const attributes: Props = Astro.props;
+const context = getPreviewCardSsrContext();
+---
+
+<a
+  {...attributes}
+  data-ormo-preview-card-trigger
+  data-state={context?.defaultOpen ? "open" : "closed"}><slot /></a
+>

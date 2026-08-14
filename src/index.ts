@@ -70,3 +70,5 @@ export type {
 export * as Slider from "./components/slider/index";
 export * as Switch from "./components/switch/index";
 export * as PasswordField from "./components/password-field/index";
+export * as DropdownMenu from "./components/dropdown-menu/index";
+export * as PreviewCard from "./components/preview-card/index";

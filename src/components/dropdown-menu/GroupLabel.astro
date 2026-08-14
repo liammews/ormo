@@ -1,0 +1,16 @@
+---
+import { getDropdownMenuGroupSsrContext } from "../../internal/dropdown-menu-ssr-context";
+import type { DropdownMenuGroupLabelProps } from "./types";
+
+type Props = DropdownMenuGroupLabelProps;
+const { id, ...attributes }: Props = Astro.props;
+const group = getDropdownMenuGroupSsrContext();
+---
+
+<div
+  {...attributes}
+  id={id ?? group?.labelId}
+  data-ormo-dropdown-menu-group-label
+>
+  <slot />
+</div>

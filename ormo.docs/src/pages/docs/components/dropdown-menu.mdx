@@ -1,0 +1,160 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: Dropdown Menu
+description: Displays a menu of actions or links from a button.
+---
+
+import DropdownMenuDemo from "../../../components/demos/DropdownMenu/DropdownMenuDemo.astro";
+import dropdownMenuDemoCode from "../../../components/demos/DropdownMenu/DropdownMenuDemo.astro?raw";
+import dropdownMenuDemoCss from "../../../components/demos/DropdownMenu/index.css?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+<DemoBlock
+  files={[
+    { filename: "DropdownMenu.astro", code: dropdownMenuDemoCode },
+    { filename: "index.css", code: dropdownMenuDemoCss },
+  ]}
+>
+  <DropdownMenuDemo />
+</DemoBlock>
+
+## Anatomy
+
+Import the namespace and compose a trigger, content, and menu items.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as DropdownMenu from "@ormo/primitives/dropdown-menu";
+---
+
+<DropdownMenu.Root>
+  <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>
+  <DropdownMenu.Content aria-label="Actions">
+    <DropdownMenu.Item>Duplicate</DropdownMenu.Item>
+    <DropdownMenu.Item>Rename</DropdownMenu.Item>
+    <DropdownMenu.Separator />
+    <DropdownMenu.LinkItem href="/help">Help</DropdownMenu.LinkItem>
+  </DropdownMenu.Content>
+</DropdownMenu.Root>`}
+/>
+
+Use `CheckboxItem` for independent options, `RadioGroup` and `RadioItem` for one-of-many options, and `Sub`, `SubTrigger`, and `SubContent` for nested actions. `ItemIndicator` is a visual slot for checked state.
+
+## Positioning
+
+Content uses CSS Anchor Positioning by default. For Floating UI collision handling, set `positioning="floating"` on Root or Sub and load the optional client entry.
+
+<CodeBlock lang="astro" code={`<DropdownMenu.Root positioning="floating">
+  <!-- Trigger and Content -->
+</DropdownMenu.Root>
+
+<script>
+  import "@ormo/primitives/dropdown-menu/floating";
+</script>`} />
+
+`side`, `align`, and `sideOffset` changes reposition open content. Floating content exposes `data-resolved-side`, `data-resolved-align`, `--ormo-dropdown-menu-trigger-width`, and `--ormo-dropdown-menu-trigger-height`.
+
+## API reference
+
+All parts forward relevant native HTML attributes unless noted otherwise.
+
+<PropsTable
+  id="dropdown-menu-root-props"
+  caption="Dropdown Menu Root and Sub properties"
+  rows={[
+    {
+      name: "defaultOpen",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Opens the menu when JavaScript enhances it.",
+    },
+    {
+      name: "positioning",
+      type: '"css-anchor" | "floating"',
+      defaultValue: '"css-anchor"',
+      description: "Selects the positioning engine.",
+    },
+  ]}
+/>
+
+<PropsTable
+  id="dropdown-menu-content-props"
+  caption="Dropdown Menu Content and SubContent properties"
+  rows={[
+    {
+      name: "side",
+      type: '"top" | "right" | "bottom" | "left"',
+      defaultValue: '"bottom"',
+      description:
+        "Sets the preferred placement side. SubContent defaults to right.",
+    },
+    {
+      name: "align",
+      type: '"start" | "center" | "end"',
+      defaultValue: '"start"',
+      description: "Aligns content to its trigger.",
+    },
+    {
+      name: "sideOffset",
+      type: "number",
+      defaultValue: "0",
+      description: "Sets the trigger gap in pixels.",
+    },
+  ]}
+/>
+
+<PropsTable
+  id="dropdown-menu-item-props"
+  caption="Dropdown Menu item properties"
+  rows={[
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Keeps the item focusable but prevents selection.",
+    },
+    {
+      name: "textValue",
+      type: "string",
+      description: "Provides an explicit typeahead value.",
+    },
+    {
+      name: "checked",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Sets CheckboxItem state.",
+    },
+    {
+      name: "value",
+      type: "string",
+      description:
+        "Identifies a RadioItem. RadioGroup value selects the matching item.",
+    },
+  ]}
+/>
+
+## Browser API and events
+
+`<ormo-dropdown-menu>` exposes the read-only `open` property and the `show()`, `hide()`, and `toggle(force?)` methods.
+
+- `ormo:dropdown-menu-before-select` is cancellable. Prevent it to keep the menu open and stop selection.
+- `ormo:dropdown-menu-open-change` reports `open` and a reason: `trigger`, `escape`, `outside`, `tab`, `selection`, or `programmatic`.
+- `ormo:dropdown-menu-checked-change` reports the CheckboxItem and its next `checked` value.
+- `ormo:dropdown-menu-value-change` reports the RadioItem and its selected `value`.
+
+## Accessibility
+
+The dropdown menu follows the ARIA menu button pattern. The trigger stays in the normal Tab order. Arrow keys open the menu and move focus between items. <kbd>Home</kbd> and <kbd>End</kbd> move to an edge. Printable characters use typeahead. <kbd>Escape</kbd> closes the active menu and restores focus to its trigger. Disabled items stay focusable but cannot run an action.
+
+Submenus open with <kbd>ArrowRight</kbd> in LTR and <kbd>ArrowLeft</kbd> in RTL. The opposite key closes the submenu. Tab closes the menu without trapping focus.
+
+## Styling
+
+The primitive ships only behaviour-critical CSS. Style parts with classes and public attributes such as `data-state`, `data-disabled`, `data-checked`, `data-side`, and `data-align`. Do not force closed popover content to display; the behaviour CSS keeps it hidden until open.
+
+## Status
+
+Dropdown Menu has production manifest status. The package remains unreleased at version `0.0.0` while this passage of work continues.

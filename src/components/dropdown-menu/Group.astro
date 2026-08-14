@@ -1,0 +1,27 @@
+---
+import {
+  createDropdownMenuGroupId,
+  getDropdownMenuSsrContext,
+  renderWithDropdownMenuGroupContext,
+} from "../../internal/dropdown-menu-ssr-context";
+import type { DropdownMenuGroupProps } from "./types";
+
+type Props = DropdownMenuGroupProps;
+const { id, ...attributes }: Props = Astro.props;
+const groupId = id ?? createDropdownMenuGroupId();
+const root = getDropdownMenuSsrContext();
+if (root) root.groupCount += 1;
+const content = await renderWithDropdownMenuGroupContext(
+  { id: groupId, labelId: `${groupId}-label` },
+  () => Astro.slots.render("default"),
+);
+---
+
+<div
+  {...attributes}
+  id={groupId}
+  role="group"
+  aria-labelledby={`${groupId}-label`}
+  data-ormo-dropdown-menu-group
+  set:html={content}
+/>

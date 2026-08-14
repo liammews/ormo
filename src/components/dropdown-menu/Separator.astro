@@ -1,0 +1,14 @@
+---
+import type { DropdownMenuSeparatorProps } from "./types";
+
+type Props = DropdownMenuSeparatorProps;
+const attributes: Props = Astro.props;
+---
+
+<div
+  {...attributes}
+  role="separator"
+  aria-orientation="horizontal"
+  data-ormo-dropdown-menu-separator
+>
+</div>

@@ -1,0 +1,32 @@
+---
+import { getPreviewCardSsrContext } from "../../internal/preview-card-ssr-context";
+import { styleToCssText } from "../../internal/style-to-css-text";
+import type { PreviewCardContentProps } from "./types";
+
+type Props = PreviewCardContentProps;
+const {
+  id,
+  side = "top",
+  align = "center",
+  sideOffset = 8,
+  style,
+  ...attributes
+}: Props = Astro.props;
+const context = getPreviewCardSsrContext();
+const offset = `--ormo-preview-card-side-offset: ${sideOffset}px`;
+const authoredStyle = styleToCssText(style);
+---
+
+<div
+  {...attributes}
+  id={id ?? (context ? `${context.rootId}-content` : undefined)}
+  aria-hidden="true"
+  popover="manual"
+  data-side={side}
+  data-align={align}
+  data-ormo-preview-card-content
+  data-state={context?.defaultOpen ? "open" : "closed"}
+  style={authoredStyle ? `${authoredStyle}; ${offset}` : offset}
+>
+  <slot />
+</div>
