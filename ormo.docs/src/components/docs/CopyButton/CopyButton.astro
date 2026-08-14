@@ -24,12 +24,41 @@ import { Check, Copy } from "@lucide/astro";
   const copyButtons =
     document.querySelectorAll<HTMLButtonElement>("[data-copy-button]");
 
-  const copyText = async (text: string) => {
-    if (!navigator.clipboard?.writeText) {
-      throw new Error("Clipboard API unavailable");
+  const copyText = async (text: string, restoreFocusTo: HTMLElement) => {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
     }
 
-    await navigator.clipboard.writeText(text);
+    const selection = document.getSelection();
+    const ranges = selection
+      ? Array.from({ length: selection.rangeCount }, (_, index) =>
+          selection.getRangeAt(index).cloneRange(),
+        )
+      : [];
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.setAttribute("readonly", "");
+    textArea.style.position = "fixed";
+    textArea.style.inset = "0 auto auto -9999px";
+    document.body.append(textArea);
+    textArea.select();
+
+    let copied = false;
+    try {
+      copied = document.execCommand("copy");
+    } finally {
+      textArea.remove();
+
+      if (selection) {
+        selection.removeAllRanges();
+        for (const range of ranges) selection.addRange(range);
+      }
+
+      restoreFocusTo.focus({ preventScroll: true });
+    }
+
+    if (!copied) throw new Error("Copy command unavailable");
   };
 
   const resetButton = (button: HTMLButtonElement) => {
@@ -56,7 +85,8 @@ import { Check, Copy } from "@lucide/astro";
       if (existingTimer) window.clearTimeout(existingTimer);
 
       try {
-        await copyText(code);
+        await copyText(code, button);
+        window.setTimeout(() => button.focus({ preventScroll: true }), 0);
         button.dataset.state = "copied";
         button.setAttribute("aria-label", "Code copied");
         button.setAttribute("title", "Copied");
