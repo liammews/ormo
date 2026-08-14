@@ -1,0 +1,19 @@
+.toggle-demo[data-state="on"],
+.toggle-group-item[data-state="on"] {
+  border-color: transparent;
+  background: var(--surface-invert);
+  color: var(--content-invert);
+}
+
+.toggle-group-item[data-state="on"]:hover:not(:disabled, [data-disabled]) {
+  border-color: transparent;
+  background: var(--surface-invert);
+}
+
+.toggle-group-item[data-state="on"] {
+  transition: none;
+}
+
+.toggle-demo[data-state="on"]:hover:not(:disabled, [data-disabled]) {
+  background: var(--color-gray-11);
+}

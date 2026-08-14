@@ -118,6 +118,14 @@
       "types": "./src/components/tabs/index.ts",
       "import": "./src/components/tabs/index.ts"
     },
+    "./toggle": {
+      "types": "./src/components/toggle/index.ts",
+      "import": "./src/components/toggle/index.ts"
+    },
+    "./toggle-group": {
+      "types": "./src/components/toggle-group/index.ts",
+      "import": "./src/components/toggle-group/index.ts"
+    },
     "./tooltip": {
       "types": "./src/components/tooltip/index.ts",
       "import": "./src/components/tooltip/index.ts"

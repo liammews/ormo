@@ -1,0 +1,33 @@
+---
+import { getToggleGroupSsrContext } from "../../internal/toggle-group-ssr-context";
+import type { ToggleGroupItemProps } from "./types";
+
+type Props = ToggleGroupItemProps;
+const { value, disabled = false, type = "button", ...attributes } = Astro.props;
+const group = getToggleGroupSsrContext();
+const isDisabled = disabled || (group?.disabled ?? false);
+const pressed = group?.values.has(value) ?? false;
+group?.items.push({ value, disabled: isDisabled });
+const tabStop =
+  !isDisabled &&
+  (pressed || ((group?.values.size ?? 0) === 0 && !group?.tabStopFound));
+if (group && tabStop) group.tabStopFound = true;
+---
+
+<button
+  {...attributes}
+  type={type}
+  value={value}
+  disabled={isDisabled}
+  aria-pressed={pressed ? "true" : "false"}
+  tabindex={tabStop ? 0 : -1}
+  data-ormo-toggle
+  data-ormo-toggle-group-item
+  data-value={value}
+  data-item-disabled={disabled ? "" : undefined}
+  data-disabled={isDisabled ? "" : undefined}
+  data-state={pressed ? "on" : "off"}
+  data-orientation={group?.orientation ?? "horizontal"}
+>
+  <slot />
+</button>

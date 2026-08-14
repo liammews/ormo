@@ -1,0 +1,36 @@
+---
+import * as ToggleGroup from "@ormo/primitives/toggle-group";
+import { TextAlignCenter, TextAlignEnd, TextAlignStart } from "@lucide/astro";
+import "../Toggle/index.css";
+---
+
+<ToggleGroup.Root
+  class="button-group button-group--compact toggle-group-demo"
+  type="single"
+  defaultValue="left"
+  required
+  name="alignment"
+  aria-label="Text alignment"
+>
+  <ToggleGroup.Item
+    class="button button--secondary button--square toggle-group-item"
+    value="left"
+    aria-label="Align left"
+  >
+    <TextAlignStart size={16} aria-hidden="true" />
+  </ToggleGroup.Item>
+  <ToggleGroup.Item
+    class="button button--secondary button--square toggle-group-item"
+    value="centre"
+    aria-label="Align centre"
+  >
+    <TextAlignCenter size={16} aria-hidden="true" />
+  </ToggleGroup.Item>
+  <ToggleGroup.Item
+    class="button button--secondary button--square toggle-group-item"
+    value="right"
+    aria-label="Align right"
+  >
+    <TextAlignEnd size={16} aria-hidden="true" />
+  </ToggleGroup.Item>
+</ToggleGroup.Root>

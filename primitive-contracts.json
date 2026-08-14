@@ -362,6 +362,32 @@
       ]
     },
     {
+      "id": "toggle",
+      "label": "Toggle",
+      "status": "production",
+      "runtimeModel": "conditional-native",
+      "parts": ["Toggle"],
+      "runtime": ["src/runtime/toggle.ts"],
+      "ssrContext": null,
+      "behaviourCss": [],
+      "tests": ["tests/unit/toggle.test.ts", "tests/unit/toggle.astro.test.ts"]
+    },
+    {
+      "id": "toggle-group",
+      "label": "Toggle Group",
+      "status": "production",
+      "runtimeModel": "custom-element",
+      "parts": ["Item", "Root"],
+      "runtime": ["src/runtime/toggle-group.ts"],
+      "ssrContext": "src/internal/toggle-group-ssr-context.ts",
+      "behaviourCss": [],
+      "tests": [
+        "tests/unit/toggle-group.test.ts",
+        "tests/unit/toggle-group.astro.test.ts",
+        "tests/unit/toggle-group-ssr-context.test.ts"
+      ]
+    },
+    {
       "id": "separator",
       "label": "Separator",
       "status": "production",

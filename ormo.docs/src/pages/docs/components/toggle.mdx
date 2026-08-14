@@ -1,0 +1,79 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Toggle"
+description: "A native button that controls a two-state option"
+---
+
+import ToggleDemo from "../../../components/demos/Toggle/ToggleDemo.astro";
+import toggleDemoCode from "../../../components/demos/Toggle/ToggleDemo.astro?raw";
+import toggleDemoCss from "../../../components/demos/Toggle/index.css?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+<DemoBlock
+  files={[
+    { filename: "Toggle.astro", code: toggleDemoCode },
+    { filename: "index.css", code: toggleDemoCss },
+  ]}
+>
+  <ToggleDemo />
+</DemoBlock>
+
+## Anatomy
+
+<CodeBlock
+  lang="astro"
+  code={`---\nimport { Toggle } from "@ormo/primitives/toggle";\n---\n\n<Toggle defaultPressed aria-label="Bold text">Bold</Toggle>`}
+/>
+
+## API reference
+
+`Toggle` renders a native `<button>`. It forwards native button attributes, including `name`, `value`, `form`, and `type`.
+
+<PropsTable
+  id="toggle-props"
+  caption="Toggle properties"
+  rows={[
+    {
+      name: "defaultPressed",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Sets initial uncontrolled state.",
+    },
+    {
+      name: "pressed",
+      type: "boolean",
+      description: "Sets controlled state. Update it after a change request.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Disables the native button.",
+    },
+    {
+      name: "type",
+      type: '"button" | "submit" | "reset"',
+      defaultValue: '"button"',
+      description: "Sets native form action behaviour.",
+    },
+    {
+      name: "class / style",
+      type: "native attributes",
+      description: "Adds consumer presentation styles.",
+    },
+  ]}
+/>
+
+## JavaScript API
+
+User activation emits cancellable `ormo:pressed-change` with `pressed` and `previousPressed`. Controlled buttons wait for the consumer. `setTogglePressed(button, value)` changes state without an event.
+
+## Accessibility
+
+The native button supplies focus and <kbd>Enter</kbd>/<kbd>Space</kbd> activation. `aria-pressed` supplies toggle state. Give icon-only buttons an accessible name.
+
+## Styling
+
+The toggle has no layout or brand styles. Use `data-state="on" | "off"` and `data-disabled`. `data-ormo-toggle` is an internal runtime selector.

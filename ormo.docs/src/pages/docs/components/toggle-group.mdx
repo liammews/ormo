@@ -1,0 +1,103 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Toggle Group"
+description: "A roving-focus group of single- or multiple-selection toggle buttons"
+---
+
+import ToggleGroupDemo from "../../../components/demos/ToggleGroup/ToggleGroupDemo.astro";
+import toggleGroupDemoCode from "../../../components/demos/ToggleGroup/ToggleGroupDemo.astro?raw";
+import toggleDemoCss from "../../../components/demos/Toggle/index.css?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+<DemoBlock
+  files={[
+    { filename: "ToggleGroup.astro", code: toggleGroupDemoCode },
+    { filename: "index.css", code: toggleDemoCss },
+  ]}
+>
+  <ToggleGroupDemo />
+</DemoBlock>
+
+## Anatomy
+
+<CodeBlock
+  lang="astro"
+  code={`---\nimport * as ToggleGroup from "@ormo/primitives/toggle-group";\n---\n\n<ToggleGroup.Root type="single" defaultValue="left" required aria-label="Text alignment">\n  <ToggleGroup.Item value="left">Left</ToggleGroup.Item>\n  <ToggleGroup.Item value="right">Right</ToggleGroup.Item>\n</ToggleGroup.Root>`}
+/>
+
+## API reference
+
+<PropsTable
+  id="toggle-group-props"
+  caption="Toggle Group properties"
+  rows={[
+    {
+      name: "type",
+      type: '"single" | "multiple"',
+      description: "Sets selection mode.",
+      details: [{ label: "Required", value: "Yes" }],
+    },
+    {
+      name: "defaultValue",
+      type: "string | string[]",
+      description: "Sets initial uncontrolled selection.",
+    },
+    {
+      name: "value",
+      type: "string | string[]",
+      description: "Sets controlled selection.",
+    },
+    {
+      name: "required",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Prevents an empty single selection.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Disables all items.",
+    },
+    {
+      name: "orientation",
+      type: '"horizontal" | "vertical"',
+      defaultValue: '"horizontal"',
+      description: "Sets arrow-key direction.",
+    },
+    {
+      name: "loopFocus",
+      type: "boolean",
+      defaultValue: "true",
+      description: "Wraps arrow-key focus.",
+    },
+    {
+      name: "name",
+      type: "string",
+      description: "Adds selected values to the associated form.",
+    },
+    {
+      name: "form",
+      type: "string",
+      description: "Associates the group with a form by ID.",
+    },
+  ]}
+/>
+
+`ToggleGroup.Item` renders a native button. Its required `value` identifies selection. `disabled` disables one item. Native button attributes are forwarded.
+
+## JavaScript API
+
+The `<ormo-toggle-group>` element exposes `value`, `disabled`, `required`, `orientation`, `loopFocus`, `name`, `form`, `valid`, `checkValidity()` and `reportValidity()`. User changes emit cancellable `ormo:value-change` with `value`, `previousValue` and `reason`. Reasons are `item`, `programmatic` and `member-removed`.
+
+When `name` is set, selected values are included in `FormData`. Multiple groups submit one entry for each selected value. Form reset restores the server-rendered default selection.
+
+## Accessibility
+
+The root uses `role="group"`. Add `aria-label` or `aria-labelledby`. One enabled item is in the tab order. Horizontal groups use <kbd>Arrow Left</kbd>/<kbd>Arrow Right</kbd>, vertical groups use <kbd>Arrow Up</kbd>/<kbd>Arrow Down</kbd>, and all groups use <kbd>Home</kbd>/<kbd>End</kbd>. Horizontal direction follows Tabs in RTL.
+
+## Styling
+
+The group has no layout or brand styles. Use public `data-state`, `data-disabled`, and `data-orientation` hooks.

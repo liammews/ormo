@@ -1,0 +1,75 @@
+---
+import { renderWithToggleGroupContext } from "../../internal/toggle-group-ssr-context";
+import type { ToggleGroupRootProps } from "./types";
+
+type Props = ToggleGroupRootProps;
+const {
+  type,
+  value,
+  defaultValue,
+  disabled = false,
+  required = false,
+  orientation = "horizontal",
+  loopFocus = true,
+  name,
+  form,
+  ...attributes
+} = Astro.props;
+const initial = value ?? defaultValue ?? (type === "multiple" ? [] : "");
+const values = new Set(
+  Array.isArray(initial) ? initial : initial ? [initial] : [],
+);
+const context = {
+  type,
+  values,
+  disabled,
+  orientation,
+  tabStopFound: false,
+  items: [] as Array<{ value: string; disabled: boolean }>,
+};
+let content = await renderWithToggleGroupContext(context, () =>
+  Astro.slots.render("default"),
+);
+if (value === undefined) {
+  const available = new Set(context.items.map((item) => item.value));
+  const normalised = Array.from(values).filter(
+    (entry, index, entries) =>
+      available.has(entry) && entries.indexOf(entry) === index,
+  );
+  if (type === "single") normalised.splice(1);
+  if (type === "single" && required && normalised.length === 0) {
+    const first = context.items.find((item) => !item.disabled);
+    if (first) normalised.push(first.value);
+  }
+  if (JSON.stringify(normalised) !== JSON.stringify(Array.from(values))) {
+    values.clear();
+    for (const entry of normalised) values.add(entry);
+    context.tabStopFound = false;
+    context.items = [];
+    content = await renderWithToggleGroupContext(context, () =>
+      Astro.slots.render("default"),
+    );
+  }
+}
+---
+
+<ormo-toggle-group
+  {...attributes}
+  role="group"
+  name={name}
+  form={form}
+  data-ormo-toggle-group-root
+  data-type={type}
+  data-controlled={value === undefined ? undefined : ""}
+  data-value={JSON.stringify(Array.from(values))}
+  data-default-value={JSON.stringify(Array.from(values))}
+  data-disabled={disabled ? "" : undefined}
+  data-required={required ? "" : undefined}
+  data-orientation={orientation}
+  data-loop-focus={loopFocus ? undefined : "false"}
+  set:html={content}
+/>
+
+<script>
+  import "../../runtime/toggle-group";
+</script>

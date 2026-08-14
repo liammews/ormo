@@ -16,6 +16,8 @@
   "radio": 3200,
   "select": 12000,
   "tabs": 2500,
+  "toggle": 800,
+  "toggle-group": 3100,
   "tooltip": 13000,
   "separator": 0,
   "switch": 1800,

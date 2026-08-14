@@ -1,0 +1,13 @@
+---
+import { Toggle } from "@ormo/primitives/toggle";
+import { Bold } from "@lucide/astro";
+import "./index.css";
+---
+
+<Toggle
+  class="button button--secondary button--square toggle-demo"
+  defaultPressed
+  aria-label="Bold text"
+>
+  <Bold size={16} aria-hidden="true" />
+</Toggle>

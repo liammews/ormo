@@ -1,0 +1,30 @@
+---
+import type { ToggleProps } from "./types";
+
+type Props = ToggleProps;
+const {
+  pressed,
+  defaultPressed = false,
+  disabled = false,
+  type = "button",
+  ...attributes
+} = Astro.props;
+const initialPressed = pressed ?? defaultPressed;
+---
+
+<button
+  {...attributes}
+  type={type}
+  disabled={disabled}
+  aria-pressed={initialPressed ? "true" : "false"}
+  data-ormo-toggle
+  data-controlled={pressed === undefined ? undefined : ""}
+  data-state={initialPressed ? "on" : "off"}
+  data-disabled={disabled ? "" : undefined}
+>
+  <slot />
+</button>
+
+<script>
+  import "../../runtime/toggle";
+</script>

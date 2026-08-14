@@ -1,0 +1,16 @@
+---
+import * as ToggleGroup from "../../../src/components/toggle-group";
+---
+
+<ToggleGroup.Root
+  id="alignment"
+  type="single"
+  defaultValue="left"
+  required
+  orientation="horizontal"
+  aria-label="Alignment"
+>
+  <ToggleGroup.Item value="left">Left</ToggleGroup.Item>
+  <ToggleGroup.Item value="centre" disabled>Centre</ToggleGroup.Item>
+  <ToggleGroup.Item value="right">Right</ToggleGroup.Item>
+</ToggleGroup.Root>
