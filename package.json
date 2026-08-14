@@ -74,6 +74,18 @@
       "types": "./src/components/input/index.ts",
       "import": "./src/components/input/index.ts"
     },
+    "./meter": {
+      "types": "./src/components/meter/index.ts",
+      "import": "./src/components/meter/index.ts"
+    },
+    "./navigation-menu": {
+      "types": "./src/components/navigation-menu/index.ts",
+      "import": "./src/components/navigation-menu/index.ts"
+    },
+    "./navigation-menu/floating": {
+      "types": "./src/components/navigation-menu/floating.ts",
+      "import": "./src/components/navigation-menu/floating.ts"
+    },
     "./progress": {
       "types": "./src/components/progress/index.ts",
       "import": "./src/components/progress/index.ts"
@@ -109,6 +121,10 @@
     "./separator": {
       "types": "./src/components/separator/index.ts",
       "import": "./src/components/separator/index.ts"
+    },
+    "./slider": {
+      "types": "./src/components/slider/index.ts",
+      "import": "./src/components/slider/index.ts"
     },
     "./switch": {
       "types": "./src/components/switch/index.ts",

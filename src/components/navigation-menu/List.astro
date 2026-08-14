@@ -1,0 +1,7 @@
+---
+import type { NavigationMenuListProps } from "./types";
+type Props = NavigationMenuListProps;
+const attributes = Astro.props;
+---
+
+<ul {...attributes} data-ormo-navigation-menu-list><slot /></ul>

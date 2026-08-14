@@ -1,0 +1,92 @@
+---
+import * as NavigationMenu from "@ormo/primitives/navigation-menu";
+import { ChevronDown } from "@lucide/astro";
+import "./index.css";
+---
+
+<NavigationMenu.Root
+  class="navigation-menu"
+  aria-label="Main navigation"
+  positioning="floating"
+>
+  <NavigationMenu.List class="navigation-menu__list">
+    <NavigationMenu.Item value="overview" class="navigation-menu__item">
+      <NavigationMenu.Trigger class="navigation-menu__trigger">
+        Overview
+        <ChevronDown
+          class="navigation-menu__icon"
+          size={14}
+          aria-hidden="true"
+        />
+      </NavigationMenu.Trigger>
+      <NavigationMenu.Content
+        class="navigation-menu__content navigation-menu__content--overview"
+        align="center"
+        sideOffset={6}
+      >
+        <a href="/docs/">
+          <span class="navigation-menu__item-title">Introduction</span>
+          <span class="navigation-menu__item-description">
+            Learn about Ormo and why we built it.
+          </span>
+        </a>
+        <a href="/docs/installation">
+          <span class="navigation-menu__item-title">Installation</span>
+          <span class="navigation-menu__item-description">
+            Install your first Ormo component in minutes.
+          </span>
+        </a>
+        <a href="/docs/styling">
+          <span class="navigation-menu__item-title">Styling</span>
+          <span class="navigation-menu__item-description">
+            How to style Ormo primitives.
+          </span>
+        </a>
+        <a href="/docs/changelog">
+          <span class="navigation-menu__item-title">Changelog</span>
+          <span class="navigation-menu__item-description">
+            Keep up-to-date with the latest Ormo releases.
+          </span>
+        </a>
+      </NavigationMenu.Content>
+    </NavigationMenu.Item>
+    <NavigationMenu.Item value="features" class="navigation-menu__item">
+      <NavigationMenu.Trigger class="navigation-menu__trigger">
+        Features
+        <ChevronDown
+          class="navigation-menu__icon"
+          size={14}
+          aria-hidden="true"
+        />
+      </NavigationMenu.Trigger>
+      <NavigationMenu.Content
+        class="navigation-menu__content"
+        align="center"
+        sideOffset={6}
+      >
+        <a href="/docs/dev-toolbar">
+          <span class="navigation-menu__item-title">Dev Toolbar</span>
+          <span class="navigation-menu__item-description">
+            Utilise the Astro Dev Toolbar to spot errors before buildtime.
+          </span>
+        </a>
+        <a href="/docs/">
+          <span class="navigation-menu__item-title">Accessibility</span>
+          <span class="navigation-menu__item-description">
+            Learn how we're bringing the latest accessibility best practices to
+            Astro.
+          </span>
+        </a>
+      </NavigationMenu.Content>
+    </NavigationMenu.Item>
+    <NavigationMenu.Item value="about" class="navigation-menu__item">
+      <NavigationMenu.Link class="navigation-menu__link" href="/docs/"
+        >About</NavigationMenu.Link
+      >
+    </NavigationMenu.Item>
+  </NavigationMenu.List>
+</NavigationMenu.Root>
+
+<script>
+  import "@ormo/primitives/navigation-menu/floating";
+</script>

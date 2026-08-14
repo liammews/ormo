@@ -1,0 +1,11 @@
+---
+import * as Slider from "@ormo/primitives/slider";
+import "./index.css";
+---
+
+<Slider.Root class="slider" defaultValue={[40]} min={0} max={100} step={5}>
+  <Slider.Track class="slider-track">
+    <Slider.Range class="slider-range" />
+  </Slider.Track>
+  <Slider.Thumb class="slider-thumb" aria-label="Value" />
+</Slider.Root>

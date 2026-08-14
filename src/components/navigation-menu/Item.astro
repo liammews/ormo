@@ -1,0 +1,22 @@
+---
+import {
+  getNavigationMenuContext,
+  renderWithNavigationMenuItemContext,
+} from "../../internal/navigation-menu-ssr-context";
+import type { NavigationMenuItemProps } from "./types";
+type Props = NavigationMenuItemProps;
+const { value, ...attributes } = Astro.props;
+const open = getNavigationMenuContext()?.openValue === value;
+const content = await renderWithNavigationMenuItemContext({ value, open }, () =>
+  Astro.slots.render("default"),
+);
+---
+
+<li
+  {...attributes}
+  data-ormo-navigation-menu-item
+  data-value={value}
+  data-state={open ? "open" : "closed"}
+  data-open={open ? "" : undefined}
+  set:html={content}
+/>

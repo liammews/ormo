@@ -1,0 +1,111 @@
+/* Behaviour-critical placement. Consumer classes retain presentation control. */
+
+:where([data-ormo-navigation-menu-content]) {
+  inset: auto;
+  position: absolute;
+}
+
+@supports (anchor-name: --ormo-navigation-menu) {
+  :where([data-ormo-navigation-menu-content]) {
+    position: fixed;
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+  }
+
+  :where(
+    [data-ormo-navigation-menu-content][data-side="bottom"][data-align="start"]
+  ) {
+    position-area: bottom span-right;
+    margin-block-start: var(--ormo-navigation-menu-side-offset, 0px);
+  }
+
+  :where(
+    [data-ormo-navigation-menu-content][data-side="bottom"][data-align="center"]
+  ) {
+    position-area: bottom center;
+    margin-block-start: var(--ormo-navigation-menu-side-offset, 0px);
+  }
+
+  :where(
+    [data-ormo-navigation-menu-content][data-side="bottom"][data-align="end"]
+  ) {
+    position-area: bottom span-left;
+    margin-block-start: var(--ormo-navigation-menu-side-offset, 0px);
+  }
+
+  :where(
+    [data-ormo-navigation-menu-content][data-side="top"][data-align="start"]
+  ) {
+    position-area: top span-right;
+    margin-block-end: var(--ormo-navigation-menu-side-offset, 0px);
+  }
+
+  :where(
+    [data-ormo-navigation-menu-content][data-side="top"][data-align="center"]
+  ) {
+    position-area: top center;
+    margin-block-end: var(--ormo-navigation-menu-side-offset, 0px);
+  }
+
+  :where(
+    [data-ormo-navigation-menu-content][data-side="top"][data-align="end"]
+  ) {
+    position-area: top span-left;
+    margin-block-end: var(--ormo-navigation-menu-side-offset, 0px);
+  }
+
+  :where(
+    [data-ormo-navigation-menu-content][data-side="right"][data-align="start"]
+  ) {
+    position-area: right span-bottom;
+    margin-inline-start: var(--ormo-navigation-menu-side-offset, 0px);
+  }
+
+  :where(
+    [data-ormo-navigation-menu-content][data-side="right"][data-align="center"]
+  ) {
+    position-area: right center;
+    margin-inline-start: var(--ormo-navigation-menu-side-offset, 0px);
+  }
+
+  :where(
+    [data-ormo-navigation-menu-content][data-side="right"][data-align="end"]
+  ) {
+    position-area: right span-top;
+    margin-inline-start: var(--ormo-navigation-menu-side-offset, 0px);
+  }
+
+  :where(
+    [data-ormo-navigation-menu-content][data-side="left"][data-align="start"]
+  ) {
+    position-area: left span-bottom;
+    margin-inline-end: var(--ormo-navigation-menu-side-offset, 0px);
+  }
+
+  :where(
+    [data-ormo-navigation-menu-content][data-side="left"][data-align="center"]
+  ) {
+    position-area: left center;
+    margin-inline-end: var(--ormo-navigation-menu-side-offset, 0px);
+  }
+
+  :where(
+    [data-ormo-navigation-menu-content][data-side="left"][data-align="end"]
+  ) {
+    position-area: left span-top;
+    margin-inline-end: var(--ormo-navigation-menu-side-offset, 0px);
+  }
+}
+
+:where(
+  [data-ormo-navigation-menu-content][data-ormo-navigation-menu-positioning="floating"]
+) {
+  inset: auto;
+  margin: 0;
+  position: fixed;
+  position-anchor: --ormo-navigation-menu-none;
+  position-area: none;
+  position-try-fallbacks: none;
+}

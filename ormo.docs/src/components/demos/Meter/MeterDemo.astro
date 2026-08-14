@@ -1,0 +1,24 @@
+---
+import { Meter } from "@ormo/primitives/meter";
+import "./index.css";
+---
+
+<div class="meter-demo">
+  <div class="meter-heading">
+    <label for="storage-meter">Storage used</label>
+    <span aria-hidden="true">72 GB of 100 GB</span>
+  </div>
+  <Meter
+    class="meter"
+    id="storage-meter"
+    value={72}
+    min={0}
+    max={100}
+    low={25}
+    high={80}
+    optimum={40}
+    aria-valuetext="72 gigabytes of 100 gigabytes used"
+  >
+    72 GB of 100 GB
+  </Meter>
+</div>

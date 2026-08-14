@@ -1,0 +1,17 @@
+---
+import { getNavigationMenuItemContext } from "../../internal/navigation-menu-ssr-context";
+import type { NavigationMenuIndicatorProps } from "./types";
+type Props = NavigationMenuIndicatorProps;
+const attributes = Astro.props;
+const open = getNavigationMenuItemContext()?.open ?? false;
+---
+
+<div
+  {...attributes}
+  data-ormo-navigation-menu-indicator
+  data-state={open ? "open" : "closed"}
+  data-open={open ? "" : undefined}
+  hidden={!open}
+>
+  <slot />
+</div>

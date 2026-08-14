@@ -1,0 +1,165 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Meter"
+description: "Shows a bounded scalar measurement with a native meter element."
+---
+
+import MeterDemo from "../../../components/demos/Meter/MeterDemo.astro";
+import meterDemoCode from "../../../components/demos/Meter/MeterDemo.astro?raw";
+import meterDemoCss from "../../../components/demos/Meter/index.css?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+<DemoBlock
+  files={[
+    { filename: "Meter.astro", code: meterDemoCode },
+    { filename: "index.css", code: meterDemoCss },
+  ]}
+>
+  <MeterDemo />
+</DemoBlock>
+
+## Anatomy
+
+Import `Meter`. Give it an accessible name, a current value, and the bounds that give the value meaning.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import { Meter } from "@ormo/primitives/meter";
+---
+
+<label for="storage-meter">Storage used</label>
+<Meter
+  id="storage-meter"
+  value={72}
+  min={0}
+  max={100}
+  low={25}
+  high={80}
+  optimum={40}
+  aria-valuetext="72 gigabytes of 100 gigabytes used"
+>
+  72 GB of 100 GB
+</Meter>`}
+/>
+
+Use Meter for a value within a known range, such as storage use, signal strength, a score, or fuel level. Use [Progress](/docs/components/progress/) when a task is moving towards completion.
+
+## API reference
+
+`Meter` forwards native HTML meter attributes.
+
+### Meter
+
+`Meter` renders a native `<meter>` element. It keeps native server-rendered and zero-JavaScript semantics.
+
+<PropsTable
+  id="meter-props"
+  caption="Meter properties"
+  rows={[
+    {
+      name: "value",
+      type: "number | string",
+      defaultValue: "0",
+      description:
+        "Sets the measured value. The browser limits the effective value to the native min and max range.",
+    },
+    {
+      name: "min",
+      type: "number | string",
+      defaultValue: "0",
+      description: "Sets the lower bound of the measured range.",
+    },
+    {
+      name: "max",
+      type: "number | string",
+      defaultValue: "1",
+      description: "Sets the upper bound of the measured range.",
+    },
+    {
+      name: "low",
+      type: "number | string",
+      description:
+        "Sets the upper boundary of the range considered low. It must remain within min and max.",
+    },
+    {
+      name: "high",
+      type: "number | string",
+      description:
+        "Sets the lower boundary of the range considered high. It must not be lower than low.",
+    },
+    {
+      name: "optimum",
+      type: "number | string",
+      description:
+        "Identifies the optimum position in the range. It tells the browser whether low, middle, or high values are preferred.",
+    },
+    {
+      name: "aria-label",
+      type: "string",
+      description:
+        "Provides an accessible name when no visible label can name the meter.",
+    },
+    {
+      name: "aria-labelledby",
+      type: "string",
+      description:
+        "References visible text that provides the accessible name. A native label with matching for and id values can also provide the name.",
+    },
+    {
+      name: "aria-valuetext",
+      type: "string",
+      description:
+        "Provides a human-readable value when the numeric value and bounds are not sufficient.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered meter element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered meter element.",
+    },
+  ]}
+/>
+
+## JavaScript API
+
+Meter does not define a custom element or browser controller. `Meter` remains an `HTMLMeterElement`. Update its native properties directly:
+
+<CodeBlock
+  lang="js"
+  code={`const meter = document.querySelector("meter");
+
+meter.min = 0;
+meter.max = 100;
+meter.value = 84;
+meter.low = 25;
+meter.high = 80;
+meter.optimum = 40;
+meter.setAttribute("aria-valuetext", "84 gigabytes used");`}
+/>
+
+The browser normalises invalid values and thresholds. Ormo does not duplicate that algorithm or rewrite authored attributes.
+
+## Accessibility
+
+The native element supplies the `meter` role and range semantics. Give every meter an accessible name. Prefer a visible `<label>` or `aria-labelledby`. Use `aria-label` only when a visible label is not practical.
+
+Fallback text between the tags does not reliably provide the accessible name. Do not add `role="meter"`, `aria-valuenow`, `aria-valuemin`, or `aria-valuemax`; the browser derives these semantics from native attributes.
+
+Meter is not interactive. It has no focus, keyboard, form, directional, or RTL behaviour. Do not use Meter for an unbounded value or task progress.
+
+## Styling
+
+The component ships no layout or brand styles. Add `class` or `style` to `Meter`. Browser-specific meter track and value pseudo-elements differ, so test custom styles in each supported browser.
+
+`data-ormo-meter` identifies the component for diagnostics and tests. It is not a state hook.
+
+## Runtime
+
+Meter has no client runtime and adds zero JavaScript. The server output is the native element. Dynamic changes use the standard `HTMLMeterElement` API.

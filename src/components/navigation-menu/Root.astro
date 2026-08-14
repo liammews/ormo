@@ -1,0 +1,41 @@
+---
+import { renderWithNavigationMenuContext } from "../../internal/navigation-menu-ssr-context";
+import type { NavigationMenuRootProps } from "./types";
+
+type Props = NavigationMenuRootProps;
+
+const {
+  defaultValue,
+  value,
+  orientation = "horizontal",
+  positioning = "css-anchor",
+  openOnHover = true,
+  openDelay = 200,
+  closeDelay = 300,
+  "aria-label": ariaLabel,
+  ...attributes
+} = Astro.props;
+const openValue = value === null ? undefined : (value ?? defaultValue);
+const content = await renderWithNavigationMenuContext({ openValue }, () =>
+  Astro.slots.render("default"),
+);
+---
+
+<ormo-navigation-menu
+  {...attributes}
+  data-ormo-navigation-menu-root
+  data-orientation={orientation}
+  data-positioning={positioning === "floating" ? "floating" : undefined}
+  data-default-value={defaultValue}
+  data-value={openValue}
+  data-controlled={value !== undefined ? "" : undefined}
+  data-open-on-hover={openOnHover ? undefined : "false"}
+  data-open-delay={openDelay}
+  data-close-delay={closeDelay}
+>
+  <nav aria-label={ariaLabel} set:html={content} />
+</ormo-navigation-menu>
+
+<script>
+  import "../../runtime/navigation-menu";
+</script>

@@ -1,0 +1,19 @@
+---
+import * as Slider from "../../../src/components/slider/index";
+---
+
+<Slider.Root
+  id="price"
+  aria-label="Price range"
+  defaultValue={[20, 80]}
+  min={0}
+  max={100}
+  step={5}
+  name="price"
+>
+  <Slider.Track>
+    <Slider.Range />
+  </Slider.Track>
+  <Slider.Thumb aria-label="Minimum price" />
+  <Slider.Thumb aria-label="Maximum price" />
+</Slider.Root>

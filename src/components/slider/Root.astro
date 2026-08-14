@@ -1,0 +1,66 @@
+---
+import { renderWithSliderContext } from "../../internal/slider-ssr-context";
+import { styleToCssText } from "../../internal/style-to-css-text";
+import type { SliderRootProps } from "./types";
+
+type Props = SliderRootProps;
+const {
+  value,
+  defaultValue,
+  min = 0,
+  max = 100,
+  step = 1,
+  disabled = false,
+  orientation = "horizontal",
+  name,
+  form,
+  style,
+  ...attributes
+} = Astro.props;
+const initialValues = [...(value ?? defaultValue ?? [min])].sort(
+  (a, b) => a - b,
+);
+const values = initialValues.map((entry) =>
+  Math.min(max, Math.max(min, entry)),
+);
+const span = max - min;
+const start =
+  values.length > 1 && span > 0 ? ((values[0]! - min) / span) * 100 : 0;
+const end = span > 0 ? ((values.at(-1)! - min) / span) * 100 : 0;
+const authoredStyle = styleToCssText(style);
+const geometryStyle = `--ormo-slider-start: ${start}%; --ormo-slider-end: ${end}%`;
+const context = {
+  values,
+  min,
+  max,
+  step,
+  disabled,
+  orientation,
+  name,
+  form,
+  thumbIndex: 0,
+};
+const content = await renderWithSliderContext(context, () =>
+  Astro.slots.render("default"),
+);
+---
+
+<ormo-slider
+  {...attributes}
+  role="group"
+  data-ormo-slider-root
+  data-controlled={value === undefined ? undefined : ""}
+  data-value={JSON.stringify(values)}
+  data-default-value={JSON.stringify(values)}
+  data-min={min}
+  data-max={max}
+  data-step={step}
+  data-disabled={disabled ? "" : undefined}
+  data-orientation={orientation}
+  style={[authoredStyle, geometryStyle].filter(Boolean).join("; ")}
+  set:html={content}
+/>
+
+<script>
+  import "../../runtime/slider";
+</script>

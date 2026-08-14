@@ -1,0 +1,168 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Slider"
+description: "Selects one or more numeric values from a bounded range."
+---
+
+import RangeSliderDemo from "../../../components/demos/Slider/RangeSliderDemo.astro";
+import rangeSliderDemoCode from "../../../components/demos/Slider/RangeSliderDemo.astro?raw";
+import SingleSliderDemo from "../../../components/demos/Slider/SingleSliderDemo.astro";
+import singleSliderDemoCode from "../../../components/demos/Slider/SingleSliderDemo.astro?raw";
+import sliderDemoCss from "../../../components/demos/Slider/index.css?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+<DemoBlock
+  files={[
+    { filename: "SingleSlider.astro", code: singleSliderDemoCode },
+    { filename: "index.css", code: sliderDemoCss },
+  ]}
+>
+  <SingleSliderDemo />
+</DemoBlock>
+
+<DemoBlock
+  files={[
+    { filename: "RangeSlider.astro", code: rangeSliderDemoCode },
+    { filename: "index.css", code: sliderDemoCss },
+  ]}
+>
+  <RangeSliderDemo />
+</DemoBlock>
+
+## Anatomy
+
+Compose `Root`, `Track`, `Range`, and one or more `Thumb` parts. Every Thumb is a native range input and needs an accessible name.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import * as Slider from "@ormo/primitives/slider";
+---
+
+<Slider.Root
+  aria-label="Price range"
+  defaultValue={[20, 80]}
+  min={0}
+  max={100}
+  step={5}
+  name="price"
+>
+  <Slider.Track>
+    <Slider.Range />
+  </Slider.Track>
+  <Slider.Thumb aria-label="Minimum price" />
+  <Slider.Thumb aria-label="Maximum price" />
+</Slider.Root>`}
+/>
+
+Use one Thumb for a single value. Add another Thumb for each ordered range boundary. Values cannot cross neighbouring thumbs.
+
+## API reference
+
+### Root
+
+Root coordinates values and exposes `--ormo-slider-start` and `--ormo-slider-end` percentage properties for styling the selected range.
+
+<PropsTable
+  id="slider-root-props"
+  caption="Slider Root properties"
+  rows={[
+    {
+      name: "value",
+      type: "number[]",
+      description:
+        "Controls the ordered values. Handle ormo:value-change and assign the accepted value.",
+    },
+    {
+      name: "defaultValue",
+      type: "number[]",
+      defaultValue: "[min]",
+      description: "Sets the initial uncontrolled values.",
+    },
+    {
+      name: "min",
+      type: "number",
+      defaultValue: "0",
+      description: "Sets the lowest selectable value.",
+    },
+    {
+      name: "max",
+      type: "number",
+      defaultValue: "100",
+      description: "Sets the highest selectable value.",
+    },
+    {
+      name: "step",
+      type: "number",
+      defaultValue: "1",
+      description: "Sets the native range-input step interval.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Disables every Thumb.",
+    },
+    {
+      name: "orientation",
+      type: '"horizontal" | "vertical"',
+      defaultValue: '"horizontal"',
+      description:
+        "Describes the visual orientation to assistive technology and styling.",
+    },
+    {
+      name: "name",
+      type: "string",
+      description:
+        "Names every native Thumb. Multi-thumb sliders submit repeated values in document order.",
+    },
+    {
+      name: "form",
+      type: "string",
+      description: "Associates every Thumb with a form by id.",
+    },
+  ]}
+/>
+
+### Track and Range
+
+Track and Range render unstyled `<div>` elements. Range is hidden from the accessibility tree. Use the Root percentage properties to position it.
+
+### Thumb
+
+Thumb renders `<input type="range">`. It forwards native input attributes except the value and range attributes owned by Root. Use `aria-label`, `aria-labelledby`, or a native `<label for>` relationship to name each Thumb. A Thumb-level `name` or `form` overrides Root.
+
+## Events
+
+Root emits cancellable `ormo:value-change` requests for user input. Its detail contains `value`, `previousValue`, `thumbIndex`, and `reason`. Prevent the event to reject an uncontrolled change. Controlled Roots always wait for assignment through the `value` property.
+
+<CodeBlock
+  lang="js"
+  code={`const slider = document.querySelector("ormo-slider");
+
+slider.addEventListener("ormo:value-change", (event) => {
+console.log(event.detail.value);
+});
+
+slider.value = [25, 75];`}
+/>
+
+## Accessibility
+
+Each Thumb is a native range input with the browser's `slider` role, current value, bounds, step behaviour, pointer interaction, and keyboard handling. Name every Thumb separately so a range exposes concepts such as “Minimum price” and “Maximum price”.
+
+Arrow keys move by one step. Page Up and Page Down use the browser's larger increments. Home and End move to the effective bounds. Native horizontal key behaviour follows document direction, including RTL. Vertical sliders retain native Up and Down behaviour.
+
+The component does not add `role="slider"` or replace native keyboard handling. Without JavaScript, every Thumb remains operable and participates in forms.
+
+## Styling
+
+Slider is unstyled. Style Track, Range, and Thumb through their parts or `data-ormo-slider-*` hooks. Native range-input pseudo-elements differ between browser engines. The demo shows Chromium/WebKit and Firefox thumb selectors.
+
+For one Thumb, the range runs from `min` to the value. For multiple Thumbs, it runs between the first and last values.
+
+## Runtime
+
+Root uses a small custom element to coordinate multiple native inputs, controlled state, shared geometry, inherited disabled state, dynamic parts, reset state, and `ormo:value-change`. The native inputs retain pointer, keyboard, form, validation, and no-JavaScript behaviour.

@@ -1,0 +1,31 @@
+---
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+import NavigationMenuDemo from "../../../components/demos/NavigationMenu/NavigationMenuDemo.astro";
+import * as NavigationMenu from "@ormo/primitives/navigation-menu";
+---
+
+<BrowserFixtureLayout title="Navigation Menu"
+  ><div data-navigation-menu-demo><NavigationMenuDemo /></div><button
+    data-after-menu>After menu</button
+  ></BrowserFixtureLayout
+>
+
+<div
+  data-initial-navigation-menu
+  style="position: fixed; inset: -1000px auto auto -1000px;"
+>
+  <NavigationMenu.Root
+    aria-label="Initial navigation"
+    defaultValue="initial"
+    positioning="floating"
+  >
+    <NavigationMenu.List>
+      <NavigationMenu.Item value="initial">
+        <NavigationMenu.Trigger>Initial trigger</NavigationMenu.Trigger>
+        <NavigationMenu.Content sideOffset={6}>
+          <a href="/docs/">Initial link</a>
+        </NavigationMenu.Content>
+      </NavigationMenu.Item>
+    </NavigationMenu.List>
+  </NavigationMenu.Root>
+</div>

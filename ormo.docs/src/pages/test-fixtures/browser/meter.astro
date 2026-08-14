@@ -1,0 +1,56 @@
+---
+import { Meter } from "@ormo/primitives/meter";
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+---
+
+<BrowserFixtureLayout title="Meter">
+  <section data-static-demo>
+    <label for="storage-meter">Storage used</label>
+    <Meter
+      id="storage-meter"
+      value={72}
+      min={0}
+      max={100}
+      low={25}
+      high={80}
+      optimum={40}
+      aria-valuetext="72 gigabytes used"
+    >
+      72 of 100 gigabytes
+    </Meter>
+  </section>
+
+  <section data-dynamic-demo>
+    <h2 id="signal-label">Signal strength</h2>
+    <Meter
+      id="dynamic-meter"
+      value={2}
+      min={1}
+      max={5}
+      low={2}
+      high={4}
+      optimum={5}
+      aria-labelledby="signal-label"
+      aria-valuetext="Weak"
+    >
+      2 of 5
+    </Meter>
+    <button type="button" data-update-meter>Improve signal</button>
+  </section>
+</BrowserFixtureLayout>
+
+<script>
+  const meter = document.querySelector<HTMLMeterElement>("#dynamic-meter");
+  const button = document.querySelector<HTMLButtonElement>(
+    "[data-update-meter]",
+  );
+
+  button?.addEventListener("click", () => {
+    if (!meter) return;
+    meter.value = 4;
+    meter.low = 1;
+    meter.high = 3;
+    meter.optimum = 5;
+    meter.setAttribute("aria-valuetext", "Strong");
+  });
+</script>

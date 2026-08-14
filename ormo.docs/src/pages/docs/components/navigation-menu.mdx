@@ -1,0 +1,103 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Navigation Menu"
+description: "Site navigation with native links and optional dropdown disclosures"
+---
+
+import NavigationMenuDemo from "../../../components/demos/NavigationMenu/NavigationMenuDemo.astro";
+import demoCode from "../../../components/demos/NavigationMenu/NavigationMenuDemo.astro?raw";
+import demoCss from "../../../components/demos/NavigationMenu/index.css?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+<DemoBlock
+  files={[
+    { filename: "NavigationMenu.astro", code: demoCode },
+    { filename: "index.css", code: demoCss },
+  ]}
+>
+  <NavigationMenuDemo />
+</DemoBlock>
+
+## Anatomy
+
+Use `Link` for direct destinations. Combine `Trigger` and `Content` when one item exposes a group of navigation links.
+
+<CodeBlock lang="astro" code={`---
+import * as NavigationMenu from "@ormo/primitives/navigation-menu";
+---
+
+<NavigationMenu.Root aria-label="Main navigation" positioning="floating">
+  <NavigationMenu.List>
+    <NavigationMenu.Item value="products">
+      <NavigationMenu.Trigger>Products</NavigationMenu.Trigger>
+      <NavigationMenu.Content side="bottom" align="start" sideOffset={6}>
+        <a href="/analytics">Analytics</a>
+      </NavigationMenu.Content>
+    </NavigationMenu.Item>
+    <NavigationMenu.Item value="about">
+      <NavigationMenu.Link href="/about">About</NavigationMenu.Link>
+    </NavigationMenu.Item>
+  </NavigationMenu.List>
+</NavigationMenu.Root>
+
+<script>
+  import "@ormo/primitives/navigation-menu/floating";
+</script>`} />
+
+Dropdown content keeps ordinary document semantics. Do not add `menu` or `menuitem` roles. Tab follows normal document order, and modified clicks on links retain native browser behaviour.
+
+## API reference
+
+<PropsTable
+  id="navigation-menu-root-props"
+  caption="Navigation Menu Root properties"
+  rows={[
+    {
+      name: "defaultValue",
+      type: "string",
+      description: "Opens an item during server rendering.",
+    },
+    {
+      name: "value",
+      type: "string | null",
+      description: "Controls the open item.",
+    },
+    {
+      name: "orientation",
+      type: '"horizontal" | "vertical"',
+      defaultValue: '"horizontal"',
+      description: "Sets top-level arrow-key navigation.",
+    },
+    {
+      name: "positioning",
+      type: '"css-anchor" | "floating"',
+      defaultValue: '"css-anchor"',
+      description:
+        "Selects native CSS-anchor or optional Floating UI positioning.",
+    },
+    {
+      name: "openOnHover",
+      type: "boolean",
+      defaultValue: "true",
+      description: "Allows mouse and pen hover to open dropdowns.",
+    },
+    {
+      name: "openDelay",
+      type: "number",
+      defaultValue: "200",
+      description: "Sets the hover-open delay in milliseconds.",
+    },
+    {
+      name: "closeDelay",
+      type: "number",
+      defaultValue: "300",
+      description: "Sets the hover-close delay in milliseconds.",
+    },
+  ]}
+/>
+
+`Content` accepts `side`, `align`, and `sideOffset`. Import `@ormo/primitives/navigation-menu/floating` from a client script when Root uses `positioning="floating"`.
+
+All parts forward their relevant native attributes. `Item.value` is required for coordinated disclosure state.

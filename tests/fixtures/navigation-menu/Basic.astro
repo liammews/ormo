@@ -1,0 +1,23 @@
+---
+import * as NavigationMenu from "../../../src/components/navigation-menu/index";
+---
+
+<NavigationMenu.Root
+  aria-label="Main"
+  defaultValue="products"
+  positioning="floating"
+>
+  <NavigationMenu.List>
+    <NavigationMenu.Item value="home"
+      ><NavigationMenu.Link href="/">Home</NavigationMenu.Link
+      ></NavigationMenu.Item
+    >
+    <NavigationMenu.Item value="products">
+      <NavigationMenu.Trigger>Products</NavigationMenu.Trigger>
+      <NavigationMenu.Content side="top" align="end" sideOffset={8}
+        ><a href="/analytics">Analytics</a></NavigationMenu.Content
+      >
+      <NavigationMenu.Indicator>Open</NavigationMenu.Indicator>
+    </NavigationMenu.Item>
+  </NavigationMenu.List>
+</NavigationMenu.Root>

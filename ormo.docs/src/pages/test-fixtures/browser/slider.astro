@@ -1,0 +1,69 @@
+---
+import * as Slider from "@ormo/primitives/slider";
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+---
+
+<BrowserFixtureLayout title="Slider">
+  <section data-single-slider>
+    <label for="volume-thumb">Volume</label>
+    <Slider.Root defaultValue={[30]} min={0} max={100} step={10} name="volume">
+      <Slider.Track><Slider.Range /></Slider.Track>
+      <Slider.Thumb id="volume-thumb" />
+    </Slider.Root>
+  </section>
+
+  <form data-range-form>
+    <span id="price-label">Price range</span>
+    <Slider.Root
+      aria-labelledby="price-label"
+      defaultValue={[20, 80]}
+      min={0}
+      max={100}
+      step={5}
+      name="price"
+    >
+      <Slider.Track><Slider.Range /></Slider.Track>
+      <Slider.Thumb aria-label="Minimum price" />
+      <Slider.Thumb aria-label="Maximum price" />
+    </Slider.Root>
+    <button type="reset">Reset price</button>
+  </form>
+
+  <section data-controlled-slider>
+    <Slider.Root value={[40]} min={0} max={100} step={10}>
+      <Slider.Track><Slider.Range /></Slider.Track>
+      <Slider.Thumb aria-label="Controlled value" />
+    </Slider.Root>
+  </section>
+
+  <section dir="rtl" data-rtl-slider>
+    <Slider.Root defaultValue={[30]} min={0} max={100} step={10}>
+      <Slider.Track><Slider.Range /></Slider.Track>
+      <Slider.Thumb aria-label="RTL value" />
+    </Slider.Root>
+  </section>
+
+  <section data-vertical-slider>
+    <Slider.Root
+      defaultValue={[30]}
+      min={0}
+      max={100}
+      step={10}
+      orientation="vertical"
+    >
+      <Slider.Track><Slider.Range /></Slider.Track>
+      <Slider.Thumb aria-label="Vertical value" />
+    </Slider.Root>
+  </section>
+</BrowserFixtureLayout>
+
+<script>
+  const controlled = document.querySelector<HTMLElement>(
+    "[data-controlled-slider] [data-ormo-slider-root]",
+  );
+  controlled?.addEventListener("ormo:value-change", (event) => {
+    if (event instanceof CustomEvent) {
+      controlled.dataset.requestedValue = JSON.stringify(event.detail.value);
+    }
+  });
+</script>

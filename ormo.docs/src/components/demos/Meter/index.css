@@ -1,4 +1,4 @@
-.progress-demo {
+.meter-demo {
   display: grid;
   width: min(100%, 28rem);
   gap: var(--space-50);
@@ -6,13 +6,13 @@
   font-size: var(--font-size-2);
 }
 
-.progress-heading {
+.meter-heading {
   display: flex;
   justify-content: space-between;
   gap: var(--space-100);
 }
 
-.progress {
+.meter {
   appearance: none;
   width: 100%;
   height: 0.75rem;
@@ -23,16 +23,20 @@
   accent-color: var(--surface-brand);
 }
 
-.progress::-webkit-progress-bar {
+.meter::-webkit-meter-bar {
+  border: 0;
+  border-radius: var(--radius-full);
   background: var(--surface-elevated);
 }
 
-.progress::-webkit-progress-value {
+.meter::-webkit-meter-optimum-value,
+.meter::-webkit-meter-suboptimum-value,
+.meter::-webkit-meter-even-less-good-value {
   border-radius: var(--radius-full);
   background: var(--surface-brand);
 }
 
-.progress::-moz-progress-bar {
+.meter::-moz-meter-bar {
   border-radius: var(--radius-full);
   background: var(--surface-brand);
 }

@@ -261,6 +261,43 @@
       ]
     },
     {
+      "id": "meter",
+      "label": "Meter",
+      "status": "production",
+      "runtimeModel": "static",
+      "parts": ["Meter"],
+      "runtime": [],
+      "ssrContext": null,
+      "behaviourCss": [],
+      "tests": ["tests/unit/meter.test.ts", "tests/unit/meter.astro.test.ts"]
+    },
+    {
+      "id": "navigation-menu",
+      "label": "Navigation Menu",
+      "status": "production",
+      "runtimeModel": "custom-element",
+      "parts": [
+        "Content",
+        "Indicator",
+        "Item",
+        "Link",
+        "List",
+        "Root",
+        "Trigger"
+      ],
+      "runtime": [
+        "src/runtime/navigation-menu.ts",
+        "src/runtime/navigation-menu-floating.ts"
+      ],
+      "ssrContext": "src/internal/navigation-menu-ssr-context.ts",
+      "behaviourCss": ["src/runtime/navigation-menu.css"],
+      "tests": [
+        "tests/unit/navigation-menu.test.ts",
+        "tests/unit/navigation-menu.astro.test.ts",
+        "tests/unit/navigation-menu-ssr-context.test.ts"
+      ]
+    },
+    {
       "id": "progress",
       "label": "Progress",
       "status": "production",
@@ -345,6 +382,21 @@
         "tests/unit/tabs.test.ts",
         "tests/unit/tabs-ssr-context.test.ts",
         "tests/unit/tabs.astro.test.ts"
+      ]
+    },
+    {
+      "id": "slider",
+      "label": "Slider",
+      "status": "production",
+      "runtimeModel": "custom-element",
+      "parts": ["Range", "Root", "Thumb", "Track"],
+      "runtime": ["src/runtime/slider.ts"],
+      "ssrContext": "src/internal/slider-ssr-context.ts",
+      "behaviourCss": [],
+      "tests": [
+        "tests/unit/slider.test.ts",
+        "tests/unit/slider.astro.test.ts",
+        "tests/unit/slider-ssr-context.test.ts"
       ]
     },
     {

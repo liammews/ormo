@@ -1,0 +1,33 @@
+---
+import { getNavigationMenuItemContext } from "../../internal/navigation-menu-ssr-context";
+import { styleToCssText } from "../../internal/style-to-css-text";
+import type { NavigationMenuContentProps } from "./types";
+type Props = NavigationMenuContentProps;
+const {
+  side = "bottom",
+  align = "start",
+  sideOffset = 0,
+  style,
+  ...attributes
+} = Astro.props;
+const open = getNavigationMenuItemContext()?.open ?? false;
+const authoredStyle = styleToCssText(style);
+const offsetStyle = `--ormo-navigation-menu-side-offset: ${sideOffset}px`;
+const mergedStyle = authoredStyle
+  ? `${authoredStyle}; ${offsetStyle}`
+  : offsetStyle;
+---
+
+<div
+  {...attributes}
+  data-ormo-navigation-menu-content
+  data-state={open ? "open" : "closed"}
+  data-side={side}
+  data-align={align}
+  data-open={open ? "" : undefined}
+  hidden={!open}
+  inert={!open ? true : undefined}
+  style={mergedStyle}
+>
+  <slot />
+</div>

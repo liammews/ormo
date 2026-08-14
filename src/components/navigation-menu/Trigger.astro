@@ -1,0 +1,17 @@
+---
+import { getNavigationMenuItemContext } from "../../internal/navigation-menu-ssr-context";
+import type { NavigationMenuTriggerProps } from "./types";
+type Props = NavigationMenuTriggerProps;
+const { type = "button", ...attributes } = Astro.props;
+const item = getNavigationMenuItemContext();
+const open = item?.open ?? false;
+---
+
+<button
+  {...attributes}
+  type={type}
+  data-ormo-navigation-menu-trigger
+  data-state={open ? "open" : "closed"}
+  data-open={open ? "" : undefined}
+  aria-expanded={open ? "true" : "false"}><slot /></button
+>

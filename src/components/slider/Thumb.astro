@@ -1,0 +1,28 @@
+---
+import { getSliderSsrContext } from "../../internal/slider-ssr-context";
+import type { SliderThumbProps } from "./types";
+
+type Props = SliderThumbProps;
+const context = getSliderSsrContext();
+const { disabled = false, name, form, ...attributes } = Astro.props;
+const index = context?.thumbIndex ?? 0;
+if (context) context.thumbIndex += 1;
+const value = context?.values[index] ?? context?.min ?? 0;
+const isDisabled = disabled || (context?.disabled ?? false);
+---
+
+<input
+  {...attributes}
+  type="range"
+  value={value}
+  min={context?.min ?? 0}
+  max={context?.max ?? 100}
+  step={context?.step ?? 1}
+  name={name ?? context?.name}
+  form={form ?? context?.form}
+  disabled={isDisabled}
+  aria-orientation={context?.orientation ?? "horizontal"}
+  data-ormo-slider-thumb
+  data-thumb-index={index}
+  data-thumb-disabled={disabled ? "" : undefined}
+/>
