@@ -86,6 +86,10 @@
       "types": "./src/components/navigation-menu/floating.ts",
       "import": "./src/components/navigation-menu/floating.ts"
     },
+    "./number-field": {
+      "types": "./src/components/number-field/index.ts",
+      "import": "./src/components/number-field/index.ts"
+    },
     "./progress": {
       "types": "./src/components/progress/index.ts",
       "import": "./src/components/progress/index.ts"

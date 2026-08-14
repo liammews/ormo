@@ -1,0 +1,25 @@
+---
+import NumberFieldDemo from "../../../components/demos/NumberField/NumberFieldDemo.astro";
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+---
+
+<BrowserFixtureLayout title="Number Field">
+  <form id="number-field-form">
+    <NumberFieldDemo />
+    <button type="reset">Reset</button>
+    <button type="submit">Submit</button>
+    <output id="number-field-output"></output>
+  </form>
+</BrowserFixtureLayout>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>("#number-field-form");
+  const output = document.querySelector<HTMLOutputElement>(
+    "#number-field-output",
+  );
+  form?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (output)
+      output.value = new FormData(form).get("tickets")?.toString() ?? "";
+  });
+</script>

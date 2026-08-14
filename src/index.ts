@@ -60,6 +60,7 @@ export type { InputProps, InputType } from "./components/input/types";
 export { Meter } from "./components/meter/index";
 export type { MeterProps } from "./components/meter/types";
 export * as NavigationMenu from "./components/navigation-menu/index";
+export * as NumberField from "./components/number-field/index";
 export { Progress } from "./components/progress/index";
 export type { ProgressProps } from "./components/progress/types";
 export { Separator } from "./components/separator/index";

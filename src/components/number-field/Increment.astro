@@ -1,0 +1,10 @@
+---
+import type { NumberFieldIncrementProps } from "./types";
+
+type Props = NumberFieldIncrementProps;
+const attributes: Props = Astro.props;
+---
+
+<button {...attributes} type="button" data-ormo-number-field-increment
+  ><slot /></button
+>

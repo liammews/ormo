@@ -1,0 +1,23 @@
+---
+import * as NumberField from "../../../src/components/number-field";
+---
+
+<NumberField.Root
+  id="quantity"
+  defaultValue={2}
+  min={0}
+  max={10}
+  step={0.5}
+  name="quantity"
+  required
+>
+  <NumberField.Group>
+    <NumberField.Decrement aria-label="Decrease quantity"
+      >−</NumberField.Decrement
+    >
+    <NumberField.Input aria-label="Quantity" />
+    <NumberField.Increment aria-label="Increase quantity"
+      >+</NumberField.Increment
+    >
+  </NumberField.Group>
+</NumberField.Root>

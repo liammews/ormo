@@ -1,0 +1,172 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: Number Field
+description: A native numeric input with accessible increment and decrement controls.
+---
+
+import NumberFieldDemo from "../../../components/demos/NumberField/NumberFieldDemo.astro";
+import numberFieldDemoCode from "../../../components/demos/NumberField/NumberFieldDemo.astro?raw";
+import numberFieldDemoCss from "../../../components/demos/NumberField/index.css?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+<DemoBlock
+  files={[
+    { filename: "NumberField.astro", code: numberFieldDemoCode },
+    { filename: "index.css", code: numberFieldDemoCss },
+  ]}
+>
+  <NumberFieldDemo />
+</DemoBlock>
+
+## Anatomy
+
+Number Field keeps a native `<input type="number">` as its form control. The other parts add coordinated step controls without replacing native validation or submission.
+
+<CodeBlock lang="astro" code={`---
+import * as NumberField from "@ormo/primitives/number-field";
+---
+
+<NumberField.Root defaultValue={1} min={0} max={10} name="quantity">
+  <NumberField.Group>
+    <NumberField.Decrement aria-label="Decrease quantity">−</NumberField.Decrement>
+    <NumberField.Input aria-label="Quantity" />
+    <NumberField.Increment aria-label="Increase quantity">+</NumberField.Increment>
+  </NumberField.Group>
+</NumberField.Root>`} />
+
+## API reference
+
+### Root
+
+<PropsTable
+  id="number-field-root-props"
+  caption="Number Field Root properties"
+  rows={[
+    {
+      name: "defaultValue",
+      type: "number | null",
+      defaultValue: "null",
+      description: "Sets the initial uncontrolled value.",
+    },
+    {
+      name: "value",
+      type: "number | null",
+      description:
+        "Sets controlled state. User changes become cancellable requests.",
+    },
+    {
+      name: "min",
+      type: "number",
+      description: "Sets native range validation and the lower step boundary.",
+    },
+    {
+      name: "max",
+      type: "number",
+      description: "Sets native range validation and the upper step boundary.",
+    },
+    {
+      name: "step",
+      type: 'number | "any"',
+      defaultValue: "1",
+      description:
+        "Sets native step validation and the normal interaction step.",
+    },
+    {
+      name: "smallStep",
+      type: "number",
+      defaultValue: "0.1",
+      description: "Sets the Alt-modified step.",
+    },
+    {
+      name: "largeStep",
+      type: "number",
+      defaultValue: "10",
+      description: "Sets the Shift-modified step.",
+    },
+    {
+      name: "name",
+      type: "string",
+      description: "Sets the native input form-data name.",
+    },
+    {
+      name: "form",
+      type: "string",
+      description: "Associates the input with a form by ID.",
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Disables the input and both step controls.",
+    },
+    {
+      name: "readOnly",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Keeps the input focusable while preventing value changes.",
+    },
+    {
+      name: "required",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Enables native required validation.",
+    },
+    {
+      name: "allowWheelStep",
+      type: "boolean",
+      defaultValue: "false",
+      description: "Allows wheel stepping only while the input is focused.",
+    },
+  ]}
+/>
+
+### Input
+
+Input forwards native number-input attributes except state owned by Root. `name`, `form`, `disabled`, `readOnly`, and `required` can strengthen the corresponding Root values for one input.
+
+### Increment and Decrement
+
+Both parts render `type="button"` and forward native button attributes. They become disabled when Root is disabled or read-only, or when the value reaches the applicable boundary.
+
+### Group
+
+Group renders a `<div role="group">` and forwards native div attributes. It provides a styling container only; the input still needs its own accessible name.
+
+## Browser API
+
+`<ormo-number-field>` exposes `value`, `disabled`, `readOnly`, `min`, `max`, and `step`, plus `increment(multiplier?)` and `decrement(multiplier?)` methods.
+
+The cancellable `ormo:number-field-value-change` event contains `value`, `previousValue`, and a reason of `input`, `keyboard`, `increment`, `decrement`, `wheel`, `programmatic`, or `reset`.
+
+<CodeBlock lang="js" code={`const field = document.querySelector("ormo-number-field");
+
+field.addEventListener("ormo:number-field-value-change", (event) => {
+console.log(event.detail.value, event.detail.reason);
+});`} />
+
+## Keyboard and pointer behaviour
+
+- Native <kbd>ArrowUp</kbd> and <kbd>ArrowDown</kbd> step the value.
+- <kbd>Home</kbd> and <kbd>End</kbd> move to `min` and `max` when supplied.
+- <kbd>Alt</kbd> uses `smallStep`; <kbd>Shift</kbd> uses `largeStep`.
+- Increment and Decrement clamp step interactions to the supplied range.
+- Direct text input stays out of range so native constraint validation can report the problem.
+- Wheel stepping is opt-in to prevent accidental page-scroll changes.
+
+## Accessibility and forms
+
+Give Input an accessible name with a native label, `Field.Label`, or `aria-label`. The native input participates in form data, required and range validation, reset, mobile numeric keyboards, and no-JavaScript operation.
+
+## Styling
+
+Number Field ships no visual styles. Public hooks include `data-state="empty|filled"`, `data-disabled`, `data-readonly`, `data-required`, and the part attributes beginning with `data-ormo-number-field-`.
+
+## Scope
+
+This native-first passage intentionally does not include locale-formatted text or pointer scrubbing. Those features require a text parser and hidden form input, which would materially change the no-JavaScript and native validation contract.
+
+## Status
+
+Number Field has production manifest status. The package remains unreleased at version `0.0.0` while this passage of work continues.

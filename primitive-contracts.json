@@ -481,6 +481,21 @@
       ]
     },
     {
+      "id": "number-field",
+      "label": "Number Field",
+      "status": "production",
+      "runtimeModel": "custom-element",
+      "parts": ["Decrement", "Group", "Increment", "Input", "Root"],
+      "runtime": ["src/runtime/number-field.ts"],
+      "ssrContext": "src/internal/number-field-ssr-context.ts",
+      "behaviourCss": [],
+      "tests": [
+        "tests/unit/number-field.test.ts",
+        "tests/unit/number-field-ssr-context.test.ts",
+        "tests/unit/number-field.astro.test.ts"
+      ]
+    },
+    {
       "id": "dropdown-menu",
       "label": "Dropdown Menu",
       "status": "production",

@@ -1,0 +1,10 @@
+---
+import type { NumberFieldDecrementProps } from "./types";
+
+type Props = NumberFieldDecrementProps;
+const attributes: Props = Astro.props;
+---
+
+<button {...attributes} type="button" data-ormo-number-field-decrement
+  ><slot /></button
+>

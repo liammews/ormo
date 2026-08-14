@@ -1,0 +1,33 @@
+---
+import { getNumberFieldSsrContext } from "../../internal/number-field-ssr-context";
+import Input from "../input/Input.astro";
+import type { NumberFieldInputProps } from "./types";
+
+type Props = NumberFieldInputProps;
+const {
+  name,
+  form,
+  disabled = false,
+  readOnly = false,
+  required = false,
+  ...attributes
+}: Props = Astro.props;
+const context = getNumberFieldSsrContext();
+---
+
+<Input
+  {...attributes}
+  type="number"
+  value={context?.value ?? ""}
+  min={context?.min}
+  max={context?.max}
+  step={context?.step ?? 1}
+  name={name ?? context?.name}
+  form={form ?? context?.form}
+  disabled={disabled || context?.disabled}
+  readonly={readOnly || context?.readOnly}
+  required={required || context?.required}
+  data-input-disabled={disabled ? "" : undefined}
+  data-input-readonly={readOnly ? "" : undefined}
+  data-ormo-number-field-input
+/>

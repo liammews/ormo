@@ -1,0 +1,8 @@
+---
+import type { NumberFieldGroupProps } from "./types";
+
+type Props = NumberFieldGroupProps;
+const attributes: Props = Astro.props;
+---
+
+<div {...attributes} role="group" data-ormo-number-field-group><slot /></div>

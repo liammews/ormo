@@ -1,0 +1,38 @@
+---
+import * as NumberField from "@ormo/primitives/number-field";
+import { Minus, Plus } from "@lucide/astro";
+import "./index.css";
+---
+
+<div class="number-field-demo">
+  <label class="number-field-label" for="ticket-quantity">Tickets</label>
+  <NumberField.Root
+    class="number-field"
+    id="ticket-number-field"
+    defaultValue={2}
+    min={0}
+    max={10}
+    name="tickets"
+  >
+    <NumberField.Group class="number-field-group">
+      <NumberField.Decrement
+        class="number-field-step"
+        aria-label="Decrease tickets"
+      >
+        <Minus size={14} aria-hidden="true" />
+      </NumberField.Decrement>
+      <NumberField.Input
+        class="number-field-input"
+        id="ticket-quantity"
+        inputmode="numeric"
+      />
+      <NumberField.Increment
+        class="number-field-step"
+        aria-label="Increase tickets"
+      >
+        <Plus size={14} aria-hidden="true" />
+      </NumberField.Increment>
+    </NumberField.Group>
+  </NumberField.Root>
+  <p class="number-field-hint">Choose between 0 and 10 tickets.</p>
+</div>

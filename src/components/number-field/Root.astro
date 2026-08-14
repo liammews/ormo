@@ -1,0 +1,60 @@
+---
+import { renderWithNumberFieldContext } from "../../internal/number-field-ssr-context";
+import type { NumberFieldRootProps } from "./types";
+
+type Props = NumberFieldRootProps;
+const {
+  value,
+  defaultValue = null,
+  min,
+  max,
+  step = 1,
+  smallStep = 0.1,
+  largeStep = 10,
+  name,
+  form,
+  disabled = false,
+  readOnly = false,
+  required = false,
+  allowWheelStep = false,
+  ...attributes
+}: Props = Astro.props;
+const initialValue = value === undefined ? defaultValue : value;
+const content = await renderWithNumberFieldContext(
+  {
+    value: initialValue,
+    min,
+    max,
+    step,
+    name,
+    form,
+    disabled,
+    readOnly,
+    required,
+  },
+  () => Astro.slots.render("default"),
+);
+---
+
+<ormo-number-field
+  {...attributes}
+  data-ormo-number-field-root
+  data-controlled={value === undefined ? undefined : ""}
+  data-value={initialValue ?? ""}
+  data-default-value={initialValue ?? ""}
+  data-min={min}
+  data-max={max}
+  data-step={step}
+  data-small-step={smallStep}
+  data-large-step={largeStep}
+  data-disabled={disabled ? "" : undefined}
+  data-readonly={readOnly ? "" : undefined}
+  data-required={required ? "" : undefined}
+  data-allow-wheel-step={allowWheelStep ? "" : undefined}
+  data-state={initialValue === null ? "empty" : "filled"}
+  set:html={content}
+/>
+
+<script>
+  import "../../runtime/number-field";
+</script>

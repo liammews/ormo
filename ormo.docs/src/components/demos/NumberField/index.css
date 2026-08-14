@@ -1,0 +1,79 @@
+.number-field-demo {
+  display: grid;
+  width: 100%;
+  max-width: 20rem;
+  gap: var(--space-50);
+}
+
+.number-field-label {
+  font-size: var(--font-size-2);
+  font-weight: var(--font-weight-medium);
+}
+
+.number-field-group {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) 2rem;
+  min-height: 2rem;
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-2);
+  background: var(--surface-base);
+  overflow: clip;
+}
+
+.number-field-group:has(:focus-visible) {
+  position: relative;
+  z-index: 1;
+  outline: var(--focus-width) solid var(--focus-subtle);
+  outline-offset: var(--focus-offset);
+}
+
+.number-field-input,
+.number-field-step {
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--content-default);
+  font: inherit;
+  font-size: var(--font-size-2);
+}
+
+.number-field-input {
+  width: 100%;
+  appearance: textfield;
+  padding-inline: var(--space-75);
+  text-align: center;
+}
+
+.number-field-input::-webkit-inner-spin-button,
+.number-field-input::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.number-field-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-inline-end: 1px solid var(--border-control);
+}
+
+.number-field-step:last-child {
+  border-inline-start: 1px solid var(--border-control);
+  border-inline-end: 0;
+}
+
+.number-field-step:focus-visible,
+.number-field-input:focus-visible {
+  outline: none;
+}
+
+.number-field-step:disabled {
+  color: var(--content-disabled);
+  cursor: not-allowed;
+}
+
+.number-field-hint {
+  margin: 0;
+  color: var(--content-subtle);
+  font-size: var(--font-size-1);
+}
