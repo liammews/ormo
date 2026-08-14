@@ -1,0 +1,55 @@
+---
+import { Progress } from "@ormo/primitives/progress";
+import BrowserFixtureLayout from "../../../layouts/BrowserFixtureLayout.astro";
+---
+
+<BrowserFixtureLayout title="Progress">
+  <section data-determinate-demo>
+    <label for="upload-progress">File upload</label>
+    <Progress
+      id="upload-progress"
+      value={2}
+      max={5}
+      aria-valuetext="2 of 5 files"
+    >
+      2 of 5 files
+    </Progress>
+  </section>
+
+  <section data-indeterminate-demo>
+    <h2 id="preparation-label">Preparing download</h2>
+    <Progress aria-labelledby="preparation-label">
+      Preparing download
+    </Progress>
+  </section>
+
+  <section data-dynamic-demo>
+    <label for="dynamic-progress">Data import</label>
+    <Progress id="dynamic-progress">Waiting for progress</Progress>
+    <button type="button" data-set-progress>Set progress</button>
+    <button type="button" data-clear-progress>Clear progress</button>
+  </section>
+</BrowserFixtureLayout>
+
+<script>
+  const progress =
+    document.querySelector<HTMLProgressElement>("#dynamic-progress");
+  const setButton = document.querySelector<HTMLButtonElement>(
+    "[data-set-progress]",
+  );
+  const clearButton = document.querySelector<HTMLButtonElement>(
+    "[data-clear-progress]",
+  );
+
+  setButton?.addEventListener("click", () => {
+    if (!progress) return;
+    progress.max = 10;
+    progress.value = 4;
+    progress.setAttribute("aria-valuetext", "4 of 10 records");
+  });
+
+  clearButton?.addEventListener("click", () => {
+    progress?.removeAttribute("value");
+    progress?.removeAttribute("aria-valuetext");
+  });
+</script>

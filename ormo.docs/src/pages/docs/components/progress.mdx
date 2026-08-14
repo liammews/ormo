@@ -1,0 +1,139 @@
+---
+layout: ../../../layouts/MdxDocLayout.astro
+title: "Progress"
+description: "Shows task completion with a native progress element."
+---
+
+import ProgressDemo from "../../../components/demos/Progress/ProgressDemo.astro";
+import progressDemoCode from "../../../components/demos/Progress/ProgressDemo.astro?raw";
+import progressDemoCss from "../../../components/demos/Progress/index.css?raw";
+import CodeBlock from "../../../components/docs/CodeBlock/CodeBlock.astro";
+import DemoBlock from "../../../components/docs/DemoBlock/DemoBlock.astro";
+import PropsTable from "../../../components/docs/PropsTable/PropsTable.astro";
+
+<DemoBlock
+  files={[
+    { filename: "Progress.astro", code: progressDemoCode },
+    { filename: "index.css", code: progressDemoCss },
+  ]}
+>
+  <ProgressDemo />
+</DemoBlock>
+
+## Anatomy
+
+Import `Progress`. Give it an accessible name. Add `value` and `max` when the task has measurable completion.
+
+<CodeBlock
+  lang="astro"
+  code={`---
+import { Progress } from "@ormo/primitives/progress";
+---
+
+<label for="upload-progress">File upload</label>
+<Progress id="upload-progress" value={3} max={8}>
+  3 of 8 files
+</Progress>`}
+/>
+
+Omit `value` when completion is not known. This gives the native progress element its indeterminate state:
+
+<CodeBlock
+  lang="astro"
+  code={`<Progress aria-label="Preparing download">
+  Preparing download
+</Progress>`}
+/>
+
+Use a meter only for a bounded scalar measurement, such as storage use or a score. Progress represents completion of a task. Ormo does not yet include Meter.
+
+## API reference
+
+`Progress` forwards the relevant native HTML attributes.
+
+### Progress
+
+`Progress` renders a native `<progress>` element. It keeps native server-rendered and zero-JavaScript semantics.
+
+<PropsTable
+  id="progress-props"
+  caption="Progress properties"
+  rows={[
+    {
+      name: "value",
+      type: "number | string",
+      description:
+        "Sets completed work. Omit this property for indeterminate progress. The browser limits the effective value to the native range.",
+    },
+    {
+      name: "max",
+      type: "number | string",
+      defaultValue: "1",
+      description:
+        "Sets the total work for determinate progress. Use a number greater than zero.",
+    },
+    {
+      name: "aria-label",
+      type: "string",
+      description:
+        "Provides an accessible name when no visible label can name the progress element.",
+    },
+    {
+      name: "aria-labelledby",
+      type: "string",
+      description:
+        "References visible text that provides the accessible name. A native label with matching for and id values can also provide the name.",
+    },
+    {
+      name: "aria-valuetext",
+      type: "string",
+      description:
+        "Provides a human-readable value, such as ‘3 of 8 files’. Use it only when the numeric value is not sufficient.",
+    },
+    {
+      name: "class",
+      type: "string",
+      description: "Adds class names to the rendered progress element.",
+    },
+    {
+      name: "style",
+      type: "string | CSSProperties",
+      description: "Adds inline styles to the rendered progress element.",
+    },
+  ]}
+/>
+
+## JavaScript API
+
+Progress does not define a custom element or browser controller. `Progress` remains an `HTMLProgressElement`. Set `value` and `max` through the native DOM properties. Remove the `value` attribute to return to indeterminate state. Update `aria-valuetext` when its text no longer describes the current value.
+
+<CodeBlock
+  lang="js"
+  code={`const progress = document.querySelector("progress");
+
+progress.max = 10;
+progress.value = 4;
+progress.setAttribute("aria-valuetext", "4 of 10 records");
+
+// Completion becomes unknown.
+progress.removeAttribute("value");
+progress.removeAttribute("aria-valuetext");`}
+/>
+
+## Accessibility
+
+The native element supplies the `progressbar` role, range semantics, and determinate or indeterminate state. Give every progress element an accessible name. Prefer a visible `<label>` or `aria-labelledby`. Use `aria-label` only when a visible label is not practical.
+
+Fallback text between the tags does not reliably provide the accessible name. It is for browsers that cannot render the element. Do not add `role="progressbar"`, `aria-valuenow`, `aria-valuemin`, or `aria-valuemax`; the browser derives these semantics from native `value` and `max`.
+
+Progress is not interactive. It has no focus or keyboard behaviour. Do not add directional or RTL navigation.
+
+## Styling
+
+The component ships no layout or brand styles. Add `class` or `style` to `Progress`. Use the native `:indeterminate` pseudo-class to select indeterminate state. Browser-specific progress track and value pseudo-elements can differ, so test custom styles in each supported browser.
+
+`data-ormo-progress` identifies the component for diagnostics and tests. It is not a state hook.
+
+## Runtime
+
+Progress has no client runtime and adds zero JavaScript. The server output is the native element. Dynamic changes use the standard `HTMLProgressElement` API.

@@ -1,0 +1,11 @@
+---
+import type { ProgressProps } from "./types";
+
+type Props = ProgressProps;
+
+const { "data-ormo-progress": ormoProgressAttribute, ...attributes }: Props =
+  Astro.props;
+void ormoProgressAttribute;
+---
+
+<progress {...attributes} data-ormo-progress><slot /></progress>

@@ -1,0 +1,19 @@
+.progress-demo {
+  display: grid;
+  width: min(100%, 28rem);
+  gap: var(--space-50);
+  color: var(--content-default);
+  font-size: var(--font-size-2);
+}
+
+.progress-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-100);
+}
+
+.progress {
+  width: 100%;
+  height: 0.75rem;
+  accent-color: var(--content-accent);
+}

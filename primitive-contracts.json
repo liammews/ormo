@@ -261,6 +261,20 @@
       ]
     },
     {
+      "id": "progress",
+      "label": "Progress",
+      "status": "production",
+      "runtimeModel": "static",
+      "parts": ["Progress"],
+      "runtime": [],
+      "ssrContext": null,
+      "behaviourCss": [],
+      "tests": [
+        "tests/unit/progress.test.ts",
+        "tests/unit/progress.astro.test.ts"
+      ]
+    },
+    {
       "id": "popover",
       "label": "Popover",
       "status": "production",

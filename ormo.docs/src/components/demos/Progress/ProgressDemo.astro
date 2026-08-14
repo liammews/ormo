@@ -1,0 +1,20 @@
+---
+import { Progress } from "@ormo/primitives/progress";
+import "./index.css";
+---
+
+<div class="progress-demo">
+  <div class="progress-heading">
+    <label for="course-progress">Course progress</label>
+    <span aria-hidden="true">3 of 5 lessons</span>
+  </div>
+  <Progress
+    class="progress"
+    id="course-progress"
+    value={3}
+    max={5}
+    aria-valuetext="3 of 5 lessons"
+  >
+    3 of 5 lessons
+  </Progress>
+</div>
