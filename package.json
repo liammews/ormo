@@ -1,6 +1,6 @@
 {
   "name": "@ormo/primitives",
-  "version": "0.0.0",
+  "version": "0.1.0-beta.0",
   "description": "Accessible, unstyled UI primitives for Astro.",
   "license": "MIT",
   "type": "module",
@@ -237,7 +237,7 @@
   "engines": {
     "node": ">=22.12.0"
   },
-  "packageManager": "pnpm@11.12.0",
+  "packageManager": "pnpm@11.28.3",
   "publishConfig": {
     "access": "public"
   },

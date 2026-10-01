@@ -1,0 +1,43 @@
+# ormo.docs
+
+## 0.0.1-beta.0
+
+### Patch Changes
+
+- Updated dependencies [e0e80fd]
+- Updated dependencies [00f813c]
+- Updated dependencies [00f813c]
+- Updated dependencies [b0dd226]
+- Updated dependencies [22051b1]
+- Updated dependencies [22051b1]
+- Updated dependencies [89cd009]
+- Updated dependencies [7429fee]
+- Updated dependencies [b0dd226]
+- Updated dependencies [72c2470]
+- Updated dependencies [613c807]
+- Updated dependencies [a58ec56]
+- Updated dependencies [22051b1]
+- Updated dependencies [aadc34d]
+- Updated dependencies [d19ba93]
+- Updated dependencies [415e963]
+- Updated dependencies [04a10d0]
+- Updated dependencies [872e840]
+- Updated dependencies [b2945dd]
+- Updated dependencies [872e840]
+- Updated dependencies [d283afe]
+- Updated dependencies [f96de31]
+- Updated dependencies [04c5a69]
+- Updated dependencies [872e840]
+- Updated dependencies [04c5a69]
+- Updated dependencies [44b0e56]
+- Updated dependencies [9c619de]
+- Updated dependencies [8d718fa]
+- Updated dependencies [b4443c1]
+- Updated dependencies [b29853b]
+- Updated dependencies [73a9b0c]
+- Updated dependencies [7281644]
+- Updated dependencies [04c5a69]
+- Updated dependencies [ed7c0f1]
+- Updated dependencies [4ba8da4]
+- Updated dependencies [913e8ed]
+  - @ormo/primitives@0.1.0-beta.0
