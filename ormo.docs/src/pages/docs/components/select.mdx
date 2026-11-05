@@ -314,6 +314,8 @@ Authors must provide an accessible name, meaningful item text and a visible focu
 
 Select ships only behaviour-critical enhancement and positioning CSS. Style every part with `class` and the public hooks below. Attributes prefixed with `data-ormo-select-*` identify internal parts and are not stable styling APIs.
 
+Content starts with the browser's default popover styles for border, padding, colour, background, overflow and margin. Any consumer rule overrides them, including rules in cascade layers such as Tailwind utilities, so `!important` is not necessary. The runtime CSS owns placement: `position`, `inset`, `position-anchor`, `position-area`, `position-try-fallbacks` and the margin on the side that faces the trigger. Use `side`, `align` and `sideOffset` to change placement.
+
 <PropsTable
   id="select-styling"
   caption="Select styling hooks"

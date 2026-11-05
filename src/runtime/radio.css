@@ -1,6 +1,7 @@
 /* Behaviour-critical: decorative indicators must not steal pointer input
-   from the native radio (GD-006 / GD-021). Wrapped in :where() so
-   consumer classes can override when they intentionally need hits. */
+   from the native radio (GD-006 / GD-021). This rule is unlayered, so it
+   also beats consumer rules in cascade layers. To receive hits
+   intentionally, override it with an unlayered rule or !important. */
 
 :where([data-ormo-radio-indicator]) {
   pointer-events: none;

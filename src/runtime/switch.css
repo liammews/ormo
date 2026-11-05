@@ -1,5 +1,7 @@
 /* Behaviour-critical: the decorative thumb must not steal input from the
-   native switch control. Consumer classes can override this intentionally. */
+   native switch control. These rules are unlayered, so they also beat
+   consumer rules in cascade layers. To override intentionally, use an
+   unlayered rule or !important. */
 
 :where([data-ormo-switch-thumb]) {
   pointer-events: none;

@@ -267,6 +267,8 @@ Pointer interest opens the preview after a delay. Focusing the link can also dis
 
 Preview Card ships no layout or brand styles. Style the parts through `class` or public state hooks such as `[data-state="open"]`, `[data-starting-style]`, and `[data-ending-style]`.
 
+Content starts with the browser's default popover styles for border, padding, colour, background, overflow and margin. Any consumer rule overrides them, including rules in cascade layers such as Tailwind utilities, so `!important` is not necessary. The runtime CSS owns placement: `position`, `inset`, `position-anchor`, `position-area`, `position-try-fallbacks` and the margin on the side that faces the trigger. Use `side`, `align` and `sideOffset` to change placement.
+
 Content stays hidden while its native popover is closed, even when a consumer class sets `display`. Apply layout either to an inner wrapper or with `:popover-open`:
 
 <CodeBlock

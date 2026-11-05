@@ -45,4 +45,39 @@ describe("behaviour CSS", () => {
       }
     }
   });
+
+  it("leaves popup presentation to consumer styles in any cascade layer", () => {
+    const presentational =
+      /(?:^|[;{\s])(?:background(?:-color)?|color|border(?:-[a-z-]+)?|padding(?:-[a-z-]+)?|overflow(?:-[xy])?|margin):/;
+
+    for (const primitive of [
+      "autocomplete",
+      "combobox",
+      "dropdown-menu",
+      "navigation-menu",
+      "popover",
+      "preview-card",
+      "select",
+      "tooltip",
+    ]) {
+      const css = readFileSync(resolve(`src/runtime/${primitive}.css`), "utf8")
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/@supports[^{]*\{/g, "");
+      const contentRules = [...css.matchAll(/([^{}]+)\{([^}]*)\}/g)]
+        .map(([, selector = "", body = ""]) => ({ selector, body }))
+        .filter(({ selector }) =>
+          selector.includes(`[data-ormo-${primitive}-content`),
+        );
+
+      expect(contentRules.length, primitive).toBeGreaterThan(0);
+      for (const { selector, body } of contentRules) {
+        // Floating UI coordinates need a zero margin. Other popup margins are
+        // sideOffset longhands, which are not matched here.
+        if (selector.includes("-positioning=")) continue;
+        expect(body, `${primitive}: ${selector.trim()}`).not.toMatch(
+          presentational,
+        );
+      }
+    }
+  });
 });

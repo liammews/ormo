@@ -1,4 +1,10 @@
-/* Behaviour-critical placement. Consumer classes retain presentation control. */
+/* Behaviour-critical placement only (GD-006 / GD-022).
+   These rules are unlayered. Unlayered rules beat every cascade-layered rule,
+   for example Tailwind utilities, whatever the specificity. Keep them to
+   placement: position, inset, position-anchor, position-area,
+   position-try-fallbacks and the sideOffset margin. :where() keeps
+   specificity at zero, so any unlayered consumer selector can still override.
+   Do not add presentational resets. Consumer styles own presentation. */
 
 :where([data-ormo-navigation-menu-content]) {
   inset: auto;
