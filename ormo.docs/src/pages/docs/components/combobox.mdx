@@ -236,6 +236,14 @@ public `data-state`, `data-open`, `data-placeholder`, `data-selected`,
 hooks. Content exposes `--ormo-combobox-trigger-width` and
 `--ormo-combobox-trigger-height`.
 
+Content starts with the browser's default popover styles for border, padding,
+colour, background, overflow and margin. Any consumer rule overrides them,
+including rules in cascade layers such as Tailwind utilities, so `!important` is
+not necessary. The runtime CSS owns placement: `position`, `inset`,
+`position-anchor`, `position-area`, `position-try-fallbacks` and the margin on
+the side that faces the trigger. Use `side`, `align` and `sideOffset` to change
+placement.
+
 ## Runtime
 
 The server-rendered native select is the form and validity source. During

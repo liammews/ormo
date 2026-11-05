@@ -265,6 +265,8 @@ Content uses a non-modal dialog pattern. `Popover.Title` and `Popover.Descriptio
 
 Style consumer classes and public `data-state`, `data-open`, `data-side`, `data-align`, `data-starting-style` and `data-ending-style` hooks. Content exposes `--ormo-popover-side-offset`, `--ormo-popover-trigger-width` and `--ormo-popover-trigger-height`. Internal `data-ormo-popover-*` attributes are runtime selectors.
 
+Content starts with the browser's default popover styles for border, padding, colour, background, overflow and margin. Any consumer rule overrides them, including rules in cascade layers such as Tailwind utilities, so `!important` is not necessary. The runtime CSS owns placement: `position`, `inset`, `position-anchor`, `position-area`, `position-try-fallbacks` and the margin on the side that faces the trigger. Use `side`, `align` and `sideOffset` to change placement.
+
 ## Runtime
 
 The server renders the trigger, labelled dialog content and requested placement. JavaScript coordinates native popover state, focus, dismissal, events and positioning; the optional floating entry registers Floating UI. Without JavaScript, the closed content remains in the DOM but cannot be opened.

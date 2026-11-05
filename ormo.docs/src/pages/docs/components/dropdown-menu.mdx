@@ -155,6 +155,8 @@ Submenus open with <kbd>ArrowRight</kbd> in LTR and <kbd>ArrowLeft</kbd> in RTL.
 
 The primitive ships only behaviour-critical CSS. Style parts with classes and public attributes such as `data-state`, `data-disabled`, `data-checked`, `data-side`, and `data-align`. Do not force closed popover content to display; the behaviour CSS keeps it hidden until open.
 
+Content starts with the browser's default popover styles for border, padding, colour, background, overflow and margin. Any consumer rule overrides them, including rules in cascade layers such as Tailwind utilities, so `!important` is not necessary. The runtime CSS owns placement: `position`, `inset`, `position-anchor`, `position-area`, `position-try-fallbacks` and the margin on the side that faces the trigger. Use `side`, `align` and `sideOffset` to change placement.
+
 ## Status
 
 Dropdown Menu has production manifest status. The package remains unreleased at version `0.0.0` while this passage of work continues.

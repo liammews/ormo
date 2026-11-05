@@ -423,11 +423,24 @@ behaviour or accessibility, such as:
 - hiding an enhanced native control while retaining form semantics;
 - preventing a decorative indicator from intercepting pointer input;
 - popover positioning mechanics;
-- resetting native top-layer defaults needed for placement.
+- overriding native top-layer defaults that break placement, such as
+  `[popover] { inset: 0 }`.
 
-Wrap presentation-neutral rules in `:where()` to keep specificity at zero.
-Document any deliberate `!important` exception directly above the rule.
-Consumer presentation belongs in demo or application CSS.
+Runtime CSS is unlayered. Unlayered rules beat every rule in a cascade layer,
+whatever the specificity, so they beat Tailwind v4 utilities and any other
+layered consumer CSS. `:where()` sets specificity to zero but does not change
+this. Therefore (GD-022):
+
+- Do not reset presentational properties (border, padding, colour,
+  background, overflow, margin) in runtime CSS. Browser defaults already lose
+  to every consumer style, layered or not.
+- Do not move resets into `@layer ormo`. Layer order comes from the first
+  declaration. Runtime CSS usually loads after application CSS, so `ormo` is
+  declared last and beats the application's layers.
+
+Wrap behaviour rules in `:where()` to keep specificity at zero. Document any
+deliberate `!important` exception directly above the rule. Consumer
+presentation belongs in demo or application CSS.
 
 ## Testing
 

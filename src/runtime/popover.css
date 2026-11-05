@@ -1,13 +1,14 @@
-/* Behaviour-critical placement (GD-006 / GD-013).
-   Wrapped in :where() so consumer classes always win for presentation. */
+/* Behaviour-critical placement only (GD-006 / GD-013 / GD-022).
+   These rules are unlayered. Unlayered rules beat every cascade-layered rule,
+   for example Tailwind utilities, whatever the specificity. Keep them to
+   placement: position, inset, position-anchor, position-area,
+   position-try-fallbacks and the sideOffset margin. :where() keeps
+   specificity at zero, so any unlayered consumer selector can still override.
+   Do not add presentational resets. The browser [popover] defaults for
+   border, padding, colour, background, overflow and margin lose to every
+   consumer style, layered or not. */
 
 :where([data-ormo-popover-content]) {
-  margin: 0;
-  border: none;
-  padding: 0;
-  overflow: auto;
-  color: inherit;
-  background: transparent;
   inset: auto;
   position: fixed;
   position-anchor: var(--ormo-popover-anchor);

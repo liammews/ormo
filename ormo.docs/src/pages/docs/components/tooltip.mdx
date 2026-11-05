@@ -246,6 +246,8 @@ Content uses `role="tooltip"` and is referenced from the trigger with `aria-desc
 
 Style consumer classes and public `data-state`, `data-open`, `data-side`, `data-align`, `data-starting-style` and `data-ending-style` hooks. Content exposes `--ormo-tooltip-side-offset`, `--ormo-tooltip-trigger-width` and `--ormo-tooltip-trigger-height`. Respect reduced motion for transitions.
 
+Content starts with the browser's default popover styles for border, padding, colour, background, overflow and margin. Any consumer rule overrides them, including rules in cascade layers such as Tailwind utilities, so `!important` is not necessary. The runtime CSS owns placement: `position`, `inset`, `position-anchor`, `position-area`, `position-try-fallbacks` and the margin on the side that faces the trigger. Use `side`, `align` and `sideOffset` to change placement.
+
 ## Runtime
 
 The server renders the trigger and hidden tooltip content. JavaScript coordinates pointer/focus interest, delays, description relationships, dismissal, events and positioning. The optional floating entry registers Floating UI. Without JavaScript, the tooltip remains unavailable and the trigger retains its native behaviour and accessible name.

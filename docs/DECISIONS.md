@@ -644,6 +644,49 @@ native caption and semantic boundary.
 - Field recognises CheckboxGroup and RadioGroup through one group ownership
   path and validates once per authoritative group value event.
 
+## GD-022: Runtime CSS is unlayered and behaviour-only
+
+- **Date:** 2026-11-05
+- **Status:** Accepted
+
+### Decision
+
+`src/runtime/*.css` stays unlayered and contains only behaviour-critical rules:
+positioning (`position`, `inset`, `position-anchor`, `position-area`,
+`position-try-fallbacks`), the margin used for `sideOffset`, Floating UI
+coordinates, closed-popup `display: none`, enhancement visibility and
+decorative `pointer-events: none`.
+
+Runtime CSS does not reset presentational properties. Popup content keeps the
+browser `[popover]` defaults for border, padding, colour, background, overflow
+and margin until the consumer styles it.
+
+### Rationale
+
+Unlayered rules beat every cascade-layered rule, whatever the specificity.
+`:where()` does not change this. Presentational resets in runtime CSS beat
+Tailwind v4 utilities, which are in `@layer utilities`, so consumers needed
+`!important` to style popup content.
+
+A `@layer ormo` wrapper does not fix this. Layer order comes from the first
+declaration, and runtime CSS usually loads after application CSS from
+component scripts. `ormo` is then the last layer and still beats the
+application's layers.
+
+Browser defaults are in the user-agent origin. Every author rule beats them,
+layered or not, in any load order. Browser tests confirm that the default
+`[popover] { margin: auto }` does not change CSS anchor placement or flip
+fallbacks in Chromium, Firefox and WebKit.
+
+### Consequences
+
+- Consumer classes in any cascade layer style popup content without
+  `!important`.
+- Unstyled popup content shows browser popover defaults, as Dialog shows
+  browser dialog defaults.
+- Consumers who need to change placement use `side`, `align` and `sideOffset`,
+  or an unlayered rule.
+
 ## Entry template
 
 ```md

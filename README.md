@@ -20,7 +20,7 @@ guidelines will be updated when the project is ready for wider collaboration.
 
 ## Development
 
-Ormo requires Node.js 22.12 or newer and pnpm 11.
+Ormo requires Node.js 22.13 or newer and pnpm 11.
 
 ```sh
 pnpm install

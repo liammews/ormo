@@ -352,6 +352,14 @@ and Content; `data-open` on Root and Content; `data-disabled` and
 Content receives `--ormo-autocomplete-trigger-width` and
 `--ormo-autocomplete-trigger-height` while open.
 
+Content starts with the browser's default popover styles for border, padding,
+colour, background, overflow and margin. Any consumer rule overrides them,
+including rules in cascade layers such as Tailwind utilities, so `!important` is
+not necessary. The runtime CSS owns placement: `position`, `inset`,
+`position-anchor`, `position-area`, `position-try-fallbacks` and the margin on
+the side that faces the trigger. Use `side`, `align` and `sideOffset` to change
+placement.
+
 ## Runtime
 
 Without JavaScript the native text input remains visible, valid, and
