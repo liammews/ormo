@@ -115,6 +115,109 @@ describe("Slider runtime", () => {
   });
 });
 
+describe("Slider RTL arrow keys", () => {
+  function rtl(root: OrmoSliderElement): OrmoSliderElement {
+    const wrapper = document.createElement("div");
+    wrapper.style.direction = "rtl";
+    document.body.append(wrapper);
+    wrapper.append(root);
+    return root;
+  }
+
+  function press(thumb: HTMLInputElement, key: string, init = {}): boolean {
+    return thumb.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key,
+        bubbles: true,
+        cancelable: true,
+        ...init,
+      }),
+    );
+  }
+
+  it("moves with the arrow and emits native input and change events", () => {
+    const root = rtl(slider({ values: [20] }));
+    const thumb = thumbs(root)[0]!;
+    const changes = vi.fn();
+    const valueChanges = vi.fn();
+    thumb.addEventListener("change", changes);
+    root.addEventListener("ormo:value-change", valueChanges);
+
+    expect(press(thumb, "ArrowRight")).toBe(false);
+    expect(root.value).toEqual([15]);
+    expect(press(thumb, "ArrowLeft")).toBe(false);
+    expect(press(thumb, "ArrowLeft")).toBe(false);
+    expect(root.value).toEqual([25]);
+    expect(changes).toHaveBeenCalledTimes(3);
+    expect(valueChanges.mock.calls[0]?.[0].detail).toEqual({
+      value: [15],
+      previousValue: [20],
+      thumbIndex: 0,
+      reason: "input",
+    });
+  });
+
+  it("clamps to bounds and neighbouring thumbs", () => {
+    const bounded = rtl(slider({ values: [0] }));
+    const listener = vi.fn();
+    bounded.addEventListener("ormo:value-change", listener);
+    expect(press(thumbs(bounded)[0]!, "ArrowRight")).toBe(false);
+    expect(bounded.value).toEqual([0]);
+    expect(listener).not.toHaveBeenCalled();
+
+    const range = rtl(slider({ values: [20, 25] }));
+    press(thumbs(range)[0]!, "ArrowLeft");
+    press(thumbs(range)[0]!, "ArrowLeft");
+    expect(range.value).toEqual([25, 25]);
+  });
+
+  it("keeps controlled and cancelled values", () => {
+    const controlled = rtl(slider({ values: [20], controlled: true }));
+    press(thumbs(controlled)[0]!, "ArrowLeft");
+    expect(controlled.value).toEqual([20]);
+    expect(thumbs(controlled)[0]!.valueAsNumber).toBe(20);
+
+    const cancelled = rtl(slider({ values: [20] }));
+    cancelled.addEventListener("ormo:value-change", (event) =>
+      event.preventDefault(),
+    );
+    press(thumbs(cancelled)[0]!, "ArrowLeft");
+    expect(cancelled.value).toEqual([20]);
+  });
+
+  it("leaves LTR, vertical, modified, prevented and other keys native", () => {
+    const ltr = slider({ values: [20] });
+    expect(press(thumbs(ltr)[0]!, "ArrowRight")).toBe(true);
+
+    const vertical = rtl(slider({ values: [20] }));
+    vertical.orientation = "vertical";
+    expect(press(thumbs(vertical)[0]!, "ArrowRight")).toBe(true);
+
+    const root = rtl(slider({ values: [20] }));
+    const thumb = thumbs(root)[0]!;
+    expect(press(thumb, "ArrowRight", { ctrlKey: true })).toBe(true);
+    expect(press(thumb, "ArrowUp")).toBe(true);
+    expect(press(thumb, "Home")).toBe(true);
+    thumb.addEventListener("keydown", (event) => event.preventDefault(), {
+      once: true,
+    });
+    press(thumb, "ArrowRight");
+    expect(root.value).toEqual([20]);
+  });
+
+  it("ignores disabled sliders and thumbs of nested sliders", () => {
+    const disabled = rtl(slider({ values: [20], disabled: true }));
+    expect(press(thumbs(disabled)[0]!, "ArrowLeft")).toBe(true);
+
+    const outer = rtl(slider({ values: [20] }));
+    const inner = slider({ values: [60] });
+    outer.append(inner);
+    press(thumbs(inner)[0]!, "ArrowLeft");
+    expect(inner.value).toEqual([65]);
+    expect(outer.value).toEqual([20]);
+  });
+});
+
 describe("Slider diagnostics", () => {
   it("warns about missing thumbs and accessible names", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
