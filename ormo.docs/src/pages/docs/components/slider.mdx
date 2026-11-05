@@ -153,9 +153,9 @@ slider.value = [25, 75];`}
 
 Each Thumb is a native range input with the browser's `slider` role, current value, bounds, step behaviour, pointer interaction, and keyboard handling. Name every Thumb separately so a range exposes concepts such as “Minimum price” and “Maximum price”.
 
-Arrow keys move by one step. Page Up and Page Down use the browser's larger increments. Home and End move to the effective bounds. Native horizontal key behaviour follows document direction, including RTL. Vertical sliders retain native Up and Down behaviour.
+Arrow keys move by one step. Page Up and Page Down use the browser's larger increments. Home and End move to the effective bounds. In a horizontal RTL slider, Left Arrow increases the value and Right Arrow decreases it, so the thumb moves with the arrow. Chromium and Firefox do this natively. WebKit does not, so the runtime handles these two keys for horizontal RTL Thumbs in every browser. Vertical sliders retain native Up and Down behaviour.
 
-The component does not add `role="slider"` or replace native keyboard handling. Without JavaScript, every Thumb remains operable and participates in forms.
+The component does not add `role="slider"`. It replaces native keyboard handling only for Left and Right Arrow in horizontal RTL sliders. Without JavaScript, every Thumb remains operable and participates in forms, but WebKit then uses its native RTL arrow direction.
 
 ## Styling
 
@@ -165,4 +165,4 @@ For one Thumb, the range runs from `min` to the value. For multiple Thumbs, it r
 
 ## Runtime
 
-Root uses a small custom element to coordinate multiple native inputs, controlled state, shared geometry, inherited disabled state, dynamic parts, reset state, and `ormo:value-change`. The native inputs retain pointer, keyboard, form, validation, and no-JavaScript behaviour.
+Root uses a small custom element to coordinate multiple native inputs, controlled state, shared geometry, inherited disabled state, dynamic parts, reset state, and `ormo:value-change`. The native inputs retain pointer, keyboard, form, validation, and no-JavaScript behaviour. The runtime only mirrors Left and Right Arrow for horizontal RTL Thumbs. It sets the value and dispatches the native `input` and `change` events, so cancellation, controlled state, and thumb ordering stay the same.

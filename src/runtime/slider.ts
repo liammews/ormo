@@ -80,6 +80,9 @@ export class OrmoSlider extends HTMLElement implements OrmoSliderElement {
     this.addEventListener("input", this.#onInput, {
       signal: this.#controller.signal,
     });
+    this.addEventListener("keydown", this.#onKeyDown, {
+      signal: this.#controller.signal,
+    });
     this.#observer?.disconnect();
     this.#observer = new MutationObserver(() => {
       if (this.#syncing) return;
@@ -241,6 +244,46 @@ export class OrmoSlider extends HTMLElement implements OrmoSliderElement {
     }
     this.dataset.value = JSON.stringify(nextValue);
     this.#prepare();
+  };
+
+  // Chromium and Firefox mirror Left and Right Arrow for an RTL range input.
+  // WebKit does not, so its thumb moves against the arrow. Handle only these
+  // two keys for horizontal RTL thumbs; every other key stays native.
+  #onKeyDown = (event: KeyboardEvent): void => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    if (
+      event.defaultPrevented ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey
+    )
+      return;
+    const thumb =
+      event.target instanceof HTMLInputElement &&
+      event.target.matches(thumbSelector)
+        ? event.target
+        : undefined;
+    if (!thumb || !owns(this, thumb) || thumb.disabled || this.disabled) return;
+    if (this.orientation !== "horizontal") return;
+    const style = getComputedStyle(thumb);
+    if (
+      style.direction !== "rtl" ||
+      /^(vertical|sideways)/.test(style.writingMode)
+    )
+      return;
+    event.preventDefault();
+    const min = Math.min(this.min, this.max);
+    const max = Math.max(this.min, this.max);
+    const step = this.step > 0 ? this.step : 1;
+    const current = thumb.valueAsNumber;
+    const next = Math.min(
+      max,
+      Math.max(min, current + (event.key === "ArrowLeft" ? step : -step)),
+    );
+    if (next === current) return;
+    thumb.value = String(next);
+    thumb.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+    thumb.dispatchEvent(new Event("change", { bubbles: true }));
   };
 
   #onReset = (): void => {

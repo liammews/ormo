@@ -72,11 +72,23 @@ test("reports a controlled request without changing the rendered value", async (
   await expect(thumb).toHaveValue("40");
 });
 
-test("retains native RTL and vertical arrow behaviour", async ({ page }) => {
+test("mirrors RTL arrow keys in every engine and keeps native vertical keys", async ({
+  page,
+}) => {
+  const rtlRoot = page.locator("[data-rtl-slider] [data-ormo-slider-root]");
   const rtl = page.getByRole("slider", { name: "RTL value" });
   await rtl.focus();
   await page.keyboard.press("ArrowRight");
   await expect(rtl).toHaveValue("20");
+  await expect(rtlRoot).toHaveAttribute("data-value", "[20]");
+  await page.keyboard.press("ArrowLeft");
+  await page.keyboard.press("ArrowLeft");
+  await expect(rtl).toHaveValue("40");
+  await expect(rtlRoot).toHaveAttribute("data-value", "[40]");
+  await page.keyboard.press("ArrowUp");
+  await expect(rtl).toHaveValue("50");
+  await page.keyboard.press("Home");
+  await expect(rtl).toHaveValue("0");
 
   const vertical = page.getByRole("slider", { name: "Vertical value" });
   await vertical.focus();
