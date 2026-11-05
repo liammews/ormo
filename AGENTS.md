@@ -39,7 +39,7 @@ Sacrifice grammar and completeness to be more concise.
 
 ## Toolchain and commands
 
-Use Node.js 22.12 or newer and pnpm 11. Run commands from the repository root
+Use Node.js 22.13 or newer and pnpm 11. Run commands from the repository root
 unless noted otherwise.
 
 ```sh
