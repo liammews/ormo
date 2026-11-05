@@ -1,0 +1,114 @@
+---
+import * as Autocomplete from "@ormo/primitives/autocomplete";
+import * as Combobox from "@ormo/primitives/combobox";
+import * as DropdownMenu from "@ormo/primitives/dropdown-menu";
+import * as Popover from "@ormo/primitives/popover";
+import * as PreviewCard from "@ormo/primitives/preview-card";
+import * as Select from "@ormo/primitives/select";
+import * as Tooltip from "@ormo/primitives/tooltip";
+
+// Shared runtime CSS must lose presentation to consumer styles in cascade
+// layers. This page loads no docs CSS: the browser test adds the layered
+// consumer stylesheet before or after the runtime CSS.
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Cascade layers browser fixture</title>
+  </head>
+  <body>
+    <main data-browser-fixture="cascade layers">
+      <section data-cascade-demo="tooltip">
+        <Tooltip.Root>
+          <Tooltip.Trigger>Bold</Tooltip.Trigger>
+          <Tooltip.Content
+            class="layered-surface"
+            side="bottom"
+            sideOffset={10}
+          >
+            Bold text
+          </Tooltip.Content>
+        </Tooltip.Root>
+      </section>
+
+      <section data-cascade-demo="popover">
+        <Popover.Root>
+          <Popover.Trigger>Filters</Popover.Trigger>
+          <Popover.Content
+            class="layered-surface"
+            side="bottom"
+            align="start"
+            sideOffset={10}
+          >
+            <Popover.Title>Filters</Popover.Title>
+          </Popover.Content>
+        </Popover.Root>
+      </section>
+
+      <section data-cascade-demo="select">
+        <label for="cascade-select-control">Country</label>
+        <Select.Root id="cascade-select" name="country" defaultValue="fr">
+          <Select.Trigger>
+            <Select.Value placeholder="Choose a country" />
+          </Select.Trigger>
+          <Select.Content class="layered-surface" sideOffset={10}>
+            <Select.Item value="fr">France</Select.Item>
+            <Select.Item value="gb">United Kingdom</Select.Item>
+          </Select.Content>
+        </Select.Root>
+      </section>
+
+      <section data-cascade-demo="dropdown-menu">
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            class="layered-surface"
+            aria-label="Actions"
+            sideOffset={10}
+          >
+            <DropdownMenu.Item>Rename</DropdownMenu.Item>
+            <DropdownMenu.Item>Delete</DropdownMenu.Item>
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
+      </section>
+
+      <section data-cascade-demo="preview-card">
+        <PreviewCard.Root>
+          <PreviewCard.Trigger href="https://astro.build">Astro</PreviewCard.Trigger>
+          <PreviewCard.Content
+            class="layered-surface"
+            side="bottom"
+            sideOffset={10}
+          >
+            The web framework for content-driven websites.
+          </PreviewCard.Content>
+        </PreviewCard.Root>
+      </section>
+
+      <section data-cascade-demo="combobox">
+        <label for="cascade-combobox-control">Fruit</label>
+        <Combobox.Root id="cascade-combobox" name="fruit">
+          <Combobox.Input />
+          <Combobox.Content class="layered-surface" sideOffset={10}>
+            <Combobox.Item value="apple">Apple</Combobox.Item>
+            <Combobox.Item value="pear">Pear</Combobox.Item>
+          </Combobox.Content>
+        </Combobox.Root>
+      </section>
+
+      <section data-cascade-demo="autocomplete">
+        <label for="cascade-autocomplete-input">City</label>
+        <Autocomplete.Root id="cascade-autocomplete" name="city" minLength={1}>
+          <Autocomplete.Input />
+          <Autocomplete.Content class="layered-surface" sideOffset={10}>
+            <Autocomplete.Item value="London">London</Autocomplete.Item>
+            <Autocomplete.Item value="Leeds">Leeds</Autocomplete.Item>
+          </Autocomplete.Content>
+        </Autocomplete.Root>
+      </section>
+    </main>
+  </body>
+</html>
